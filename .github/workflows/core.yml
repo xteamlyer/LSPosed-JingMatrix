@@ -127,11 +127,12 @@ jobs:
 
       - name: Bump up version
         run: |
-          echo "BUMP_VERSION=$(git describe --tags)" >> $GITHUB_ENV
+          git fetch origin --tags
+          echo "BUMP_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create tag and release note
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v$BUMP_VERSION --generate-notes --draft "./magisk-loader/release/*"
+          gh release create v$BUMP_VERSION --generate-notes --draft `ls magisk-loader/release/*.zip`
 
