@@ -22,6 +22,13 @@ jobs:
         continue-on-error: true
         run: git submodule update --init --recursive
 
+      - name: Fix wrong checkouts
+        run: |
+          cd ./external/lsplant/docs/doxygen-awesome-css
+          git checkout tags/v2.3.1
+          cd ../../lsplant/src/main/jni/external/dex_builder
+          git checkout master
+
       - name: Write key
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
