@@ -14,12 +14,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        continue-on-error: true
         with:
           submodules: "recursive"
-          fetch-depth: 0
+
+      - name: Initialize Submodules
+        continue-on-error: true
+        run: git submodule update --init --recursive
+
+      - name: Fix wrong checkouts
+        run: |
+          cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
+          git fetch
+          git checkout master
+          git submodule update --init --recursive
 
       - name: Write key
-        if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
             echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
@@ -28,18 +38,6 @@ jobs:
             echo androidStoreFile='key.jks' >> gradle.properties
             echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
           fi
-
-      - name: Checkout libxposed/api
-        uses: actions/checkout@v3
-        with:
-          repository: libxposed/api
-          path: libxposed/api
-
-      - name: Checkout libxposed/service
-        uses: actions/checkout@v3
-        with:
-          repository: libxposed/service
-          path: libxposed/service
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -129,11 +127,12 @@ jobs:
 
       - name: Bump up version
         run: |
-          echo "BUMP_VERSION=$(git describe --tags)" >> $GITHUB_ENV
+          git fetch origin --tags
+          echo "BUMP_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create tag and release note
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v$BUMP_VERSION --generate-notes --draft "./magisk-loader/release/*"
+          gh release create v$BUMP_VERSION --generate-notes --draft `ls magisk-loader/release/*.zip`
 
