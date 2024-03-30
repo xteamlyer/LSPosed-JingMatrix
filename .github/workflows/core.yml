@@ -14,6 +14,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        continue-on-error: true
         with:
           submodules: "recursive"
           fetch-depth: 0
@@ -28,18 +29,6 @@ jobs:
             echo androidStoreFile='key.jks' >> gradle.properties
             echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
           fi
-
-      - name: Checkout libxposed/api
-        uses: actions/checkout@v3
-        with:
-          repository: libxposed/api
-          path: libxposed/api
-
-      - name: Checkout libxposed/service
-        uses: actions/checkout@v3
-        with:
-          repository: libxposed/service
-          path: libxposed/service
 
       - name: Setup Java
         uses: actions/setup-java@v3
