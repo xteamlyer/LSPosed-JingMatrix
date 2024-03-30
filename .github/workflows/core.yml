@@ -13,9 +13,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         continue-on-error: true
         with:
+          fetch-depth: 0
           submodules: "recursive"
 
       - name: Initialize Submodules
@@ -125,14 +126,11 @@ jobs:
           name: symbols
           path: build/symbols
 
-      - name: Bump up version
-        run: |
-          git fetch origin --tags
-          echo "BUMP_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-
       - name: Create tag and release note
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v$BUMP_VERSION --generate-notes --draft `ls magisk-loader/release/*.zip`
+          git fetch origin --tags
+          export BUMP_VERSION=$(git describe --tags --abbrev=0)
+          gh release create $BUMP_VERSION --generate-notes --draft `ls magisk-loader/release/*.zip`
 

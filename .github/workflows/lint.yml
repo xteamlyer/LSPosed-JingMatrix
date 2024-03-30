@@ -42,7 +42,7 @@ jobs:
       - name: Show all results
         run: |
           git fetch origin --tags
-          echo "BUMP_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          export BUMP_VERSION=$(git describe --tags --abbrev=0)
           echo BUMP_VERSION: $BUMP_VERSION
           echo `git rev-list --count --all`
 
