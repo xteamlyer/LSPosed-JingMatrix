@@ -26,7 +26,7 @@ jobs:
         run: |
           cd ./external/lsplant/docs/doxygen-awesome-css
           git fetch
-          git checkout tags/v2.3.1
+          git checkout df88fe4fdd97714fadfd3ef17de0b4401f804052
           cd ../../lsplant/src/main/jni/external/dex_builder
           git fetch
           git checkout master
