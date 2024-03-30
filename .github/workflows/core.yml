@@ -17,10 +17,12 @@ jobs:
         continue-on-error: true
         with:
           submodules: "recursive"
-          fetch-depth: 0
+
+      - name: Initialize Submodules
+        continue-on-error: true
+        run: git submodule update --init --recursive
 
       - name: Write key
-        if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
             echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
