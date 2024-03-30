@@ -25,8 +25,10 @@ jobs:
       - name: Fix wrong checkouts
         run: |
           cd ./external/lsplant/docs/doxygen-awesome-css
+          git fetch
           git checkout tags/v2.3.1
           cd ../../lsplant/src/main/jni/external/dex_builder
+          git fetch
           git checkout master
 
       - name: Write key
