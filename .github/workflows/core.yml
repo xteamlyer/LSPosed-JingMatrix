@@ -25,9 +25,9 @@ jobs:
       - name: Fix wrong checkouts
         run: |
           cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
-          pwd
           git fetch
           git checkout master
+          git submodule update --init --recursive
 
       - name: Write key
         run: |
