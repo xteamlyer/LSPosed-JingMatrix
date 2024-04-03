@@ -74,6 +74,8 @@ jobs:
       - name: Build with Gradle
         run: |
           curl -o ./external/fmt/CMakeLists.txt https://raw.githubusercontent.com/fmtlib/fmt/master/CMakeLists.txt
+          ls ./external/fmt/
+          cat ./external/fmt/CMakeLists.txt
           ./gradlew zipAll
 
       - name: Prepare artifact
