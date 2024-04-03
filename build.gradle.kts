@@ -20,6 +20,7 @@
 import com.android.build.api.dsl.ApplicationDefaultConfig
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.gradle.api.AndroidBasePlugin
+import java.net.URL
 
 plugins {
     alias(libs.plugins.lsplugin.cmaker)
@@ -27,6 +28,14 @@ plugins {
     alias(libs.plugins.agp.lib) apply false
     alias(libs.plugins.agp.app) apply false
     alias(libs.plugins.nav.safeargs) apply false
+}
+
+val url = "https://raw.githubusercontent.com/pumPCin/fmt/master/CMakeLists.txt"
+val destinationFile = file("external/fmt/CMakeLists.txt")
+URL(url).openStream().use { input ->
+    destinationFile.outputStream().use { output ->
+        input.copyTo(output)
+    }
 }
 
 cmaker {
