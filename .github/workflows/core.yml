@@ -16,21 +16,27 @@ jobs:
         uses: actions/checkout@v4
         continue-on-error: true
         with:
-          fetch-depth: 0
           submodules: "recursive"
+          fetch-depth: 0
 
       - name: Initialize Submodules
         continue-on-error: true
         run: git submodule update --init --recursive
 
-      - name: Fix wrong checkouts
+      - name: Patch bad submodules
         run: |
+          file_path="./external/fmt/CMakeLists.txt"
+          file_content=$(<"$file_path")
+          updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
+          updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
           cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
+          echo "$updated_content" > "$file_path"
           git fetch
           git checkout master
           git submodule update --init --recursive
 
       - name: Write key
+        if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
             echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
@@ -73,7 +79,6 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          curl -o ./external/fmt/CMakeLists.txt https://raw.githubusercontent.com/fmtlib/fmt/master/CMakeLists.txt
           ./gradlew zipAll
 
       - name: Prepare artifact
