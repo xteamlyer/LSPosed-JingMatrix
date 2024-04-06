@@ -29,8 +29,8 @@ jobs:
           file_content=$(<"$file_path")
           updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
           updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
-          cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
           echo "$updated_content" > "$file_path"
+          cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
           git fetch
           git checkout master
           git submodule update --init --recursive
