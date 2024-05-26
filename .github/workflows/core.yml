@@ -27,7 +27,6 @@ jobs:
           updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
           echo "$updated_content" > "$file_path"
           cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
-          git fetch
           git checkout `git log -1 --format="%H"`
           git submodule update --init --recursive
 
