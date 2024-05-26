@@ -26,9 +26,10 @@ jobs:
           updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
           updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
           echo "$updated_content" > "$file_path"
-          cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
-          git checkout 9d57844a301077abf4c29e061b2458c56a363c8f
-          git submodule update --init --recursive
+          cd ./external/lsplant/lsplant/
+          git submodule init
+          cd ./src/main/jni/external/dex_builder/
+          git submodule init
 
       - name: Write key
         if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
