@@ -65,6 +65,9 @@ jobs:
           restore-keys: ${{ runner.os }}
           save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Build dependencies
         working-directory: libxposed
         run: |
@@ -79,7 +82,6 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          yes | /usr/local/lib/android/sdk/tools/bin/sdkmanager --licenses
           ./gradlew zipAll
 
       - name: Prepare artifact
