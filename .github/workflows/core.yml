@@ -32,7 +32,6 @@ jobs:
           echo "$updated_content" > "$file_path"
           cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
           git fetch
-          git checkout master
           git submodule update --init --recursive
 
       - name: Write key
