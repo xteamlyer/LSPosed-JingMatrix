@@ -19,10 +19,6 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
 
-      - name: Initialize Submodules
-        continue-on-error: true
-        run: git submodule update --init --recursive
-
       - name: Patch bad submodules
         run: |
           file_path="./external/fmt/CMakeLists.txt"
