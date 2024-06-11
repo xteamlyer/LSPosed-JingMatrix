@@ -19,10 +19,6 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
 
-      - name: Initialize Submodules
-        continue-on-error: true
-        run: git submodule update --init --recursive
-
       - name: Patch bad submodules
         run: |
           file_path="./external/fmt/CMakeLists.txt"
@@ -30,10 +26,11 @@ jobs:
           updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
           updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
           echo "$updated_content" > "$file_path"
-          cd ./external/lsplant/lsplant/src/main/jni/external/dex_builder
-          git fetch
-          git checkout master
-          git submodule update --init --recursive
+          cd ./external/lsplant/
+          git rm --cached "test/src/main/jni/external/lsparself"
+          git rm --cached "test/src/main/jni/external/lsprism"
+          git submodule update --init --recursive --no-fetch --checkout
+          cd ./lsplant/src/main/jni/external/dex_builder/external/parallel_hashmap/parallel_hashmap/
 
       - name: Write key
         if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
