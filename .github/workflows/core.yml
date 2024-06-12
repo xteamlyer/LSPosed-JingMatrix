@@ -28,10 +28,10 @@ jobs:
           updated_content=$(echo "$updated_content" | sed 's/cxx_std_11/cxx_variadic_templates/g')
           echo "$updated_content" > "$file_path"
           cd ./external/lsplant/
-          git rm --cached "test/src/main/jni/external/lsparself"
-          git rm --cached "test/src/main/jni/external/lsprism"
           git submodule deinit test/src/main/jni/external/lsparself
           git submodule deinit test/src/main/jni/external/lsprism
+          git rm --cached "test/src/main/jni/external/lsparself"
+          git rm --cached "test/src/main/jni/external/lsprism"
           git submodule update --init --recursive --no-fetch --checkout
           cd ./lsplant/src/main/jni/external/dex_builder/external/parallel_hashmap/parallel_hashmap/
 
