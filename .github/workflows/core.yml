@@ -68,6 +68,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Ninja
+        id: ninja
+        uses: turtlesec-no/get-ninja@main
+
+      - name: Echo Ninja version
+        run: echo "${{ steps.ninja.outputs.version }}"
+
       - name: Build dependencies
         working-directory: libxposed
         run: |
