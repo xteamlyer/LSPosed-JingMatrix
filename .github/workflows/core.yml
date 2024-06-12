@@ -15,9 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         continue-on-error: true
-        with:
-          submodules: "recursive"
-          fetch-depth: 0
+
+      - name: Checkout submodules
+        run: git submodule update --init --recursive --no-fetch --checkout
+        continue-on-error: true
 
       - name: Patch bad submodules
         run: |
