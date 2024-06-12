@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        continue-on-error: true
 
       - name: Checkout submodules
         run: git submodule update --init --recursive --no-fetch --checkout
@@ -34,9 +33,7 @@ jobs:
           cd ./lsplant/src/main/jni/external/dex_builder/
           git checkout `git rev-parse HEAD`
           git submodule update --init --recursive --no-fetch --checkout
-          cd ./external/parallel_hashmap/
-          git checkout `git rev-parse HEAD`
-          cd ./parallel_hashmap/
+          cd ./external/parallel_hashmap/parallel_hashmap/
 
       - name: Write key
         if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
