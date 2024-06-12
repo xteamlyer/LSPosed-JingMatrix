@@ -68,12 +68,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Ninja
-        id: ninja
-        uses: turtlesec-no/get-ninja@main
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+        with:
+          version: 1.12.0
 
-      - name: Echo Ninja version
-        run: echo "${{ steps.ninja.outputs.version }}"
+      - name: Remove Android's cmake
+        shell: bash
+        run: rm -rf $ANDROID_HOME/cmake
 
       - name: Build dependencies
         working-directory: libxposed
