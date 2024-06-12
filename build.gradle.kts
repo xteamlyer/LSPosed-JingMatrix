@@ -87,7 +87,7 @@ subprojects {
 
             externalNativeBuild {
                 cmake {
-                    version = "3.28+"
+                    version = "3.28.0+"
                 }
             }
 
