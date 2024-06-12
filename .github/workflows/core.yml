@@ -31,7 +31,8 @@ jobs:
           git rm --cached "test/src/main/jni/external/lsparself"
           git rm --cached "test/src/main/jni/external/lsprism"
           git submodule update --init --recursive --no-fetch --checkout
-          cd ./lsplant/src/main/jni/external/dex_builder
+          cd ./lsplant/src/main/jni/external/dex_builder/
+          git checkout `git rev-parse HEAD`
           git submodule update --init --recursive --no-fetch --checkout
           cd ./external/parallel_hashmap/
           git checkout `git rev-parse HEAD`
