@@ -19,9 +19,12 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
 
+      - name: Checkout submodules
+        run: git submodule update --init --recursive --no-fetch --checkout
+        continue-on-error: true
+
       - name: Patch bad submodules
         run: |
-          git submodule update --init --recursive --no-fetch --checkout
           file_path="./external/fmt/CMakeLists.txt"
           file_content=$(<"$file_path")
           updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
