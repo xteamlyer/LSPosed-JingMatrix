@@ -15,6 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         continue-on-error: true
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
 
       - name: Checkout submodules
         run: git submodule update --init --recursive --no-fetch --checkout
@@ -31,7 +34,10 @@ jobs:
           git rm --cached "test/src/main/jni/external/lsparself"
           git rm --cached "test/src/main/jni/external/lsprism"
           git submodule update --init --recursive --no-fetch --checkout
-          cd ./lsplant/src/main/jni/external/dex_builder/external/parallel_hashmap/parallel_hashmap/
+          cd ./lsplant/src/main/jni/external/dex_builder/
+          git checkout `git rev-parse HEAD`
+          git submodule update --init --recursive --no-fetch --checkout
+          cd ./external/parallel_hashmap/parallel_hashmap/
 
       - name: Write key
         if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
@@ -65,6 +71,15 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+        with:
+          version: 1.12.0
+
+      - name: Remove Android's cmake
+        shell: bash
+        run: rm -rf $ANDROID_HOME/cmake
 
       - name: Build dependencies
         working-directory: libxposed
