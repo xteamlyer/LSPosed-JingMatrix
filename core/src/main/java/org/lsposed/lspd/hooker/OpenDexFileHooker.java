@@ -6,10 +6,14 @@ import org.lsposed.lspd.impl.LSPosedBridge;
 import org.lsposed.lspd.nativebridge.HookBridge;
 
 import io.github.libxposed.api.XposedInterface;
+import io.github.libxposed.api.annotations.AfterInvocation;
+import io.github.libxposed.api.annotations.XposedHooker;
 
+@XposedHooker
 public class OpenDexFileHooker implements XposedInterface.Hooker {
 
-    public static void after(XposedInterface.AfterHookCallback callback) {
+    @AfterInvocation
+    public static void afterHookedMethod(XposedInterface.AfterHookCallback callback) {
         ClassLoader classLoader = null;
         for (var arg : callback.getArgs()) {
             if (arg instanceof ClassLoader) {

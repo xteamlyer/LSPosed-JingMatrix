@@ -27,14 +27,18 @@ import org.lsposed.lspd.impl.LSPosedHelper;
 import org.lsposed.lspd.util.Hookers;
 
 import io.github.libxposed.api.XposedInterface;
+import io.github.libxposed.api.annotations.AfterInvocation;
+import io.github.libxposed.api.annotations.XposedHooker;
 
 // system_server initialization
+@XposedHooker
 public class HandleSystemServerProcessHooker implements XposedInterface.Hooker {
 
     public static volatile ClassLoader systemServerCL;
 
     @SuppressLint("PrivateApi")
-    public static void after() {
+    @AfterInvocation
+    public static void afterHookedMethod() {
         Hookers.logD("ZygoteInit#handleSystemServerProcess() starts");
         try {
             // get system_server classLoader

@@ -90,10 +90,6 @@ jobs:
           cd api
           ./gradlew publishToMavenLocal
           cd ../service
-          file_path="./settings.gradle.kts"
-          file_content=$(<"$file_path")
-          updated_content=$(echo "$file_content" | sed 's/8.3.2/8.5.0/')
-          echo "$updated_content" > "$file_path"
           ./gradlew publishToMavenLocal
 
       - name: Build with Gradle
