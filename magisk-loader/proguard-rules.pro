@@ -15,6 +15,3 @@
 -repackageclasses
 -allowaccessmodification
 -dontwarn org.slf4j.impl.StaticLoggerBinder
--dontwarn org.lsposed.lspd.core.ApplicationServiceClient
--dontwarn org.lsposed.lspd.core.Startup
--dontwarn org.lsposed.lspd.util.Hookers
