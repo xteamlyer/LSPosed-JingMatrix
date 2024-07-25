@@ -13,9 +13,6 @@ import java.lang.reflect.Modifier;
 
 import de.robv.android.xposed.XposedBridge;
 import io.github.libxposed.api.XposedInterface;
-import io.github.libxposed.api.annotations.AfterInvocation;
-import io.github.libxposed.api.annotations.BeforeInvocation;
-import io.github.libxposed.api.annotations.XposedHooker;
 import io.github.libxposed.api.errors.HookFailedError;
 
 public class LSPosedBridge {
@@ -219,16 +216,14 @@ public class LSPosedBridge {
             throw new IllegalArgumentException("Cannot hook Method.invoke");
         } else if (hooker == null) {
             throw new IllegalArgumentException("hooker should not be null!");
-        } else if (hooker.getAnnotation(XposedHooker.class) == null) {
-            throw new IllegalArgumentException("Hooker should be annotated with @XposedHooker");
         }
 
         Method beforeInvocation = null, afterInvocation = null;
         var modifiers = Modifier.PUBLIC | Modifier.STATIC;
         for (var method : hooker.getDeclaredMethods()) {
-            if (method.getAnnotation(BeforeInvocation.class) != null) {
+            if (method.getName().equals("before")) {
                 if (beforeInvocation != null) {
-                    throw new IllegalArgumentException("More than one method annotated with @BeforeInvocation");
+                    throw new IllegalArgumentException("More than one method named before");
                 }
                 boolean valid = (method.getModifiers() & modifiers) == modifiers;
                 var params = method.getParameterTypes();
@@ -238,13 +233,13 @@ public class LSPosedBridge {
                     valid = false;
                 }
                 if (!valid) {
-                    throw new IllegalArgumentException("BeforeInvocation method format is invalid");
+                    throw new IllegalArgumentException("before method format is invalid");
                 }
                 beforeInvocation = method;
             }
-            if (method.getAnnotation(AfterInvocation.class) != null) {
+            if (method.getName().equals("after")) {
                 if (afterInvocation != null) {
-                    throw new IllegalArgumentException("More than one method annotated with @AfterInvocation");
+                    throw new IllegalArgumentException("More than one method named after");
                 }
                 boolean valid = (method.getModifiers() & modifiers) == modifiers;
                 valid &= method.getReturnType().equals(void.class);
@@ -255,13 +250,13 @@ public class LSPosedBridge {
                     valid = false;
                 }
                 if (!valid) {
-                    throw new IllegalArgumentException("AfterInvocation method format is invalid");
+                    throw new IllegalArgumentException("after method format is invalid");
                 }
                 afterInvocation = method;
             }
         }
         if (beforeInvocation == null && afterInvocation == null) {
-            throw new IllegalArgumentException("No method annotated with @BeforeInvocation or @AfterInvocation");
+            throw new IllegalArgumentException("No method named before or after");
         }
         try {
             if (beforeInvocation == null) {
@@ -272,7 +267,7 @@ public class LSPosedBridge {
                 var ret = beforeInvocation.getReturnType();
                 var params = afterInvocation.getParameterTypes();
                 if (ret != void.class && params.length == 2 && !ret.equals(params[1])) {
-                    throw new IllegalArgumentException("BeforeInvocation and AfterInvocation method format is invalid");
+                    throw new IllegalArgumentException("before and after method format is invalid");
                 }
             }
         } catch (NoSuchMethodException e) {
