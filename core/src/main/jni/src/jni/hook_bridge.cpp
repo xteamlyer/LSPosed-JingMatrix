@@ -122,8 +122,8 @@ LSP_DEF_NATIVE_METHOD(jboolean, HookBridge, hookMethod, jboolean useModernApi, j
         auto before_method = JNI_GetObjectField(env, callback, before_method_field);
         auto after_method = JNI_GetObjectField(env, callback, after_method_field);
         auto callback_type = ModuleCallback {
-                .before_method = env->FromReflectedMethod(before_method),
-                .after_method = env->FromReflectedMethod(after_method),
+                .before_method = env->FromReflectedMethod(before_method.get()),
+                .after_method = env->FromReflectedMethod(after_method.get()),
         };
         hook_item->modern_callbacks.emplace(priority, callback_type);
     } else {
@@ -144,7 +144,7 @@ LSP_DEF_NATIVE_METHOD(jboolean, HookBridge, unhookMethod, jboolean useModernApi,
     JNIMonitor monitor(env, backup);
     if (useModernApi) {
         auto before_method = JNI_GetObjectField(env, callback, before_method_field);
-        auto before = env->FromReflectedMethod(before_method);
+        auto before = env->FromReflectedMethod(before_method.get());
         for (auto i = hook_item->modern_callbacks.begin(); i != hook_item->modern_callbacks.end(); ++i) {
             if (before == i->second.before_method) {
                 hook_item->modern_callbacks.erase(i);
@@ -312,7 +312,7 @@ LSP_DEF_NATIVE_METHOD(jobjectArray, HookBridge, callbackSnapshot, jclass callbac
         auto before_method = JNI_ToReflectedMethod(env, clazz, callback.second.before_method, JNI_TRUE);
         auto after_method = JNI_ToReflectedMethod(env, clazz, callback.second.after_method, JNI_TRUE);
         auto callback_object = JNI_NewObject(env, callback_class, callback_ctor, before_method, after_method);
-        env->SetObjectArrayElement(modern, i++, env->NewLocalRef(callback_object));
+        env->SetObjectArrayElement(modern, i++, env->NewLocalRef(callback_object.get()));
     }
     for (jsize i = 0; auto callback: hook_item->legacy_callbacks) {
         env->SetObjectArrayElement(legacy, i++, env->NewLocalRef(callback.second));

@@ -87,7 +87,7 @@ namespace lspd {
                 LOGE("Failed to get cookie");
                 return;
             }
-            lsplant::MakeDexFileTrusted(env, cookie);
+            lsplant::MakeDexFileTrusted(env, cookie.get());
         }
         RegisterResourcesHook(env);
         RegisterHookBridge(env);
