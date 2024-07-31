@@ -31,3 +31,6 @@
 -repackageclasses
 -allowaccessmodification
 -dontwarn org.slf4j.impl.StaticLoggerBinder
+-keep class org.lsposed.lspd.core.** { *; }
+-keep class org.lsposed.lspd.util.** { *; }
+-keep class org.lsposed.lspd.impl.** { *; }
