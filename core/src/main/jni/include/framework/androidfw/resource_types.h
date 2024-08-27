@@ -151,7 +151,7 @@ namespace android {
         StringPiece16 stringAt(size_t idx) const {
             if (stringAt_) {
                 size_t len;
-                const char16_t *str = stringAt(const_cast<ResStringPool *>(this), idx, &len);
+                const char16_t *str = stringAt_(const_cast<ResStringPool *>(this), idx, &len);
                 return {str, len};
             } else if (stringAtS_) {
                 auto str = stringAtS_(const_cast<ResStringPool *>(this), idx);
