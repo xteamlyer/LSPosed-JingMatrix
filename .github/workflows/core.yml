@@ -10,7 +10,6 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
       CCACHE_BASEDIR: "${{ github.workspace }}"
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,12 +145,3 @@ jobs:
         with:
           name: symbols
           path: build/symbols
-
-      - name: Create tag and release note
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git fetch origin --tags
-          export BUMP_VERSION=$(git describe --tags --abbrev=0)
-          gh release create $BUMP_VERSION --generate-notes --draft `ls magisk-loader/release/*.zip`
-
