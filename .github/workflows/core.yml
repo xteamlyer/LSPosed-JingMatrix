@@ -68,14 +68,18 @@ jobs:
           restore-keys: ${{ runner.os }}
           save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
           version: 1.12.0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          
       - name: Remove Android's cmake
         shell: bash
         run: rm -rf $ANDROID_HOME/cmake
