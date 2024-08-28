@@ -271,7 +271,7 @@ public class ConfigManager {
         Object bool = config.get("enable_verbose_log");
         verboseLog = bool == null || (boolean) bool;
         bool = config.get("force_enable_log");
-        logWatchdog = value == null || (boolean) bool;
+        logWatchdog = bool == null || (boolean) bool;
         bool = config.get("enable_dex_obfuscate");
         dexObfuscate = bool == null || (boolean) bool;
 
