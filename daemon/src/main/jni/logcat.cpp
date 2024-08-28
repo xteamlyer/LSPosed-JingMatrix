@@ -16,6 +16,8 @@ using namespace std::chrono_literals;
 
 constexpr size_t kMaxLogSize = 4 * 1024 * 1024;
 constexpr size_t kLogBufferSize = 64 * 1024;
+const std::string kLogdTagCrashProp = "persist.log.tag.crash";
+const std::string kLogdTagProp = "persist.log.tag";
 
 namespace {
     constexpr std::array<char, ANDROID_LOG_SILENT + 1> kLogChar = {
@@ -74,11 +76,17 @@ namespace {
     }
 
     inline bool SetIntProp(std::string_view prop, int val) {
+        if (prop == kLogdTagCrashProp || prop == kLogdTagProp) {
+        return true;
+    }
         auto buf = std::to_string(val);
         return __system_property_set(prop.data(), buf.data()) >= 0;
     }
 
     inline bool SetStrProp(std::string_view prop, std::string_view val) {
+        if (prop == kLogdTagCrashProp || prop == kLogdTagProp) {
+        return true;
+    }
         return __system_property_set(prop.data(), val.data()) >= 0;
     }
 
