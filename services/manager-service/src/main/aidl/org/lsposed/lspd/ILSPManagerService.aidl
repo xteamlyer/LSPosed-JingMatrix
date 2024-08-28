@@ -87,8 +87,4 @@ interface ILSPManagerService {
     boolean enableStatusNotification() = 47;
 
     void setEnableStatusNotification(boolean enable) = 48;
-
-    void setLogWatchdog(boolean enable) = 49;
-
-    boolean isLogWatchdogEnabled() = 50;
 }

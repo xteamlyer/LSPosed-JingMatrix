@@ -5,7 +5,6 @@
 #include <string>
 #include <android/log.h>
 #include <array>
-#include <atomic>
 #include <cinttypes>
 #include <chrono>
 #include <thread>
@@ -131,7 +130,6 @@ private:
     pid_t my_pid_ = getpid();
 
     bool verbose_ = true;
-    std::atomic<bool> enable_watchdog = std::atomic<bool>(false);
 };
 
 size_t Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
@@ -244,12 +242,6 @@ void Logcat::ProcessBuffer(struct log_msg *buf) {
             RefreshFd(false);
         } else if (msg == "!!refresh_verbose!!"sv) {
             RefreshFd(true);
-        } else if (msg == "!!start_watchdog!!"sv) {
-            enable_watchdog = true;
-            enable_watchdog.notify_one();
-        } else if (msg == "!!stop_watchdog!!"sv) {
-            enable_watchdog = false;
-            enable_watchdog.notify_one();
         }
     }
 }
@@ -262,7 +254,6 @@ void Logcat::EnsureLogWatchDog() {
     constexpr static size_t kErr = -1;
     std::thread watch_dog([this] {
         while (true) {
-            enable_watchdog.wait(false);
             auto logd_size = GetByteProp(kLogdSizeProp);
             auto logd_tag = GetStrProp(kLogdTagProp);
             auto logd_main_size = GetByteProp(kLogdMainSizeProp);
@@ -287,9 +278,8 @@ void Logcat::EnsureLogWatchDog() {
                 }, &serial);
             }
             if (!__system_property_wait(pi, serial, &serial, nullptr)) break;
-            if (pi != nullptr) {
-                if (enable_watchdog) Log("\nResetting log settings\n");
-            } else std::this_thread::sleep_for(1s);
+            if (pi != nullptr) Log("\nResetting log settings\n");
+            else std::this_thread::sleep_for(1s);
             // log tag prop was not found; to avoid frequently trigger wait, sleep for a while
         }
     });

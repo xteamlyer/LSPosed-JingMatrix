@@ -114,15 +114,7 @@ public class ServiceManager {
 
         logcatService = new LogcatService();
         logcatService.start();
-        
-        // get config before package service is started
-        // otherwise getInstance will trigger module/scope cache
-        var configManager = ConfigManager.getInstance();
-        // --- DO NOT call ConfigManager.getInstance later!!! ---
 
-        // Unblock log watchdog before starting anything else
-        if (configManager.isLogWatchdogEnabled())
-            logcatService.enableWatchdog();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             permissionManagerWorkaround();
 
@@ -140,6 +132,11 @@ public class ServiceManager {
         }
 
         systemServerService.putBinderForSystemServer();
+
+        // get config before package service is started
+        // otherwise getInstance will trigger module/scope cache
+        var configManager = ConfigManager.getInstance();
+        // --- DO NOT call ConfigManager.getInstance later!!! ---
 
         ActivityThread.systemMain();
 
