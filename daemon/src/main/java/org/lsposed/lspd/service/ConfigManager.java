@@ -99,6 +99,7 @@ public class ConfigManager {
     private final SQLiteDatabase db = openDb();
 
     private boolean verboseLog = true;
+    private boolean logWatchdog = true;
     private boolean dexObfuscate = true;
     private boolean enableStatusNotification = true;
     private Path miscPath = null;
@@ -269,7 +270,8 @@ public class ConfigManager {
 
         Object bool = config.get("enable_verbose_log");
         verboseLog = bool == null || (boolean) bool;
-
+        bool = config.get("force_enable_log");
+        logWatchdog = value == null || (boolean) bool;
         bool = config.get("enable_dex_obfuscate");
         dexObfuscate = bool == null || (boolean) bool;
 
