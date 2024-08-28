@@ -80,8 +80,6 @@ namespace {
     }
 
     inline bool SetStrProp(std::string_view prop, std::string_view val) {
-        if (prop == kLogdTagCrashProp || prop == kLogdTagProp) {
-        return true;
     }
         return __system_property_set(prop.data(), val.data()) >= 0;
     }
