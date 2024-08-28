@@ -142,19 +142,31 @@ namespace android {
 
         using stringAtRet = expected<StringPiece16, NullOrIOError>;
 
-        inline static lsplant::MemberFunction<{"_ZNK7android13ResStringPool8stringAtEjPj",
-            "_ZNK7android13ResStringPool8stringAtEmPm"}, ResStringPool, stringAtRet (size_t)> stringAtS_;
+        CREATE_MEM_FUNC_SYMBOL_ENTRY(stringAtRet, stringAtS, void *thiz, size_t idx) {
+            if (stringAtSSym) {
+                return stringAtSSym(thiz, idx);
+            }
+            return {.var_ = unexpected<NullOrIOError>{.val_ = std::nullopt}};
 
-         inline static lsplant::MemberFunction<{"_ZNK7android13ResStringPool8stringAtEj",
-            "_ZNK7android13ResStringPool8stringAtEm"}, ResStringPool, const char16_t* (size_t, size_t *)> stringAt_;
+        };
+
+        CREATE_MEM_FUNC_SYMBOL_ENTRY(const char16_t*, stringAt, void *thiz, size_t idx,
+                                     size_t *u16len) {
+            if (stringAtSym) {
+                return stringAtSym(thiz, idx, u16len);
+            } else {
+                *u16len = 0u;
+                return nullptr;
+            }
+        };
 
         StringPiece16 stringAt(size_t idx) const {
-            if (stringAt_) {
+            if (stringAtSym) {
                 size_t len;
                 const char16_t *str = stringAt_(const_cast<ResStringPool *>(this), idx, &len);
                 return {str, len};
-            } else if (stringAtS_) {
-                auto str = stringAtS_(const_cast<ResStringPool *>(this), idx);
+            } else if (stringAtSSym) {
+                auto str = stringAtS(const_cast<ResStringPool *>(this), idx);
                 if (str.has_value()) {
                     return {str->data_, str->length_};
                 }
@@ -163,7 +175,9 @@ namespace android {
         }
 
         static bool setup(const lsplant::HookHandler &handler) {
-            return !stringAt_ || !stringAtS_;
+            RETRIEVE_MEM_FUNC_SYMBOL(stringAt, LP_SELECT("_ZNK7android13ResStringPool8stringAtEjPj", "_ZNK7android13ResStringPool8stringAtEmPm"));
+            RETRIEVE_MEM_FUNC_SYMBOL(stringAtS, LP_SELECT("_ZNK7android13ResStringPool8stringAtEj", "_ZNK7android13ResStringPool8stringAtEm"));
+            return !stringAtSym || !stringAtSSym;
         }
     };
 

@@ -1,6 +1,7 @@
 [submodule "external/lsplant"]
 	path = external/lsplant
 	url = https://github.com/LSPosed/LSPlant.git
+	commit = a7b0b022c21cca45a3670211c2c13c498a6c8d35
 [submodule "external/dobby"]
 	path = external/dobby
 	url = https://github.com/LSPosed/Dobby.git

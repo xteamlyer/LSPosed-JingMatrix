@@ -75,7 +75,7 @@ namespace lspd {
                           "_ZNK7android12ResXMLParser18getAttributeNameIDEm")))) {
             return false;
         }
-        return android::ResStringPool::setup(lsplant::InitInfo{
+        return android::ResStringPool::setup(HookHandler{
             .art_symbol_resolver = [&](auto s) {
                 return fw.template getSymbAddress(s);
             }
