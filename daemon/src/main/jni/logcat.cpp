@@ -248,8 +248,8 @@ void Logcat::ProcessBuffer(struct log_msg *buf) {
 void Logcat::EnsureLogWatchDog() {
     constexpr static auto kLogdSizeProp = "persist.logd.size"sv;
     constexpr static auto kLogdTagProp = "persist.log.tag"sv;
-    //constexpr static auto kLogdMainSizeProp = "persist.logd.size.main"sv;
-    //constexpr static auto kLogdCrashSizeProp = "persist.logd.size.crash"sv;
+    constexpr static auto kLogdMainSizeProp = "persist.logd.size.main"sv;
+    constexpr static auto kLogdCrashSizeProp = "persist.logd.size.crash"sv;
     constexpr static size_t kErr = -1;
     std::thread watch_dog([this] {
         while (true) {
