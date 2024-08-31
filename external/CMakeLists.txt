@@ -102,6 +102,34 @@ target_include_directories(cxx PRIVATE ${LIBCXX_INCLUDES} ${LIBCXXABI_INCLUDES})
 
 link_libraries(cxx)
 
+set(SYSTEM_PROPERTIES_SOURCES
+        context_node.cpp
+        contexts_serialized.cpp
+        contexts_split.cpp
+        prop_area.cpp
+        prop_info.cpp
+        system_properties.cpp
+        system_property_api.cpp
+        system_property_set.cpp
+        property_info_parser.cpp
+)
+
+list(TRANSFORM SYSTEM_PROPERTIES_SOURCES PREPEND system_properties/)
+
+set(SYSTEM_PROPERTIES_FLAGS
+        --std=c++17
+        -Wno-unused-function
+)
+set(SYSTEM_PROPERTIES_INCLUDES system_properties/include)
+set(SYSTEM_PROPERTIES_EXPORT_INCLUDES ${SYSTEM_PROPERTIES_INCLUDES})
+
+add_library(system_properties STATIC ${SYSTEM_PROPERTIES_SOURCES})
+target_compile_options(system_properties PRIVATE ${SYSTEM_PROPERTIES_FLAGS})
+target_include_directories(system_properties PUBLIC ${SYSTEM_PROPERTIES_EXPORT_INCLUDES})
+target_include_directories(system_properties PRIVATE ${SYSTEM_PROPERTIES_INCLUDES})
+
+link_libraries(system_properties)
+
 set(XZ_EMBEDDED_SOURCES
         xz/xz_crc32.c
         xz/xz_crc64.c
