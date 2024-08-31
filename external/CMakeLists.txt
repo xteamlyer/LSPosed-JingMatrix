@@ -102,6 +102,32 @@ target_include_directories(cxx PRIVATE ${LIBCXX_INCLUDES} ${LIBCXXABI_INCLUDES})
 
 link_libraries(cxx)
 
+set(XZ_EMBEDDED_SOURCES
+        xz/xz_crc32.c
+        xz/xz_crc64.c
+        xz/xz_dec_bcj.c
+        xz/xz_dec_lzma2.c
+        xz/xz_dec_stream.c
+)
+
+list(TRANSFORM XZ_EMBEDDED_SOURCES PREPEND xz-embedded/linux/lib/)
+
+set(XZ_EMBEDDED_FLAGS
+        -std=c89
+        -DXZ_INTERNAL_CRC32=1
+        -DXZ_USE_CRC64=1
+        -DXZ_INTERNAL_CRC64=1
+)
+set(XZ_EMBEDDED_EXPORT_INCLUDES xz-embedded/linux/include/linux)
+set(XZ_EMBEDDED_INCLUDES ${XZ_EMBEDDED_EXPORT_INCLUDES} xz-embedded/userspace)
+
+add_library(xz_embedded STATIC ${XZ_EMBEDDED_SOURCES})
+target_compile_options(xz_embedded PRIVATE)
+target_include_directories(xz_embedded PUBLIC ${XZ_EMBEDDED_EXPORT_INCLUDES})
+target_include_directories(xz_embedded PRIVATE ${XZ_EMBEDDED_INCLUDES})
+
+link_libraries(xz_embedded)
+
 OPTION(LSPLANT_BUILD_SHARED OFF)
 add_subdirectory(lsplant/lsplant/src/main/jni)
 add_subdirectory(dobby)

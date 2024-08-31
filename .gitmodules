@@ -19,3 +19,6 @@
 	path = libxposed/service
 	url = https://github.com/libxposed/service.git
 	branch = master
+[submodule "external/xz-embedded"]
+	path = external/xz-embedded
+	url = https://github.com/tukaani-project/xz-embedded.git

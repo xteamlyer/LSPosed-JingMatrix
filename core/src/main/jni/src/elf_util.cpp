@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 #include "logging.h"
 #include "elf_util.h"
-#include "xz/xz.h"
+#include "xz.h"
 
 using namespace SandHook;
 
