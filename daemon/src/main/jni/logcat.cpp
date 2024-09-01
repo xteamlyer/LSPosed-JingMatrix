@@ -250,23 +250,33 @@ void Logcat::EnsureLogWatchDog() {
     constexpr static auto kLogdTagProp = "persist.log.tag"sv;
     constexpr static auto kLogdMainSizeProp = "persist.logd.size.main"sv;
     constexpr static auto kLogdCrashSizeProp = "persist.logd.size.crash"sv;
-    constexpr static size_t kErr = -1;
     std::thread watch_dog([this] {
         while (true) {
             auto logd_size = GetByteProp(kLogdSizeProp);
             auto logd_tag = GetStrProp(kLogdTagProp);
             auto logd_main_size = GetByteProp(kLogdMainSizeProp);
             auto logd_crash_size = GetByteProp(kLogdCrashSizeProp);
-            if (!logd_tag.empty() ||
-                !((logd_main_size == kErr && logd_crash_size == kErr && logd_size != kErr &&
-                   logd_size >= kLogBufferSize) ||
-                  (logd_main_size != kErr && logd_main_size >= kLogBufferSize &&
-                   logd_crash_size != kErr &&
-                   logd_crash_size >= kLogBufferSize))) {
-                SetIntProp(kLogdSizeProp, std::max(kLogBufferSize, logd_size));
-                SetIntProp(kLogdMainSizeProp, std::max(kLogBufferSize, logd_main_size));
-                SetIntProp(kLogdCrashSizeProp, std::max(kLogBufferSize, logd_crash_size));
+            bool needReset = false;
+            if (__system_property_find(kLogdSizeProp.data()) != nullptr &&
+                logd_size <= kLogBufferSize) {
+                SetIntProp(kLogdSizeProp, kLogBufferSize);
+                needReset = true;
+            }
+            if (__system_property_find(kLogdMainSizeProp.data()) != nullptr &&
+                logd_main_size <= kLogBufferSize) {
+                SetIntProp(kLogdMainSizeProp, kLogBufferSize);
+                needReset = true;
+            }
+            if (__system_property_find(kLogdCrashSizeProp.data()) != nullptr &&
+                logd_crash_size <= kLogBufferSize) {
+                SetIntProp(kLogdCrashSizeProp, kLogBufferSize);
+                needReset = true;
+            }
+            if (__system_property_find(kLogdTagProp.data()) != nullptr) {
                 SetStrProp(kLogdTagProp, "");
+                needReset = true;
+            }
+            if (needReset) {
                 SetStrProp("ctl.start", "logd-reinit");
             }
             const auto *pi = __system_property_find(kLogdTagProp.data());
