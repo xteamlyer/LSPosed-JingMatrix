@@ -60,7 +60,7 @@ public class ParasiticManagerSystemHooker implements HandleSystemServerProcessHo
         try {
             Class<?> supervisorClass;
             try {
-                // 14-12.0
+                // 15-12.0
                 supervisorClass = Class.forName("com.android.server.wm.ActivityTaskSupervisor", false, classLoader);
             } catch (ClassNotFoundException ignore) {
                 try {
