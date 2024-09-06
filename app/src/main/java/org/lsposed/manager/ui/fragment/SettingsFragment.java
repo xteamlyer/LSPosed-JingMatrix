@@ -185,24 +185,24 @@ public class SettingsFragment extends BaseFragment {
                 });
             }
 
-            //Preference shortcut = findPreference("add_shortcut");
-            //if (shortcut != null) {
-            //    shortcut.setVisible(App.isParasitic);
-            //    if (!ShortcutUtil.isRequestPinShortcutSupported(requireContext())) {
-            //        shortcut.setEnabled(false);
-            //        shortcut.setSummary(R.string.settings_unsupported_pin_shortcut_summary);
-            //    }
-            //    shortcut.setOnPreferenceClickListener(preference -> {
-            //        if (!ShortcutUtil.requestPinLaunchShortcut(() -> {
-            //            setNotificationPreferenceEnabled(notificationPreference, true);
-            //            App.getPreferences().edit().putBoolean("never_show_welcome", true).apply();
-            //            parentFragment.showHint(R.string.settings_shortcut_pinned_hint, false);
-            //        })) {
-            //            parentFragment.showHint(R.string.settings_unsupported_pin_shortcut_summary, true);
-            //        }
-            //        return true;
-            //    });
-            //}
+            Preference shortcut = findPreference("add_shortcut");
+            if (shortcut != null) {
+                shortcut.setVisible(App.isParasitic);
+                if (!ShortcutUtil.isRequestPinShortcutSupported(requireContext())) {
+                    shortcut.setEnabled(false);
+                    shortcut.setSummary(R.string.settings_unsupported_pin_shortcut_summary);
+                }
+                shortcut.setOnPreferenceClickListener(preference -> {
+                    if (!ShortcutUtil.requestPinLaunchShortcut(() -> {
+                        setNotificationPreferenceEnabled(notificationPreference, true);
+                        App.getPreferences().edit().putBoolean("never_show_welcome", true).apply();
+                        parentFragment.showHint(R.string.settings_shortcut_pinned_hint, false);
+                    })) {
+                        parentFragment.showHint(R.string.settings_unsupported_pin_shortcut_summary, true);
+                    }
+                    return true;
+                });
+            }
 
             Preference backup = findPreference("backup");
             if (backup != null) {
