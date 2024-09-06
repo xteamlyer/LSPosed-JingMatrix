@@ -138,7 +138,6 @@ namespace lspd {
             };
 
     bool InstallNativeAPI(const lsplant::HookHandler &handler) {
-        LOGD("InstallNativeAPI: {}", do_dlopen_);
         if (do_dlopen_) [[likely]] {
             handler.hook(do_dlopen_);
             return true;
