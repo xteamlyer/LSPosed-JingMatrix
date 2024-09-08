@@ -1,0 +1,151 @@
+name: Core
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+      CCACHE_BASEDIR: "${{ github.workspace }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Checkout submodules
+        run: git submodule update --init --recursive --no-fetch --checkout
+        continue-on-error: true
+
+      - name: Patch bad submodules
+        run: |
+          file_path="./external/fmt/CMakeLists.txt"
+          file_content=$(<"$file_path")
+          updated_content=$(echo "$file_content" | sed 's/option(FMT_INSTALL "Generate the install target." ON)/option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})/')
+          echo "$updated_content" > "$file_path"
+          cd ./external/lsplant/
+          git rm --cached "test/src/main/jni/external/lsparself"
+          git rm --cached "test/src/main/jni/external/lsprism"
+          git submodule update --init --recursive --no-fetch --checkout
+          cd ./lsplant/src/main/jni/external/dex_builder/
+          git checkout `git rev-parse HEAD`
+          git submodule update --init --recursive --no-fetch --checkout
+          cd ./external/parallel_hashmap/parallel_hashmap/
+
+      - name: Write key
+        if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
+        run: |
+          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+            echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
+            echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
+            echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
+            echo androidStoreFile='key.jks' >> gradle.properties
+            echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 2G
+          key: ${{ runner.os }}
+          restore-keys: ${{ runner.os }}
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+        with:
+          version: 1.12.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.9.0
+          
+      - name: Remove Android's cmake
+        shell: bash
+        run: rm -rf $ANDROID_HOME/cmake
+
+      - name: Build dependencies
+        working-directory: libxposed
+        run: |
+          echo 'org.gradle.caching=true' >> ~/.gradle/gradle.properties
+          echo 'org.gradle.parallel=true' >> ~/.gradle/gradle.properties
+          echo 'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8 -XX:+UseParallelGC' >> ~/.gradle/gradle.properties
+          echo 'android.native.buildOutput=verbose' >> ~/.gradle/gradle.properties
+          cd api
+          ./gradlew publishToMavenLocal
+          cd ../service
+          ./gradlew publishToMavenLocal
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew zipAll
+
+      - name: Prepare artifact
+        if: success()
+        id: prepareArtifact
+        run: |
+          riruReleaseName=`ls magisk-loader/release/LSPosed-v*-riru-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "riruReleaseName=$riruReleaseName" >> $GITHUB_OUTPUT
+          riruDebugName=`ls magisk-loader/release/LSPosed-v*-riru-debug.zip | awk -F '(/|.zip)' '{print $3}'` && echo "riruDebugName=$riruDebugName" >> $GITHUB_OUTPUT
+          zygiskReleaseName=`ls magisk-loader/release/LSPosed-v*-zygisk-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "zygiskReleaseName=$zygiskReleaseName" >> $GITHUB_OUTPUT
+          zygiskDebugName=`ls magisk-loader/release/LSPosed-v*-zygisk-debug.zip | awk -F '(/|.zip)' '{print $3}'` && echo "zygiskDebugName=$zygiskDebugName" >> $GITHUB_OUTPUT
+          unzip magisk-loader/release/LSPosed-v*-riru-release.zip -d LSPosed-riru-release
+          unzip magisk-loader/release/LSPosed-v*-riru-debug.zip -d LSPosed-riru-debug
+          unzip magisk-loader/release/LSPosed-v*-zygisk-release.zip -d LSPosed-zygisk-release
+          unzip magisk-loader/release/LSPosed-v*-zygisk-debug.zip -d LSPosed-zygisk-debug
+
+      - name: Upload riru release
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}
+          path: "./LSPosed-riru-release/*"
+
+      - name: Upload riru debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepareArtifact.outputs.riruDebugName }}
+          path: "./LSPosed-riru-debug/*"
+
+      - name: Upload zygisk release
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}
+          path: "./LSPosed-zygisk-release/*"
+
+      - name: Upload zygisk debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}
+          path: "./LSPosed-zygisk-debug/*"
+
+      - name: Upload mappings
+        uses: actions/upload-artifact@v4
+        with:
+          name: mappings
+          path: |
+            magisk-loader/build/outputs/mapping
+            app/build/outputs/mapping
+
+      - name: Upload symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: symbols
+          path: build/symbols
