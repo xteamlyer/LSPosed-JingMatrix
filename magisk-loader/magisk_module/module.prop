@@ -1,5 +1,5 @@
 id=${moduleId}
-name=${api} - LSPosed
+name=LSPosed
 version=${versionName} (${versionCode})
 versionCode=${versionCode}
 author=${authorList}

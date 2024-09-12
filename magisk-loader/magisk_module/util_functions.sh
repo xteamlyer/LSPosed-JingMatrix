@@ -20,15 +20,9 @@
 
 check_magisk_version() {
   ui_print "- Magisk version: $MAGISK_VER_CODE"
-  if [ "$FLAVOR" == "riru" ] || [ "$FLAVOR" == "zygisk" ]; then
-    if [ "$MAGISK_VER_CODE" -lt 24000 ]; then
-      ui_print "*********************************************************"
-      ui_print "! Please install Magisk v24+"
-      abort    "*********************************************************"
-    fi
-  else
+  if [ "$MAGISK_VER_CODE" -lt 24000 ]; then
     ui_print "*********************************************************"
-    ui_print "! Unsupported flavor $FLAVOR"
+    ui_print "! Please install Magisk v24+"
     abort    "*********************************************************"
   fi
 }
@@ -51,7 +45,7 @@ check_android_version() {
 
 check_incompatible_module() {
   MODULEDIR="$(magisk --path)/.magisk/modules"
-  for id in "riru_dreamland" "riru_edxposed" "riru_edxposed_sandhook" "taichi"; do
+  for id in "riru" "riru_dreamland" "riru_edxposed" "riru_edxposed_sandhook" "taichi"; do
     if [ -d "$MODULEDIR/$id" ] && [ ! -f "$MODULEDIR/$id/disable" ] && [ ! -f "$MODULEDIR/$id/remove" ]; then
       ui_print "*********************************************************"
       ui_print "! Please disable or uninstall incompatible frameworks:"

@@ -32,11 +32,6 @@ val moduleName = "LSPosed"
 val moduleBaseId = "lsposed"
 val authors = "LSPosed Developers"
 
-val riruModuleId = "lsposed"
-val moduleMinRiruApiVersion = 26
-val moduleMinRiruVersionName = "26.1.7"
-val moduleMaxRiruApiVersion = 26
-
 val injectedPackageName: String by rootProject.extra
 val injectedPackageUid: Int by rootProject.extra
 
@@ -84,15 +79,6 @@ android {
                 cmake {
                     arguments += "-DMODULE_NAME=${name.lowercase()}_$moduleBaseId"
                     arguments += "-DAPI=${name.lowercase()}"
-                }
-            }
-        }
-
-        create("Riru") {
-            dimension = "api"
-            externalNativeBuild {
-                cmake {
-                    arguments += "-DAPI_VERSION=$moduleMaxRiruApiVersion"
                 }
             }
         }
@@ -171,7 +157,6 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
     val variantLowered = variant.name.lowercase()
     val buildTypeCapped = variant.buildType.name.replaceFirstChar { it.uppercase() }
     val buildTypeLowered = variant.buildType.name.lowercase()
-    val flavorCapped = variant.flavorName!!.replaceFirstChar { it.uppercase() }
     val flavorLowered = variant.flavorName!!.lowercase()
 
     val magiskDir = layout.buildDirectory.dir("magisk/$variantLowered")
@@ -191,7 +176,7 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
         into(magiskDir)
         from("${rootProject.projectDir}/README.md")
         from("$projectDir/magisk_module") {
-            exclude("riru.sh", "module.prop", "customize.sh", "daemon")
+            exclude("module.prop", "customize.sh", "daemon")
         }
         from("$projectDir/magisk_module") {
             include("module.prop")
@@ -201,12 +186,7 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
                 "versionCode" to verCode,
                 "authorList" to authors,
                 "updateJson" to "https://lsposed.github.io/LSPosed/release/${flavorLowered}.json",
-                "requirement" to when (flavorLowered) {
-                    "riru" -> "Requires Riru $moduleMinRiruVersionName or above installed"
-                    "zygisk" -> "Requires Magisk 24.0+ and Zygisk enabled"
-                    else -> "No further requirements"
-                },
-                "api" to flavorCapped,
+                "requirement" to "Requires Magisk 24.0+ and Zygisk enabled",
             )
             filter<FixCrLfFilter>("eol" to FixCrLfFilter.CrLf.newInstance("lf"))
         }
@@ -218,19 +198,6 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
             )
             filter<ReplaceTokens>("tokens" to tokens)
             filter<FixCrLfFilter>("eol" to FixCrLfFilter.CrLf.newInstance("lf"))
-        }
-        if (flavorLowered == "riru") {
-            from("${projectDir}/magisk_module") {
-                include("riru.sh")
-                val tokens = mapOf(
-                    "RIRU_MODULE_LIB_NAME" to "lspd",
-                    "RIRU_MODULE_API_VERSION" to moduleMaxRiruApiVersion.toString(),
-                    "RIRU_MODULE_MIN_API_VERSION" to moduleMinRiruApiVersion.toString(),
-                    "RIRU_MODULE_MIN_RIRU_VERSION_NAME" to moduleMinRiruVersionName,
-                )
-                filter<ReplaceTokens>("tokens" to tokens)
-                filter<FixCrLfFilter>("eol" to FixCrLfFilter.CrLf.newInstance("lf"))
-            }
         }
         from(project(":app").tasks.getByName("package$buildTypeCapped").outputs) {
             include("*.apk")
