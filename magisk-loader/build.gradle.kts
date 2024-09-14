@@ -93,6 +93,7 @@ android {
         }
     }
     namespace = "org.lsposed.lspd"
+    ndkVersion = "27.1.12297006"
 }
 abstract class Injected @Inject constructor(val magiskDir: String) {
     @get:Inject
