@@ -23,6 +23,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -31,9 +32,9 @@
 #include "logging.h"
 
 #if defined(__LP64__)
-# define LP_SELECT(lp32, lp64) lp64
+#define LP_SELECT(lp32, lp64) lp64
 #else
-# define LP_SELECT(lp32, lp64) lp32
+#define LP_SELECT(lp32, lp64) lp32
 #endif
 
 #define ID_VEC(is64, is_debug) (((is64) << 1) | (is_debug))
@@ -50,14 +51,14 @@ static ssize_t xrecvmsg(int sockfd, struct msghdr *msg, int flags) {
 
 static void *recv_fds(int sockfd, char *cmsgbuf, size_t bufsz, int cnt) {
     struct iovec iov = {
-            .iov_base = &cnt,
-            .iov_len  = sizeof(cnt),
+        .iov_base = &cnt,
+        .iov_len = sizeof(cnt),
     };
     struct msghdr msg = {
-            .msg_iov        = &iov,
-            .msg_iovlen     = 1,
-            .msg_control    = cmsgbuf,
-            .msg_controllen = bufsz
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = cmsgbuf,
+        .msg_controllen = bufsz
     };
 
     xrecvmsg(sockfd, &msg, MSG_WAITALL);
@@ -119,7 +120,12 @@ int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) new_argv[i] = argv[i];
     new_argv[argc] = "--inline-max-code-units=0";
     new_argv[argc + 1] = NULL;
-    fexecve(stock_fd, (char **) new_argv, environ);
+    char const *libenv =
+        "LD_LIBRARY_PATH=/system/lib64:/system/lib:"
+        "/apex/com.android.art/lib64:/apex/com.android.art/lib:"
+        "/apex/com.android.os.statsd/lib64:/apex/com.android.os.statsd/lib";
+    putenv((char *)libenv);
+    fexecve(stock_fd, (char **)new_argv, environ);
     PLOGE("fexecve failed");
     return 2;
 }
