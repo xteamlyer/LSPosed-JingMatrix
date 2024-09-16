@@ -20,9 +20,9 @@
 
 check_magisk_version() {
   ui_print "- Magisk version: $MAGISK_VER_CODE"
-  if [ "$MAGISK_VER_CODE" -lt 24000 ]; then
+  if [ "$MAGISK_VER_CODE" -lt 27005 ]; then
     ui_print "*********************************************************"
-    ui_print "! Please install Magisk v24+"
+    ui_print "! Please install Magisk v27005+"
     abort    "*********************************************************"
   fi
 }
