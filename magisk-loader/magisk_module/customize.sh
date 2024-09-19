@@ -23,17 +23,34 @@ SKIPUNZIP=1
 
 FLAVOR=@FLAVOR@
 
-enforce_install_from_magisk_app() {
-  if $BOOTMODE; then
-    ui_print "- Installing from Magisk app"
-  else
+if [ "$BOOTMODE" ] && [ "$KSU" ]; then
+  ui_print "- Installing from KernelSU app"
+  ui_print "- KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+  if [ "$(which magisk)" ]; then
     ui_print "*********************************************************"
-    ui_print "! Install from recovery is NOT supported"
-    ui_print "! Some recovery has broken implementations, install with such recovery will finally cause Zygisk or Zygisk modules not working"
-    ui_print "! Please install from Magisk app"
-    abort "*********************************************************"
+    ui_print "! Multiple root implementation is NOT supported!"
+    ui_print "! Please uninstall Magisk before installing $SONAME"
+    abort    "*********************************************************"
   fi
-}
+elif [ "$BOOTMODE" ] && [ "$MAGISK_VER_CODE" ]; then
+  ui_print "- Installing from Magisk app"
+else
+  ui_print "*********************************************************"
+  ui_print "! Install from recovery is NOT supported!"
+  ui_print "! Some recovery has broken implementations, install with such recovery will finally cause Zygisk or Zygisk modules not working"
+  ui_print "! Please install from KernelSU or Magisk app"
+  abort "*********************************************************"
+fi
+if [ "$BOOTMODE" ] && [ "$APatch" ]; then
+  ui_print "- Installing from APatch app"
+  ui_print "- APatch version: $APatch_VER_CODE (apatch)"
+  if [ "$(which magisk)" ]; then
+      ui_print "*********************************************************"
+      ui_print "! Multiple root implementation is NOT supported!"
+      ui_print "! Please uninstall Magisk before installing $SONAME"
+      abort    "*********************************************************"
+  fi
+fi
 
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
 ui_print "- LSPosed version ${VERSION}"
@@ -55,7 +72,7 @@ extract "$ZIPFILE" 'verify.sh' "$TMPDIR"
 extract "$ZIPFILE" 'util_functions.sh' "$TMPDIR"
 . "$TMPDIR/util_functions.sh"
 check_android_version
-check_magisk_version
+check_version
 check_incompatible_module
 
 enforce_install_from_magisk_app
@@ -81,7 +98,7 @@ extract "$ZIPFILE" 'daemon'             "$MODPATH"
 rm -f /data/adb/lspd/manager.apk
 extract "$ZIPFILE" 'manager.apk'        "$MODPATH"
 
-if [ "$KSU" ]; then
+if [ "$BOOTMODE" ] &&[ "$KSU" ]; then
   mkdir -p "$MODPATH/webroot"
   extract "$ZIPFILE" "webroot/index.html" "$MODPATH/webroot" true
   # evaluate if use awk or tr -s ' ' | cut -d' ' -f5
