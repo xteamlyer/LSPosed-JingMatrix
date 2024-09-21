@@ -58,7 +58,7 @@ You can contribute translation [here](https://lsposed.crowdin.com/lsposed).
 - [Dobby](https://github.com/jmpews/Dobby): used for inline hooking
 - [LSPlant](https://github.com/LSPosed/LSPlant): the core ART hooking framework
 - [LSPosed](https://github.com/LSPosed/LSPosed): fork source
-- [xz embedded](https://github.com/tukaani-project/xz-embedded):decompress debug_info section into stripped libraries
+- [xz_embedded](https://github.com/tukaani-project/xz-embedded):decompress debug_info section into stripped libraries
 - [system_properties](https://github.com/topjohnwu/system_properties):switch properties access within LSPosed
 - ~[SandHook](https://github.com/ganyao114/SandHook/): ART hooking framework for SandHook variant~
 - ~[YAHFA](https://github.com/rk700/YAHFA): previous ART hooking framework~

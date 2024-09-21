@@ -41,16 +41,6 @@ else
   ui_print "! Please install from KernelSU or Magisk app"
   abort "*********************************************************"
 fi
-if [ "$BOOTMODE" ] && [ "$APatch" ]; then
-  ui_print "- Installing from APatch app"
-  ui_print "- APatch version: $APatch_VER_CODE (apatch)"
-  if [ "$(which magisk)" ]; then
-      ui_print "*********************************************************"
-      ui_print "! Multiple root implementation is NOT supported!"
-      ui_print "! Please uninstall Magisk before installing $SONAME"
-      abort    "*********************************************************"
-  fi
-fi
 
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
 ui_print "- LSPosed version ${VERSION}"
