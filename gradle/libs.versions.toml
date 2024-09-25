@@ -2,7 +2,7 @@
 agp = "8.6.1"
 kotlin = "2.0.20"
 nav = "2.8.1"
-appcenter = "5.0.4"
+# appcenter = "5.0.4"
 libxposed = "100"
 glide = "4.16.0"
 okhttp = "4.12.0"
@@ -20,8 +20,8 @@ lsplugin-cmaker = { id = "org.lsposed.lsplugin.cmaker", version = "1.2" }
 lsplugin-jgit = { id = "org.lsposed.lsplugin.jgit", version = "1.1" }
 
 [libraries]
-appcenter-crashes = { group = "com.microsoft.appcenter", name = "appcenter-crashes", version.ref = "appcenter" }
-appcenter-analytics = { group = "com.microsoft.appcenter", name = "appcenter-analytics", version.ref = "appcenter" }
+# appcenter-crashes = { group = "com.microsoft.appcenter", name = "appcenter-crashes", version.ref = "appcenter" }
+# appcenter-analytics = { group = "com.microsoft.appcenter", name = "appcenter-analytics", version.ref = "appcenter" }
 
 rikkax-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version = "1.6.1" }
 rikkax-core = { module = "dev.rikka.rikkax.core:core", version = "1.4.1" }

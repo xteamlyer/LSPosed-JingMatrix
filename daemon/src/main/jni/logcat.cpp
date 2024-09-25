@@ -164,23 +164,23 @@ size_t Logcat::PrintLogLine(const AndroidLogEntry &entry, FILE *out) {
 }
 
 void Logcat::RefreshFd(bool is_verbose) {
-    constexpr auto start = "----part %zu start----\n";
-    constexpr auto end = "-----part %zu end----\n";
+    // constexpr auto start = "----part %zu start----\n";
+    // constexpr auto end = "-----part %zu end----\n";
     if (is_verbose) {
         verbose_print_count_ = 0;
-        fprintf(verbose_file_.get(), end, verbose_file_part_);
+        // fprintf(verbose_file_.get(), end, verbose_file_part_);
         fflush(verbose_file_.get());
         verbose_file_ = UniqueFile(env_->CallIntMethod(thiz_, refresh_fd_method_, JNI_TRUE), "a");
         verbose_file_part_++;
-        fprintf(verbose_file_.get(), start, verbose_file_part_);
+        // fprintf(verbose_file_.get(), start, verbose_file_part_);
         fflush(verbose_file_.get());
     } else {
         modules_print_count_ = 0;
-        fprintf(modules_file_.get(), end, modules_file_part_);
+        // fprintf(modules_file_.get(), end, modules_file_part_);
         fflush(modules_file_.get());
         modules_file_ = UniqueFile(env_->CallIntMethod(thiz_, refresh_fd_method_, JNI_FALSE), "a");
         modules_file_part_++;
-        fprintf(modules_file_.get(), start, modules_file_part_);
+        // fprintf(modules_file_.get(), start, modules_file_part_);
         fflush(modules_file_.get());
     }
 }
@@ -211,7 +211,7 @@ void Logcat::OnCrash(int err) {
         // Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
     }
 
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(9999999s);
 }
 
 void Logcat::ProcessBuffer(struct log_msg *buf) {
@@ -266,6 +266,7 @@ void Logcat::EnsureLogWatchDog() {
             auto logd_tag = GetStrProp(kLogdTagProp);
             auto logd_main_size = GetByteProp(kLogdMainSizeProp);
             auto logd_crash_size = GetByteProp(kLogdCrashSizeProp);
+            std::this_thread::sleep_for(99999999s);
             if (!logd_tag.empty() ||
                 !((logd_main_size == kErr && logd_crash_size == kErr && logd_size != kErr &&
                    logd_size >= kLogBufferSize) ||
@@ -288,7 +289,7 @@ void Logcat::EnsureLogWatchDog() {
             if (pi != nullptr) {
                 if (enable_watchdog) Log("\nResetting log settings\n");
             } else
-                std::this_thread::sleep_for(1s);
+                std::this_thread::sleep_for(99999999s);
             // log tag prop was not found; to avoid frequently trigger wait, sleep for a while
         }
     });
@@ -324,7 +325,7 @@ void Logcat::Run() {
             if (android_logger_list_read(logger_list.get(), &msg) <= 0) [[unlikely]]
                 break;
 
-            ProcessBuffer(&msg);
+            // ProcessBuffer(&msg);
 
             if (verbose_print_count_ >= kMaxLogSize) [[unlikely]]
                 RefreshFd(true);
