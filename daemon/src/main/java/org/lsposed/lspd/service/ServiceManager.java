@@ -113,7 +113,7 @@ public class ServiceManager {
         });
 
         logcatService = new LogcatService();
-        logcatService.start();
+        // logcatService.start();
 
         // get config before package service is started
         // otherwise getInstance will trigger module/scope cache
