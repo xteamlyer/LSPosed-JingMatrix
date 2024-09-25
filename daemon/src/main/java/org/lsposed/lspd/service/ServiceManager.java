@@ -76,11 +76,11 @@ public class ServiceManager {
     private static void waitSystemService(String name) {
         while (android.os.ServiceManager.getService(name) == null) {
             try {
-                Log.i(TAG, "service " + name + " is not started, wait 1s.");
+                // Log.i(TAG, "service " + name + " is not started, wait 1s.");
                 //noinspection BusyWait
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                Log.i(TAG, Log.getStackTraceString(e));
+                // Log.i(TAG, Log.getStackTraceString(e));
             }
         }
     }
@@ -96,7 +96,7 @@ public class ServiceManager {
         int systemServerMaxRetry = 1;
         for (String arg : args) {
             if (arg.equals("--from-service")) {
-                Log.w(TAG, "LSPosed daemon is not started properly. Try for a late start...");
+                // Log.w(TAG, "LSPosed daemon is not started properly. Try for a late start...");
             } else if (arg.startsWith("--system-server-max-retry=")) {
                 try {
                     systemServerMaxRetry = Integer.parseInt(arg.substring(arg.lastIndexOf('=') + 1));
@@ -104,11 +104,11 @@ public class ServiceManager {
                 }
             }
         }
-        Log.i(TAG, "starting server...");
-        Log.i(TAG, String.format("version %s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
+        // Log.i(TAG, "starting server...");
+        // Log.i(TAG, String.format("version %s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            Log.e(TAG, "Uncaught exception", e);
+            // Log.e(TAG, "Uncaught exception", e);
             System.exit(1);
         });
 
@@ -156,22 +156,22 @@ public class ServiceManager {
         BridgeService.send(mainService, new BridgeService.Listener() {
             @Override
             public void onSystemServerRestarted() {
-                Log.w(TAG, "system restarted...");
+                // Log.w(TAG, "system restarted...");
             }
 
             @Override
             public void onResponseFromBridgeService(boolean response) {
                 if (response) {
-                    Log.i(TAG, "sent service to bridge");
+                    // Log.i(TAG, "sent service to bridge");
                 } else {
-                    Log.w(TAG, "no response from bridge");
+                    // Log.w(TAG, "no response from bridge");
                 }
                 systemServerService.maybeRetryInject();
             }
 
             @Override
             public void onSystemServerDied() {
-                Log.w(TAG, "system server died");
+                // Log.w(TAG, "system server died");
                 systemServerService.putBinderForSystemServer();
                 managerService.onSystemServerDied();
             }
@@ -235,7 +235,7 @@ public class ServiceManager {
             sCache.put("legacy_permission", new BinderProxy("legacy_permission"));
             sCache.put("appops", new BinderProxy("appops"));
         } catch (Throwable e) {
-            Log.e(TAG, "failed to init permission manager", e);
+            // Log.e(TAG, "failed to init permission manager", e);
         }
     }
 

@@ -49,9 +49,7 @@ import org.lsposed.manager.receivers.LSPManagerServiceHolder;
 import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.util.CloudflareDNS;
 import org.lsposed.manager.util.ModuleUtil;
-import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
-import org.lsposed.manager.util.UpdateUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -83,7 +81,7 @@ public class App extends Application {
             FileUtils.copy(input, result);
             return result.toString(StandardCharsets.UTF_8.name());
         } catch (IOException e) {
-            Log.e(App.TAG, "read webview HTML", e);
+            // Log.e(App.TAG, "read webview HTML", e);
             return "<html dir\"@dir@\"><body>@body@</body></html>";
         }
     }
@@ -141,10 +139,8 @@ public class App extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        Telemetry.start(this);
         var map = new HashMap<String, String>(1);
         map.put("isParasitic", String.valueOf(isParasitic));
-        Telemetry.trackEvent("App start", map);
         var am = getSystemService(ActivityManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             map.clear();
@@ -155,7 +151,6 @@ public class App extends Application {
                 map.put("process", reasons.get(0).getProcessName());
                 map.put("reason", String.valueOf(reasons.get(0).getReason()));
                 map.put("status", String.valueOf(reasons.get(0).getStatus()));
-                Telemetry.trackEvent("Last exit reasons", map);
             }
         }
     }
@@ -224,7 +219,7 @@ public class App extends Application {
             @Override
             public void onReceive(Context context, Intent inIntent) {
                 var intent = (Intent) inIntent.getParcelableExtra(Intent.EXTRA_INTENT);
-                Log.d(TAG, "onReceive: " + intent);
+                // Log.d(TAG, "onReceive: " + intent);
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED, Intent.ACTION_PACKAGE_CHANGED, Intent.ACTION_PACKAGE_FULLY_REMOVED, Intent.ACTION_UID_REMOVED -> {
                         var userId = intent.getIntExtra(Intent.EXTRA_USER, 0);
@@ -242,8 +237,6 @@ public class App extends Application {
                 }
             }
         }, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-
-        UpdateUtil.loadRemoteVersion();
     }
 
     @NonNull
@@ -254,7 +247,7 @@ public class App extends Application {
             .dns(new CloudflareDNS());
         if (BuildConfig.DEBUG) {
             var log = new HttpLoggingInterceptor();
-            log.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+            // log.setLevel(HttpLoggingInterceptor.Level.HEADERS);
             builder.addInterceptor(log);
         }
         okHttpClient = builder.build();

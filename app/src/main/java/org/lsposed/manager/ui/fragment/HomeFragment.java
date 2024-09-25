@@ -50,8 +50,6 @@ import org.lsposed.manager.ui.dialog.BlurBehindDialogBuilder;
 import org.lsposed.manager.ui.dialog.FlashDialogBuilder;
 import org.lsposed.manager.ui.dialog.WelcomeDialog;
 import org.lsposed.manager.util.NavUtil;
-import org.lsposed.manager.util.Telemetry;
-import org.lsposed.manager.util.UpdateUtil;
 import org.lsposed.manager.util.chrome.LinkTransformationMethod;
 
 import java.io.IOException;
@@ -105,28 +103,14 @@ public class HomeFragment extends BaseFragment implements MenuProvider {
         binding.appBar.setLiftable(true);
         binding.nestedScrollView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> binding.appBar.setLifted(!top));
 
-        updateStates(requireActivity(), ConfigManager.isBinderAlive(), UpdateUtil.needUpdate());
+        updateStates(requireActivity(), ConfigManager.isBinderAlive());
 
         return binding.getRoot();
     }
 
-    private void updateStates(Activity activity, boolean binderAlive, boolean needUpdate) {
+    private void updateStates(Activity activity, boolean binderAlive) {
         if (binderAlive) {
-            if (needUpdate) {
-                binding.updateTitle.setText(R.string.need_update);
-                binding.updateSummary.setText(getString(R.string.please_update_summary));
-                binding.statusIcon.setImageResource(R.drawable.ic_round_update_24);
-                binding.updateBtn.setOnClickListener(v -> {
-                    if (UpdateUtil.canInstall()) {
-                        new FlashDialogBuilder(activity, null).show();
-                    } else {
-                        NavUtil.startURL(activity, getString(R.string.latest_url));
-                    }
-                });
-                binding.updateCard.setVisibility(View.VISIBLE);
-            } else {
-                binding.updateCard.setVisibility(View.GONE);
-            }
+            binding.updateCard.setVisibility(View.GONE);
             boolean dex2oatAbnormal = ConfigManager.getDex2OatWrapperCompatibility() != ILSPManagerService.DEX2OAT_OK && !ConfigManager.dex2oatFlagsLoaded();
             var sepolicyAbnormal = !ConfigManager.isSepolicyLoaded();
             var systemServerAbnormal = !ConfigManager.systemServerRequested();
@@ -161,11 +145,7 @@ public class HomeFragment extends BaseFragment implements MenuProvider {
                 binding.updateSummary.setText(R.string.install_summary);
                 binding.statusIcon.setImageResource(R.drawable.ic_round_error_outline_24);
                 binding.updateBtn.setOnClickListener(v -> {
-                    if (UpdateUtil.canInstall()) {
-                        new FlashDialogBuilder(activity, null).show();
-                    } else {
-                        NavUtil.startURL(activity, getString(R.string.install_url));
-                    }
+                NavUtil.startURL(activity, getString(R.string.install_url));
                 });
                 binding.updateCard.setVisibility(View.VISIBLE);
             } else {
@@ -246,7 +226,6 @@ public class HomeFragment extends BaseFragment implements MenuProvider {
         map.put("api", binding.api.getText().toString());
         map.put("frameworkVersion", binding.frameworkVersion.getText().toString());
         map.put("systemAbi", Arrays.toString(Build.SUPPORTED_ABIS));
-        Telemetry.trackEvent("HomeFragment", map);
         binding.copyInfo.setOnClickListener(v -> {
             ClipboardUtils.put(activity, info);
             showHint(R.string.info_copied, false);

@@ -48,12 +48,12 @@ namespace lspd {
     static std::string GetXResourcesClassName() {
         auto &obfs_map = ConfigBridge::GetInstance()->obfuscation_map();
         if (obfs_map.empty()) {
-            LOGW("GetXResourcesClassName: obfuscation_map empty?????");
+            // LOGW("GetXResourcesClassName: obfuscation_map empty?????");
         }
         static auto name = lspd::JavaNameToSignature(
                 obfs_map.at("android.content.res.XRes"))  // TODO: kill this hardcoded name
                     .substr(1) + "ources";
-        LOGD("{}", name.c_str());
+        // LOGD("{}", name.c_str());
         return name;
     }
 
@@ -88,7 +88,7 @@ namespace lspd {
                                                                                        x_resources_class_name)) {
             classXResources = JNI_NewGlobalRef(env, classXResources_);
         } else {
-            LOGE("Error while loading XResources class '{}':", x_resources_class_name);
+            // LOGE("Error while loading XResources class '{}':", x_resources_class_name);
             return JNI_FALSE;
         }
         methodXResourcesTranslateResId = JNI_GetStaticMethodID(

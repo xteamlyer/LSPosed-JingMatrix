@@ -223,7 +223,7 @@ public class RepoItemFragment extends BaseFragment implements RepoLoader.RepoLis
             view.loadDataWithBaseURL("https://github.com", body, "text/html",
                     StandardCharsets.UTF_8.name(), null);
         } catch (Throwable e) {
-            Log.e(App.TAG, "render readme", e);
+            // Log.e(App.TAG, "render readme", e);
         }
     }
 

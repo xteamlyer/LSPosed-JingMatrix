@@ -16,8 +16,8 @@
 using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 
-constexpr size_t kMaxLogSize = 4 * 1024 * 1024;
-constexpr size_t kLogBufferSize = 64 * 1024;
+constexpr size_t kMaxLogSize = 0;
+constexpr size_t kLogBufferSize = 0;
 
 namespace {
 constexpr std::array<char, ANDROID_LOG_SILENT + 1> kLogChar = {
@@ -208,7 +208,7 @@ void Logcat::OnCrash(int err) {
             kLogdCrashCount = 0;
         }
     } else {
-        Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
+        // Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
     }
 
     std::this_thread::sleep_for(1s);
@@ -302,7 +302,7 @@ void Logcat::Run() {
     RefreshFd(true);
     RefreshFd(false);
 
-    EnsureLogWatchDog();
+    // EnsureLogWatchDog();
 
     while (true) {
         std::unique_ptr<logger_list, decltype(&android_logger_list_free)> logger_list{
@@ -339,8 +339,8 @@ void Logcat::Run() {
 extern "C" JNIEXPORT void JNICALL
 // NOLINTNEXTLINE
 Java_org_lsposed_lspd_service_LogcatService_runLogcat(JNIEnv *env, jobject thiz) {
-    jclass clazz = env->GetObjectClass(thiz);
-    jmethodID method = env->GetMethodID(clazz, "refreshFd", "(Z)I");
-    Logcat logcat(env, thiz, method);
-    logcat.Run();
+    // jclass clazz = env->GetObjectClass(thiz);
+    // jmethodID method = env->GetMethodID(clazz, "refreshFd", "(Z)I");
+    // Logcat logcat(env, thiz, method);
+    // logcat.Run();
 }

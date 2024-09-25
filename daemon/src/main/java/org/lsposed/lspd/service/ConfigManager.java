@@ -98,8 +98,8 @@ public class ConfigManager {
 
     private final SQLiteDatabase db = openDb();
 
-    private boolean verboseLog = true;
-    private boolean logWatchdog = true;
+    private boolean verboseLog = false;
+    private boolean logWatchdog = false;
     private boolean dexObfuscate = true;
     private boolean enableStatusNotification = true;
     private Path miscPath = null;
@@ -204,7 +204,7 @@ public class ConfigManager {
     // for system server, cache is not yet ready, we need to query database for it
     public boolean shouldSkipSystemServer() {
         if (!SELinux.checkSELinuxAccess("u:r:system_server:s0", "u:r:system_server:s0", "process", "execmem")) {
-            Log.e(TAG, "skip injecting into android because sepolicy was not loaded properly");
+            // Log.e(TAG, "skip injecting into android because sepolicy was not loaded properly");
             return true; // skip
         }
         /*
@@ -233,7 +233,7 @@ public class ConfigManager {
                 try {
                     module.appId = Os.stat(statPath).st_uid;
                 } catch (ErrnoException e) {
-                    Log.w(TAG, "cannot stat " + statPath, e);
+                    // Log.w(TAG, "cannot stat " + statPath, e);
                     module.appId = -1;
                 }
                 try {
@@ -246,7 +246,7 @@ public class ConfigManager {
                     HiddenApiBridge.ApplicationInfo_credentialProtectedDataDir(module.applicationInfo, statPath);
                     module.applicationInfo.processName = module.packageName;
                 } catch (PackageParser.PackageParserException e) {
-                    Log.w(TAG, "failed to parse " + module.apkPath, e);
+                    // Log.w(TAG, "failed to parse " + module.apkPath, e);
                 }
                 module.service = new LSPInjectedModuleService(module.packageName);
                 modules.add(module);
@@ -256,7 +256,7 @@ public class ConfigManager {
         return modules.parallelStream().filter(m -> {
             var file = ConfigFileManager.loadModule(m.apkPath, dexObfuscate);
             if (file == null) {
-                Log.w(TAG, "Can not load " + m.apkPath + ", skip!");
+                // Log.w(TAG, "Can not load " + m.apkPath + ", skip!");
                 return false;
             }
             m.file = file;
@@ -302,7 +302,7 @@ public class ConfigManager {
             Files.createDirectories(miscPath, PosixFilePermissions.asFileAttribute(perms));
             walkFileTree(miscPath, f -> SELinux.setFileContext(f.toString(), "u:object_r:magisk_file:s0"));
         } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Log.e(TAG, Log.getStackTraceString(e));
         }
 
         updateManager(false);
@@ -323,7 +323,7 @@ public class ConfigManager {
                 setAccessMatrixAppId(managerUid, true);
             } else {
                 managerUid = -1;
-                Log.i(TAG, "manager is not installed");
+                // Log.i(TAG, "manager is not installed");
             }
         } catch (RemoteException ignored) {
         }
@@ -338,7 +338,7 @@ public class ConfigManager {
         }
         if (needCached) {
             if (PackageService.isAlive() && UserService.isAlive()) {
-                Log.d(TAG, "pm & um are ready, updating cache");
+                // Log.d(TAG, "pm & um are ready, updating cache");
                 // must ensure cache is valid for later usage
                 instance.updateCaches(true);
                 instance.updateManager(false);
@@ -412,14 +412,14 @@ public class ConfigManager {
                             try {
                                 db.compileStatement("INSERT INTO scope SELECT * FROM old_scope;").execute();
                             } catch (Throwable e) {
-                                Log.w(TAG, "migrate scope", e);
+                                // Log.w(TAG, "migrate scope", e);
                             }
                         });
                         executeInTransaction(() -> {
                             try {
                                 executeInTransaction(() -> db.compileStatement("INSERT INTO configs SELECT * FROM old_configs;").execute());
                             } catch (Throwable e) {
-                                Log.w(TAG, "migrate config", e);
+                                // Log.w(TAG, "migrate config", e);
                             }
                         });
                         db.compileStatement("DROP TABLE old_scope;").execute();
@@ -435,7 +435,7 @@ public class ConfigManager {
                     break;
             }
         } catch (Throwable e) {
-            Log.e(TAG, "init db", e);
+            // Log.e(TAG, "init db", e);
         }
 
     }
@@ -465,7 +465,7 @@ public class ConfigManager {
         try (Cursor cursor = db.query("configs", new String[]{"`group`", "`key`", "data"},
                 "module_pkg_name = ? and user_id = ?", new String[]{name, String.valueOf(user_id)}, null, null, null)) {
             if (cursor == null) {
-                Log.e(TAG, "db cache failed");
+                // Log.e(TAG, "db cache failed");
                 return config;
             }
             int groupIdx = cursor.getColumnIndex("group");
@@ -571,7 +571,7 @@ public class ConfigManager {
         try (Cursor cursor = db.query(true, "modules", new String[]{"module_pkg_name", "apk_path"},
                 "enabled = 1", null, null, null, null, null)) {
             if (cursor == null) {
-                Log.e(TAG, "db cache failed");
+                // Log.e(TAG, "db cache failed");
                 return;
             }
             int pkgNameIdx = cursor.getColumnIndex("module_pkg_name");
@@ -603,10 +603,10 @@ public class ConfigManager {
                 try {
                     pkgInfo = PackageService.getPackageInfoFromAllUsers(m.packageName, MATCH_ALL_FLAGS).values().stream().findFirst().orElse(null);
                 } catch (Throwable e) {
-                    Log.w(TAG, "Get package info of " + m.packageName, e);
+                    // Log.w(TAG, "Get package info of " + m.packageName, e);
                 }
                 if (pkgInfo == null || pkgInfo.applicationInfo == null) {
-                    Log.w(TAG, "Failed to find package info of " + m.packageName);
+                    // Log.w(TAG, "Failed to find package info of " + m.packageName);
                     obsoleteModules.add(m.packageName);
                     return false;
                 }
@@ -618,7 +618,7 @@ public class ConfigManager {
                         Objects.equals(m.apkPath, oldModule.apkPath) &&
                         Objects.equals(new File(pkgInfo.applicationInfo.sourceDir).getParent(), new File(m.apkPath).getParent())) {
                     if (oldModule.appId != -1) {
-                        Log.d(TAG, m.packageName + " did not change, skip caching it");
+                        // Log.d(TAG, m.packageName + " did not change, skip caching it");
                     } else {
                         // cache from system server, update application info
                         oldModule.applicationInfo = pkgInfo.applicationInfo;
@@ -627,7 +627,7 @@ public class ConfigManager {
                 }
                 m.apkPath = getModuleApkPath(pkgInfo.applicationInfo);
                 if (m.apkPath == null) {
-                    Log.w(TAG, "Failed to find path of " + m.packageName);
+                    // Log.w(TAG, "Failed to find path of " + m.packageName);
                     obsoleteModules.add(m.packageName);
                     return false;
                 } else {
@@ -640,7 +640,7 @@ public class ConfigManager {
             }).forEach(m -> {
                 var file = ConfigFileManager.loadModule(m.apkPath, dexObfuscate);
                 if (file == null) {
-                    Log.w(TAG, "failed to load module " + m.packageName);
+                    // Log.w(TAG, "failed to load module " + m.packageName);
                     obsoleteModules.add(m.packageName);
                     return;
                 }
@@ -652,14 +652,14 @@ public class ConfigManager {
                 obsoleteModules.forEach(this::removeModuleWithoutCache);
                 obsoletePaths.forEach((packageName, path) -> updateModuleApkPath(packageName, path, true));
             } else {
-                Log.w(TAG, "pm is dead while caching. invalidating...");
+                // Log.w(TAG, "pm is dead while caching. invalidating...");
                 clearCache();
                 return;
             }
         }
-        Log.d(TAG, "cached modules");
+        // Log.d(TAG, "cached modules");
         for (var module : cachedModule.entrySet()) {
-            Log.d(TAG, module.getKey() + " " + module.getValue().apkPath);
+            // Log.d(TAG, module.getKey() + " " + module.getValue().apkPath);
         }
         cacheScopes();
         toClose.forEach(SharedMemory::close);
@@ -698,7 +698,7 @@ public class ConfigManager {
                     try {
                         available = PackageService.isPackageAvailable(n.first, n.second, true) && cachedModule.containsKey(modulePackageName);
                     } catch (Throwable e) {
-                        Log.w(TAG, "check package availability ", e);
+                        // Log.w(TAG, "check package availability ", e);
                     }
                     if (!available) {
                         var obsoleteModule = new Application();
@@ -749,23 +749,23 @@ public class ConfigManager {
             }
             if (PackageService.isAlive()) {
                 for (Application obsoletePackage : obsoletePackages) {
-                    Log.d(TAG, "removing obsolete package: " + obsoletePackage.packageName + "/" + obsoletePackage.userId);
+                    // Log.d(TAG, "removing obsolete package: " + obsoletePackage.packageName + "/" + obsoletePackage.userId);
                     removeAppWithoutCache(obsoletePackage);
                 }
                 for (Application obsoleteModule : obsoleteModules) {
-                    Log.d(TAG, "removing obsolete module: " + obsoleteModule.packageName + "/" + obsoleteModule.userId);
+                    // Log.d(TAG, "removing obsolete module: " + obsoleteModule.packageName + "/" + obsoleteModule.userId);
                     removeModuleScopeWithoutCache(obsoleteModule);
                     removeBlockedScopeRequest(obsoleteModule.packageName);
                 }
             } else {
-                Log.w(TAG, "pm is dead while caching. invalidating...");
+                // Log.w(TAG, "pm is dead while caching. invalidating...");
                 clearCache();
                 return;
             }
         }
-        Log.d(TAG, "cached scope");
+        // Log.d(TAG, "cached scope");
         cachedScope.forEach((ps, modules) -> {
-            Log.d(TAG, ps.processName + "/" + ps.uid);
+            // Log.d(TAG, ps.processName + "/" + ps.uid);
             modules.forEach(module -> Log.d(TAG, "\t" + module.packageName));
             var appId = ps.uid % PER_USER_RANGE;
             if (appId >= 10000 && appId <= 19999) {
@@ -821,7 +821,7 @@ public class ConfigManager {
         } else apks = new String[]{info.sourceDir};
         var apkPath = Arrays.stream(apks).parallel().filter(apk -> {
             if (apk == null) {
-                Log.w(TAG, info.packageName + " has null apk path???");
+                // Log.w(TAG, info.packageName + " has null apk path???");
                 return false;
             }
             try (var zip = new ZipFile(toGlobalNamespace(apk))) {
@@ -836,7 +836,7 @@ public class ConfigManager {
     public boolean updateModuleApkPath(String packageName, String apkPath, boolean force) {
         if (apkPath == null || packageName.equals("lspd")) return false;
         if (db.inTransaction()) {
-            Log.w(TAG, "update module apk path should not be called inside transaction");
+            // Log.w(TAG, "update module apk path should not be called inside transaction");
             return false;
         }
 
@@ -866,7 +866,7 @@ public class ConfigManager {
     private int getModuleId(String packageName) {
         if (packageName.equals("lspd")) return -1;
         if (db.inTransaction()) {
-            Log.w(TAG, "get module id should not be called inside transaction");
+            // Log.w(TAG, "get module id should not be called inside transaction");
             return -1;
         }
         try (Cursor cursor = db.query("modules", new String[]{"mid"}, "module_pkg_name=?", new String[]{packageName}, null, null, null)) {
@@ -932,7 +932,7 @@ public class ConfigManager {
     public String[] enabledModules() {
         try (Cursor cursor = db.query("modules", new String[]{"module_pkg_name"}, "enabled = 1", null, null, null, null)) {
             if (cursor == null) {
-                Log.e(TAG, "query enabled modules failed");
+                // Log.e(TAG, "query enabled modules failed");
                 return null;
             }
             int modulePkgNameIdx = cursor.getColumnIndex("module_pkg_name");
@@ -966,7 +966,7 @@ public class ConfigManager {
                 removeModulePrefs(user.id, packageName);
             }
         } catch (Throwable e) {
-            Log.w(TAG, "remove module prefs for " + packageName);
+            // Log.w(TAG, "remove module prefs for " + packageName);
         }
         return res;
     }
@@ -979,7 +979,7 @@ public class ConfigManager {
         try {
             removeModulePrefs(module.userId, module.packageName);
         } catch (IOException e) {
-            Log.w(TAG, "removeModulePrefs", e);
+            // Log.w(TAG, "removeModulePrefs", e);
         }
         return res;
     }
@@ -1096,7 +1096,7 @@ public class ConfigManager {
     }
 
     public boolean enableStatusNotification() {
-        Log.d(TAG, "show status notification = " + enableStatusNotification);
+        // Log.d(TAG, "show status notification = " + enableStatusNotification);
         return enableStatusNotification;
     }
 
@@ -1109,7 +1109,7 @@ public class ConfigManager {
         try {
             return ConfigFileManager.getManagerApk();
         } catch (Throwable e) {
-            Log.e(TAG, "failed to open manager apk", e);
+            // Log.e(TAG, "failed to open manager apk", e);
             return null;
         }
     }
@@ -1120,7 +1120,7 @@ public class ConfigManager {
             if (modulesLog == null) return null;
             return ParcelFileDescriptor.open(modulesLog, ParcelFileDescriptor.MODE_READ_ONLY);
         } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
     }
@@ -1131,7 +1131,7 @@ public class ConfigManager {
             if (verboseLog == null) return null;
             return ParcelFileDescriptor.open(verboseLog, ParcelFileDescriptor.MODE_READ_ONLY);
         } catch (FileNotFoundException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
     }
@@ -1161,11 +1161,11 @@ public class ConfigManager {
                     try {
                         Os.chown(p.toString(), uid, uid);
                     } catch (ErrnoException e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
+                        // Log.e(TAG, Log.getStackTraceString(e));
                     }
                 });
             } catch (IOException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                // Log.e(TAG, Log.getStackTraceString(e));
             }
         }
         return path.toString();
@@ -1222,7 +1222,7 @@ public class ConfigManager {
                 return result;
             }
         } catch (Throwable e) {
-            Log.e(TAG, "get denylist", e);
+            // Log.e(TAG, "get denylist", e);
         }
         return result;
     }
@@ -1250,7 +1250,7 @@ public class ConfigManager {
                     }
                 }
             } catch (IOException e) {
-                Log.w(TAG, scope.processName, e);
+                // Log.w(TAG, scope.processName, e);
             }
         });
         os.closeEntry();

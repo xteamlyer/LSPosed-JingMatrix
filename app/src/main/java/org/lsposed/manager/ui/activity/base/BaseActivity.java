@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 
 import org.lsposed.manager.App;
 import org.lsposed.manager.R;
-import org.lsposed.manager.util.Telemetry;
 import org.lsposed.manager.util.ThemeUtil;
 
 import rikka.material.app.MaterialActivity;
@@ -73,7 +72,6 @@ public class BaseActivity extends MaterialActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Telemetry.trackEvent("BaseActivity stop", null);
     }
 
     @Override

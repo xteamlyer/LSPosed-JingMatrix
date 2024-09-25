@@ -54,12 +54,12 @@ public class LSPosedBridge {
     }
 
     public static void log(String text) {
-        Log.i(TAG, text);
+        // Log.i(TAG, text);
     }
 
     public static void log(Throwable t) {
         String logStr = Log.getStackTraceString(t);
-        Log.e(TAG, logStr);
+        // Log.e(TAG, logStr);
     }
 
     public static class NativeHooker<T extends Executable> {
@@ -131,7 +131,7 @@ public class LSPosedBridge {
                         ctxArray[beforeIdx] = hooker.beforeInvocation.invoke(null, callback);
                     }
                 } catch (Throwable t) {
-                    LSPosedBridge.log(t);
+                    // LSPosedBridge.log(t);
 
                     // reset result (ignoring what the unexpectedly exiting callback did)
                     callback.setResult(null);
@@ -177,7 +177,7 @@ public class LSPosedBridge {
                         hooker.afterInvocation.invoke(null, callback, ctxArray[afterIdx]);
                     }
                 } catch (Throwable t) {
-                    LSPosedBridge.log(t);
+                    // LSPosedBridge.log(t);
 
                     // reset to last result (ignoring what the unexpectedly exiting callback did)
                     if (lastThrowable == null) {

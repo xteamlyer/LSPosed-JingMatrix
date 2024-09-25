@@ -69,7 +69,7 @@ public class LSPosedContext implements XposedInterface {
             try {
                 module.onPackageLoaded(param);
             } catch (Throwable t) {
-                Log.e(TAG, "Error when calling onPackageLoaded of " + module.getApplicationInfo().packageName, t);
+                // Log.e(TAG, "Error when calling onPackageLoaded of " + module.getApplicationInfo().packageName, t);
             }
         }
     }
@@ -79,7 +79,7 @@ public class LSPosedContext implements XposedInterface {
             try {
                 module.onSystemServerLoaded(param);
             } catch (Throwable t) {
-                Log.e(TAG, "Error when calling onSystemServerLoaded of " + module.getApplicationInfo().packageName, t);
+                // Log.e(TAG, "Error when calling onSystemServerLoaded of " + module.getApplicationInfo().packageName, t);
             }
         }
     }
@@ -87,7 +87,7 @@ public class LSPosedContext implements XposedInterface {
     @SuppressLint("DiscouragedPrivateApi")
     public static boolean loadModule(ActivityThread at, Module module) {
         try {
-            Log.d(TAG, "Loading module " + module.packageName);
+            // Log.d(TAG, "Loading module " + module.packageName);
             var sb = new StringBuilder();
             var abis = Process.is64Bit() ? Build.SUPPORTED_64_BIT_ABIS : Build.SUPPORTED_32_BIT_ABIS;
             for (String abi : abis) {
@@ -97,17 +97,17 @@ public class LSPosedContext implements XposedInterface {
             var initLoader = XposedModule.class.getClassLoader();
             var mcl = LspModuleClassLoader.loadApk(module.apkPath, module.file.preLoadedDexes, librarySearchPath, initLoader);
             if (mcl.loadClass(XposedModule.class.getName()).getClassLoader() != initLoader) {
-                Log.e(TAG, "  Cannot load module: " + module.packageName);
-                Log.e(TAG, "  The Xposed API classes are compiled into the module's APK.");
-                Log.e(TAG, "  This may cause strange issues and must be fixed by the module developer.");
+                // Log.e(TAG, "  Cannot load module: " + module.packageName);
+                // Log.e(TAG, "  The Xposed API classes are compiled into the module's APK.");
+                // Log.e(TAG, "  This may cause strange issues and must be fixed by the module developer.");
                 return false;
             }
             var ctx = new LSPosedContext(module.packageName, module.applicationInfo, module.service);
             for (var entry : module.file.moduleClassNames) {
                 var moduleClass = mcl.loadClass(entry);
-                Log.d(TAG, "  Loading class " + moduleClass);
+                // Log.d(TAG, "  Loading class " + moduleClass);
                 if (!XposedModule.class.isAssignableFrom(moduleClass)) {
-                    Log.e(TAG, "    This class doesn't implement any sub-interface of XposedModule, skipping it");
+                    // Log.e(TAG, "    This class doesn't implement any sub-interface of XposedModule, skipping it");
                     continue;
                 }
                 try {
@@ -126,13 +126,13 @@ public class LSPosedContext implements XposedInterface {
                     });
                     modules.add(moduleContext);
                 } catch (Throwable e) {
-                    Log.e(TAG, "    Failed to load class " + moduleClass, e);
+                    // Log.e(TAG, "    Failed to load class " + moduleClass, e);
                 }
             }
             module.file.moduleLibraryNames.forEach(NativeAPI::recordNativeEntrypoint);
-            Log.d(TAG, "Loaded module " + module.packageName + ": " + ctx);
+            // Log.d(TAG, "Loaded module " + module.packageName + ": " + ctx);
         } catch (Throwable e) {
-            Log.d(TAG, "Loading module " + module.packageName, e);
+            // Log.d(TAG, "Loading module " + module.packageName, e);
             return false;
         }
         return true;
@@ -278,12 +278,12 @@ public class LSPosedContext implements XposedInterface {
 
     @Override
     public void log(@NonNull String message) {
-        Log.i(TAG, mPackageName + ": " + message);
+        // Log.i(TAG, mPackageName + ": " + message);
     }
 
     @Override
     public void log(@NonNull String message, @NonNull Throwable throwable) {
-        Log.e(TAG, mPackageName + ": " + message, throwable);
+        // Log.e(TAG, mPackageName + ": " + message, throwable);
     }
 
     @Override
@@ -305,7 +305,7 @@ public class LSPosedContext implements XposedInterface {
             try {
                 return new LSPosedRemotePreferences(service, n);
             } catch (RemoteException e) {
-                log("Failed to get remote preferences", e);
+                // log("Failed to get remote preferences", e);
                 throw new XposedFrameworkError(e);
             }
         });
@@ -317,7 +317,7 @@ public class LSPosedContext implements XposedInterface {
         try {
             return service.getRemoteFileList();
         } catch (RemoteException e) {
-            log("Failed to list remote files", e);
+            // log("Failed to list remote files", e);
             throw new XposedFrameworkError(e);
         }
     }
