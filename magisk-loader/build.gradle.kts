@@ -163,7 +163,7 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
     val magiskDir = layout.buildDirectory.dir("magisk/$variantLowered")
 
     val moduleId = "${flavorLowered}_$moduleBaseId"
-    val zipFileName = "$moduleName-v$verName-$verCode-${flavorLowered}-$buildTypeLowered.zip"
+    val zipFileName = "$moduleName-v$verName-$verCode-$buildTypeLowered.zip"
 
     val prepareMagiskFilesTask = task<Sync>("prepareMagiskFiles$variantCapped") {
         group = "LSPosed"
@@ -194,7 +194,6 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
         from("$projectDir/magisk_module") {
             include("customize.sh", "daemon")
             val tokens = mapOf(
-                "FLAVOR" to flavorLowered,
                 "DEBUG" to if (buildTypeLowered == "debug") "true" else "false"
             )
             filter<ReplaceTokens>("tokens" to tokens)
