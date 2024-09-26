@@ -76,8 +76,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">LSPosed\'a hoş geldiniz</string>
     <string name="parasitic_welcome_summary">Parazit yöneticiyi kullanıyorsunuz, bu da kısayol oluşturabileceğinizi veya hala bildirimden açabileceğinizi gösterir.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">Parazit yöneticiyi kullanıyorsunuz ve bu da hala bildirimden açabileceğinizi gösterir.</string>
-    <string name="create_shortcut">Kısayol oluştur</string>
     <string name="never_show">Asla gösterme</string>
     <string name="app_welcome">Parazit Yönetici Önerilir</string>
     <string name="app_welcome_summary">LSPosed tespit edilmeyi önlemek için sistem parazitlemeyi destekliyor, parazit yöneticiyi bildirimden açabilirsiniz. Şu anki uygulamayı kaldırmanız önerilir.</string>
@@ -189,12 +187,8 @@
     <string name="settings_translation_contributors">Çeviri katılımcıları</string>
     <string name="settings_translation">Çeviriye katılın</string>
     <string name="settings_translation_summary">%s yazılımını çevirmemize yardım edin</string>
-    <string name="settings_create_shortcut_summary">Parazit yöneticiyi açmak için bir kısayol oluşturun</string>
-    <string name="settings_shortcut_pinned_hint">Ayarlar_kestirme_sabitlenmis</string>
-    <string name="settings_unsupported_pin_shortcut_summary">Geçerli varsayılan başlatıcı, pin kısayollarını desteklemiyor</string>
     <string name="settings_enable_status_notification">Durum Bildirimi</string>
     <string name="settings_enable_status_notification_summary">Parazit yöneticiyi açabilmek için bir bildirim göster</string>
-    <string name="disable_status_notification_error">Kısayol yok, bildirim devre dışı bırakılamaz</string>
     <string name="settings_update_channel">Güncelleme kanalı</string>
     <string name="update_channel_stable">Stabil</string>
     <string name="update_channel_bate">Beta</string>

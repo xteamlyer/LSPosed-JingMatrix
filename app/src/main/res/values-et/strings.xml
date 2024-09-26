@@ -76,8 +76,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">Tere tulemast LSPosedisse</string>
     <string name="parasitic_welcome_summary">Sa kasutad parasiitide haldurit, mis võib luua otsetee või ikka avada teateid.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">Kasutate parasiitide haldurit, mida saab avada teatisest.</string>
-    <string name="create_shortcut">Loo otsetee</string>
     <string name="never_show">Mitte kunagi ei näidata</string>
     <string name="app_welcome">Parasiitide haldur Soovitatav</string>
     <string name="app_welcome_summary">LSPosed toetab nüüd süsteemi parasiitide tuvastamise vältimiseks, saate avada parasiitide haldaja teatest. Praegune rakendus on soovitatav eemaldada.</string>
@@ -189,12 +187,8 @@
     <string name="settings_translation_contributors">Tõlkimise toetajad</string>
     <string name="settings_translation">Osalege tõlkimises</string>
     <string name="settings_translation_summary">Aita meil tõlkida %s sinu keelde</string>
-    <string name="settings_create_shortcut_summary">Loo otsetee, mis võib avada parasiitide halduri</string>
-    <string name="settings_shortcut_pinned_hint">Otsetee kinnitatud</string>
-    <string name="settings_unsupported_pin_shortcut_summary">Praegune vaikekäivitusprogramm ei toeta nööpnõelte otseteid</string>
     <string name="settings_enable_status_notification">Staatuse teatamine</string>
     <string name="settings_enable_status_notification_summary">Kuva teatis, mis võib avada parasiitide halduri</string>
-    <string name="disable_status_notification_error">Otsetee puudub, teavitust ei saa keelata</string>
     <string name="settings_update_channel">Uuenduskanal</string>
     <string name="update_channel_stable">Stabiilne</string>
     <string name="update_channel_bate">Beeta</string>

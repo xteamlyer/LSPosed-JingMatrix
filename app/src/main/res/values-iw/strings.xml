@@ -80,8 +80,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">ברוכים הבאים ל-LSPosed</string>
     <string name="parasitic_welcome_summary">הנך משתמש בגרסת אפליקציית ניהול בתצורת טפיל, שיכולה ליצור קיצור דרך או עדיין להיפתח מהתראה.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">הנך משתמש בגרסת אפליקציית ניהול בתצורת טפיל, שיכולה להיפתח מהתראה.</string>
-    <string name="create_shortcut">צור קיצור דרך</string>
     <string name="never_show">לעולם אל תראה</string>
     <string name="app_welcome">מומלצת גרסת אפליקציית ניהול בתצורת טפיל</string>
     <string name="app_welcome_summary">LSPosed תומך כעת בתצורת טפיל כדי למנוע זיהוי, ניתן לפתוח את גרסת אפליקציית הניהול בתצורת טפיל מהתראה. מומלץ להסיר את האפליקציה הנוכחית.</string>
@@ -193,12 +191,8 @@
     <string name="settings_translation_contributors">תורמים לתרגום</string>
     <string name="settings_translation">השתתף בתרגום</string>
     <string name="settings_translation_summary">עזור לנו לתרגם את %s לשפה שלך</string>
-    <string name="settings_create_shortcut_summary">צור קיצור דרך שיכול לפתוח מנהל טפילי</string>
-    <string name="settings_shortcut_pinned_hint">קיצור דרך הוצמד</string>
-    <string name="settings_unsupported_pin_shortcut_summary">מפעיל ברירת המחדל הנוכחי אינו תומך בקיצורי דרך</string>
     <string name="settings_enable_status_notification">הודעת סטטוס</string>
     <string name="settings_enable_status_notification_summary">הצג הודעה שיכולה לפתוח מנהל טפילי</string>
-    <string name="disable_status_notification_error">אין קיצור דרך, לא ניתן להשבית הודעה</string>
     <string name="settings_update_channel">ערוץ עדכון</string>
     <string name="update_channel_stable">יציב</string>
     <string name="update_channel_bate">בטא</string>

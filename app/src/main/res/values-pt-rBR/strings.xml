@@ -76,8 +76,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">Bem-vindo ao LSPosed</string>
     <string name="parasitic_welcome_summary">Você está usando o gerenciador parasita, você pode criar o atalho ou então abrir a partir da notificação.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">Você está usando o gerenciador parasita, ele pode ser aberto a partir da notificação.</string>
-    <string name="create_shortcut">Criar Atalho do Gerenciador Parasita</string>
     <string name="never_show">Não mostrar novamente</string>
     <string name="app_welcome">É recomendado o gerenciador parasita</string>
     <string name="app_welcome_summary">O LSPosed agora oferece suporte a parasitização do sistema para evitar detecções, você pode abrir o gerenciador parasita a partir da notificação. É recomendado desinstalar o aplicativo atual.</string>
@@ -189,12 +187,8 @@
     <string name="settings_translation_contributors">Tradutores</string>
     <string name="settings_translation">Participe das Traduções</string>
     <string name="settings_translation_summary">Ajude a traduzir o %s para o Português 🇧🇷🇵🇹</string>
-    <string name="settings_create_shortcut_summary">Criar um atalho para abrir gerenciador parasita</string>
-    <string name="settings_shortcut_pinned_hint">Atalho fixado</string>
-    <string name="settings_unsupported_pin_shortcut_summary">O lançador padrão atual não suporta atalhos de pinos</string>
     <string name="settings_enable_status_notification">Notificação de estado</string>
     <string name="settings_enable_status_notification_summary">Mostrar uma notificação que possa abrir o gerenciador parasita</string>
-    <string name="disable_status_notification_error">Nenhum atalho, não é possível desativar a notificação</string>
     <string name="settings_update_channel">Canal de Atualizações</string>
     <string name="update_channel_stable">Estável</string>
     <string name="update_channel_bate">Beta</string>

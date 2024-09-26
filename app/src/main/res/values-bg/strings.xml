@@ -76,8 +76,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">Добре дошли в LSPosed</string>
     <string name="parasitic_welcome_summary">Използвате паразитния мениджър, който може да създаде пряк път или все още да се отваря от известието.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">Използвате паразитния мениджър, който може да се отвори от известие.</string>
-    <string name="create_shortcut">Създаване на пряк път</string>
     <string name="never_show">Никога не показвайте</string>
     <string name="app_welcome">Препоръчва се паразитен мениджър</string>
     <string name="app_welcome_summary">LSPosed вече поддържа паразитиране на системата, за да се избегне откриването, можете да отворите мениджъра на паразити от известието. Препоръчва се да деинсталирате текущото приложение.</string>
@@ -189,12 +187,8 @@
     <string name="settings_translation_contributors">Преводачи, които допринасят за превода</string>
     <string name="settings_translation">Участие в превод</string>
     <string name="settings_translation_summary">Помогнете ни да преведем %s на вашия език</string>
-    <string name="settings_create_shortcut_summary">Създаване на пряк път, който може да отваря паразитен мениджър</string>
-    <string name="settings_shortcut_pinned_hint">Кратък път, закачен</string>
-    <string name="settings_unsupported_pin_shortcut_summary">Текущият стартер по подразбиране не поддържа преки пътища</string>
     <string name="settings_enable_status_notification">Известие за състоянието</string>
     <string name="settings_enable_status_notification_summary">Показване на известие, което може да отвори паразитен мениджър</string>
-    <string name="disable_status_notification_error">Няма пряк път, не мога да деактивирам известието</string>
     <string name="settings_update_channel">Актуализиране на канала</string>
     <string name="update_channel_stable">Стабилен</string>
     <string name="update_channel_bate">Бета</string>

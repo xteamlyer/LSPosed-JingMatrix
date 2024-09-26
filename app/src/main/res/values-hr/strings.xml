@@ -78,8 +78,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">Dobrodošli u LSPosed</string>
     <string name="parasitic_welcome_summary">Koristite parazitski upravitelj, koji može stvoriti prečac ili još uvijek otvoriti iz obavijesti.</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">Koristite parazitski upravitelj koji se može otvoriti iz obavijesti.</string>
-    <string name="create_shortcut">Napravi prečac</string>
     <string name="never_show">Nikad ne pokazuj</string>
     <string name="app_welcome">Parazitski Manager Preporučen</string>
     <string name="app_welcome_summary">LSPosed sada podržava parazitizaciju sustava kako bi se izbjeglo otkrivanje, možete otvoriti parazitski upravitelj iz obavijesti. Preporuča se deinstalirati trenutnu aplikaciju.</string>
@@ -191,12 +189,8 @@
     <string name="settings_translation_contributors">Suradnici prijevoda</string>
     <string name="settings_translation">Sudjelujte u prevođenju</string>
     <string name="settings_translation_summary">Pomozite nam prevesti %s na vaš jezik</string>
-    <string name="settings_create_shortcut_summary">Napravite prečac koji može otvoriti parazitski upravitelj</string>
-    <string name="settings_shortcut_pinned_hint">Prečac prikvačen</string>
-    <string name="settings_unsupported_pin_shortcut_summary">Trenutačni zadani pokretač ne podržava prečace pribadače</string>
     <string name="settings_enable_status_notification">Obavijest o statusu</string>
     <string name="settings_enable_status_notification_summary">Prikaži obavijest koja može otvoriti parazitski upravitelj</string>
-    <string name="disable_status_notification_error">Nema prečaca, nije moguće onemogućiti obavijest</string>
     <string name="settings_update_channel">Ažurirajte kanal</string>
     <string name="update_channel_stable">Stabilan</string>
     <string name="update_channel_bate">Beta</string>

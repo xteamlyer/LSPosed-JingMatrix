@@ -75,8 +75,6 @@
     <!-- WelcomeDialog -->
     <string name="parasitic_welcome">ยินดีต้อนรับสู่ LSPosed</string>
     <string name="parasitic_welcome_summary">คุณกำลังใช้ Lsposed ซึ่งสามารถสร้างทางลัดหรือยังคงเปิดจากการแจ้งเตือน</string>
-    <string name="parasitic_welcome_summary_no_shortcut_support">คุณกำลังใช้ตัวจัดการ Lsposed ซึ่งสามารถเปิดได้จากการแจ้งเตือน</string>
-    <string name="create_shortcut">สร้างทางลัด</string>
     <string name="never_show">ไม่ต้องแสดง</string>
     <string name="app_welcome">แนะนำ กำจัดไวรัส</string>
     <string name="app_welcome_summary">LSPosed รองรับการปรสิตของระบบเพื่อหลีกเลี่ยงการตรวจจับ คุณสามารถเปิดโปรแกรมจัดการปรสิตได้จากการแจ้งเตือน ขอแนะนำให้ถอนการติดตั้งแอปพลิเคชันปัจจุบัน</string>
@@ -188,12 +186,8 @@
     <string name="settings_translation_contributors">ผู้ร่วมแปล</string>
     <string name="settings_translation">มีส่วนร่วมในการแปล</string>
     <string name="settings_translation_summary">ช่วยเราแปล %s เป็นภาษาของคุณ</string>
-    <string name="settings_create_shortcut_summary">สร้างทางลัดที่สามารถเปิดตัวจัดการปรสิต</string>
-    <string name="settings_shortcut_pinned_hint">ตรึงทางลัดแล้ว</string>
-    <string name="settings_unsupported_pin_shortcut_summary">Launcher เริ่มต้นปัจจุบันไม่รองรับทางลัด PIN</string>
     <string name="settings_enable_status_notification">การแจ้งเตือนสถานะ</string>
     <string name="settings_enable_status_notification_summary">แสดงการแจ้งเตือนที่สามารถเปิดตัวจัดการปรสิต</string>
-    <string name="disable_status_notification_error">ไม่มีทางลัด ไม่สามารถปิดการแจ้งเตือนได้</string>
     <string name="settings_update_channel">อัพเดทช่อง</string>
     <string name="update_channel_stable">มั่นคง</string>
     <string name="update_channel_bate">เบต้า</string>

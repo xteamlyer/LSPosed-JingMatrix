@@ -30,34 +30,16 @@ import androidx.fragment.app.FragmentManager;
 import org.lsposed.manager.App;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
-import org.lsposed.manager.ui.fragment.BaseFragment;
-import org.lsposed.manager.util.ShortcutUtil;
 
 public class WelcomeDialog extends DialogFragment {
     private static boolean shown = false;
 
     private Dialog parasiticDialog(BlurBehindDialogBuilder builder) {
-        var shortcutSupported = ShortcutUtil.isRequestPinShortcutSupported(requireContext());
         builder
                 .setTitle(R.string.parasitic_welcome)
-                .setMessage(shortcutSupported ? R.string.parasitic_welcome_summary :
-                        R.string.parasitic_welcome_summary_no_shortcut_support)
                 .setNegativeButton(R.string.never_show, (dialog, which) ->
                         App.getPreferences().edit().putBoolean("never_show_welcome", true).apply())
-                .setPositiveButton(android.R.string.ok, null)
-                .setNeutralButton(R.string.create_shortcut, (dialog, which) -> {
-                    var home = (BaseFragment) getParentFragment();
-                    if (!ShortcutUtil.requestPinLaunchShortcut(() -> {
-                        App.getPreferences().edit().putBoolean("never_show_welcome", true).apply();
-                        if (home != null) {
-                            home.showHint(R.string.settings_shortcut_pinned_hint, false);
-                        }
-                    })) {
-                        if (home != null) {
-                            home.showHint(R.string.settings_unsupported_pin_shortcut_summary, false);
-                        }
-                    }
-                });
+                .setPositiveButton(android.R.string.ok, null);
         return builder.create();
     }
 
@@ -87,8 +69,7 @@ public class WelcomeDialog extends DialogFragment {
     public static void showIfNeed(FragmentManager fm) {
         if (shown) return;
         if (!ConfigManager.isBinderAlive() ||
-                App.getPreferences().getBoolean("never_show_welcome", false) ||
-                (App.isParasitic && ShortcutUtil.isLaunchShortcutPinned())) {
+                App.getPreferences().getBoolean("never_show_welcome", false)) {
             shown = true;
             return;
         }
