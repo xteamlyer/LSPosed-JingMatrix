@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity implements RepoLoader.RepoListene
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
     }

@@ -75,12 +75,6 @@
     <string name="update_lsposed">Ažurirajte LSPosed</string>
     <string name="update_lsposed_msg">Potvrditi ažuriranje LSPosed? Ovaj će se uređaj ponovno pokrenuti nakon završetka ažuriranja</string>
     <string name="info_copied">Kopirano u međuspremnik</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">Dobrodošli u LSPosed</string>
-    <string name="parasitic_welcome_summary">Koristite parazitski upravitelj, koji može stvoriti prečac ili još uvijek otvoriti iz obavijesti.</string>
-    <string name="never_show">Nikad ne pokazuj</string>
-    <string name="app_welcome">Parazitski Manager Preporučen</string>
-    <string name="app_welcome_summary">LSPosed sada podržava parazitizaciju sustava kako bi se izbjeglo otkrivanje, možete otvoriti parazitski upravitelj iz obavijesti. Preporuča se deinstalirati trenutnu aplikaciju.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Sačuvaj</string>
     <string name="nav_item_logs_verbose">Opširni zapisi</string>

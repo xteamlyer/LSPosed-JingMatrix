@@ -72,12 +72,6 @@
     <string name="update_lsposed">อัพเดท LSPosed</string>
     <string name="update_lsposed_msg">ยืนยันการอัปเดต LSPosed? อุปกรณ์นี้จะรีบูตหลังจากอัปเดตเสร็จสิ้น</string>
     <string name="info_copied">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">ยินดีต้อนรับสู่ LSPosed</string>
-    <string name="parasitic_welcome_summary">คุณกำลังใช้ Lsposed ซึ่งสามารถสร้างทางลัดหรือยังคงเปิดจากการแจ้งเตือน</string>
-    <string name="never_show">ไม่ต้องแสดง</string>
-    <string name="app_welcome">แนะนำ กำจัดไวรัส</string>
-    <string name="app_welcome_summary">LSPosed รองรับการปรสิตของระบบเพื่อหลีกเลี่ยงการตรวจจับ คุณสามารถเปิดโปรแกรมจัดการปรสิตได้จากการแจ้งเตือน ขอแนะนำให้ถอนการติดตั้งแอปพลิเคชันปัจจุบัน</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">บันทึก</string>
     <string name="nav_item_logs_verbose">บันทึกอย่างละเอียด</string>

@@ -73,12 +73,6 @@
     <string name="update_lsposed">Актуализиране на LSPosed</string>
     <string name="update_lsposed_msg">Потвърждаване на актуализацията на LSPosed? Това устройство ще се рестартира след завършване на актуализацията</string>
     <string name="info_copied">Копиране в клипборда</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">Добре дошли в LSPosed</string>
-    <string name="parasitic_welcome_summary">Използвате паразитния мениджър, който може да създаде пряк път или все още да се отваря от известието.</string>
-    <string name="never_show">Никога не показвайте</string>
-    <string name="app_welcome">Препоръчва се паразитен мениджър</string>
-    <string name="app_welcome_summary">LSPosed вече поддържа паразитиране на системата, за да се избегне откриването, можете да отворите мениджъра на паразити от известието. Препоръчва се да деинсталирате текущото приложение.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Запазете</string>
     <string name="nav_item_logs_verbose">Условни дневници</string>

@@ -133,10 +133,9 @@ public class SettingsFragment extends BaseFragment {
             parentFragment = null;
         }
 
-        private boolean setNotificationPreferenceEnabled(MaterialSwitchPreference notificationPreference, boolean preferenceEnabled) {
+        private boolean setNotificationPreferenceEnabled(MaterialSwitchPreference notificationPreference) {
             var notificationEnabled = ConfigManager.enableStatusNotification();
             if (notificationPreference != null) {
-                notificationPreference.setEnabled(!notificationEnabled || preferenceEnabled);
                 notificationPreference.setSummaryOn(notificationPreference.getContext().getString(R.string.settings_enable_status_notification_summary));
             }
             return notificationEnabled;
@@ -170,7 +169,7 @@ public class SettingsFragment extends BaseFragment {
             if (notificationPreference != null) {
                 notificationPreference.setVisible(installed);
                 if (installed) {
-                    notificationPreference.setChecked(setNotificationPreferenceEnabled(notificationPreference, !App.isParasitic));
+                    notificationPreference.setChecked(setNotificationPreferenceEnabled(notificationPreference));
                 }
                 notificationPreference.setOnPreferenceChangeListener((p, v) -> ConfigManager.setEnableStatusNotification((boolean) v));
             }

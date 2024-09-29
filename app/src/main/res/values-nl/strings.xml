@@ -73,12 +73,6 @@
     <string name="update_lsposed">Update LSPosed</string>
     <string name="update_lsposed_msg">Bevestig bijwerken van LSPosed? Dit apparaat zal opnieuw opstarten nadat de update is voltooid</string>
     <string name="info_copied">Gekopieerd naar klembord</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">Welkom bij LSPosed</string>
-    <string name="parasitic_welcome_summary">U gebruikt de parasitaire manager, die een snelkoppeling kan maken of nog steeds kan openen vanuit een melding.</string>
-    <string name="never_show">Nooit tonen</string>
-    <string name="app_welcome">Parasitaire manager aanbevolen</string>
-    <string name="app_welcome_summary">LSPosed ondersteunt nu systeemparasitisatie om detectie te voorkomen, u kunt parasitaire manager openen vanuit een melding. Het wordt aanbevolen om de huidige applicatie te verwijderen.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Opslaan</string>
     <string name="nav_item_logs_verbose">Uitgebreide logs</string>

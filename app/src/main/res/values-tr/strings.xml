@@ -73,12 +73,6 @@
     <string name="update_lsposed">LSPosed\'ı güncelle</string>
     <string name="update_lsposed_msg">LSPosed\'ı güncellemek istediğinize emin misiniz? Bu cihaz güncelleme tamamlandıktan sonra yeniden başlatılacak</string>
     <string name="info_copied">Panoya kopyalandı</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">LSPosed\'a hoş geldiniz</string>
-    <string name="parasitic_welcome_summary">Parazit yöneticiyi kullanıyorsunuz, bu da kısayol oluşturabileceğinizi veya hala bildirimden açabileceğinizi gösterir.</string>
-    <string name="never_show">Asla gösterme</string>
-    <string name="app_welcome">Parazit Yönetici Önerilir</string>
-    <string name="app_welcome_summary">LSPosed tespit edilmeyi önlemek için sistem parazitlemeyi destekliyor, parazit yöneticiyi bildirimden açabilirsiniz. Şu anki uygulamayı kaldırmanız önerilir.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Kaydet</string>
     <string name="nav_item_logs_verbose">Ayrıntılı Günlükler</string>

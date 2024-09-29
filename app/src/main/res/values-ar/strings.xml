@@ -81,12 +81,6 @@
     <string name="update_lsposed">تحديث LSPosed</string>
     <string name="update_lsposed_msg">تأكيد تحديث LSPosed؟ سيتم إعـادة تشغيل هذا الجهاز بعد اكتمال التحديث</string>
     <string name="info_copied">تم النسخ إلى الحافظة</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">مرحباً بك في LSPosed</string>
-    <string name="parasitic_welcome_summary">أنت تستخدم مدير الطفيليات، الذي يمكنه إنشاء اختصار أو لا يزال مفتوحا من الإشعارات.</string>
-    <string name="never_show">لا تظهر أبداً</string>
-    <string name="app_welcome">مدير طفيلي موصي به</string>
-    <string name="app_welcome_summary">يدعم LSPosed الآن تطهير النظام لتجنب الكشف، يمكنك فتح مدير الطفيليات من الإشعار. من المستحسن إلغاء تثبيت التطبيق الحالي.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">احفظ</string>
     <string name="nav_item_logs_verbose">سجلات مفصّلة</string>

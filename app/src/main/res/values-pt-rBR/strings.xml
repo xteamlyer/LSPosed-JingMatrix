@@ -73,12 +73,6 @@
     <string name="update_lsposed">Atualizar o LSPosed</string>
     <string name="update_lsposed_msg">Confirmar atualização do LSPosed? O aparelho irá reiniciar após completar a atualização</string>
     <string name="info_copied">Copiado para a área de transferência</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">Bem-vindo ao LSPosed</string>
-    <string name="parasitic_welcome_summary">Você está usando o gerenciador parasita, você pode criar o atalho ou então abrir a partir da notificação.</string>
-    <string name="never_show">Não mostrar novamente</string>
-    <string name="app_welcome">É recomendado o gerenciador parasita</string>
-    <string name="app_welcome_summary">O LSPosed agora oferece suporte a parasitização do sistema para evitar detecções, você pode abrir o gerenciador parasita a partir da notificação. É recomendado desinstalar o aplicativo atual.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Salvar</string>
     <string name="nav_item_logs_verbose">Registros Detalhados</string>

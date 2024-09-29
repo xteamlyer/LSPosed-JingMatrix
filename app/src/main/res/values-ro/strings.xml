@@ -75,12 +75,6 @@
     <string name="update_lsposed">Actualizează LSPosed</string>
     <string name="update_lsposed_msg">Confirmați actualizarea LSPosed? Acest dispozitiv va reporni după finalizarea actualizării</string>
     <string name="info_copied">Copiat în clipboard</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">Bine ați venit la LSPosed</string>
-    <string name="parasitic_welcome_summary">Folosiți managerul de paraziți, care poate crea o comandă rapidă sau poate fi deschis încă din notificare.</string>
-    <string name="never_show">Nu arăta niciodată</string>
-    <string name="app_welcome">Manager parazitar recomandat</string>
-    <string name="app_welcome_summary">LSPosed suportă acum parazitarea sistemului pentru a evita detectarea, puteți deschide managerul de paraziți din notificare. Se recomandă dezinstalarea aplicației curente.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">Salvează</string>
     <string name="nav_item_logs_verbose">Jurnalele Verbose</string>

@@ -74,12 +74,6 @@ https://github.com/topjohnwu/Magisk/issues]]></string>
     <string name="update_lsposed">به روزرسانی LSPosed</string>
     <string name="update_lsposed_msg">آیا شما می خواهید LSPosed به روز رسانی شود؟ دستگاه شما پس از نصب به روز رسانی به طور خودکار خاموش و روشن خواهد شد</string>
     <string name="info_copied">در کلیپ بورد کپی شد</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">به LSPosed خوش آمدید</string>
-    <string name="parasitic_welcome_summary">شما در حال استفاده برنامه مدیر lsposed هستید که می تواند میانبر بسازد یا همچنان از طریق اعلان باز باشد</string>
-    <string name="never_show">هرگز نشان نده</string>
-    <string name="app_welcome">مدیر lsposed توصیه می شود</string>
-    <string name="app_welcome_summary">LSPosed اکنون از پارازیتیزاسیون سیستم برای جلوگیری از شناسایی پشتیبانی می کند شما می توانید مدیر lsposed را از اعلان باز کنید توصیه می شود برنامه فعلی را حذف نصب کنید</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">ذخیره</string>
     <string name="nav_item_logs_verbose">گزارش های کامل</string>

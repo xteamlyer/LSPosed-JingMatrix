@@ -73,12 +73,6 @@
     <string name="update_lsposed">LSPposed යාවත්කාලීන කරන්න</string>
     <string name="update_lsposed_msg">LSPposed යාවත්කාලීන කිරීම තහවුරු කරන්නද? යාවත්කාලීන කිරීම අවසන් වූ පසු මෙම උපාංගය නැවත ආරම්භ වේ</string>
     <string name="info_copied">පසුරු පුවරුවට පිටපත් කර ඇත</string>
-    <!-- WelcomeDialog -->
-    <string name="parasitic_welcome">LSPposed වෙත සාදරයෙන් පිළිගනිමු</string>
-    <string name="parasitic_welcome_summary">ඔබ කෙටිමඟ නිර්මාණය කළ හැකි හෝ තවමත් දැනුම්දීමෙන් විවෘත කළ හැකි පරපෝෂිත කළමනාකරු භාවිත කරයි.</string>
-    <string name="never_show">කවදාවත් පෙන්වන්න එපා</string>
-    <string name="app_welcome">පරපෝෂිත කළමනාකරු නිර්දේශ කෙරේ</string>
-    <string name="app_welcome_summary">LSPosed දැන් හඳුනාගැනීම වැළැක්වීම සඳහා පද්ධති පරපෝෂිතකරණයට සහය දක්වයි, ඔබට දැනුම්දීමෙන් පරපෝෂිත කළමනාකරු විවෘත කළ හැක. වත්මන් යෙදුම අස්ථාපනය කිරීම නිර්දේශ කෙරේ.</string>
     <!-- LogsActivity -->
     <string name="menuSaveToSd">සුරකින්න</string>
     <string name="nav_item_logs_verbose">වාචික ලඝු-සටහන්</string>
