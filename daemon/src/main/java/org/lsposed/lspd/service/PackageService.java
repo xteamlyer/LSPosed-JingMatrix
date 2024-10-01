@@ -332,6 +332,7 @@ public class PackageService {
             return null;
         }
         Intent intent = new Intent(intentToResolve);
+        //TODO FIXME
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setClassName(ris.getList().get(0).activityInfo.packageName,
                 ris.getList().get(0).activityInfo.name);
