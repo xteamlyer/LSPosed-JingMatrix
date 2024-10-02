@@ -54,6 +54,8 @@
     <string name="system_prop_incorrect"><![CDATA[Some necessary system properties deleted or modified.<br/>Modules may invalidate occasionally.]]></string>
     <string name="need_update">Need to update</string>
     <string name="please_update_summary">Por favor instale la última versión de LSPosed</string>
+    <string name="developer_warning_title">Sugerencias para desarrolladores de módulos</string>
+    <string name="developer_warning_summary">Por favor, desactiva las optimizaciones de implementación en Android Studio, o ejecuta el comando `gradlew installDebug` para instalar el módulo. De lo contrario, el apk del módulo no se actualizará.</string>
     <string name="info_api_version">Versión de la API</string>
     <string name="info_framework_version">Versión del framework</string>
     <string name="info_manager_package_name">Nombre del paquete de gestión</string>
@@ -166,6 +168,8 @@
     <string name="settings_group_framework">Framework</string>
     <string name="settings_disable_verbose_log">Desactivar registros detallados</string>
     <string name="settings_disable_verbose_log_summary">Solicitud de inclusión de registros detallados en los informes de incidencias</string>
+    <string name="settings_enable_log_watchdog">Habilitar el watchdog de registro</string>
+    <string name="settings_enable_log_watchdog_summary">El watchdog de registro de LSPosed modifica propiedades del sistema, lo cual podría ser explotado para detectar LSPosed</string>
     <string name="pure_black_dark_theme">Tema negro oscuro</string>
     <string name="pure_black_dark_theme_summary">Usar el tema negro puro si el tema oscuro está activado</string>
     <string name="settings_group_theme">Tema</string>
