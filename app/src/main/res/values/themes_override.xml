@@ -78,4 +78,9 @@
 
         <item name="navigationBarDividerColor">@android:color/transparent</item>
     </style>
+
+    <style name="Theme.Material3.DynamicColors.Light.Rikka.Fixed" parent="Theme.Material3.DynamicColors.Light.Rikka" />
+
+    <style name="Theme.Material3.DynamicColors.Dark.Rikka.Fixed" parent="Theme.Material3.DynamicColors.Dark.Rikka" />
+
 </resources>
