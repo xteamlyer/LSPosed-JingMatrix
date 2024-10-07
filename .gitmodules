@@ -16,3 +16,9 @@
 [submodule "external/system_properties"]
 	path = external/system_properties
 	url = https://github.com/topjohnwu/system_properties.git
+[submodule "libxposed/api/api"]
+	path = libxposed/api/api
+	url = https://github.com/libxposed/api.git
+[submodule "libxposed/service/service"]
+	path = libxposed/service/service
+	url = https://github.com/libxposed/service.git
