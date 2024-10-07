@@ -1,5 +1,6 @@
 package org.lsposed.lspd.nativebridge;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 
@@ -13,6 +14,8 @@ public class HookBridge {
     public static native boolean deoptimizeMethod(Executable method);
 
     public static native <T> T allocateObject(Class<T> clazz) throws InstantiationException;
+
+    public static native <T> Constructor<T> getClassInitializer(Class<T> clazz);
 
     public static native Object invokeOriginalMethod(Executable method, Object thisObject, Object... args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 

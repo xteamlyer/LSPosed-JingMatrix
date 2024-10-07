@@ -26,6 +26,16 @@
     @io.github.libxposed.api.annotations.BeforeInvocation <methods>;
     @io.github.libxposed.api.annotations.AfterInvocation <methods>;
 }
+-keep,allowshrinking,allowoptimization,allowobfuscation class ** implements io.github.libxposed.api.XposedInterface$Hooker
+-keepclassmembers,allowoptimization class ** implements io.github.libxposed.api.XposedInterface$Hooker {
+    public *** before(***);
+    public *** after(***);
+    public static *** before();
+    public static *** before(io.github.libxposed.api.XposedInterface$BeforeHookCallback);
+    public static void after();
+    public static void after(io.github.libxposed.api.XposedInterface$AfterHookCallback);
+    public static void after(io.github.libxposed.api.XposedInterface$AfterHookCallback, ***);
+}
 -assumenosideeffects class android.util.Log {
     public static *** v(...);
     public static *** d(...);

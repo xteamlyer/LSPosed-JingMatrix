@@ -65,8 +65,6 @@ check_android_version
 check_version
 check_incompatible_module
 
-enforce_install_from_magisk_app
-
 # Check architecture
 if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
   abort "! Unsupported platform: $ARCH"
