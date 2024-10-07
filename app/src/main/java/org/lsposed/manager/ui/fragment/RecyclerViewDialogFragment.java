@@ -30,6 +30,8 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
 import org.lsposed.lspd.models.UserInfo;
 import org.lsposed.manager.R;
 import org.lsposed.manager.databinding.DialogTitleBinding;
@@ -62,6 +64,8 @@ public class RecyclerViewDialogFragment extends AppCompatDialogFragment {
         });
         binding.swipeRefreshLayout.setProgressViewEndTarget(true, binding.swipeRefreshLayout.getProgressViewEndOffset());
         binding.swipeRefreshLayout.setOnRefreshListener(pickAdaptor::fullRefresh);
+        binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorPrimary));
+        binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorSurfaceContainer));
         pickAdaptor.refresh();
         var title = DialogTitleBinding.inflate(getLayoutInflater()).getRoot();
         title.setText(getString(R.string.install_to_user, user.name));

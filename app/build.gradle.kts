@@ -145,7 +145,6 @@ dependencies {
     implementation(libs.rikkax.insets)
     implementation(libs.rikkax.material)
     implementation(libs.rikkax.material.preference)
-    implementation(libs.rikkax.preference)
     implementation(libs.rikkax.recyclerview)
     implementation(libs.rikkax.widget.borderview)
     implementation(libs.rikkax.widget.mainswitchbar)

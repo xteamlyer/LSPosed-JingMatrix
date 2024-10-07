@@ -39,6 +39,8 @@ import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
 import org.lsposed.manager.App;
 import org.lsposed.manager.ConfigManager;
 import org.lsposed.manager.R;
@@ -100,6 +102,8 @@ public class AppListFragment extends BaseFragment implements MenuProvider {
         RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
         binding.swipeRefreshLayout.setOnRefreshListener(() -> scopeAdapter.refresh(true));
         binding.swipeRefreshLayout.setProgressViewEndTarget(true, binding.swipeRefreshLayout.getProgressViewEndOffset());
+        binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorPrimary));
+        binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorSurfaceContainer));
         Intent intent = AppHelper.getSettingsIntent(module.packageName, module.userId);
         if (intent == null) {
             binding.fab.setVisibility(View.GONE);
