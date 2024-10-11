@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.android.material.textview.MaterialTextView;
@@ -259,8 +258,6 @@ public class LogsFragment extends BaseFragment implements MenuProvider {
             // ltr even for rtl languages because of log format
             binding.recyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             binding.swipeRefreshLayout.setProgressViewEndTarget(true, binding.swipeRefreshLayout.getProgressViewEndOffset());
-            binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorPrimary));
-            binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(MaterialColors.getColor(binding.swipeRefreshLayout, com.google.android.material.R.attr.colorSurfaceContainer));
             RecyclerViewKt.fixEdgeEffect(binding.recyclerView, false, true);
             binding.swipeRefreshLayout.setOnRefreshListener(adaptor::fullRefresh);
             adaptor.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
