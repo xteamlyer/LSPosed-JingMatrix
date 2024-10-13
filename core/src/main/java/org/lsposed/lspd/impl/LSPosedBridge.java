@@ -10,7 +10,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 import de.robv.android.xposed.XposedBridge;
 import io.github.libxposed.api.XposedInterface;
@@ -219,8 +218,6 @@ public class LSPosedBridge {
             throw new IllegalArgumentException("Cannot hook Method.invoke");
         } else if (hooker == null) {
             throw new IllegalArgumentException("hooker should not be null!");
-        } else if (Arrays.stream(hooker.getInterfaces()).noneMatch(i -> i == XposedInterface.Hooker.class)) {
-            throw new IllegalArgumentException("Hooker should implements @Hooker");
         }
 
         Method beforeInvocation = null, afterInvocation = null;
