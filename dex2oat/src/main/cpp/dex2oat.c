@@ -43,7 +43,7 @@ const char kSockName[] = "5291374ceda0aef7c5d86cd2a4f6a3ac\0";
 static ssize_t xrecvmsg(int sockfd, struct msghdr *msg, int flags) {
     int rec = recvmsg(sockfd, msg, flags);
     if (rec < 0) {
-        PLOGE("recvmsg");
+        // PLOGE("recvmsg");
     }
     return rec;
 }
@@ -91,7 +91,7 @@ static void write_int(int fd, int val) {
 }
 
 int main(int argc, char **argv) {
-    LOGD("dex2oat wrapper ppid=%d", getppid());
+    // LOGD("dex2oat wrapper ppid=%d", getppid());
     struct sockaddr_un sock = {};
     sock.sun_family = AF_UNIX;
     strlcpy(sock.sun_path + 1, kSockName, sizeof(sock.sun_path) - 1);
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     size_t len = sizeof(sa_family_t) + strlen(sock.sun_path + 1) + 1;
     if (connect(sock_fd, (struct sockaddr *)&sock, len)) {
-        PLOGE("failed to connect to %s", sock.sun_path + 1);
+        // PLOGE("failed to connect to %s", sock.sun_path + 1);
         return 1;
     }
     write_int(sock_fd, ID_VEC(LP_SELECT(0, 1), strstr(argv[0], "dex2oatd") != NULL));
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 
     sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (connect(sock_fd, (struct sockaddr *)&sock, len)) {
-        PLOGE("failed to connect to %s", sock.sun_path + 1);
+        // PLOGE("failed to connect to %s", sock.sun_path + 1);
         return 1;
     }
     write_int(sock_fd, LP_SELECT(4, 5));
@@ -118,9 +118,9 @@ int main(int argc, char **argv) {
     close(sock_fd);
 
     if (hooker_fd == -1) {
-        PLOGE("failed to read liboat_hook.so");
+        // PLOGE("failed to read liboat_hook.so");
     }
-    LOGD("sock: %s %d", sock.sun_path + 1, stock_fd);
+    // LOGD("sock: %s %d", sock.sun_path + 1, stock_fd);
 
     const char *new_argv[argc + 2];
     for (int i = 0; i < argc; i++) new_argv[i] = argv[i];
@@ -143,6 +143,6 @@ int main(int argc, char **argv) {
 
     fexecve(stock_fd, (char **)new_argv, environ);
 
-    PLOGE("fexecve failed");
+    // PLOGE("fexecve failed");
     return 2;
 }

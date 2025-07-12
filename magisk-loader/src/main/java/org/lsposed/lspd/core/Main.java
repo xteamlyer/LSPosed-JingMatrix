@@ -42,15 +42,15 @@ public class Main {
         try {
             Utils.Log.muted = serviceClient.isLogMuted();
         } catch (Throwable t) {
-            Utils.logE("failed to configure logs", t);
+            // Utils.logE("failed to configure logs", t);
         }
 
         if (niceName.equals(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME) && ParasiticManagerHooker.start()) {
-            Utils.logI("Loaded manager, skipping next steps");
+            // Utils.logI("Loaded manager, skipping next steps");
             return;
         }
 
-        Utils.logI("Loading xposed for " + niceName + "/" + Process.myUid());
+        // Utils.logI("Loading xposed for " + niceName + "/" + Process.myUid());
         Startup.bootstrapXposed();
     }
 }

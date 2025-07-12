@@ -54,7 +54,7 @@ public class LSPNotificationManager {
     private static final IBinder.DeathRecipient recipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Log.w(TAG, "notificationManager is dead");
+            // Log.w(TAG, "notificationManager is dead");
             binder.unlinkToDeath(this, 0);
             binder = null;
             notificationManager = null;
@@ -103,7 +103,7 @@ public class LSPNotificationManager {
             channel = nm.getNotificationChannelForPackage("android", 1000, channelId, false);
         }
         if (channel != null) {
-            Log.d(TAG, "hasNotificationChannelForSystem: " + channel);
+            // Log.d(TAG, "hasNotificationChannelForSystem: " + channel);
         }
         return channel != null;
     }
@@ -117,7 +117,7 @@ public class LSPNotificationManager {
                 NotificationManager.IMPORTANCE_HIGH);
         updated.setShowBadge(false);
         if (hasNotificationChannelForSystem(nm, UPDATED_CHANNEL_ID)) {
-            Log.d(TAG, "update notification channel: " + UPDATED_CHANNEL_ID);
+            // Log.d(TAG, "update notification channel: " + UPDATED_CHANNEL_ID);
             nm.updateNotificationChannelForPackage("android", 1000, updated);
         } else {
             list.add(updated);
@@ -128,7 +128,7 @@ public class LSPNotificationManager {
                 NotificationManager.IMPORTANCE_MIN);
         status.setShowBadge(false);
         if (hasNotificationChannelForSystem(nm, STATUS_CHANNEL_ID)) {
-            Log.d(TAG, "update notification channel: " + STATUS_CHANNEL_ID);
+            // Log.d(TAG, "update notification channel: " + STATUS_CHANNEL_ID);
             nm.updateNotificationChannelForPackage("android", 1000, status);
         } else {
             list.add(status);
@@ -139,13 +139,13 @@ public class LSPNotificationManager {
                 NotificationManager.IMPORTANCE_HIGH);
         scope.setShowBadge(false);
         if (hasNotificationChannelForSystem(nm, SCOPE_CHANNEL_ID)) {
-            Log.d(TAG, "update notification channel: " + SCOPE_CHANNEL_ID);
+            // Log.d(TAG, "update notification channel: " + SCOPE_CHANNEL_ID);
             nm.updateNotificationChannelForPackage("android", 1000, scope);
         } else {
             list.add(scope);
         }
 
-        Log.d(TAG, "create notification channels for android: " + list);
+        // Log.d(TAG, "create notification channels for android: " + list);
         nm.createNotificationChannelsForPackage("android", 1000, new ParceledListSlice<>(list));
     }
 
@@ -171,7 +171,7 @@ public class LSPNotificationManager {
             nm.enqueueNotificationWithTag("android", opPkg, null,
                     STATUS_NOTIFICATION_ID, notification, 0);
         } catch (RemoteException e) {
-            Log.e(TAG, "notifyStatusNotification: ", e);
+            // Log.e(TAG, "notifyStatusNotification: ", e);
         }
     }
 
@@ -185,7 +185,7 @@ public class LSPNotificationManager {
                 nm.cancelNotificationWithTag("android", null, STATUS_NOTIFICATION_ID, 0);
             }
         } catch (RemoteException e) {
-            Log.e(TAG, "cancelStatusNotification: ", e);
+            // Log.e(TAG, "cancelStatusNotification: ", e);
         }
     }
 
@@ -258,7 +258,7 @@ public class LSPNotificationManager {
                     pushAndGetNotificationId(UPDATED_CHANNEL_ID, modulePackageName, moduleUserId),
                     notification, 0);
         } catch (RemoteException e) {
-            Log.e(TAG, "notify module updated", e);
+            // Log.e(TAG, "notify module updated", e);
         }
     }
 
@@ -308,7 +308,7 @@ public class LSPNotificationManager {
                 callback.onScopeRequestFailed(scopePackageName, e.getMessage());
             } catch (RemoteException ignored) {
             }
-            Log.e(TAG, "request module scope", e);
+            // Log.e(TAG, "request module scope", e);
         }
     }
 
@@ -325,7 +325,7 @@ public class LSPNotificationManager {
             }
             notificationIds.remove(idKey);
         } catch (RemoteException e) {
-            Log.e(TAG, "cancel notification", e);
+            // Log.e(TAG, "cancel notification", e);
         }
     }
 }

@@ -61,7 +61,7 @@ public class ParasiticManagerHooker {
                         inChannel.transferTo(0, inChannel.size(), outChannel);
                         sourceDir = dstDir;
                     } catch (Throwable e) {
-                        Hookers.logE("copy apk", e);
+                        // Hookers.logE("copy apk", e);
                     }
                 }
                 managerPkgInfo = ctx.getPackageManager().getPackageArchiveInfo(sourceDir, PackageManager.GET_ACTIVITIES);
@@ -82,7 +82,7 @@ public class ParasiticManagerHooker {
                 // FIXME: It seems the parsed flags is incorrect (0) on A14 QPR3
                 newAppInfo.flags = newAppInfo.flags | ApplicationInfo.FLAG_HAS_CODE;
             } catch (Throwable e) {
-                Utils.logE("get manager pkginfo", e);
+                // Utils.logE("get manager pkginfo", e);
             }
         }
         return managerPkgInfo;
@@ -96,7 +96,7 @@ public class ParasiticManagerHooker {
             if (ok) return;
             throw new RuntimeException("setBinder: " + false);
         } catch (Throwable t) {
-            Utils.logW("Could not send binder to LSPosed Manager", t);
+            // Utils.logW("Could not send binder to LSPosed Manager", t);
         }
     }
 
@@ -104,7 +104,7 @@ public class ParasiticManagerHooker {
         var managerApkHooker = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
-                Hookers.logD("ActivityThread#handleBindApplication() starts");
+                // Hookers.logD("ActivityThread#handleBindApplication() starts");
                 Object bindData = param.args[0];
                 ApplicationInfo appInfo = (ApplicationInfo) XposedHelpers.getObjectField(bindData, "appInfo");
                 XposedHelpers.setObjectField(bindData, "appInfo", getManagerPkgInfo(appInfo).applicationInfo);
@@ -125,11 +125,11 @@ public class ParasiticManagerHooker {
                             var sSourceDir = pkgInfo.applicationInfo.sourceDir;
                             var pathClassLoader = param.getResult();
 
-                            Hookers.logD("LoadedApk getClassLoader " + pathClassLoader);
+                            // Hookers.logD("LoadedApk getClassLoader " + pathClassLoader);
                             var pathList = XposedHelpers.getObjectField(pathClassLoader, "pathList");
                             List<String> lstDexPath = (List<String>)XposedHelpers.callMethod(pathList, "getDexPaths");
                             if (!lstDexPath.contains(sSourceDir)) {
-                                Utils.logW("Could not find manager apk injected in classloader");
+                                // Utils.logW("Could not find manager apk injected in classloader");
                                 XposedHelpers.callMethod(pathClassLoader, "addDexPath", sSourceDir);
                             }
                             sendBinderToManager((ClassLoader) pathClassLoader, managerService.asBinder());
@@ -165,7 +165,7 @@ public class ParasiticManagerHooker {
                     for (var i = 0; i < parameters.length; ++i) {
                         if (parameters[i] == ActivityInfo.class) {
                             aInfo = (ActivityInfo) param.args[i];
-                            Hookers.logD("loading state of " + aInfo.name);
+                            // Hookers.logD("loading state of " + aInfo.name);
                         } else if (parameters[i] == Bundle.class && aInfo != null) {
                             final int idx = i;
                             states.computeIfPresent(aInfo.name, (k, v) -> {
@@ -189,7 +189,7 @@ public class ParasiticManagerHooker {
                 for (var i = 0; i < param.args.length && activityClientRecordClass.isInstance(param.thisObject); ++i) {
                     if (param.args[i] instanceof ActivityInfo) {
                         var aInfo = (ActivityInfo) param.args[i];
-                        Hookers.logD("loading state of " + aInfo.name);
+                        // Hookers.logD("loading state of " + aInfo.name);
                         states.computeIfPresent(aInfo.name, (k, v) -> {
                             XposedHelpers.setObjectField(param.thisObject, "state", v);
                             return v;
@@ -225,7 +225,7 @@ public class ParasiticManagerHooker {
 
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
-                Hookers.logD("before install provider");
+                // Hookers.logD("before install provider");
                 Context ctx = null;
                 ProviderInfo info = null;
                 int ctxIdx = -1;
@@ -249,8 +249,6 @@ public class ParasiticManagerHooker {
                         info.applicationInfo.packageName = packageName;
                     }
                     param.args[ctxIdx] = originalContext;
-                } else {
-                    Hookers.logE("Failed to reload provider", new RuntimeException());
                 }
             }
         });
@@ -267,7 +265,7 @@ public class ParasiticManagerHooker {
                     staticFactory = providerClass.getMethod(
                             CHROMIUM_WEBVIEW_FACTORY_METHOD, WebViewDelegate.class);
                 } catch (Exception e) {
-                    Hookers.logE("error instantiating provider with static factory method", e);
+                    // Hookers.logE("error instantiating provider with static factory method", e);
                 }
 
                 try {
@@ -277,10 +275,10 @@ public class ParasiticManagerHooker {
                         sProviderInstance = staticFactory.invoke(null, webViewDelegateConstructor.newInstance());
                     }
                     XposedHelpers.setStaticObjectField(WebViewFactory.class, "sProviderInstance", sProviderInstance);
-                    Hookers.logD("Loaded provider: " + sProviderInstance);
+                    // Hookers.logD("Loaded provider: " + sProviderInstance);
                     return sProviderInstance;
                 } catch (Exception e) {
-                    Hookers.logE("error instantiating provider", e);
+                    // Hookers.logE("error instantiating provider", e);
                     throw new AndroidRuntimeException(e);
                 }
             }
@@ -300,9 +298,9 @@ public class ParasiticManagerHooker {
                     var aInfo = (ActivityInfo) XposedHelpers.getObjectField(record, "activityInfo");
                     states.compute(aInfo.name, (k, v) -> state);
                     persistentStates.compute(aInfo.name, (k, v) -> persistentState);
-                    Hookers.logD("saving state of " + aInfo.name);
+                    // Hookers.logD("saving state of " + aInfo.name);
                 } catch (Throwable e) {
-                    Hookers.logE("save state", e);
+                    // Hookers.logE("save state", e);
                 }
             }
         };
@@ -319,14 +317,14 @@ public class ParasiticManagerHooker {
                 managerFd = managerParcelFd.detachFd();
                 var managerService = ILSPManagerService.Stub.asInterface(binder.get(0));
                 hookForManager(managerService);
-                Utils.logD("injected manager");
+                // Utils.logD("injected manager");
                 return true;
             } else {
                 // Not manager
                 return false;
             }
         } catch (Throwable e) {
-            Utils.logE("failed to inject manager", e);
+            // Utils.logE("failed to inject manager", e);
             return false;
         }
     }

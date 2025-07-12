@@ -48,13 +48,13 @@ ElfImg::ElfImg(std::string_view base_name) : elf(base_name) {
     // load elf
     int fd = open(elf.data(), O_RDONLY);
     if (fd < 0) {
-        LOGE("failed to open {}", elf);
+        // LOGE("failed to open {}", elf);
         return;
     }
 
     size = lseek(fd, 0, SEEK_END);
     if (size <= 0) {
-        LOGE("lseek() failed for {}", elf);
+        // LOGE("lseek() failed for {}", elf);
     }
 
     header = reinterpret_cast<decltype(header)>(mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0));
@@ -85,7 +85,7 @@ void ElfImg::parse(ElfW(Ehdr) * hdr) {
                 dynsym = section_h;
                 dynsym_offset = section_h->sh_offset;
                 dynsym_start = offsetOf<decltype(dynsym_start)>(hdr, dynsym_offset);
-                LOGD("dynsym header {:#x} size {}", section_h->sh_offset, section_h->sh_size);
+                // LOGD("dynsym header {:#x} size {}", section_h->sh_offset, section_h->sh_size);
             }
             break;
         }
@@ -96,8 +96,8 @@ void ElfImg::parse(ElfW(Ehdr) * hdr) {
                 symtab_size = section_h->sh_size;
                 symtab_count = symtab_size / entsize;
                 symtab_start = offsetOf<decltype(symtab_start)>(hdr, symtab_offset);
-                LOGD("symtab header {:#x} size {} found in {}", section_h->sh_offset,
-                     section_h->sh_size, debugdata_offset != 0 ? "gnu_debugdata" : "orgin elf");
+                // LOGD("symtab header {:#x} size {} found in {}", section_h->sh_offset,
+                //      section_h->sh_size, debugdata_offset != 0 ? "gnu_debugdata" : "orgin elf");
             }
             break;
         }
@@ -106,7 +106,7 @@ void ElfImg::parse(ElfW(Ehdr) * hdr) {
                 strtab = section_h;
                 symstr_offset = section_h->sh_offset;
                 strtab_start = offsetOf<decltype(strtab_start)>(hdr, symstr_offset);
-                LOGD("strtab header {:#x} size {}", section_h->sh_offset, section_h->sh_size);
+                // LOGD("strtab header {:#x} size {}", section_h->sh_offset, section_h->sh_size);
             }
             if (strcmp(sname, ".strtab") == 0) {
                 symstr_offset_for_symtab = section_h->sh_offset;
@@ -117,8 +117,8 @@ void ElfImg::parse(ElfW(Ehdr) * hdr) {
             if (strcmp(sname, ".gnu_debugdata") == 0) {
                 debugdata_offset = section_h->sh_offset;
                 debugdata_size = section_h->sh_size;
-                LOGD("gnu_debugdata header {:#x} size {}", section_h->sh_offset,
-                     section_h->sh_size);
+                // LOGD("gnu_debugdata header {:#x} size {}", section_h->sh_offset,
+                //      section_h->sh_size);
             }
             if (strtab == nullptr || dynsym == nullptr) break;
             if (bias == -4396) {
@@ -163,13 +163,13 @@ bool ElfImg::xzdecompress() {
 #endif
     str_xz_dec = xz_dec_init(XZ_DYNALLOC, 1 << 26);
     if (str_xz_dec == NULL) {
-        LOGE("xz_dec_init memory allocation failed");
+        // LOGE("xz_dec_init memory allocation failed");
         return false;
     }
 
     uint8_t *sBuffOut = (uint8_t *)malloc(BUFSIZE);
     if (sBuffOut == NULL) {
-        LOGE("allocation for debugdata_header failed");
+        // LOGE("allocation for debugdata_header failed");
         return false;
     }
 
@@ -203,7 +203,7 @@ bool ElfImg::xzdecompress() {
 
 #ifdef XZ_DEC_ANY_CHECK
         if (ret == XZ_UNSUPPORTED_CHECK) {
-            LOGW("Unsupported check; not verifying file integrity");
+            // LOGW("Unsupported check; not verifying file integrity");
             continue;
         }
 #endif
@@ -216,31 +216,31 @@ bool ElfImg::xzdecompress() {
         break;
 
     case XZ_MEM_ERROR:
-        LOGE("Memory allocation failed");
+        // LOGE("Memory allocation failed");
         break;
 
     case XZ_MEMLIMIT_ERROR:
-        LOGE("Memory usage limit reached");
+        // LOGE("Memory usage limit reached");
         break;
 
     case XZ_FORMAT_ERROR:
-        LOGE("Not a .xz file");
+        // LOGE("Not a .xz file");
         break;
 
     case XZ_OPTIONS_ERROR:
-        LOGE("Unsupported options in the .xz headers");
+        // LOGE("Unsupported options in the .xz headers");
         break;
 
     case XZ_DATA_ERROR:
-        LOGE("Compressed data is corrupt");
+        // LOGE("Compressed data is corrupt");
         break;
 
     case XZ_BUF_ERROR:
-        LOGE("xz_dec_run failed with XZ_BUF_ERROR");
+        // LOGE("xz_dec_run failed with XZ_BUF_ERROR");
         break;
 
     default:
-        LOGE("xz_dec_run return a wrong value!");
+        // LOGE("xz_dec_run return a wrong value!");
         break;
     }
     xz_dec_end(str_xz_dec);
@@ -248,7 +248,7 @@ bool ElfImg::xzdecompress() {
         return false;
     }
     if (sBuffOut[0] != 0x7F && sBuffOut[1] != 0x45 && sBuffOut[2] != 0x4C && sBuffOut[3] != 0x46) {
-        LOGE("not ELF header in gnu_debugdata");
+        // LOGE("not ELF header in gnu_debugdata");
         return false;
     }
     elf_debugdata = std::string((char *)sBuffOut, iSzOut);
@@ -324,7 +324,7 @@ std::vector<ElfW(Addr)> ElfImg::LinearRangeLookup(std::string_view name) const {
     for (auto [i, end] = symtabs_.equal_range(name); i != end; ++i) {
         auto offset = i->second->st_value;
         res.emplace_back(offset);
-        LOGD("found {} {:#x} in {} in symtab by linear range lookup", name, offset, elf);
+        // LOGD("found {} {:#x} in {} in symtab by linear range lookup", name, offset, elf);
     }
     return res;
 }
@@ -333,8 +333,8 @@ ElfW(Addr) ElfImg::PrefixLookupFirst(std::string_view prefix) const {
     MayInitLinearMap();
     if (auto i = symtabs_.lower_bound(prefix);
         i != symtabs_.end() && i->first.starts_with(prefix)) {
-        LOGD("found prefix {} of {} {:#x} in {} in symtab by linear lookup", prefix, i->first,
-             i->second->st_value, elf);
+        // LOGD("found prefix {} of {} {:#x} in {} in symtab by linear lookup", prefix, i->first,
+        //      i->second->st_value, elf);
         return i->second->st_value;
     } else {
         return 0;
@@ -356,13 +356,13 @@ ElfImg::~ElfImg() {
 ElfW(Addr) ElfImg::getSymbOffset(std::string_view name, uint32_t gnu_hash,
                                  uint32_t elf_hash) const {
     if (auto offset = GnuLookup(name, gnu_hash); offset > 0) {
-        LOGD("found {} {:#x} in {} in dynsym by gnuhash", name, offset, elf);
+        // LOGD("found {} {:#x} in {} in dynsym by gnuhash", name, offset, elf);
         return offset;
     } else if (offset = ElfLookup(name, elf_hash); offset > 0) {
-        LOGD("found {} {:#x} in {} in dynsym by elfhash", name, offset, elf);
+        // LOGD("found {} {:#x} in {} in dynsym by elfhash", name, offset, elf);
         return offset;
     } else if (offset = LinearLookup(name); offset > 0) {
-        LOGD("found {} {:#x} in {} in symtab by linear lookup", name, offset, elf);
+        // LOGD("found {} {:#x} in {} in symtab by linear lookup", name, offset, elf);
         return offset;
     } else {
         return 0;
@@ -386,33 +386,33 @@ bool ElfImg::findModuleBase() {
         std::string_view line{buff, static_cast<size_t>(nread)};
 
         if ((contains(line, "r-xp") || contains(line, "r--p")) && contains(line, elf)) {
-            LOGD("found: {}", line);
+            // LOGD("found: {}", line);
             if (auto begin = line.find_last_of(' ');
                 begin != std::string_view::npos && line[++begin] == '/') {
                 found = true;
                 elf = line.substr(begin);
                 if (elf.back() == '\n') elf.pop_back();
-                LOGD("update path: {}", elf);
+                // LOGD("update path: {}", elf);
                 break;
             }
         }
     }
     if (!found) {
         if (buff) free(buff);
-        LOGE("failed to read load address for {}", elf);
+        // LOGE("failed to read load address for {}", elf);
         fclose(maps);
         return false;
     }
 
     if (char *next = buff; load_addr = strtoul(buff, &next, 16), next == buff) {
-        LOGE("failed to read load address for {}", elf);
+        // LOGE("failed to read load address for {}", elf);
     }
 
     if (buff) free(buff);
 
     fclose(maps);
 
-    LOGD("get module base {}: {:#x}", elf, load_addr);
+    // LOGD("get module base {}: {:#x}", elf, load_addr);
 
     base = reinterpret_cast<void *>(load_addr);
     return true;

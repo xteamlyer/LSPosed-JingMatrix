@@ -50,7 +50,7 @@ public class ActivityManagerService {
     private static final IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Log.w(TAG, "am is dead");
+            // Log.w(TAG, "am is dead");
             binder.unlinkToDeath(this, 0);
             binder = null;
             am = null;
@@ -69,7 +69,7 @@ public class ActivityManagerService {
                 // For oddo Android 9 we cannot set activity controller here...
                 // am.setActivityController(null, false);
             } catch (RemoteException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                // Log.e(TAG, Log.getStackTraceString(e));
             }
         }
         return am;

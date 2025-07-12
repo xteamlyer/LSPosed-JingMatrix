@@ -17,7 +17,7 @@ const std::string_view parameter_to_remove = " --inline-max-code-units=0";
 bool store_updated = false;
 
 void UpdateKeyValueStore(std::map<std::string, std::string>* key_value, uint8_t* store) {
-    LOGD("updating KeyValueStore");
+    // LOGD("updating KeyValueStore");
     char* data_ptr = reinterpret_cast<char*>(store);
     if (key_value != nullptr) {
         auto it = key_value->begin();
@@ -29,33 +29,33 @@ void UpdateKeyValueStore(std::map<std::string, std::string>* key_value, uint8_t*
             data_ptr += it->second.length() + 1;
         }
     }
-    LOGD("KeyValueStore updated");
+    // LOGD("KeyValueStore updated");
     store_updated = true;
 }
 
 DCL_HOOK_FUNC(uint32_t, _ZNK3art9OatHeader20GetKeyValueStoreSizeEv, void* header) {
     uint32_t size = old__ZNK3art9OatHeader20GetKeyValueStoreSizeEv(header);
     if (store_updated) {
-        LOGD("OatHeader::GetKeyValueStoreSize() called on object at %p\n", header);
+        // LOGD("OatHeader::GetKeyValueStoreSize() called on object at %p\n", header);
         size = size - parameter_to_remove.size();
     }
     return size;
 }
 
 DCL_HOOK_FUNC(uint8_t*, _ZNK3art9OatHeader16GetKeyValueStoreEv, void* header) {
-    LOGD("OatHeader::GetKeyValueStore() called on object at %p\n", header);
+    // LOGD("OatHeader::GetKeyValueStore() called on object at %p\n", header);
     uint8_t* key_value_store_ = old__ZNK3art9OatHeader16GetKeyValueStoreEv(header);
     uint32_t key_value_store_size_ = old__ZNK3art9OatHeader20GetKeyValueStoreSizeEv(header);
     const char* ptr = reinterpret_cast<const char*>(key_value_store_);
     const char* end = ptr + key_value_store_size_;
     std::map<std::string, std::string> new_store = {};
 
-    LOGD("scanning [%p-%p] for oat headers", ptr, end);
+    // LOGD("scanning [%p-%p] for oat headers", ptr, end);
     while (ptr < end) {
         // Scan for a closing zero.
         const char* str_end = reinterpret_cast<const char*>(memchr(ptr, 0, end - ptr));
         if (str_end == nullptr) [[unlikely]] {
-            LOGE("failed to find str_end");
+            // LOGE("failed to find str_end");
             return key_value_store_;
         }
         std::string_view key = std::string_view(ptr, str_end - ptr);
@@ -63,11 +63,11 @@ DCL_HOOK_FUNC(uint8_t*, _ZNK3art9OatHeader16GetKeyValueStoreEv, void* header) {
         const char* value_end =
             reinterpret_cast<const char*>(memchr(value_start, 0, end - value_start));
         if (value_end == nullptr) [[unlikely]] {
-            LOGE("failed to find value_end");
+            // LOGE("failed to find value_end");
             return key_value_store_;
         }
         std::string_view value = std::string_view(value_start, value_end - value_start);
-        LOGV("header %s:%s", key.data(), value.data());
+        // LOGV("header %s:%s", key.data(), value.data());
         if (key == "dex2oat-cmdline") {
             value = value.substr(0, value.size() - parameter_to_remove.size());
         }
@@ -83,9 +83,9 @@ DCL_HOOK_FUNC(uint8_t*, _ZNK3art9OatHeader16GetKeyValueStoreEv, void* header) {
 #undef DCL_HOOK_FUNC
 
 void register_hook(dev_t dev, ino_t inode, const char* symbol, void* new_func, void** old_func) {
-    LOGD("RegisterHook: %s, %p, %p", symbol, new_func, old_func);
+    // LOGD("RegisterHook: %s, %p, %p", symbol, new_func, old_func);
     if (!lsplt::RegisterHook(dev, inode, symbol, new_func, old_func)) {
-        LOGE("Failed to register plt_hook \"%s\"\n", symbol);
+        // LOGE("Failed to register plt_hook \"%s\"\n", symbol);
         return;
     }
 }
@@ -110,6 +110,6 @@ __attribute__((constructor)) static void initialize() {
     PLT_HOOK_REGISTER(dev, inode, _ZNK3art9OatHeader20GetKeyValueStoreSizeEv);
     PLT_HOOK_REGISTER(dev, inode, _ZNK3art9OatHeader16GetKeyValueStoreEv);
     if (lsplt::CommitHook()) {
-        LOGD("lsplt hooks done");
+        // LOGD("lsplt hooks done");
     };
 }

@@ -71,7 +71,7 @@ public final class AndroidAppHelper {
 		try {
 			return newInstance(CLASS_RESOURCES_KEY, resDir, splitResDirs, overlayDirs, libDirs, displayId, overrideConfiguration, compatInfo);
 		} catch (Throwable t) {
-			XposedBridge.log(t);
+			// XposedBridge.log(t);
 			return null;
 		}
 	}

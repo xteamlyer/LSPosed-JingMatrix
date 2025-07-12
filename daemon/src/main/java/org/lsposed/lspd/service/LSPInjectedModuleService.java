@@ -45,7 +45,7 @@ public class LSPInjectedModuleService extends ILSPInjectedModuleService.Stub {
             try {
                 callback.asBinder().linkToDeath(() -> groupCallbacks.remove(callback), 0);
             } catch (RemoteException e) {
-                Log.w(TAG, "requestRemotePreferences: ", e);
+                // Log.w(TAG, "requestRemotePreferences: ", e);
             }
         }
         return bundle;

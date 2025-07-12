@@ -93,7 +93,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                     ActivityManagerService.bindService(intent, intent.getType(), connection, BIND_AUTO_CREATE, "android", 0);
                 }
             } catch (Throwable e) {
-                Log.e(TAG, "manager guard", e);
+                // Log.e(TAG, "manager guard", e);
                 guard = null;
             }
         }
@@ -104,7 +104,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 binder.unlinkToDeath(this, 0);
                 ActivityManagerService.unbindService(connection);
             } catch (Throwable e) {
-                Log.e(TAG, "manager guard", e);
+                // Log.e(TAG, "manager guard", e);
             }
             guard = null;
         }
@@ -150,7 +150,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 managerIntent = new Intent(intent);
             }
         } catch (RemoteException e) {
-            Log.e(TAG, "get Intent", e);
+            // Log.e(TAG, "get Intent", e);
         }
         return managerIntent;
     }
@@ -163,7 +163,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         try {
             ActivityManagerService.startActivityAsUserWithFeature("android", null, intent, intent.getType(), null, null, 0, 0, null, null, 0);
         } catch (RemoteException e) {
-            Log.e(TAG, "failed to open manager");
+            // Log.e(TAG, "failed to open manager");
         }
     }
 
@@ -185,7 +185,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                     null, -1, null, true, false,
                     0);
         } catch (RemoteException t) {
-            Log.e(TAG, "Broadcast to manager failed: ", t);
+            // Log.e(TAG, "Broadcast to manager failed: ", t);
         }
     }
 
@@ -195,7 +195,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         try {
             Os.chown(f.getAbsolutePath(), BuildConfig.MANAGER_INJECTED_UID, BuildConfig.MANAGER_INJECTED_UID);
         } catch (ErrnoException e) {
-            Log.e(TAG, "chown of webview", e);
+            // Log.e(TAG, "chown of webview", e);
         }
         if (f.isDirectory()) {
             for (var g : f.listFiles()) {
@@ -214,7 +214,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 ensureWebViewPermission(cacheDir);
             }
         } catch (Throwable e) {
-            Log.w(TAG, "cannot ensure webview dir", e);
+            // Log.w(TAG, "cannot ensure webview dir", e);
         }
     }
 
@@ -230,13 +230,13 @@ public class LSPManagerService extends ILSPManagerService.Stub {
             return false;
         pendingManager = false;
         managerPid = pid;
-        Log.d(TAG, "starting injected manager: pid = " + pid + " uid = " + uid + " processName = " + processName);
+        // Log.d(TAG, "starting injected manager: pid = " + pid + " uid = " + uid + " processName = " + processName);
         return true;
     }
 
     synchronized boolean setEnabled(boolean newValue) {
         enabled = newValue;
-        Log.i(TAG, "manager enabled = " + enabled);
+        // Log.i(TAG, "manager enabled = " + enabled);
         return enabled;
     }
 
@@ -367,7 +367,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 return false;
             }
         } catch (InterruptedException | ReflectiveOperationException e) {
-            Log.e(TAG, e.getMessage(), e);
+            // Log.e(TAG, e.getMessage(), e);
             return false;
         }
     }
@@ -397,7 +397,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 return PackageService.installExistingPackageAsUser(packageName, userId);
             else return PackageService.INSTALL_FAILED_INTERNAL_ERROR;
         } catch (Throwable e) {
-            Log.w(TAG, "install existing package as user: ", e);
+            // Log.w(TAG, "install existing package as user: ", e);
             return PackageService.INSTALL_FAILED_INTERNAL_ERROR;
         }
     }
@@ -455,11 +455,11 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                         contentProvider.call("android", "settings", "PUT_global", "show_hidden_icon_apps_enabled", args);
                     }
                 } catch (NoSuchMethodError e) {
-                    Log.w(TAG, "setHiddenIcon: ", e);
+                    // Log.w(TAG, "setHiddenIcon: ", e);
                 }
             }
         } catch (Throwable e) {
-            Log.w(TAG, "setHiddenIcon: ", e);
+            // Log.w(TAG, "setHiddenIcon: ", e);
         }
     }
 
@@ -499,7 +499,7 @@ public class LSPManagerService extends ILSPManagerService.Stub {
                 fdw.write("! Timeout, abort\n".getBytes());
             }
         } catch (IOException | InterruptedException | RemoteException e) {
-            Log.e(TAG, "flashZip: ", e);
+            // Log.e(TAG, "flashZip: ", e);
         }
     }
 

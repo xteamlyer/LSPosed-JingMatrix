@@ -47,7 +47,7 @@ import de.robv.android.xposed.XposedInit;
 
 public class Startup {
     private static void startBootstrapHook(boolean isSystem) {
-        Utils.logD("startBootstrapHook starts: isSystem = " + isSystem);
+        // Utils.logD("startBootstrapHook starts: isSystem = " + isSystem);
         LSPosedHelper.hookMethod(CrashDumpHooker.class, Thread.class, "dispatchUncaughtException", Throwable.class);
         if (isSystem) {
             LSPosedHelper.hookAllMethods(HandleSystemServerProcessHooker.class, ZygoteInit.class, "handleSystemServerProcess");
@@ -69,7 +69,7 @@ public class Startup {
             startBootstrapHook(XposedInit.startsSystemServer);
             XposedInit.loadLegacyModules();
         } catch (Throwable t) {
-            Utils.logE("error during Xposed initialization", t);
+            // Utils.logE("error during Xposed initialization", t);
         }
     }
 

@@ -54,11 +54,11 @@ public class PrebuiltMethodsDeopter {
                     method = XposedHelpers.findMethodExactIfExists((String) caller[0], cl, (String) caller[1], params);
                 }
                 if (method != null) {
-                    Hookers.logD("deoptimizing " + method);
+                    // Hookers.logD("deoptimizing " + method);
                     HookBridge.deoptimizeMethod(method);
                 }
             } catch (Throwable throwable) {
-                Utils.logE("error when deopting method: " + Arrays.toString(caller), throwable);
+                // Utils.logE("error when deopting method: " + Arrays.toString(caller), throwable);
             }
         }
     }

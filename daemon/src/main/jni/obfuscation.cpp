@@ -67,7 +67,7 @@ static std::string to_java(const std::string &signature) {
 void maybeInit(JNIEnv *env) {
     if (inited) [[likely]] return;
     std::lock_guard l(init_lock);
-    LOGD("ObfuscationManager.init");
+    // LOGD("ObfuscationManager.init");
     if (auto file_descriptor = JNI_FindClass(env, "java/io/FileDescriptor")) {
         class_file_descriptor = JNI_NewGlobalRef(env, file_descriptor);
     } else return;
@@ -110,10 +110,10 @@ void maybeInit(JNIEnv *env) {
 
     for (auto &i: signatures) {
         i.second = regen(i.first);
-        LOGD("%s => %s", i.first.c_str(), i.second.c_str());
+        // LOGD("%s => %s", i.first.c_str(), i.second.c_str());
     }
 
-    LOGD("ObfuscationManager init successfully");
+    // LOGD("ObfuscationManager init successfully");
     inited = true;
 }
 
@@ -191,11 +191,11 @@ Java_org_lsposed_lspd_service_ObfuscationManager_obfuscateDex(JNIEnv *env, [[may
     maybeInit(env);
     int fd = ASharedMemory_dupFromJava(env, memory);
     auto size = ASharedMemory_getSize(fd);
-    LOGD("fd=%d, size=%zu", fd, size);
+    // LOGD("fd=%d, size=%zu", fd, size);
 
     const void* mem = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (mem == MAP_FAILED) {
-        LOGE("old dex map failed?");
+        // LOGE("old dex map failed?");
         return nullptr;
     }
 

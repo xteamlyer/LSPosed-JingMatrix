@@ -40,7 +40,7 @@ public class StartBootstrapServicesHooker implements XposedInterface.Hooker {
 
     @BeforeInvocation
     public static void beforeHookedMethod() {
-        logD("SystemServer#startBootstrapServices() starts");
+        // logD("SystemServer#startBootstrapServices() starts");
 
         try {
             XposedInit.loadedPackagesInProcess.add("android");
@@ -61,7 +61,7 @@ public class StartBootstrapServicesHooker implements XposedInterface.Hooker {
                 }
             });
         } catch (Throwable t) {
-            Hookers.logE("error when hooking startBootstrapServices", t);
+            // Hookers.logE("error when hooking startBootstrapServices", t);
         }
     }
 }
