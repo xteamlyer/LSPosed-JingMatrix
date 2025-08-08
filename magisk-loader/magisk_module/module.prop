@@ -1,7 +1,6 @@
 id=${moduleId}
-name=${api} - LSPosed
+name=ReLSPosed
 version=${versionName} (${versionCode})
 versionCode=${versionCode}
 author=${authorList}
-description=Another enhanced implementation of Xposed Framework. Supports Android 8.1 ~ 16. ${requirement}.
-updateJson=${updateJson}
+description=Another, but detection enhanced, implementation of Xposed Framework. Supports Android 8.1 ~ 16.
