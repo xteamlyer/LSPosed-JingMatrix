@@ -31,12 +31,12 @@ bool ModifyStoreInPlace(uint8_t* store, uint32_t store_size) {
 
     // Check if the parameter was found
     if (it == store_end) {
-        LOGD("Parameter '%.*s' not found.", (int)param_to_remove.size(), param_to_remove.data());
+        // LOGD("Parameter '%.*s' not found.", (int)param_to_remove.size(), param_to_remove.data());
         return false;
     }
 
     uint8_t* location_of_param = it;
-    LOGD("Parameter found at offset %td.", location_of_param - store_begin);
+    // LOGD("Parameter found at offset %td.", location_of_param - store_begin);
 
     // 2. Check if there is padding immediately after the string
     uint8_t* const byte_after_param = location_of_param + param_to_remove.size();
@@ -52,13 +52,13 @@ bool ModifyStoreInPlace(uint8_t* store, uint32_t store_size) {
     // 3. Perform the conditional action
     if (has_padding) {
         // CASE A: Padding exists. Overwrite the parameter with zeros.
-        LOGD("Padding found. Overwriting parameter with zeros.");
+        // LOGD("Padding found. Overwriting parameter with zeros.");
         memset(location_of_param, 0, param_to_remove.size());
         return false;  // Size did not change
     } else {
         // CASE B: No padding exists (or parameter is at the very end).
         // Remove the parameter by shifting the rest of the memory forward.
-        LOGD("No padding found. Removing parameter and shifting memory.");
+        // LOGD("No padding found. Removing parameter and shifting memory.");
 
         // Calculate what to move
         uint8_t* source = byte_after_param;
@@ -72,7 +72,7 @@ bool ModifyStoreInPlace(uint8_t* store, uint32_t store_size) {
 
         // 4. Update the total size of the store
         store_size -= param_to_remove.size();
-        LOGD("Store size changed. New size: %u", store_size);
+        // LOGD("Store size changed. New size: %u", store_size);
 
         return true;  // Size changed
     }
@@ -81,7 +81,7 @@ bool ModifyStoreInPlace(uint8_t* store, uint32_t store_size) {
 DCL_HOOK_FUNC(uint32_t, _ZNK3art9OatHeader20GetKeyValueStoreSizeEv, void* header) {
     uint32_t size = old__ZNK3art9OatHeader20GetKeyValueStoreSizeEv(header);
     if (store_resized) {
-        LOGD("OatHeader::GetKeyValueStoreSize() called on object at %p\n", header);
+        // LOGD("OatHeader::GetKeyValueStoreSize() called on object at %p\n", header);
         size = size - param_to_remove.size();
     }
     return size;
@@ -91,7 +91,7 @@ DCL_HOOK_FUNC(uint8_t*, _ZNK3art9OatHeader16GetKeyValueStoreEv, void* header) {
     // LOGD("OatHeader::GetKeyValueStore() called on object at %p\n", header);
     uint8_t* key_value_store_ = old__ZNK3art9OatHeader16GetKeyValueStoreEv(header);
     uint32_t key_value_store_size_ = old__ZNK3art9OatHeader20GetKeyValueStoreSizeEv(header);
-    LOGD("KeyValueStore via hook: [addr: %p, size: %u]", key_value_store_, key_value_store_size_);
+    // LOGD("KeyValueStore via hook: [addr: %p, size: %u]", key_value_store_, key_value_store_size_);
     store_resized = ModifyStoreInPlace(key_value_store_, key_value_store_size_);
 
     return key_value_store_;
@@ -101,14 +101,14 @@ DCL_HOOK_FUNC(void, _ZNK3art9OatHeader15ComputeChecksumEPj, void* header, uint32
     art::OatHeader* oat_header = reinterpret_cast<art::OatHeader*>(header);
     const uint8_t* key_value_store_ = oat_header->GetKeyValueStore();
     uint32_t key_value_store_size_ = oat_header->GetKeyValueStoreSize();
-    LOGD("KeyValueStore via offset: [addr: %p, size: %u]", key_value_store_, key_value_store_size_);
+    // LOGD("KeyValueStore via offset: [addr: %p, size: %u]", key_value_store_, key_value_store_size_);
     store_resized =
         ModifyStoreInPlace(const_cast<uint8_t*>(key_value_store_), key_value_store_size_);
     if (store_resized) {
         oat_header->SetKeyValueStoreSize(key_value_store_size_ - param_to_remove.size());
     }
     old__ZNK3art9OatHeader15ComputeChecksumEPj(header, checksum);
-    LOGD("ComputeChecksum called:  %" PRIu32, *checksum);
+    // LOGD("ComputeChecksum called:  %" PRIu32, *checksum);
 }
 
 #undef DCL_HOOK_FUNC
