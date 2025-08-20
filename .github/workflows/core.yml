@@ -2,16 +2,16 @@ name: Core
 
 on:
   workflow_dispatch:
-    inputs:
-      post_telegram:
-        description: 'Post to Telegram'
-        required: true
-        type: boolean
-  push:
-    branches: [ master ]
-    tags: [ v* ]
-  pull_request:
-  merge_group:
+#    inputs:
+#      post_telegram:
+#        description: 'Post to Telegram'
+#        required: true
+#        type: boolean
+#  push:
+#    branches: [ master ]
+#    tags: [ v* ]
+#  pull_request:
+#  merge_group:
 
 jobs:
   build:
