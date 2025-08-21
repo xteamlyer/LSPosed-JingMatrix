@@ -1,4 +1,5 @@
 allow dex2oat dex2oat_exec file execute_no_trans
+allow system_server apk_data_file file execute
 
 allow shell shell dir write
 
