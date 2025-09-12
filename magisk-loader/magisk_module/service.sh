@@ -18,8 +18,6 @@
 #
 
 MODDIR=${0%/*}
-
 cd "$MODDIR"
-
-# To avoid breaking Play Integrity in certain cases, we start LSPosed service daemon in late_start service mode instead of post-fs-data mode
-unshare --propagation slave -m sh -c "$MODDIR/daemon $@&"
+# post-fs-data.sh may be blocked by other modules. retry to start this
+unshare --propagation slave -m sh -c "$MODDIR/daemon --from-service $@&"

@@ -101,7 +101,9 @@ public class ServiceManager {
 
         int systemServerMaxRetry = 1;
         for (String arg : args) {
-            if (arg.startsWith("--system-server-max-retry=")) {
+            if (arg.equals("--from-service")) {
+                Log.w(TAG, "LSPosed daemon is not started properly. Try for a late start...");
+            } else if (arg.startsWith("--system-server-max-retry=")) {
                 try {
                     systemServerMaxRetry = Integer.parseInt(arg.substring(arg.lastIndexOf('=') + 1));
                 } catch (Throwable ignored) {
