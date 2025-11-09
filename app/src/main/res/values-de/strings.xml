@@ -142,9 +142,13 @@ JJ108</string>
     <string name="menu_show_denylist">Verweigerungsliste</string>
     <string name="failed_to_save_scope_list">Scope-Liste speichern fehlgeschlagen</string>
     <string name="app_version">Version: %1$s</string>
+    <string name="menu_select">Auswählen</string>
     <string name="use_recommended">Empfohlen</string>
     <string name="no_scope_selected_has_recommended">Du hast keine App ausgewählt. Empfohlene Apps auswählen?</string>
     <string name="use_recommended_message">Empfohlene Apps auswählen?</string>
+    <string name="menu_select_all">Alle Auswählen</string>
+    <string name="menu_select_none">Keine Auswahl</string>
+    <string name="menu_auto_include">Automatisch einbinden</string>
     <string name="module_is_not_activated_yet">Das LSPosed-Modul wurde noch nicht aktiviert</string>
     <string name="requested_by_module">Empfohlen</string>
     <string name="update_available">Aktualisierung verfügbar: %1$s</string>
@@ -169,6 +173,8 @@ JJ108</string>
     <string name="settings_group_framework">Framework</string>
     <string name="settings_disable_verbose_log">Ausführliche Protokolle deaktivieren</string>
     <string name="settings_disable_verbose_log_summary">Ausführliche Protokolle in Problemberichtsmeldungen einschließen</string>
+    <string name="settings_enable_log_watchdog">Aktiviere Log Watchdog</string>
+    <string name="settings_enable_log_watchdog_summary">Der Log-Watchdog von LSPosed verändert Systemeigenschaften, die zum Aufspüren von LSPosed ausgenutzt werden können</string>
     <string name="pure_black_dark_theme">Dunkelschwarzes Thema</string>
     <string name="pure_black_dark_theme_summary">Schwarzes Thema verwenden, wenn dunkles Thema aktiviert ist</string>
     <string name="settings_group_theme">Design</string>

@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(dex2oat)
 
-add_executable(dex2oat dex2oat.c)
-add_library(oat_hook SHARED oat_hook.cpp)
+add_executable(dex2oat dex2oat.cpp)
+add_library(oat_hook SHARED oat_hook.cpp oat.cpp)
 
 OPTION(LSPLT_BUILD_SHARED OFF)
 add_subdirectory(${EXTERNAL_ROOT}/lsplt/lsplt/src/main/jni external)
 
+target_include_directories(oat_hook PUBLIC include)
+target_include_directories(dex2oat PUBLIC include)
 target_link_libraries(dex2oat log)
 target_link_libraries(oat_hook log lsplt_static)
 

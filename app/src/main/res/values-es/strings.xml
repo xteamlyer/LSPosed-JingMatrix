@@ -35,7 +35,7 @@
     <string name="module_repo_published_time">Publicado el %s</string>
     <string name="module_repo_updated_time">Actualizado el %s</string>
     <plurals name="module_repo_upgradable">
-        <item quantity="one">%d módulos repositorio actualizable uno</item>
+        <item quantity="one">%d módulo actualizable</item>
         <item quantity="other">%d módulos repositorio actualizables</item>
     </plurals>
     <string name="about_view_source_code"><![CDATA[Ve el código fuente en %1$s<br/>Únete a nuestro %2$s canal]]></string>
@@ -141,9 +141,13 @@
     <string name="menu_show_denylist">Lista de denegación</string>
     <string name="failed_to_save_scope_list">Fallo al guardar la lista de scopes</string>
     <string name="app_version">Versión: %1$s</string>
+    <string name="menu_select">Seleccionar</string>
     <string name="use_recommended">Recomendado</string>
     <string name="no_scope_selected_has_recommended">No seleccionaste ninguna aplicación. ¿Quieres seleccionar las aplicaciones recomendadas?</string>
     <string name="use_recommended_message">¿Quieres seleccionar las aplicaciones recomendadas?</string>
+    <string name="menu_select_all">Todo</string>
+    <string name="menu_select_none">Ninguno</string>
+    <string name="menu_auto_include">Auto-Incluir</string>
     <string name="module_is_not_activated_yet">El módulo Xposed no está activado aún</string>
     <string name="requested_by_module">Recomendado</string>
     <string name="update_available">Actualización disponible: %1$s</string>
@@ -169,7 +173,7 @@
     <string name="settings_disable_verbose_log">Desactivar registros detallados</string>
     <string name="settings_disable_verbose_log_summary">Solicitud de inclusión de registros detallados en los informes de incidencias</string>
     <string name="settings_enable_log_watchdog">Habilitar el watchdog de registro</string>
-    <string name="settings_enable_log_watchdog_summary">El watchdog de registro de LSPosed modifica propiedades del sistema, lo cual podría ser explotado para detectar LSPosed</string>
+    <string name="settings_enable_log_watchdog_summary">El watchdog de registro de LSPosed modifica propiedades del sistema, lo que podría usarse para detectar LSPosed</string>
     <string name="pure_black_dark_theme">Tema negro oscuro</string>
     <string name="pure_black_dark_theme_summary">Usar el tema negro puro si el tema oscuro está activado</string>
     <string name="settings_group_theme">Tema</string>
@@ -217,7 +221,7 @@
     <string name="module_release_load_more">Mostrar versiones anteriores</string>
     <string name="module_release_no_more">No hay más versiones</string>
     <string name="repo_load_failed">Fallo al cargar el módulo de repositorio: %s</string>
-    <string name="sort_upgradable_first">Upgradable first</string>
+    <string name="sort_upgradable_first">Actualizables</string>
     <string name="installed">Instalado</string>
     <plurals name="module_release_assets_download_count">
         <item quantity="one">%d descargar</item>
