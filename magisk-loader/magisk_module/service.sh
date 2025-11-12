@@ -18,6 +18,8 @@
 #
 
 MODDIR=${0%/*}
+
 cd "$MODDIR"
-# post-fs-data.sh may be blocked by other modules. retry to start this
-unshare --propagation slave -m sh -c "$MODDIR/daemon --from-service $@&"
+
+# To avoid delaying the normal mount timing of zygote, we start LSPosed service daemon in late_start service mode instead of post-fs-data mode
+unshare --propagation slave -m sh -c "$MODDIR/daemon $@&"
