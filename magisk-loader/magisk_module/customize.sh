@@ -73,7 +73,6 @@ ui_print "- Extracting module files"
 
 extract "$ZIPFILE" 'module.prop'        "$MODPATH"
 extract "$ZIPFILE" 'action.sh'          "$MODPATH"
-extract "$ZIPFILE" 'post-fs-data.sh'    "$MODPATH"
 extract "$ZIPFILE" 'service.sh'         "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh'       "$MODPATH"
 extract "$ZIPFILE" 'sepolicy.rule'      "$MODPATH"
@@ -84,16 +83,6 @@ rm -f /data/adb/lspd/manager.apk
 extract "$ZIPFILE" 'manager.apk'        "$MODPATH"
 
 if [ "$FLAVOR" == "zygisk" ]; then
-  # extract for KernelSU and APatch
-  if [ "$KSU" ] || [ "$APATCH" ]; then
-    # webroot only for zygisk
-    mkdir -p "$MODPATH/webroot"
-    extract "$ZIPFILE" "webroot/index.html" "$MODPATH/webroot" true
-    # evaluate if use awk or tr -s ' ' | cut -d' ' -f5
-    SRCJS=$(unzip -l "$ZIPFILE" | grep "webroot/generate" | grep -v sha256 | awk '{print $4}')
-    extract "$ZIPFILE" "$SRCJS" "$MODPATH/webroot" true
-  fi
-
   mkdir -p "$MODPATH/zygisk"
 
   if [ "$ARCH" = "arm" ] || [ "$ARCH" = "arm64" ]; then
