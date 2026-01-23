@@ -48,7 +48,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_lsposed_lspd_service_Dex2OatService_d
         if (d64) d64p = env->GetStringUTFChars(d64, nullptr);
 
         if (enabled) {
-            LOGI("Enable dex2oat wrapper");
+            // LOGI("Enable dex2oat wrapper");
             if (r32) {
                 mount(dex2oat32, r32p, nullptr, MS_BIND, nullptr);
                 mount(nullptr, r32p, nullptr, MS_BIND | MS_REMOUNT | MS_RDONLY, nullptr);
@@ -67,7 +67,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_lsposed_lspd_service_Dex2OatService_d
             }
             execlp("resetprop", "resetprop", "--delete", "dalvik.vm.dex2oat-flags", nullptr);
         } else {
-            LOGI("Disable dex2oat wrapper");
+            // LOGI("Disable dex2oat wrapper");
             if (r32) umount(r32p);
             if (d32) umount(d32p);
             if (r64) umount(r64p);
@@ -76,7 +76,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_lsposed_lspd_service_Dex2OatService_d
                    nullptr);
         }
 
-        PLOGE("Failed to resetprop");
+        // PLOGE("Failed to resetprop");
         exit(1);
     }
 }

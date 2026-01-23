@@ -105,7 +105,7 @@ public final class LspModuleClassLoader extends ByteBufferDexClassLoader {
                         return split[0] + zipSeparator + entryName;
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Can not open " + split[0], e);
+                    // Log.e(TAG, "Can not open " + split[0], e);
                 }
             } else if (file.isDirectory()) {
                 var entryPath = new File(file, fileName).getPath();
@@ -189,7 +189,7 @@ public final class LspModuleClassLoader extends ByteBufferDexClassLoader {
             try {
                 return dex.mapReadOnly();
             } catch (ErrnoException e) {
-                Log.w(TAG, "Can not map " + dex, e);
+                // Log.w(TAG, "Can not map " + dex, e);
                 return null;
             }
         }).filter(Objects::nonNull).toArray(ByteBuffer[]::new);

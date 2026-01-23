@@ -87,7 +87,7 @@ public class PackageService {
     private static final IBinder.DeathRecipient recipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Log.w(TAG, "pm is dead");
+            // Log.w(TAG, "pm is dead");
             binder.unlinkToDeath(this, 0);
             binder = null;
             pm = null;
@@ -101,7 +101,7 @@ public class PackageService {
             try {
                 binder.linkToDeath(recipient, 0);
             } catch (RemoteException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                // Log.e(TAG, Log.getStackTraceString(e));
             }
             pm = IPackageManager.Stub.asInterface(binder);
         }
@@ -171,7 +171,7 @@ public class PackageService {
                     PackageInfo pkgInfo = getPackageInfoWithComponents(packageInfo.packageName, MATCH_ALL_FLAGS, packageInfo.applicationInfo.uid / PER_USER_RANGE);
                     return !fetchProcesses(pkgInfo).isEmpty();
                 } catch (RemoteException e) {
-                    Log.w(TAG, "filter failed", e);
+                    // Log.w(TAG, "filter failed", e);
                     return true;
                 }
             }).collect(Collectors.toList()));
@@ -278,7 +278,7 @@ public class PackageService {
             public void send(Intent intent) {
                 int status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
                 result[0] = status == PackageInstaller.STATUS_SUCCESS;
-                Log.d(TAG, intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
+                // Log.d(TAG, intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
                 latch.countDown();
             }
         }.getIntentSender(), userId == -1 ? 0 : userId);
@@ -288,7 +288,7 @@ public class PackageService {
 
     public static int installExistingPackageAsUser(String packageName, int userId) throws RemoteException {
         IPackageManager pm = getPackageManager();
-        Log.d(TAG, "about to install existing package " + packageName + "/" + userId);
+        // Log.d(TAG, "about to install existing package " + packageName + "/" + userId);
         if (pm == null) return INSTALL_FAILED_INTERNAL_ERROR;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return pm.installExistingPackageAsUser(packageName, userId, 0, INSTALL_REASON_UNKNOWN, null);
@@ -310,7 +310,7 @@ public class PackageService {
             }
             return new ParcelableListSlice<>(infos.getList());
         } catch (Exception e) {
-            Log.e(TAG, "queryIntentActivities", e);
+            // Log.e(TAG, "queryIntentActivities", e);
             return new ParcelableListSlice<>(new ArrayList<>());
         }
     }

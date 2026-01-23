@@ -38,7 +38,7 @@ public class LogcatService implements Runnable {
         @Override
         synchronized protected boolean removeEldestEntry(Entry<File, Object> eldest) {
             if (size() > MAX_ENTRIES && eldest.getKey().delete()) {
-                Log.d(TAG, "Deleted old log " + eldest.getKey().getAbsolutePath());
+                // Log.d(TAG, "Deleted old log " + eldest.getKey().getAbsolutePath());
                 return true;
             }
             return false;
@@ -55,50 +55,50 @@ public class LogcatService implements Runnable {
         String classPath = System.getProperty("java.class.path");
         var abi = Process.is64Bit() ? Build.SUPPORTED_64_BIT_ABIS[0] : Build.SUPPORTED_32_BIT_ABIS[0];
         System.load(classPath + "!/lib/" + abi + "/" + System.mapLibraryName("daemon"));
-        ConfigFileManager.moveLogDir();
+        // ConfigFileManager.moveLogDir();
 
         // Meizu devices set this prop and prevent debug logs from being recorded
-        if (SystemProperties.getInt("persist.sys.log_reject_level", 0) > 0) {
-            SystemProperties.set("persist.sys.log_reject_level", "0");
-        }
+        // if (SystemProperties.getInt("persist.sys.log_reject_level", 0) > 0) {
+        //     SystemProperties.set("persist.sys.log_reject_level", "0");
+        // }
 
-        getprop();
-        dmesg();
+        // getprop();
+        // dmesg();
     }
 
-    private static void getprop() {
-        // multithreaded process can not change their context type,
-        // start a new process to set restricted context to filter privacy props
-        var cmd = "echo -n u:r:untrusted_app:s0 > /proc/thread-self/attr/current; getprop";
-        try {
-            SELinux.setFSCreateContext("u:object_r:app_data_file:s0");
-            new ProcessBuilder("sh", "-c", cmd)
-                    .redirectOutput(ConfigFileManager.getPropsPath())
-                    .start();
-        } catch (IOException e) {
-            Log.e(TAG, "getprop: ", e);
-        } finally {
-            SELinux.setFSCreateContext(null);
-        }
-    }
+    // private static void getprop() {
+    //     // multithreaded process can not change their context type,
+    //     // start a new process to set restricted context to filter privacy props
+    //     var cmd = "echo -n u:r:untrusted_app:s0 > /proc/thread-self/attr/current; getprop";
+    //     try {
+    //         SELinux.setFSCreateContext("u:object_r:app_data_file:s0");
+    //         new ProcessBuilder("sh", "-c", cmd)
+    //                 .redirectOutput(ConfigFileManager.getPropsPath())
+    //                 .start();
+    //     } catch (IOException e) {
+    //         Log.e(TAG, "getprop: ", e);
+    //     } finally {
+    //         SELinux.setFSCreateContext(null);
+    //     }
+    // }
 
-    private static void dmesg() {
-        try {
-            new ProcessBuilder("dmesg")
-                    .redirectOutput(ConfigFileManager.getKmsgPath())
-                    .start();
-        } catch (IOException e) {
-            Log.e(TAG, "dmesg: ", e);
-        }
-    }
+    // private static void dmesg() {
+    //     try {
+    //         new ProcessBuilder("dmesg")
+    //                 .redirectOutput(ConfigFileManager.getKmsgPath())
+    //                 .start();
+    //     } catch (IOException e) {
+    //         Log.e(TAG, "dmesg: ", e);
+    //     }
+    // }
 
     private native void runLogcat();
 
     @Override
     public void run() {
-        Log.i(TAG, "start running");
-        runLogcat();
-        Log.i(TAG, "stopped");
+        // Log.i(TAG, "start running");
+        // runLogcat();
+        // Log.i(TAG, "stopped");
     }
 
     @SuppressWarnings("unused")
@@ -106,95 +106,94 @@ public class LogcatService implements Runnable {
         try {
             File log;
             if (isVerboseLog) {
-                checkFd(verboseFd);
-                log = ConfigFileManager.getNewVerboseLogPath();
+                // checkFd(verboseFd);
+                // log = ConfigFileManager.getNewVerboseLogPath();
             } else {
-                checkFd(modulesFd);
-                log = ConfigFileManager.getNewModulesLogPath();
+                // checkFd(modulesFd);
+                // log = ConfigFileManager.getNewModulesLogPath();
             }
-            Log.i(TAG, "New log file: " + log);
-            ConfigFileManager.chattr0(log.toPath().getParent());
-            int fd = ParcelFileDescriptor.open(log, mode).detachFd();
+            // Log.i(TAG, "New log file: " + log);
+            // ConfigFileManager.chattr0(log.toPath().getParent());
+            int fd = -1;
             if (isVerboseLog) {
                 synchronized (verboseLogs) {
-                    verboseLogs.put(log, new Object());
+                    // verboseLogs.put(log, new Object());
                 }
                 verboseFd = fd;
             } else {
                 synchronized (moduleLogs) {
-                    moduleLogs.put(log, new Object());
+                    // moduleLogs.put(log, new Object());
                 }
                 modulesFd = fd;
             }
             return fd;
-        } catch (IOException e) {
-            if (isVerboseLog) verboseFd = -1;
-            else modulesFd = -1;
-            Log.w(TAG, "refreshFd", e);
+        } catch (Throwable ignored) {
+            modulesFd = -1;
+            // Log.w(TAG, "refreshFd", e);
             return -1;
         }
     }
 
     private static void checkFd(int fd) {
-        if (fd == -1) return;
-        try {
-            var jfd = new FileDescriptor();
-            //noinspection JavaReflectionMemberAccess DiscouragedPrivateApi
-            jfd.getClass().getDeclaredMethod("setInt$", int.class).invoke(jfd, fd);
-            var stat = Os.fstat(jfd);
-            if (stat.st_nlink == 0) {
-                var file = Files.readSymbolicLink(fdToPath(fd));
-                var parent = file.getParent();
-                if (!Files.isDirectory(parent, LinkOption.NOFOLLOW_LINKS)) {
-                    if (ConfigFileManager.chattr0(parent))
-                        Files.deleteIfExists(parent);
-                }
-                var name = file.getFileName().toString();
-                var originName = name.substring(0, name.lastIndexOf(' '));
-                Files.copy(file, parent.resolve(originName));
-            }
-        } catch (Throwable e) {
-            Log.w(TAG, "checkFd " + fd, e);
-        }
+        // if (fd == -1) return;
+        // try {
+        //     var jfd = new FileDescriptor();
+        //     //noinspection JavaReflectionMemberAccess DiscouragedPrivateApi
+        //     jfd.getClass().getDeclaredMethod("setInt$", int.class).invoke(jfd, fd);
+        //     var stat = Os.fstat(jfd);
+        //     if (stat.st_nlink == 0) {
+        //         var file = Files.readSymbolicLink(fdToPath(fd));
+        //         var parent = file.getParent();
+        //         if (!Files.isDirectory(parent, LinkOption.NOFOLLOW_LINKS)) {
+        //             if (ConfigFileManager.chattr0(parent))
+        //                 Files.deleteIfExists(parent);
+        //         }
+        //         var name = file.getFileName().toString();
+        //         var originName = name.substring(0, name.lastIndexOf(' '));
+        //         Files.copy(file, parent.resolve(originName));
+        //     }
+        // } catch (Throwable e) {
+        //     Log.w(TAG, "checkFd " + fd, e);
+        // }
     }
 
-    public boolean isRunning() {
-        return thread != null && thread.isAlive();
-    }
+    // public boolean isRunning() {
+    //     return thread != null && thread.isAlive();
+    // }
 
     public void start() {
-        if (isRunning()) return;
-        thread = new Thread(this);
-        thread.setName("logcat");
-        thread.setUncaughtExceptionHandler((t, e) -> {
-            Log.e(TAG, "Crash unexpectedly: ", e);
-            thread = null;
-            start();
-        });
-        thread.start();
+        // if (isRunning()) return;
+        // thread = new Thread(this);
+        // thread.setName("logcat");
+        // thread.setUncaughtExceptionHandler((t, e) -> {
+        //     Log.e(TAG, "Crash unexpectedly: ", e);
+        //     thread = null;
+        //     start();
+        // });
+        // thread.start();
     }
 
     public void startVerbose() {
-        Log.i(TAG, "!!start_verbose!!");
+        // Log.i(TAG, "!!start_verbose!!");
     }
 
     public void stopVerbose() {
-        Log.i(TAG, "!!stop_verbose!!");
+        // Log.i(TAG, "!!stop_verbose!!");
     }
 
     public void enableWatchdog() {
-        Log.i(TAG, "!!start_watchdog!!");
+        // Log.i(TAG, "!!start_watchdog!!");
     }
 
     public void disableWatchdog() {
-        Log.i(TAG, "!!stop_watchdog!!");
+        // Log.i(TAG, "!!stop_watchdog!!");
     }
 
     public void refresh(boolean isVerboseLog) {
         if (isVerboseLog) {
-            Log.i(TAG, "!!refresh_verbose!!");
+            // Log.i(TAG, "!!refresh_verbose!!");
         } else {
-            Log.i(TAG, "!!refresh_modules!!");
+            // Log.i(TAG, "!!refresh_modules!!");
         }
     }
 
@@ -214,9 +213,9 @@ public class LogcatService implements Runnable {
     }
 
     public void checkLogFile() {
-        if (modulesFd == -1)
-            refresh(false);
-        if (verboseFd == -1)
-            refresh(true);
+        // if (modulesFd == -1)
+        //     refresh(false);
+        // if (verboseFd == -1)
+        //     refresh(true);
     }
 }

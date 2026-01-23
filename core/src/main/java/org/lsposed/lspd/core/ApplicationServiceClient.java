@@ -52,7 +52,7 @@ public class ApplicationServiceClient implements ILSPApplicationService, IBinder
             try {
                 serviceClient = new ApplicationServiceClient(service, niceName);
             } catch (RemoteException e) {
-                Utils.logE("link to death error: ", e);
+                // Utils.logE("link to death error: ", e);
             }
         }
     }

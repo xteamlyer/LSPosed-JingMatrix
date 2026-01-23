@@ -55,7 +55,7 @@ public class FakeContext extends ContextWrapper {
             if (systemApplicationInfo == null)
                 systemApplicationInfo = PackageService.getApplicationInfo("android", 0, 0);
         } catch (Throwable e) {
-            Log.e(TAG, "getApplicationInfo", e);
+            // Log.e(TAG, "getApplicationInfo", e);
         }
         return systemApplicationInfo;
     }

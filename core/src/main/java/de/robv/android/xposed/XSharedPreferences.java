@@ -80,13 +80,13 @@ public final class XSharedPreferences implements SharedPreferences {
         sWatcherDaemon = new Thread() {
             @Override
             public void run() {
-                if (BuildConfig.DEBUG) Log.d(TAG, "Watcher daemon thread started");
+                // if (BuildConfig.DEBUG) Log.d(TAG, "Watcher daemon thread started");
                 while (true) {
                     WatchKey key;
                     try {
                         key = sWatcher.take();
                     } catch (ClosedWatchServiceException ignored) {
-                        if (BuildConfig.DEBUG) Log.d(TAG, "Watcher daemon thread finished");
+                        // if (BuildConfig.DEBUG) Log.d(TAG, "Watcher daemon thread finished");
                         sWatcher = null;
                         return;
                     } catch (InterruptedException ignored) {
@@ -100,8 +100,8 @@ public final class XSharedPreferences implements SharedPreferences {
                         Path dir = (Path) key.watchable();
                         Path path = dir.resolve((Path) event.context());
                         String pathStr = path.toString();
-                        if (BuildConfig.DEBUG)
-                            Log.v(TAG, "File " + path.toString() + " event: " + kind.name());
+                        // if (BuildConfig.DEBUG)
+                        //     Log.v(TAG, "File " + path.toString() + " event: " + kind.name());
                         // We react to both real and backup files due to rare race conditions
                         if (pathStr.endsWith(".bak")) {
                             if (kind != StandardWatchEventKinds.ENTRY_DELETE) {
@@ -116,8 +116,8 @@ public final class XSharedPreferences implements SharedPreferences {
                                 try {
                                     l.onSharedPreferenceChanged(data.mPrefs, null);
                                 } catch (Throwable t) {
-                                    if (BuildConfig.DEBUG)
-                                        Log.e(TAG, "Fail in preference change listener", t);
+                                    // if (BuildConfig.DEBUG)
+                                    //     Log.e(TAG, "Fail in preference change listener", t);
                                 }
                             }
                         }
@@ -179,7 +179,7 @@ public final class XSharedPreferences implements SharedPreferences {
                     xposedsharedprefs = metaData.containsKey("xposedsharedprefs");
                 }
             } catch (NumberFormatException | IOException e) {
-                Log.w(TAG, "Apk parser fails: " + e);
+                // Log.w(TAG, "Apk parser fails: " + e);
             }
             newModule = isModule && (xposedminversion > 92 || xposedsharedprefs);
         }
@@ -202,7 +202,7 @@ public final class XSharedPreferences implements SharedPreferences {
             try {
                 if (sWatcher == null) {
                     sWatcher = new File(serviceClient.getPrefsPath("")).toPath().getFileSystem().newWatchService();
-                    if (BuildConfig.DEBUG) Log.d(TAG, "Created WatchService instance");
+                    // if (BuildConfig.DEBUG) Log.d(TAG, "Created WatchService instance");
                 }
                 mWatchKey = path.getParent().register(sWatcher, StandardWatchEventKinds.ENTRY_CREATE,
                         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
@@ -210,12 +210,12 @@ public final class XSharedPreferences implements SharedPreferences {
                 if (sWatcherDaemon == null || !sWatcherDaemon.isAlive()) {
                     initWatcherDaemon();
                 }
-                if (BuildConfig.DEBUG)
-                    Log.d(TAG, "tryRegisterWatcher: registered file watcher for " + path);
+                // if (BuildConfig.DEBUG)
+                //     Log.d(TAG, "tryRegisterWatcher: registered file watcher for " + path);
             } catch (AccessDeniedException accDeniedEx) {
-                if (BuildConfig.DEBUG) Log.e(TAG, "tryRegisterWatcher: access denied to " + path);
+                // if (BuildConfig.DEBUG) Log.e(TAG, "tryRegisterWatcher: access denied to " + path);
             } catch (Exception e) {
-                Log.e(TAG, "tryRegisterWatcher: failed to register file watcher", e);
+                // Log.e(TAG, "tryRegisterWatcher: failed to register file watcher", e);
             }
         }
     }
@@ -343,11 +343,11 @@ public final class XSharedPreferences implements SharedPreferences {
                 map = mMap;
             }
         } catch (XmlPullParserException e) {
-            Log.w(TAG, "getSharedPreferences failed for: " + mFilename, e);
+            // Log.w(TAG, "getSharedPreferences failed for: " + mFilename, e);
         } catch (FileNotFoundException ignored) {
             // SharedPreferencesImpl has a canRead() check, so it doesn't log anything in case the file doesn't exist
         } catch (IOException e) {
-            Log.w(TAG, "getSharedPreferences failed for: " + mFilename, e);
+            // Log.w(TAG, "getSharedPreferences failed for: " + mFilename, e);
         } finally {
             if (result != null && result.stream != null) {
                 try {
@@ -394,7 +394,7 @@ public final class XSharedPreferences implements SharedPreferences {
             // SharedPreferencesImpl doesn't log anything in case the file doesn't exist
             return true;
         } catch (IOException e) {
-            Log.w(TAG, "hasFileChanged", e);
+            // Log.w(TAG, "hasFileChanged", e);
             return true;
         }
     }
@@ -561,22 +561,22 @@ public final class XSharedPreferences implements SharedPreferences {
         public boolean hasChanged() {
             long size = tryGetFileSize(mPrefs.mFilename);
             if (size < 1) {
-                if (BuildConfig.DEBUG) Log.d(TAG, "Ignoring empty prefs file");
+                // if (BuildConfig.DEBUG) Log.d(TAG, "Ignoring empty prefs file");
                 return false;
             }
             if (size != mSize) {
                 mSize = size;
                 mHash = tryGetFileHash(mPrefs.mFilename);
-                if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file size changed");
+                // if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file size changed");
                 return true;
             }
             byte[] hash = tryGetFileHash(mPrefs.mFilename);
             if (!Arrays.equals(hash, mHash)) {
                 mHash = hash;
-                if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file hash changed");
+                // if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file hash changed");
                 return true;
             }
-            if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file not changed");
+            // if (BuildConfig.DEBUG) Log.d(TAG, "Prefs file not changed");
             return false;
         }
     }

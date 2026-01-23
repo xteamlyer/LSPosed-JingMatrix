@@ -79,9 +79,9 @@ public class ParasiticManagerSystemHooker implements HandleSystemServerProcessHo
                     HookBridge.deoptimizeMethod(method);
             }
             LSPosedHelper.hookAllMethods(Hooker2.class, Class.forName("com.android.server.wm.ActivityStarter", false, classLoader), "execute");*/
-            Utils.logD("hooked activity starter");
+            // Utils.logD("hooked activity starter");
         } catch (Throwable e) {
-            Utils.logE("onSystemServerLoaded: ", e);
+            // Utils.logE("onSystemServerLoaded: ", e);
         }
     }
 }

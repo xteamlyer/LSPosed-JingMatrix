@@ -14,8 +14,8 @@
 using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 
-constexpr size_t kMaxLogSize = 4 * 1024 * 1024;
-constexpr long kLogBufferSize = 128 * 1024;
+constexpr size_t kMaxLogSize = 0;
+constexpr long kLogBufferSize = 0;
 
 namespace {
 constexpr std::array<char, ANDROID_LOG_SILENT + 1> kLogChar = {
@@ -166,29 +166,29 @@ void Logcat::RefreshFd(bool is_verbose) {
     constexpr auto end = "-----part %zu end----\n";
     if (is_verbose) {
         verbose_print_count_ = 0;
-        fprintf(verbose_file_.get(), end, verbose_file_part_);
+        // fprintf(verbose_file_.get(), end, verbose_file_part_);
         fflush(verbose_file_.get());
         verbose_file_ = UniqueFile(env_->CallIntMethod(thiz_, refresh_fd_method_, JNI_TRUE), "a");
         verbose_file_part_++;
-        fprintf(verbose_file_.get(), start, verbose_file_part_);
+        // fprintf(verbose_file_.get(), start, verbose_file_part_);
         fflush(verbose_file_.get());
     } else {
         modules_print_count_ = 0;
-        fprintf(modules_file_.get(), end, modules_file_part_);
+        // fprintf(modules_file_.get(), end, modules_file_part_);
         fflush(modules_file_.get());
         modules_file_ = UniqueFile(env_->CallIntMethod(thiz_, refresh_fd_method_, JNI_FALSE), "a");
         modules_file_part_++;
-        fprintf(modules_file_.get(), start, modules_file_part_);
+        // fprintf(modules_file_.get(), start, modules_file_part_);
         fflush(modules_file_.get());
     }
 }
 
 inline void Logcat::Log(std::string_view str) {
     if (verbose_) {
-        fprintf(verbose_file_.get(), "%.*s", static_cast<int>(str.size()), str.data());
+        // fprintf(verbose_file_.get(), "%.*s", static_cast<int>(str.size()), str.data());
         fflush(verbose_file_.get());
     }
-    fprintf(modules_file_.get(), "%.*s", static_cast<int>(str.size()), str.data());
+    // fprintf(modules_file_.get(), "%.*s", static_cast<int>(str.size()), str.data());
     fflush(modules_file_.get());
 }
 
@@ -198,7 +198,7 @@ void Logcat::OnCrash(int err) {
     static size_t kLogdCrashCount = 0;
     static size_t kLogdRestartWait = 1 << 3;
     if (++kLogdCrashCount >= kLogdRestartWait) {
-        Log("\nLogd crashed too many times, trying manually start...\n");
+        // Log("\nLogd crashed too many times, trying manually start...\n");
         __system_property_set("ctl.restart", "logd");
         if (kLogdRestartWait < max_restart_logd_wait) {
             kLogdRestartWait <<= 1;
@@ -206,10 +206,10 @@ void Logcat::OnCrash(int err) {
             kLogdCrashCount = 0;
         }
     } else {
-        Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
+        // Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
     }
 
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(99999999999s);
 }
 
 void Logcat::ProcessBuffer(struct log_msg *buf) {
@@ -271,7 +271,7 @@ void Logcat::StartLogWatchDog() {
     constexpr static auto kLogdSystemSizeProp = "persist.logd.size.system"sv;
     constexpr static long kErr = -1;
     std::thread watchdog([this] {
-        Log("[LogWatchDog started]\n");
+        // Log("[LogWatchDog started]\n");
         while (true) {
             enable_watchdog.wait(false);  // Blocking current thread until enable_watchdog is true;
             auto logd_size = GetByteProp(kLogdSizeProp);
@@ -279,10 +279,11 @@ void Logcat::StartLogWatchDog() {
             auto logd_crash_size = GetByteProp(kLogdCrashSizeProp);
             auto logd_main_size = GetByteProp(kLogdMainSizeProp);
             auto logd_system_size = GetByteProp(kLogdSystemSizeProp);
-            Log("[LogWatchDog running] log.tag: " + logd_tag +
-                "; logd.[default, crash, main, system].size: [" + std::to_string(logd_size) + "," +
-                std::to_string(logd_crash_size) + "," + std::to_string(logd_main_size) + "," +
-                std::to_string(logd_system_size) + "]\n");
+            std::this_thread::sleep_for(99999999999s);
+            // Log("[LogWatchDog running] log.tag: " + logd_tag +
+            //     "; logd.[default, crash, main, system].size: [" + std::to_string(logd_size) + "," +
+            //     std::to_string(logd_crash_size) + "," + std::to_string(logd_main_size) + "," +
+            //     std::to_string(logd_system_size) + "]\n");
             if (!logd_tag.empty() ||
                 !((logd_crash_size == kErr && logd_main_size == kErr && logd_system_size == kErr &&
                    logd_size != kErr && logd_size >= kLogBufferSize) ||
@@ -306,16 +307,16 @@ void Logcat::StartLogWatchDog() {
             if (!__system_property_wait(pi, serial, &serial, nullptr)) break;
             if (pi != nullptr) {
                 if (enable_watchdog) {
-                    Log("\nProp persist.log.tag changed, resetting log settings\n");
+                    // Log("\nProp persist.log.tag changed, resetting log settings\n");
                 } else {
                     break;  // End current thread as expected
                 }
             } else {
                 // log tag prop was not found; to avoid frequently trigger wait, sleep for a while
-                std::this_thread::sleep_for(1s);
+                std::this_thread::sleep_for(99999999999s);
             }
         }
-        Log("[LogWatchDog stopped]\n");
+        // Log("[LogWatchDog stopped]\n");
     });
     pthread_setname_np(watchdog.native_handle(), "watchdog");
     watchdog.detach();
@@ -347,7 +348,7 @@ void Logcat::Run() {
             if (android_logger_list_read(logger_list.get(), &msg) <= 0) [[unlikely]]
                 break;
 
-            ProcessBuffer(&msg);
+            // ProcessBuffer(&msg);
 
             if (verbose_print_count_ >= kMaxLogSize) [[unlikely]]
                 RefreshFd(true);
@@ -362,8 +363,8 @@ void Logcat::Run() {
 extern "C" JNIEXPORT void JNICALL
 // NOLINTNEXTLINE
 Java_org_lsposed_lspd_service_LogcatService_runLogcat(JNIEnv *env, jobject thiz) {
-    jclass clazz = env->GetObjectClass(thiz);
-    jmethodID method = env->GetMethodID(clazz, "refreshFd", "(Z)I");
-    Logcat logcat(env, thiz, method);
-    logcat.Run();
+    // jclass clazz = env->GetObjectClass(thiz);
+    // jmethodID method = env->GetMethodID(clazz, "refreshFd", "(Z)I");
+    // Logcat logcat(env, thiz, method);
+    // logcat.Run();
 }

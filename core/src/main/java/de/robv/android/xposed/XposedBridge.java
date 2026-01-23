@@ -112,8 +112,8 @@ public final class XposedBridge {
                         XposedHelpers.setStaticObjectField(ActivityThread.class, "sCurrentActivityThread", null);
                     }
                 }
-            } catch (Resources.NotFoundException nfe) {
-                XposedBridge.log(nfe);
+            } catch (Resources.NotFoundException ignored) {
+                // XposedBridge.log(nfe);
             }
             ResourcesHook.makeInheritable(resClass);
             ResourcesHook.makeInheritable(taClass);
@@ -124,7 +124,7 @@ public final class XposedBridge {
             dummyClassLoader.loadClass("xposed.dummy.XTypedArraySuperClass");
             XposedHelpers.setObjectField(myCL, "parent", dummyClassLoader);
         } catch (Throwable throwable) {
-            XposedBridge.log(throwable);
+            // XposedBridge.log(throwable);
             XposedInit.disableResources = true;
         }
     }
@@ -144,9 +144,9 @@ public final class XposedBridge {
      *
      * @param text The log message.
      */
-    public synchronized static void log(String text) {
-        Log.i(TAG, text);
-    }
+    // public synchronized static void log(String text) {
+    //     Log.i(TAG, text);
+    // }
 
     /**
      * Logs a stack trace to the Xposed modules log.
@@ -156,10 +156,10 @@ public final class XposedBridge {
      *
      * @param t The Throwable object for the stack trace.
      */
-    public synchronized static void log(Throwable t) {
-        String logStr = Log.getStackTraceString(t);
-        Log.e(TAG, logStr);
-    }
+    // public synchronized static void log(Throwable t) {
+    //     String logStr = Log.getStackTraceString(t);
+    //     Log.e(TAG, logStr);
+    // }
 
     /**
      * Deoptimize a method to avoid callee being inlined.
@@ -208,7 +208,7 @@ public final class XposedBridge {
         }
 
         if (!HookBridge.hookMethod(false, (Executable) hookMethod, LSPosedBridge.NativeHooker.class, callback.priority, callback)) {
-            log("Failed to hook " + hookMethod);
+            // log("Failed to hook " + hookMethod);
             return null;
         }
 
@@ -403,7 +403,7 @@ public final class XposedBridge {
                     var cb = (XC_MethodHook) snapshot[beforeIdx];
                     cb.beforeHookedMethod(param);
                 } catch (Throwable t) {
-                    XposedBridge.log(t);
+                    // XposedBridge.log(t);
 
                     // reset result (ignoring what the unexpectedly exiting callback did)
                     param.setResult(null);
@@ -429,7 +429,7 @@ public final class XposedBridge {
                     var cb = (XC_MethodHook) snapshot[afterIdx];
                     cb.afterHookedMethod(param);
                 } catch (Throwable t) {
-                    XposedBridge.log(t);
+                    // XposedBridge.log(t);
 
                     // reset to last result (ignoring what the unexpectedly exiting callback did)
                     if (lastThrowable == null) {
