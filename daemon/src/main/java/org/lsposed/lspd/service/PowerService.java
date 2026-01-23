@@ -34,7 +34,7 @@ public class PowerService {
     private static final IBinder.DeathRecipient recipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Log.w(TAG, "PowerManager is dead");
+            // Log.w(TAG, "PowerManager is dead");
             binder.unlinkToDeath(this, 0);
             binder = null;
             pm = null;
@@ -48,7 +48,7 @@ public class PowerService {
             try {
                 binder.linkToDeath(recipient, 0);
             } catch (RemoteException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                // Log.e(TAG, Log.getStackTraceString(e));
             }
             pm = IPowerManager.Stub.asInterface(binder);
         }

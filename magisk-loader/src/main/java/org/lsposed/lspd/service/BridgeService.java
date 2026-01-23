@@ -59,14 +59,14 @@ public class BridgeService {
             serviceBinder.unlinkToDeath(this, 0);
             serviceBinder = null;
             service = null;
-            Log.e(TAG, "service is dead");
+            // Log.e(TAG, "service is dead");
         }
     };
 
     // For client
     private static void receiveFromBridge(IBinder binder) {
         if (binder == null) {
-            Log.e(TAG, "received empty binder");
+            // Log.e(TAG, "received empty binder");
             return;
         }
 
@@ -81,16 +81,16 @@ public class BridgeService {
         try {
             serviceBinder.linkToDeath(serviceRecipient, 0);
         } catch (Throwable e) {
-            Log.e(TAG, "service link to death: ", e);
+            // Log.e(TAG, "service link to death: ", e);
         }
         try {
             IApplicationThread at = ActivityThread.currentActivityThread().getApplicationThread();
             Context ctx = ActivityThread.currentActivityThread().getSystemContext();
             service.dispatchSystemServerContext(at.asBinder(), Context_getActivityToken(ctx), BuildConfig.FLAVOR);
         } catch (Throwable e) {
-            Log.e(TAG, "dispatch context: ", e);
+            // Log.e(TAG, "dispatch context: ", e);
         }
-        Log.i(TAG, "binder received");
+        // Log.i(TAG, "binder received");
     }
 
     public static ILSPosedService getService() {
@@ -104,7 +104,7 @@ public class BridgeService {
         try {
             ACTION action = ACTION.values()[data.readInt()];
 
-            Log.d(TAG, "onTransact: action=" + action + ", callingUid=" + Binder.getCallingUid() + ", callingPid=" + Binder.getCallingPid());
+            // Log.d(TAG, "onTransact: action=" + action + ", callingUid=" + Binder.getCallingUid() + ", callingPid=" + Binder.getCallingPid());
 
             switch (action) {
                 case ACTION_SEND_BINDER: {
@@ -125,11 +125,11 @@ public class BridgeService {
                         var applicationService = service == null ? null : service.requestApplicationService(Binder.getCallingUid(), Binder.getCallingPid(), processName, heartBeat);
                         if (applicationService != null) binder = applicationService.asBinder();
                     } catch (RemoteException e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
+                        // Log.e(TAG, Log.getStackTraceString(e));
                     }
                     if (binder != null && reply != null) {
                         reply.writeNoException();
-                        Log.d(TAG, "got binder is " + binder);
+                        // Log.d(TAG, "got binder is " + binder);
                         reply.writeStrongBinder(binder);
                         return true;
                     }
@@ -146,7 +146,7 @@ public class BridgeService {
                 }
             }
         } catch (Throwable e) {
-            Log.e(TAG, "onTransact", e);
+            // Log.e(TAG, "onTransact", e);
         }
         return false;
     }
@@ -159,7 +159,7 @@ public class BridgeService {
         Parcel reply = ParcelUtils.fromNativePointer(replyObj);
 
         if (data == null || reply == null) {
-            Log.w(TAG, "Got transaction with null data or reply");
+            // Log.w(TAG, "Got transaction with null data or reply");
             return false;
         }
 
@@ -168,12 +168,12 @@ public class BridgeService {
                 return onTransact(data, reply, flags);
             } catch (Exception e) {
                 if ((flags & IBinder.FLAG_ONEWAY) != 0) {
-                    Log.w(TAG, "Caught a Exception from the binder stub implementation. ", e);
+                    // Log.w(TAG, "Caught a Exception from the binder stub implementation. ", e);
                 } else {
                     reply.setDataPosition(0);
                     reply.writeException(e);
                 }
-                Log.w(TAG, "on transact", e);
+                // Log.w(TAG, "on transact", e);
                 return true;
             }
         } finally {

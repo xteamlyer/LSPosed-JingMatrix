@@ -63,7 +63,7 @@ namespace lspd {
 
         static void Init(const SandHook::ElfImg *binder) {
             if (binder == nullptr) {
-                LOGE("libbinder not found");
+                // LOGE("libbinder not found");
                 return;
             }
             selfOrNullFn = reinterpret_cast<decltype(selfOrNullFn)>(
@@ -72,7 +72,7 @@ namespace lspd {
                     binder->getSymbAddress("_ZNK7android14IPCThreadState13getCallingPidEv"));
             getCallingUidFn = reinterpret_cast<decltype(getCallingUidFn)>(
                     binder->getSymbAddress("_ZNK7android14IPCThreadState13getCallingUidEv"));
-            LOGI("libbinder selfOrNull {} getCallingPid {} getCallingUid {}", (void*) selfOrNullFn, (void*) getCallingPidFn, (void*) getCallingUidFn);
+            // LOGI("libbinder selfOrNull {} getCallingPid {} getCallingUid {}", (void*) selfOrNullFn, (void*) getCallingPidFn, (void*) getCallingUidFn);
         }
     };
 
@@ -176,7 +176,7 @@ namespace lspd {
         if (auto parcel_file_descriptor_class = JNI_FindClass(env, "android/os/ParcelFileDescriptor")) {
             parcel_file_descriptor_class_ = JNI_NewGlobalRef(env, parcel_file_descriptor_class);
         } else {
-            LOGE("ParcelFileDescriptor not found");
+            // LOGE("ParcelFileDescriptor not found");
             return;
         }
         detach_fd_method_ = JNI_GetMethodID(env, parcel_file_descriptor_class_, "detachFd", "()I");
@@ -204,7 +204,7 @@ namespace lspd {
                                                                            GetBridgeServiceName()))
             bridge_service_class_ = JNI_NewGlobalRef(env, bridge_service_class);
         else {
-            LOGE("server class not found");
+            // LOGE("server class not found");
             return;
         }
 
@@ -214,7 +214,7 @@ namespace lspd {
                                                                 "execTransact",
                                                                 hooker_sig);
         if (!exec_transact_replace_methodID_) {
-            LOGE("execTransact class not found");
+            // LOGE("execTransact class not found");
             return;
         }
 
@@ -225,7 +225,7 @@ namespace lspd {
         auto *setTableOverride = art->getSymbAddress<void (*)(JNINativeInterface *)>(
                 "_ZN3art9JNIEnvExt16SetTableOverrideEPK18JNINativeInterface");
         if (!setTableOverride) {
-            LOGE("set table override not found");
+            // LOGE("set table override not found");
         }
         memcpy(&native_interface_replace_, env->functions, sizeof(JNINativeInterface));
 
@@ -249,12 +249,12 @@ namespace lspd {
         IPCThreadState::Init(binder.get());
         lspd::GetLibBinder(true);
 
-        LOGD("Done InitService");
+        // LOGD("Done InitService");
     }
 
     ScopedLocalRef<jobject> Service::RequestBinder(JNIEnv *env, jstring nice_name) {
         if (!initialized_) [[unlikely]] {
-            LOGE("Service not initialized");
+            // LOGE("Service not initialized");
             return {env, nullptr};
         }
 
@@ -262,7 +262,7 @@ namespace lspd {
         auto bridge_service = JNI_CallStaticObjectMethod(env, service_manager_class_,
                                                          get_service_method_, bridge_service_name);
         if (!bridge_service) {
-            LOGD("can't get {}", BRIDGE_SERVICE_NAME);
+            // LOGD("can't get {}", BRIDGE_SERVICE_NAME);
             return {env, nullptr};
         }
 
@@ -298,7 +298,7 @@ namespace lspd {
 
     ScopedLocalRef<jobject> Service::RequestSystemServerBinder(JNIEnv *env) {
         if (!initialized_) [[unlikely]] {
-            LOGE("Service not initialized");
+            // LOGE("Service not initialized");
             return {env, nullptr};
         }
         // Get Binder for LSPSystemServerService.
@@ -309,15 +309,15 @@ namespace lspd {
             binder = JNI_CallStaticObjectMethod(env, service_manager_class_,
                                                 get_service_method_, bridge_service_name);
             if (binder) {
-                LOGD("Got binder for system server");
+                // LOGD("Got binder for system server");
                 break;
             }
-            LOGI("Fail to get binder for system server, try again in 1s");
+            // LOGI("Fail to get binder for system server, try again in 1s");
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(1s);
         }
         if (!binder) {
-            LOGW("Fail to get binder for system server");
+            // LOGW("Fail to get binder for system server");
             return {env, nullptr};
         }
         return binder;
@@ -342,7 +342,7 @@ namespace lspd {
         if (app_binder) {
             JNI_NewGlobalRef(env, heart_beat_binder);
         }
-        LOGD("app_binder: {}", static_cast<void*>(app_binder.get()));
+        // LOGD("app_binder: {}", static_cast<void*>(app_binder.get()));
         return app_binder;
     }
 
@@ -350,13 +350,13 @@ namespace lspd {
         Wrapper wrapper{env, this};
         bool res = wrapper.transact(binder, DEX_TRANSACTION_CODE);
         if (!res) {
-            LOGE("Service::RequestLSPDex: transaction failed?");
+            // LOGE("Service::RequestLSPDex: transaction failed?");
             return {-1, 0};
         }
         auto parcel_fd = JNI_CallObjectMethod(env, wrapper.reply, read_file_descriptor_method_);
         int fd = JNI_CallIntMethod(env, parcel_fd, detach_fd_method_);
         auto size = static_cast<size_t>(JNI_CallLongMethod(env, wrapper.reply, read_long_method_));
-        LOGD("fd={}, size={}", fd, size);
+        // LOGD("fd={}, size={}", fd, size);
         return {fd, size};
     }
 
@@ -367,12 +367,12 @@ namespace lspd {
         bool res = wrapper.transact(binder, OBFUSCATION_MAP_TRANSACTION_CODE);
 
         if (!res) {
-            LOGE("Service::RequestObfuscationMap: transaction failed?");
+            // LOGE("Service::RequestObfuscationMap: transaction failed?");
             return ret;
         }
         auto size = JNI_CallIntMethod(env, wrapper.reply, read_int_method_);
         if (!size || (size & 1) == 1) {
-            LOGW("Service::RequestObfuscationMap: invalid parcel size");
+            // LOGW("Service::RequestObfuscationMap: invalid parcel size");
         }
 
         auto get_string = [this, &wrapper, &env]() -> std::string {
@@ -385,9 +385,9 @@ namespace lspd {
             ret[key] = get_string();
         }
 #ifndef NDEBUG
-        for (const auto &i: ret) {
-            LOGD("{} => {}", i.first, i.second);
-        }
+        // for (const auto &i: ret) {
+        //     LOGD("{} => {}", i.first, i.second);
+        // }
 #endif
 
         return ret;

@@ -82,8 +82,8 @@ LSP_DEF_NATIVE_METHOD(jboolean, HookBridge, hookMethod, jboolean useModernApi, j
         ~finally() {
             auto finish = std::chrono::steady_clock::now();
             if (newHook) {
-                LOGV("New hook took {}us",
-                     std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count());
+                // LOGV("New hook took {}us",
+                //      std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count());
             }
         }
     } finally {
@@ -154,6 +154,7 @@ LSP_DEF_NATIVE_METHOD(jboolean, HookBridge, unhookMethod, jboolean useModernApi,
     } else {
         for (auto i = hook_item->legacy_callbacks.begin(); i != hook_item->legacy_callbacks.end(); ++i) {
             if (env->IsSameObject(i->second, callback)) {
+                env->DeleteGlobalRef(i->second);
                 hook_item->legacy_callbacks.erase(i);
                 return JNI_TRUE;
             }

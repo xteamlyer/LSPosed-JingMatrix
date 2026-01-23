@@ -47,7 +47,6 @@ import org.lsposed.manager.repo.RepoLoader;
 import org.lsposed.manager.ui.activity.base.BaseActivity;
 import org.lsposed.manager.util.ModuleUtil;
 import org.lsposed.manager.util.ShortcutUtil;
-import org.lsposed.manager.util.UpdateUtil;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -124,7 +123,7 @@ public class MainActivity extends BaseActivity implements RepoLoader.RepoListene
             if (!TextUtils.isEmpty(intent.getDataString())) {
                 switch (intent.getDataString()) {
                     case "modules" -> nav.setSelectedItemId(R.id.modules_nav);
-                    case "logs" -> nav.setSelectedItemId(R.id.logs_fragment);
+                    // case "logs" -> nav.setSelectedItemId(R.id.logs_fragment);
                     case "repo" -> {
                         if (ConfigManager.isMagiskInstalled()) {
                             nav.setSelectedItemId(R.id.repo_nav);
@@ -247,13 +246,13 @@ public class MainActivity extends BaseActivity implements RepoLoader.RepoListene
         } else setModulesSummary(0);
         if (binding != null) {
             var nav = (NavigationBarView) binding.nav;
-            if (UpdateUtil.needUpdate()) {
-                var badge = nav.getOrCreateBadge(R.id.main_fragment);
-                badge.setVisible(true);
-            }
+            // if (UpdateUtil.needUpdate()) {
+            //     var badge = nav.getOrCreateBadge(R.id.main_fragment);
+            //     badge.setVisible(true);
+            // }
 
             if (!ConfigManager.isBinderAlive()) {
-                nav.getMenu().removeItem(R.id.logs_fragment);
+                // nav.getMenu().removeItem(R.id.logs_fragment);
                 nav.getMenu().removeItem(R.id.modules_nav);
                 if (!ConfigManager.isMagiskInstalled()) {
                     nav.getMenu().removeItem(R.id.repo_nav);
@@ -262,7 +261,7 @@ public class MainActivity extends BaseActivity implements RepoLoader.RepoListene
         }
         if (App.isParasitic) {
             var updateShortcut = ShortcutUtil.updateShortcut();
-            Log.d(App.TAG, "update shortcut success = " + updateShortcut);
+            // Log.d(App.TAG, "update shortcut success = " + updateShortcut);
         }
     }
 

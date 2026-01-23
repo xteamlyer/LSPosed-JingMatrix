@@ -89,7 +89,7 @@ public class Dex2OatService implements Runnable {
         selinuxObserver = new FileObserver(list, FileObserver.CLOSE_WRITE) {
             @Override
             public synchronized void onEvent(int i, @Nullable String s) {
-                Log.d(TAG, "SELinux status changed");
+                // Log.d(TAG, "SELinux status changed");
                 if (compatibility == DEX2OAT_CRASHED) {
                     stopWatching();
                     return;
@@ -125,7 +125,7 @@ public class Dex2OatService implements Runnable {
             @Override
             public void stopWatching() {
                 super.stopWatching();
-                Log.w(TAG, "SELinux observer stopped");
+                // Log.w(TAG, "SELinux observer stopped");
             }
         };
     }
@@ -138,15 +138,15 @@ public class Dex2OatService implements Runnable {
                 var apex = Os.stat("/proc/1/root" + bin);
                 var wrapper = Os.stat(i < 2 ? WRAPPER32 : WRAPPER64);
                 if (apex.st_dev != wrapper.st_dev || apex.st_ino != wrapper.st_ino) {
-                    Log.w(TAG, "Check mount failed for " + bin);
+                    // Log.w(TAG, "Check mount failed for " + bin);
                     return true;
                 }
             } catch (ErrnoException e) {
-                Log.e(TAG, "Check mount failed for " + bin, e);
+                // Log.e(TAG, "Check mount failed for " + bin, e);
                 return true;
             }
         }
-        Log.d(TAG, "Check mount succeeded");
+        // Log.d(TAG, "Check mount succeeded");
         return false;
     }
 
@@ -173,7 +173,7 @@ public class Dex2OatService implements Runnable {
 
     @Override
     public void run() {
-        Log.i(TAG, "Dex2oat wrapper daemon start");
+        // Log.i(TAG, "Dex2oat wrapper daemon start");
         var sockPath = getSockPath();
         Log.d(TAG, "wrapper path: " + sockPath);
         var xposed_file = "u:object_r:xposed_file:s0";
@@ -204,7 +204,7 @@ public class Dex2OatService implements Runnable {
                 }
             }
         } catch (IOException e) {
-            Log.e(TAG, "Dex2oat wrapper daemon crashed", e);
+            // Log.e(TAG, "Dex2oat wrapper daemon crashed", e);
             if (compatibility == DEX2OAT_OK) {
                 doMount(false);
                 compatibility = DEX2OAT_CRASHED;

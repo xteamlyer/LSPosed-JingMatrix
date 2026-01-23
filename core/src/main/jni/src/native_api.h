@@ -53,26 +53,26 @@ namespace lspd {
     void RegisterNativeLib(const std::string &library_name);
 
     inline int HookInline(void *original, void *replace, void **backup) {
-        if constexpr (isDebug) {
-            Dl_info info;
-            if (dladdr(original, &info))
-            LOGD("Dobby hooking {} ({}) from {} ({})",
-                 info.dli_sname ? info.dli_sname : "(unknown symbol)",
-				 info.dli_saddr ? info.dli_saddr : original,
-                 info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
-        }
+        // if constexpr (isDebug) {
+        //     Dl_info info;
+        //     if (dladdr(original, &info))
+        //     LOGD("Dobby hooking {} ({}) from {} ({})",
+        //          info.dli_sname ? info.dli_sname : "(unknown symbol)",
+		// 		 info.dli_saddr ? info.dli_saddr : original,
+        //          info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
+        // }
         return DobbyHook(original, reinterpret_cast<dobby_dummy_func_t>(replace), reinterpret_cast<dobby_dummy_func_t *>(backup));
     }
 
     inline int UnhookInline(void *original) {
-        if constexpr (isDebug) {
-            Dl_info info;
-            if (dladdr(original, &info))
-            LOGD("Dobby unhooking {} ({}) from {} ({})",
-                 info.dli_sname ? info.dli_sname : "(unknown symbol)",
-				 info.dli_saddr ? info.dli_saddr : original,
-                 info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
-        }
+        // if constexpr (isDebug) {
+        //     Dl_info info;
+        //     if (dladdr(original, &info))
+        //     LOGD("Dobby unhooking {} ({}) from {} ({})",
+        //          info.dli_sname ? info.dli_sname : "(unknown symbol)",
+		// 		 info.dli_saddr ? info.dli_saddr : original,
+        //          info.dli_fname ? info.dli_fname : "(unknown file)", info.dli_fbase);
+        // }
         return DobbyDestroy(original);
     }
 }

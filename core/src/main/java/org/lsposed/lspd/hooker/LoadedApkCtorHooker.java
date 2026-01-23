@@ -38,14 +38,14 @@ public class LoadedApkCtorHooker implements XposedInterface.Hooker {
 
     @AfterInvocation
     public static void afterHookedMethod(XposedInterface.AfterHookCallback callback) {
-        Hookers.logD("LoadedApk#<init> starts");
+        // Hookers.logD("LoadedApk#<init> starts");
 
         try {
             LoadedApk loadedApk = (LoadedApk) callback.getThisObject();
             assert loadedApk != null;
             String packageName = loadedApk.getPackageName();
             Object mAppDir = XposedHelpers.getObjectField(loadedApk, "mAppDir");
-            Hookers.logD("LoadedApk#<init> ends: " + mAppDir);
+            // Hookers.logD("LoadedApk#<init> ends: " + mAppDir);
 
             if (!XposedInit.disableResources) {
                 XResources.setPackageNameForResDir(packageName, loadedApk.getResDir());
@@ -53,7 +53,7 @@ public class LoadedApkCtorHooker implements XposedInterface.Hooker {
 
             if (packageName.equals("android")) {
                 if (XposedInit.startsSystemServer) {
-                    Hookers.logD("LoadedApk#<init> is android, skip: " + mAppDir);
+                    // Hookers.logD("LoadedApk#<init> is android, skip: " + mAppDir);
                     return;
                 } else {
                     packageName = "system";
@@ -61,20 +61,20 @@ public class LoadedApkCtorHooker implements XposedInterface.Hooker {
             }
 
             if (!XposedInit.loadedPackagesInProcess.add(packageName)) {
-                Hookers.logD("LoadedApk#<init> has been loaded before, skip: " + mAppDir);
+                // Hookers.logD("LoadedApk#<init> has been loaded before, skip: " + mAppDir);
                 return;
             }
 
             // OnePlus magic...
             if (Log.getStackTraceString(new Throwable()).
                     contains("android.app.ActivityThread$ApplicationThread.schedulePreload")) {
-                Hookers.logD("LoadedApk#<init> maybe oneplus's custom opt, skip");
+                // Hookers.logD("LoadedApk#<init> maybe oneplus's custom opt, skip");
                 return;
             }
 
             LoadedApkCreateCLHooker.addLoadedApk(loadedApk);
         } catch (Throwable t) {
-            Hookers.logE("error when hooking LoadedApk.<init>", t);
+            // Hookers.logE("error when hooking LoadedApk.<init>", t);
         }
     }
 }

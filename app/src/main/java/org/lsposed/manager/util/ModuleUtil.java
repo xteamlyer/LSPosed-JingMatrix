@@ -310,7 +310,7 @@ public final class ModuleUtil {
                         scopeList = Collections.emptyList();
                     }
                 } catch (IOException | OutOfMemoryError e) {
-                    Log.e(App.TAG, "Error while closing modern module APK", e);
+                    // Log.e(App.TAG, "Error while closing modern module APK", e);
                 }
                 this.minVersion = minVersion;
                 this.targetVersion = targetVersion;

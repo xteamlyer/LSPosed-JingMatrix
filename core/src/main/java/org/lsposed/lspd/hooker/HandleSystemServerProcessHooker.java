@@ -44,7 +44,7 @@ public class HandleSystemServerProcessHooker implements XposedInterface.Hooker {
     @SuppressLint("PrivateApi")
     @AfterInvocation
     public static void afterHookedMethod() {
-        Hookers.logD("ZygoteInit#handleSystemServerProcess() starts");
+        // Hookers.logD("ZygoteInit#handleSystemServerProcess() starts");
         try {
             // get system_server classLoader
             systemServerCL = Thread.currentThread().getContextClassLoader();
@@ -54,7 +54,7 @@ public class HandleSystemServerProcessHooker implements XposedInterface.Hooker {
             LSPosedHelper.hookAllMethods(StartBootstrapServicesHooker.class, clazz, "startBootstrapServices");
             if (callback != null) callback.onSystemServerLoaded(systemServerCL);
         } catch (Throwable t) {
-            Hookers.logE("error when hooking systemMain", t);
+            // Hookers.logE("error when hooking systemMain", t);
         }
     }
 }

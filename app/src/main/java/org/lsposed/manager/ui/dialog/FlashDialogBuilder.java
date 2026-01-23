@@ -131,7 +131,7 @@ public class FlashDialogBuilder extends BlurBehindDialogBuilder {
 
             reader.close();
         } catch (IOException e) {
-            Log.e(TAG, "flash", e);
+            // Log.e(TAG, "flash", e);
             view.post(() -> textView.append("\n\n" + e.getMessage()));
             rootView.fullScroll(View.FOCUS_DOWN);
         }

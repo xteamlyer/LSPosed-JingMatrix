@@ -45,7 +45,7 @@ public class BridgeService {
 
         @Override
         public void binderDied() {
-            Log.i(TAG, "service " + SERVICE_NAME + " is dead. ");
+            // Log.i(TAG, "service " + SERVICE_NAME + " is dead. ");
 
             try {
                 //noinspection JavaReflectionMemberAccess DiscouragedPrivateApi
@@ -61,7 +61,7 @@ public class BridgeService {
                     //noinspection rawtypes
                     ((Map) sCache).clear();
                 }
-                Log.i(TAG, "clear ServiceManager");
+                // Log.i(TAG, "clear ServiceManager");
 
                 //noinspection JavaReflectionMemberAccess DiscouragedPrivateApi
                 field = ActivityManager.class.getDeclaredField("IActivityManagerSingleton");
@@ -75,9 +75,9 @@ public class BridgeService {
                         field.set(singleton, null);
                     }
                 }
-                Log.i(TAG, "clear ActivityManager");
+                // Log.i(TAG, "clear ActivityManager");
             } catch (Throwable e) {
-                Log.w(TAG, "clear ServiceManager: " + Log.getStackTraceString(e));
+                // Log.w(TAG, "clear ServiceManager: " + Log.getStackTraceString(e));
             }
 
             bridgeService.unlinkToDeath(this, 0);
@@ -94,7 +94,7 @@ public class BridgeService {
         try {
             Os.seteuid(0);
         } catch (ErrnoException e) {
-            Log.e(TAG, "seteuid 0", e);
+            // Log.e(TAG, "seteuid 0", e);
         }
         try {
             do {
@@ -103,13 +103,13 @@ public class BridgeService {
                     break;
                 }
 
-                Log.i(TAG, "service " + SERVICE_NAME + " is not started, wait 1s.");
+                // Log.i(TAG, "service " + SERVICE_NAME + " is not started, wait 1s.");
 
                 try {
                     //noinspection BusyWait
                     Thread.sleep(1000);
                 } catch (Throwable e) {
-                    Log.w(TAG, "sleep" + Log.getStackTraceString(e));
+                    // Log.w(TAG, "sleep" + Log.getStackTraceString(e));
                 }
             } while (true);
 
@@ -120,7 +120,7 @@ public class BridgeService {
             try {
                 bridgeService.linkToDeath(bridgeRecipient, 0);
             } catch (Throwable e) {
-                Log.w(TAG, "linkToDeath " + Log.getStackTraceString(e));
+                // Log.w(TAG, "linkToDeath " + Log.getStackTraceString(e));
                 var snapshot = bridgeService;
                 sendToBridge(binder, snapshot == null || !snapshot.isBinderAlive());
                 return;
@@ -134,13 +134,13 @@ public class BridgeService {
                 try {
                     data.writeInterfaceToken(DESCRIPTOR);
                     data.writeInt(ACTION.ACTION_SEND_BINDER.ordinal());
-                    Log.v(TAG, "binder " + binder.toString());
+                    // Log.v(TAG, "binder " + binder.toString());
                     data.writeStrongBinder(binder);
                     if (bridgeService == null) break;
                     res = bridgeService.transact(TRANSACTION_CODE, data, reply, 0);
                     reply.readException();
                 } catch (Throwable e) {
-                    Log.e(TAG, "send binder " + Log.getStackTraceString(e));
+                    // Log.e(TAG, "send binder " + Log.getStackTraceString(e));
                     var snapshot = bridgeService;
                     sendToBridge(binder, snapshot == null || !snapshot.isBinderAlive());
                     return;
@@ -151,7 +151,7 @@ public class BridgeService {
 
                 if (res) break;
 
-                Log.w(TAG, "no response from bridge, retry in 1s");
+                // Log.w(TAG, "no response from bridge, retry in 1s");
 
                 try {
                     Thread.sleep(1000);
@@ -168,7 +168,7 @@ public class BridgeService {
                     Os.seteuid(1000);
                 }
             } catch (ErrnoException e) {
-                Log.e(TAG, "seteuid 1000", e);
+                // Log.e(TAG, "seteuid 1000", e);
             }
         }
     }

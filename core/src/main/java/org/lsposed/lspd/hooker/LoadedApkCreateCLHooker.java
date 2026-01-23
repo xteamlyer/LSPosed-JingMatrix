@@ -86,7 +86,7 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
         }
 
         try {
-            Hookers.logD("LoadedApk#createClassLoader starts");
+            // Hookers.logD("LoadedApk#createClassLoader starts");
 
             String packageName = ActivityThread.currentPackageName();
             String processName = ActivityThread.currentProcessName();
@@ -100,14 +100,14 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
 
             Object mAppDir = XposedHelpers.getObjectField(loadedApk, "mAppDir");
             ClassLoader classLoader = (ClassLoader) XposedHelpers.getObjectField(loadedApk, "mClassLoader");
-            Hookers.logD("LoadedApk#createClassLoader ends: " + mAppDir + " -> " + classLoader);
+            // Hookers.logD("LoadedApk#createClassLoader ends: " + mAppDir + " -> " + classLoader);
 
             if (classLoader == null) {
                 return;
             }
 
             if (!isFirstPackage && !XposedHelpers.getBooleanField(loadedApk, "mIncludeCode")) {
-                Hookers.logD("LoadedApk#<init> mIncludeCode == false: " + mAppDir);
+                // Hookers.logD("LoadedApk#<init> mIncludeCode == false: " + mAppDir);
                 return;
             }
 
@@ -127,7 +127,7 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
                 hookNewXSP(lpparam);
             }
 
-            Hookers.logD("Call handleLoadedPackage: packageName=" + lpparam.packageName + " processName=" + lpparam.processName + " isFirstPackage=" + isFirstPackage + " classLoader=" + lpparam.classLoader + " appInfo=" + lpparam.appInfo);
+            // Hookers.logD("Call handleLoadedPackage: packageName=" + lpparam.packageName + " processName=" + lpparam.processName + " isFirstPackage=" + isFirstPackage + " classLoader=" + lpparam.classLoader + " appInfo=" + lpparam.appInfo);
             XC_LoadPackage.callAll(lpparam);
 
             LSPosedContext.callOnPackageLoaded(new XposedModuleInterface.PackageLoadedParam() {
@@ -165,7 +165,7 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
                 }
             });
         } catch (Throwable t) {
-            Hookers.logE("error when hooking LoadedApk#createClassLoader", t);
+            // Hookers.logE("error when hooking LoadedApk#createClassLoader", t);
         } finally {
             loadedApks.remove(loadedApk);
         }
@@ -184,11 +184,11 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
             }
             xposedsharedprefs = metaData.containsKey("xposedsharedprefs");
         } catch (NumberFormatException | IOException e) {
-            Hookers.logE("ApkParser fails", e);
+            // Hookers.logE("ApkParser fails", e);
         }
 
         if (xposedminversion > 92 || xposedsharedprefs) {
-            Utils.logI("New modules detected, hook preferences");
+            // Utils.logI("New modules detected, hook preferences");
             XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "checkMode", int.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {

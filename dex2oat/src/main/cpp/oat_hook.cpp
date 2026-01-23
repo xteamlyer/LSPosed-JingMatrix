@@ -68,7 +68,7 @@ std::string process_cmd(std::string_view sv, std::string_view new_cmd_path) {
  * Re-serializes the Key-Value map back into the OAT header memory space.
  */
 uint8_t* WriteKeyValueStore(const std::map<std::string, std::string>& key_values, uint8_t* store) {
-    LOGD("Writing KeyValueStore back to memory");
+    // LOGD("Writing KeyValueStore back to memory");
     char* data_ptr = reinterpret_cast<char*>(store);
 
     for (const auto& [key, value] : key_values) {
@@ -79,7 +79,7 @@ uint8_t* WriteKeyValueStore(const std::map<std::string, std::string>& key_values
         std::memcpy(data_ptr, value.c_str(), value.length() + 1);
         data_ptr += value.length() + 1;
     }
-    LOGD("Written KeyValueStore with size: %zu", reinterpret_cast<uint8_t*>(data_ptr) - store);
+    // LOGI("Written KeyValueStore with size: %zu", reinterpret_cast<uint8_t*>(data_ptr) - store);
 
     return reinterpret_cast<uint8_t*>(data_ptr);
 }
@@ -105,7 +105,7 @@ bool SpoofKeyValueStore(uint8_t* store) {
     const char* ptr = reinterpret_cast<const char*>(store);
     const char* const store_end = ptr + store_size;
     std::map<std::string, std::string> new_store_map;
-    LOGI("Parsing KeyValueStore [%p - %p] of size %u", ptr, store_end, store_size);
+    // LOGI("Parsing KeyValueStore [%p - %p] of size %u", ptr, store_end, store_size);
 
     bool store_modified = false;
 
@@ -129,12 +129,12 @@ bool SpoofKeyValueStore(uint8_t* store) {
         if (key == art::OatHeader::kDex2OatCmdLineKey &&
             value.find(kParamToRemove) != std::string_view::npos) {
             std::string cleaned_cmd = process_cmd(value, g_binary_path);
-            LOGI("Spoofing cmdline: Original size %zu -> New size %zu", value.length(),
-                 cleaned_cmd.length());
+            // LOGI("Spoofing cmdline: Original size %zu -> New size %zu", value.length(),
+            //      cleaned_cmd.length());
 
             // We can overwrite in-place if the padding is enabled
             if (has_padding) {
-                LOGI("In-place spoofing dex2oat-cmdline (padding detected)");
+                // LOGI("In-place spoofing dex2oat-cmdline (padding detected)");
 
                 // Zero out the entire original value range to be safe
                 size_t original_capacity = value.length();
@@ -151,7 +151,7 @@ bool SpoofKeyValueStore(uint8_t* store) {
             store_modified = true;
         } else {
             new_store_map[std::string(key)] = std::string(value);
-            LOGI("Parsed item:\t[%s:%s]", key.data(), value.data());
+            // LOGI("Parsed item:\t[%s:%s]", key.data(), value.data());
         }
 
         ptr = value_end + 1;
@@ -193,14 +193,14 @@ DCL_HOOK_FUNC(void, _ZNK3art9OatHeader15ComputeChecksumEPj, void* header, uint32
 
     // Call original to compute checksum on our modified data
     old__ZNK3art9OatHeader15ComputeChecksumEPj(header, checksum);
-    LOGV("OAT Checksum recalculated: 0x%08X", *checksum);
+    // LOGV("OAT Checksum recalculated: 0x%08X", *checksum);
 }
 
 #undef DCL_HOOK_FUNC
 
 void register_hook(dev_t dev, ino_t inode, const char* symbol, void* new_func, void** old_func) {
     if (!lsplt::RegisterHook(dev, inode, symbol, new_func, old_func)) {
-        LOGE("Failed to register PLT hook: %s", symbol);
+        // LOGE("Failed to register PLT hook: %s", symbol);
     }
 }
 
@@ -220,14 +220,14 @@ __attribute__((constructor)) static void initialize() {
             dev = info.dev;
             inode = info.inode;
             if (g_binary_path.empty()) g_binary_path = std::string(info.path);
-            LOGD("Found target: %s (dev: %ju, inode: %ju)", info.path.data(), (uintmax_t)dev,
-                 (uintmax_t)inode);
+            // LOGV("Found target: %s (dev: %ju, inode: %ju)", info.path.data(), (uintmax_t)dev,
+            //      (uintmax_t)inode);
             break;
         }
     }
 
     if (dev == 0) {
-        LOGE("Could not locate dex2oat memory map");
+        // LOGE("Could not locate dex2oat memory map");
         return;
     }
 

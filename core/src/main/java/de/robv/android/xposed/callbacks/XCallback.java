@@ -147,7 +147,7 @@ abstract public class XCallback {
             try {
                 param.callbacks[i].call(param);
             } catch (Throwable t) {
-                XposedBridge.log(t);
+                // XposedBridge.log(t);
             }
         }
     }

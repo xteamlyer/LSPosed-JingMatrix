@@ -114,11 +114,11 @@ public class BlurBehindDialogBuilder extends MaterialAlertDialogBuilder {
                             }
                             transaction.apply();
                         } catch (Throwable t) {
-                            Log.e(App.TAG, "Blur behind dialog builder", t);
+                            // Log.e(App.TAG, "Blur behind dialog builder", t);
                         }
                     });
                 } catch (Throwable t) {
-                    Log.e(App.TAG, "Blur behind dialog builder", t);
+                    // Log.e(App.TAG, "Blur behind dialog builder", t);
                 }
                 view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                     @Override
@@ -142,7 +142,7 @@ public class BlurBehindDialogBuilder extends MaterialAlertDialogBuilder {
             Method get = c.getMethod("getBoolean", String.class, boolean.class);
             value = (boolean) get.invoke(c, key, defaultValue);
         } catch (Exception e) {
-            Log.e(App.TAG, "Blur behind dialog builder get system property", e);
+            // Log.e(App.TAG, "Blur behind dialog builder get system property", e);
         }
         return value;
     }

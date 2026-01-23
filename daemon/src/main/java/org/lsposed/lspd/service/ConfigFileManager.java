@@ -102,9 +102,9 @@ public class ConfigFileManager {
             Files.createDirectories(basePath);
             SELinux.setFileContext(basePath.toString(), "u:object_r:system_file:s0");
             Files.createDirectories(configDirPath);
-            createLogDirPath();
+            // createLogDirPath();
         } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -117,12 +117,12 @@ public class ConfigFileManager {
         }
     }
 
-    private static void createLogDirPath() throws IOException {
-        if (!Files.isDirectory(logDirPath, LinkOption.NOFOLLOW_LINKS)) {
-            Files.deleteIfExists(logDirPath);
-        }
-        Files.createDirectories(logDirPath);
-    }
+    // private static void createLogDirPath() throws IOException {
+    //     if (!Files.isDirectory(logDirPath, LinkOption.NOFOLLOW_LINKS)) {
+    //         Files.deleteIfExists(logDirPath);
+    //     }
+    //     Files.createDirectories(logDirPath);
+    // }
 
     public static Resources getResources() {
         loadRes();
@@ -142,7 +142,7 @@ public class ConfigFileManager {
                 res = new Resources(am, null, null);
             }
         } catch (Throwable e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -154,7 +154,7 @@ public class ConfigFileManager {
                 //noinspection deprecation
                 res.updateConfiguration(conf, res.getDisplayMetrics());
         } catch (Throwable e) {
-            Log.e(TAG, "reload configuration", e);
+            // Log.e(TAG, "reload configuration", e);
         }
     }
 
@@ -197,7 +197,7 @@ public class ConfigFileManager {
             Os.close(dir);
             return true;
         } catch (Throwable e) {
-            Log.d(TAG, "chattr 0", e);
+            // Log.d(TAG, "chattr 0", e);
             return false;
         }
     }
@@ -206,39 +206,39 @@ public class ConfigFileManager {
         try {
             if (Files.exists(logDirPath)) {
                 if (chattr0(logDirPath)) {
-                    deleteFolderIfExists(oldLogDirPath);
-                    Files.move(logDirPath, oldLogDirPath);
+                    // deleteFolderIfExists(oldLogDirPath);
+                    // Files.move(logDirPath, oldLogDirPath);
                 }
             }
-            Files.createDirectories(logDirPath);
-        } catch (IOException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            // Files.createDirectories(logDirPath);
+        } catch (Throwable ignored) {
+            // Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
-    private static String getNewLogFileName(String prefix) {
-        return prefix + "_" + formatter.format(Instant.now()) + ".log";
-    }
+    // private static String getNewLogFileName(String prefix) {
+    //     return prefix + "_" + formatter.format(Instant.now()) + ".log";
+    // }
 
-    static File getNewVerboseLogPath() throws IOException {
-        createLogDirPath();
-        return logDirPath.resolve(getNewLogFileName("verbose")).toFile();
-    }
+    // static File getNewVerboseLogPath() throws IOException {
+    //     createLogDirPath();
+    //     return logDirPath.resolve(getNewLogFileName("verbose")).toFile();
+    // }
 
-    static File getNewModulesLogPath() throws IOException {
-        createLogDirPath();
-        return logDirPath.resolve(getNewLogFileName("modules")).toFile();
-    }
+    // static File getNewModulesLogPath() throws IOException {
+    //     createLogDirPath();
+    //     return logDirPath.resolve(getNewLogFileName("modules")).toFile();
+    // }
 
-    static File getPropsPath() throws IOException {
-        createLogDirPath();
-        return logDirPath.resolve("props.txt").toFile();
-    }
+    // static File getPropsPath() throws IOException {
+    //     createLogDirPath();
+    //     return logDirPath.resolve("props.txt").toFile();
+    // }
 
-    static File getKmsgPath() throws IOException {
-        createLogDirPath();
-        return logDirPath.resolve("kmsg.log").toFile();
-    }
+    // static File getKmsgPath() throws IOException {
+    //     createLogDirPath();
+    //     return logDirPath.resolve("kmsg.log").toFile();
+    // }
 
     static void getLogs(ParcelFileDescriptor zipFd) throws IllegalStateException {
         try (zipFd; var os = new ZipOutputStream(new FileOutputStream(zipFd.getFileDescriptor()))) {
@@ -278,7 +278,7 @@ public class ConfigFileManager {
             zipAddFile(os, dbPath.toPath(), configDirPath);
             ConfigManager.getInstance().exportScopes(os);
         } catch (Throwable e) {
-            Log.w(TAG, "get log", e);
+            // Log.w(TAG, "get log", e);
             throw new IllegalStateException(e);
         }
     }
@@ -289,7 +289,7 @@ public class ConfigFileManager {
             transfer(is, os);
             os.closeEntry();
         } catch (IOException e) {
-            Log.w(TAG, name, e);
+            // Log.w(TAG, name, e);
         }
     }
 
@@ -300,7 +300,7 @@ public class ConfigFileManager {
                 os.putNextEntry(new ZipEntry(name + "/"));
                 os.closeEntry();
             } catch (IOException e) {
-                Log.w(TAG, name, e);
+                // Log.w(TAG, name, e);
             }
         } else if (Files.exists(path)) {
             try (var is = new FileInputStream(path.toFile())) {
@@ -308,7 +308,7 @@ public class ConfigFileManager {
                 transfer(is, os);
                 os.closeEntry();
             } catch (IOException e) {
-                Log.w(TAG, name, e);
+                // Log.w(TAG, name, e);
             }
         }
     }
@@ -324,7 +324,7 @@ public class ConfigFileManager {
                         transfer(is, os);
                         os.closeEntry();
                     } catch (IOException e) {
-                        Log.w(TAG, name, e);
+                        // Log.w(TAG, name, e);
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -356,7 +356,7 @@ public class ConfigFileManager {
             try (var is = apkFile.getInputStream(dexFile)) {
                 preLoadedDexes.add(readDex(is, obfuscate));
             } catch (IOException | ErrnoException e) {
-                Log.w(TAG, "Can not load " + dexFile + " in " + apkFile, e);
+                // Log.w(TAG, "Can not load " + dexFile + " in " + apkFile, e);
             }
         }
     }
@@ -373,7 +373,7 @@ public class ConfigFileManager {
                 names.add(name);
             }
         } catch (IOException | OutOfMemoryError e) {
-            Log.e(TAG, "Can not open " + initEntry, e);
+            // Log.e(TAG, "Can not open " + initEntry, e);
         }
     }
 
@@ -396,7 +396,7 @@ public class ConfigFileManager {
                 readName(apkFile, "META-INF/xposed/native_init.list", moduleLibraryNames);
             }
         } catch (IOException e) {
-            Log.e(TAG, "Can not open " + path, e);
+            // Log.e(TAG, "Can not open " + path, e);
             return null;
         }
         if (preLoadedDexes.isEmpty()) return null;
@@ -441,7 +441,7 @@ public class ConfigFileManager {
             try (var is = new FileInputStream("framework/lspd.dex")) {
                 preloadDex = readDex(is, obfuscate);
             } catch (Throwable e) {
-                Log.e(TAG, "preload dex", e);
+                // Log.e(TAG, "preload dex", e);
             }
         }
         return preloadDex;

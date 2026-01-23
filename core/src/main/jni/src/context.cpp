@@ -37,14 +37,14 @@ namespace lspd {
     std::unique_ptr<ConfigBridge> ConfigBridge::instance_;
 
     Context::PreloadedDex::PreloadedDex(int fd, std::size_t size) {
-        LOGD("Context::PreloadedDex::PreloadedDex: fd={}, size={}", fd, size);
+        // LOGD("Context::PreloadedDex::PreloadedDex: fd={}, size={}", fd, size);
         auto *addr = mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0);
 
         if (addr != MAP_FAILED) {
             addr_ = addr;
             size_ = size;
         } else {
-            PLOGE("Read dex");
+            // PLOGE("Read dex");
         }
     }
 
@@ -54,7 +54,7 @@ namespace lspd {
 
     void Context::InitArtHooker(JNIEnv *env, const lsplant::InitInfo &initInfo) {
         if (!lsplant::Init(env, initInfo)) {
-            LOGE("Failed to init lsplant");
+            // LOGE("Failed to init lsplant");
             return;
         }
     }
@@ -63,14 +63,14 @@ namespace lspd {
         auto path_list = JNI_GetObjectFieldOf(env, inject_class_loader_, "pathList",
                                               "Ldalvik/system/DexPathList;");
         if (!path_list) {
-            LOGE("Failed to get path list");
+            // LOGE("Failed to get path list");
             return;
         }
         const auto elements = JNI_Cast<jobjectArray>(
                 JNI_GetObjectFieldOf(env, path_list, "dexElements",
                                      "[Ldalvik/system/DexPathList$Element;"));
         if (!elements) {
-            LOGE("Failed to get elements");
+            // LOGE("Failed to get elements");
             return;
         }
         for (const auto &element: elements) {
@@ -79,12 +79,12 @@ namespace lspd {
             auto java_dex_file = JNI_GetObjectFieldOf(env, element, "dexFile",
                                                       "Ldalvik/system/DexFile;");
             if (!java_dex_file) {
-                LOGE("Failed to get java dex file");
+                // LOGE("Failed to get java dex file");
                 return;
             }
             auto cookie = JNI_GetObjectFieldOf(env, java_dex_file, "mCookie", "Ljava/lang/Object;");
             if (!cookie) {
-                LOGE("Failed to get cookie");
+                // LOGE("Failed to get cookie");
                 return;
             }
             lsplant::MakeDexFileTrusted(env, cookie.get());
@@ -114,9 +114,9 @@ namespace lspd {
                 return target;
             }
         } else {
-            LOGE("No loadClass/findClass method found");
+            // LOGE("No loadClass/findClass method found");
         }
-        LOGE("Class {} not found", class_name);
+        // LOGE("Class {} not found", class_name);
         return {env, nullptr};
     }
 }  // namespace lspd

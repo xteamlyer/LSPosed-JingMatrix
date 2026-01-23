@@ -36,7 +36,7 @@ inline int get_id_vec(bool is64, bool is_debug) {
 ssize_t xrecvmsg(int sockfd, struct msghdr *msg, int flags) {
     ssize_t rec = recvmsg(sockfd, msg, flags);
     if (rec < 0) {
-        PLOGE("recvmsg");
+        // PLOGE("recvmsg");
     }
     return rec;
 }
@@ -105,7 +105,7 @@ void write_int(int fd, int val) {
 }  // namespace
 
 int main(int argc, char **argv) {
-    LOGD("dex2oat wrapper ppid=%d", getppid());
+    // LOGD("dex2oat wrapper ppid=%d", getppid());
 
     // Prepare Unix domain socket address (Abstract Namespace)
     struct sockaddr_un sock = {};
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     // 1. Get original dex2oat binary FD
     int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (connect(sock_fd, reinterpret_cast<struct sockaddr *>(&sock), len)) {
-        PLOGE("failed to connect to %s", sock.sun_path + 1);
+        // PLOGE("failed to connect to %s", sock.sun_path + 1);
         return 1;
     }
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
     // 2. Get liboat_hook.so FD
     sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (connect(sock_fd, reinterpret_cast<struct sockaddr *>(&sock), len)) {
-        PLOGE("failed to connect to %s", sock.sun_path + 1);
+        // PLOGE("failed to connect to %s", sock.sun_path + 1);
         return 1;
     }
 
@@ -143,9 +143,9 @@ int main(int argc, char **argv) {
     close(sock_fd);
 
     if (hooker_fd == -1) {
-        LOGE("failed to read liboat_hook.so");
+        // LOGE("failed to read liboat_hook.so");
     }
-    LOGD("sock: %s stock_fd: %d", sock.sun_path + 1, stock_fd);
+    // LOGD("sock: %s stock_fd: %d", sock.sun_path + 1, stock_fd);
 
     // Prepare arguments for execve
     // Logic: [linker] [/proc/self/fd/stock_fd] [original_args...] [--inline-max-code-units=0]
@@ -181,15 +181,15 @@ int main(int argc, char **argv) {
     // Pass original argv[0] as DEX2OAT_CMD
     if (argv[0]) {
         setenv("DEX2OAT_CMD", argv[0], 1);
-        LOGD("DEX2OAT_CMD set to %s", argv[0]);
+        // LOGD("DEX2OAT_CMD set to %s", argv[0]);
     }
 
-    LOGI("Executing via linker: %s executing %s", linker_path, stock_fd_path);
+    // LOGD("Executing via linker: %s executing %s", linker_path, stock_fd_path);
 
     // Perform the execution
     execve(linker_path, const_cast<char *const *>(exec_argv.data()), environ);
 
     // If we reach here, execve failed
-    PLOGE("execve failed");
+    // PLOGE("execve failed");
     return 2;
 }

@@ -85,7 +85,7 @@ public class LSPModuleService extends IXposedService.Stub {
             var authority = name + AUTHORITY_SUFFIX;
             var provider = ActivityManagerService.getContentProvider(authority, userId);
             if (provider == null) {
-                Log.d(TAG, "no service provider for " + name);
+                // Log.d(TAG, "no service provider for " + name);
                 return;
             }
             var extra = new Bundle();
@@ -101,12 +101,12 @@ public class LSPModuleService extends IXposedService.Stub {
                 reply = provider.call("android", SEND_BINDER, null, extra);
             }
             if (reply != null) {
-                Log.d(TAG, "sent module binder to " + name);
+                // Log.d(TAG, "sent module binder to " + name);
             } else {
-                Log.w(TAG, "failed to send module binder to " + name);
+                // Log.w(TAG, "failed to send module binder to " + name);
             }
         } catch (Throwable e) {
-            Log.w(TAG, "failed to send module binder for uid " + uid, e);
+            // Log.w(TAG, "failed to send module binder for uid " + uid, e);
         }
     }
 
@@ -213,7 +213,7 @@ public class LSPModuleService extends IXposedService.Stub {
                     values.put((String) entry.getKey(), entry.getValue());
                 }
             } catch (Throwable e) {
-                Log.e(TAG, "updateRemotePreferences: ", e);
+                // Log.e(TAG, "updateRemotePreferences: ", e);
             }
         }
         try {
