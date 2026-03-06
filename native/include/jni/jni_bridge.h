@@ -3,7 +3,6 @@
 #include <string>
 
 #include "common/logging.h"
-#include "common/utils.h"
 #include "core/config_bridge.h"
 #include "core/context.h"
 
@@ -14,6 +13,23 @@
  */
 
 namespace vector::native::jni {
+
+/**
+ * @brief Returns the number of elements in a statically-allocated C-style array.
+ *
+ * This is a compile-time constant.
+ * Attempting to use this on a pointer will result in a compilation error,
+ * preventing common mistakes.
+ *
+ * @tparam T The type of the array elements.
+ * @tparam N The size of the array.
+ * @param arr A reference to the array.
+ * @return The number of elements in the array.
+ */
+template <typename T, size_t N>
+[[nodiscard]] constexpr inline size_t ArraySize(T (&)[N]) {
+    return N;
+}
 
 /**
  * @brief A helper function to get the obfuscated native bridge class signature prefix.
