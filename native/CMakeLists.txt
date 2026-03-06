@@ -12,8 +12,9 @@ add_library(${PROJECT_NAME} STATIC ${NATIVE_SOURCES})
 set(IGNORED_WARNINGS
     -Wno-c99-extensions
     -Wno-extra-semi
-    -Wno-gnu-zero-variadic-macro-arguments
     -Wno-gnu-flexible-array-initializer
+    -Wno-gnu-string-literal-operator-templat
+    -Wno-gnu-zero-variadic-macro-arguments
     -Wno-variadic-macros
     -Wno-zero-length-array
 )

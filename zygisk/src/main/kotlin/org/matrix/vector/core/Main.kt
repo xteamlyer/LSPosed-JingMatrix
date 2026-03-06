@@ -6,6 +6,7 @@ import org.lsposed.lspd.core.ApplicationServiceClient.serviceClient
 import org.lsposed.lspd.core.Startup
 import org.lsposed.lspd.service.ILSPApplicationService
 import org.lsposed.lspd.util.Utils
+import org.matrix.vector.BuildConfig
 import org.matrix.vector.ParasiticManagerHooker
 import org.matrix.vector.ParasiticManagerSystemHooker
 
@@ -38,7 +39,7 @@ object Main {
         // Check if this process is the designated Vector Manager.
         // If so, we perform "parasitic" injection into a host (com.android.shell)
         // and terminate further standard Xposed loading for this specific process.
-        if (niceName == "org.lsposed.manager" && ParasiticManagerHooker.start()) {
+        if (niceName == BuildConfig.ManagerPackageName && ParasiticManagerHooker.start()) {
             Utils.logI("Parasitic manager loaded into host, skipping standard bootstrap.")
             return
         }

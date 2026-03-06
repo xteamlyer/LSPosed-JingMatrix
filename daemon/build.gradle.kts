@@ -47,7 +47,7 @@ android {
         buildConfigField(
             "String",
             "DEFAULT_MANAGER_PACKAGE_NAME",
-            """"$defaultManagerPackageName""""
+            """"$defaultManagerPackageName"""",
         )
         buildConfigField("String", "MANAGER_INJECTED_PKG_NAME", """"$injectedPackageName"""")
         buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
@@ -55,11 +55,7 @@ android {
 
     buildTypes {
         all {
-            externalNativeBuild {
-                cmake {
-                    arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true"
-                }
-            }
+            externalNativeBuild { cmake { arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true" } }
         }
         release {
             isMinifyEnabled = true
@@ -68,11 +64,7 @@ android {
         }
     }
 
-    externalNativeBuild {
-        cmake {
-            path("src/main/jni/CMakeLists.txt")
-        }
-    }
+    externalNativeBuild { cmake { path("src/main/jni/CMakeLists.txt") } }
 
     namespace = "org.lsposed.daemon"
 }
@@ -81,35 +73,44 @@ android.applicationVariants.all {
     val variantCapped = name.replaceFirstChar { it.uppercase() }
     val variantLowered = name.lowercase()
 
-    val outSrcDir =
-        layout.buildDirectory.dir("generated/source/signInfo/${variantLowered}").get()
-    val signInfoTask = tasks.register("generate${variantCapped}SignInfo") {
-        dependsOn(":app:validateSigning${variantCapped}")
-        val sign = rootProject.project(":app").extensions
-            .getByType(ApplicationExtension::class.java)
-            .buildTypes.named(variantLowered).get().signingConfig
-        val outSrc = file("$outSrcDir/org/lsposed/lspd/util/SignInfo.java")
-        outputs.file(outSrc)
-        doLast {
-            outSrc.parentFile.mkdirs()
-            val certificateInfo = KeystoreHelper.getCertificateInfo(
-                sign?.storeType,
-                sign?.storeFile,
-                sign?.storePassword,
-                sign?.keyPassword,
-                sign?.keyAlias
-            )
-            PrintStream(outSrc).print(
-                """
+    val outSrcDir = layout.buildDirectory.dir("generated/source/signInfo/${variantLowered}").get()
+    val signInfoTask =
+        tasks.register("generate${variantCapped}SignInfo") {
+            dependsOn(":app:validateSigning${variantCapped}")
+            val sign =
+                rootProject
+                    .project(":app")
+                    .extensions
+                    .getByType(ApplicationExtension::class.java)
+                    .buildTypes
+                    .named(variantLowered)
+                    .get()
+                    .signingConfig
+            val outSrc = file("$outSrcDir/org/lsposed/lspd/util/SignInfo.java")
+            outputs.file(outSrc)
+            doLast {
+                outSrc.parentFile.mkdirs()
+                val certificateInfo =
+                    KeystoreHelper.getCertificateInfo(
+                        sign?.storeType,
+                        sign?.storeFile,
+                        sign?.storePassword,
+                        sign?.keyPassword,
+                        sign?.keyAlias,
+                    )
+                PrintStream(outSrc)
+                    .print(
+                        """
                 |package org.lsposed.lspd.util;
                 |public final class SignInfo {
                 |    public static final byte[] CERTIFICATE = {${
                     certificateInfo.certificate.encoded.joinToString(",")
                 }};
-                |}""".trimMargin()
-            )
+                |}"""
+                            .trimMargin()
+                    )
+            }
         }
-    }
     registerJavaGeneratingTask(signInfoTask, outSrcDir.asFile)
 }
 

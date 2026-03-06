@@ -115,7 +115,11 @@ object ParasiticManagerHooker {
      */
     private fun sendBinderToManager(classLoader: ClassLoader, binder: IBinder) {
         runCatching {
-                val clazz = XposedHelpers.findClass("org.lsposed.manager.Constants", classLoader)
+                val clazz =
+                    XposedHelpers.findClass(
+                        BuildConfig.ManagerPackageName + ".Constants",
+                        classLoader,
+                    )
                 val ok =
                     XposedHelpers.callStaticMethod(
                         clazz,
@@ -195,7 +199,10 @@ object ParasiticManagerHooker {
                             val pkgInfo =
                                 getManagerPkgInfo(arg.applicationInfo) ?: return@forEachIndexed
                             pkgInfo.activities
-                                ?.find { it.name == "org.lsposed.manager.ui.activity.MainActivity" }
+                                ?.find {
+                                    it.name ==
+                                        BuildConfig.ManagerPackageName + ".ui.activity.MainActivity"
+                                }
                                 ?.let {
                                     it.applicationInfo = pkgInfo.applicationInfo
                                     param.args[i] = it
@@ -205,7 +212,7 @@ object ParasiticManagerHooker {
                             arg.component =
                                 ComponentName(
                                     arg.component!!.packageName,
-                                    "org.lsposed.manager.ui.activity.MainActivity",
+                                    BuildConfig.ManagerPackageName + ".ui.activity.MainActivity",
                                 )
                         }
                     }

@@ -12,11 +12,32 @@ ktfmt { kotlinLangStyle() }
 
 val versionCodeProvider: Provider<String> by rootProject.extra
 val versionNameProvider: Provider<String> by rootProject.extra
+val injectedPackageName: String by rootProject.extra
+val injectedPackageUid: Int by rootProject.extra
+val defaultManagerPackageName: String by rootProject.extra
 
 android {
     namespace = "org.matrix.vector"
 
-    defaultConfig { multiDexEnabled = false }
+    defaultConfig {
+        multiDexEnabled = false
+        buildConfigField("String", "InjectedPackageName", """"${injectedPackageName}"""")
+        buildConfigField("String", "ManagerPackageName", """"${defaultManagerPackageName}"""")
+
+        val flags =
+            listOf(
+                "-DINJECTED_PACKAGE_NAME='\"${injectedPackageName}\"'",
+                "-DINJECTED_PACKAGE_UID=${injectedPackageUid}",
+                "-DMANAGER_PACKAGE_NAME='\"${defaultManagerPackageName}\"'",
+            )
+
+        externalNativeBuild {
+            cmake {
+                cFlags.addAll(flags)
+                cppFlags.addAll(flags)
+            }
+        }
+    }
 
     buildTypes {
         release {
@@ -66,7 +87,7 @@ androidComponents {
                 )
                 into(tempModuleDir)
                 from("${rootProject.projectDir}/README.md")
-                from("$projectDir/module") { exclude("module.prop", "customize.sh", "daemon") }
+                from("$projectDir/module") { exclude("module.prop", "action.sh", "daemon") }
                 from("$projectDir/module") {
                     include("module.prop")
                     expand(
@@ -75,7 +96,16 @@ androidComponents {
                     )
                 }
                 from("$projectDir/module") {
-                    include("customize.sh", "daemon")
+                    include("action.sh")
+                    val tokens =
+                        mapOf(
+                            "MANAGER_PACKAGE_NAME" to defaultManagerPackageName,
+                            "INJECTED_PACKAGE_NAME" to injectedPackageName,
+                        )
+                    filter<ReplaceTokens>("tokens" to tokens)
+                }
+                from("$projectDir/module") {
+                    include("daemon")
                     val tokens =
                         mapOf("DEBUG" to if (variantLowered == "debug") "true" else "false")
                     filter<ReplaceTokens>("tokens" to tokens)

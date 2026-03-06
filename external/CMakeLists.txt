@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(external)
 
+set(CMAKE_CXX_STANDARD 23)
+
 set(XZ_SOURCES
 	xz_crc32.c
 	xz_crc64.c

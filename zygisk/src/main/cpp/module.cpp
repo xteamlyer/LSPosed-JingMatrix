@@ -12,8 +12,6 @@
 
 #include "ipc_bridge.h"
 
-using namespace std::literals::string_view_literals;
-
 namespace vector::native::module {
 
 // --- Process UID Constants ---
@@ -34,8 +32,11 @@ constexpr int SHARED_RELRO_UID = 1037;
 // Android uses this to separate users. UID = AppID + UserID * 10000.
 constexpr int PER_USER_RANGE = 100000;
 
-constexpr uid_t MANAGER_UID = 2000;  // com.android.shell
-constexpr uid_t GID_INET = 3003;     // Android's Internet group ID.
+// Defined via CMake generated marcos
+constexpr uid_t kHostPackageUid = INJECTED_PACKAGE_UID;
+const char *const kHostPackageName = INJECTED_PACKAGE_NAME;
+const char *const kManagePackageName = MANAGER_PACKAGE_NAME;
+constexpr uid_t GID_INET = 3003;  // Android's Internet group ID.
 
 // A simply ConfigBridge implemnetation holding obfuscation maps in memory
 using obfuscation_map_t = std::map<std::string, std::string>;
@@ -230,9 +231,9 @@ void VectorModule::preAppSpecialize(zygisk::AppSpecializeArgs *args) {
     // --- Manager App Special Handling ---
     // We identify our manager app by a special UID and
     // grant it internet permissions by adding it to the INET group.
-    if (args->uid == MANAGER_UID) {
+    if (args->uid == kHostPackageUid) {
         lsplant::JUTFString nice_name_str(env_, args->nice_name);
-        if (nice_name_str.get() == "org.lsposed.manager"sv) {
+        if (nice_name_str.get() == std::string(kManagePackageName)) {
             LOGI("Manager app detected. Granting internet permissions.");
             is_manager_app_ = true;
 
@@ -252,7 +253,7 @@ void VectorModule::preAppSpecialize(zygisk::AppSpecializeArgs *args) {
             jint inet_gid = GID_INET;
             env_->SetIntArrayRegion(new_gids, original_gids_count, 1, &inet_gid);
 
-            args->nice_name = env_->NewStringUTF("com.android.shell");
+            args->nice_name = env_->NewStringUTF(INJECTED_PACKAGE_NAME);
             args->gids = new_gids;
         }
     }
@@ -297,7 +298,7 @@ void VectorModule::postAppSpecialize(const zygisk::AppSpecializeArgs *args) {
     }
 
     if (is_manager_app_) {
-        args->nice_name = env_->NewStringUTF("org.lsposed.manager");
+        args->nice_name = env_->NewStringUTF(kManagePackageName);
     }
 
     // --- Framework Injection ---

@@ -9,11 +9,8 @@ import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.process.ExecOperations
 
 plugins {
-    alias(libs.plugins.lsplugin.cmaker)
-    alias(libs.plugins.lsplugin.jgit)
     alias(libs.plugins.agp.lib) apply false
     alias(libs.plugins.agp.app) apply false
-    alias(libs.plugins.nav.safeargs) apply false
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.ktfmt)
 }
@@ -64,43 +61,9 @@ abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParamete
 val versionCodeProvider by extra(providers.of(GitCommitCountValueSource::class.java) {})
 val versionNameProvider by extra(providers.of(GitLatestTagValueSource::class.java) {})
 
-val repo = jgit.repo()
-val commitCount = (repo?.commitCount("refs/remotes/origin/master") ?: 1) + 4200
-val latestTag = repo?.latestTag?.removePrefix("v") ?: "1.0"
-
 val injectedPackageName by extra("com.android.shell")
 val injectedPackageUid by extra(2000)
-
 val defaultManagerPackageName by extra("org.lsposed.manager")
-val verCode by extra(commitCount)
-val verName by extra(latestTag)
-
-cmaker {
-    default {
-        arguments.addAll(
-            arrayOf("-DVECTOR_ROOT=${rootDir.absolutePath}", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-        )
-        val flags =
-            arrayOf(
-                "-DINJECTED_UID=$injectedPackageUid",
-                "-DVERSION_CODE=${verCode}",
-                "-DVERSION_NAME='\"${verName}\"'",
-                "-Wno-gnu-string-literal-operator-template",
-                "-Wno-c++2b-extensions",
-            )
-        cFlags.addAll(flags)
-        cppFlags.addAll(flags)
-        abiFilters("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
-    }
-    buildTypes {
-        if (it.name == "release") {
-            arguments +=
-                "-DDEBUG_SYMBOLS_PATH=${
-                layout.buildDirectory.dir("symbols").get().asFile.absolutePath
-            }"
-        }
-    }
-}
 
 val androidTargetSdkVersion by extra(36)
 val androidMinSdkVersion by extra(27)
@@ -110,8 +73,6 @@ val androidCompileNdkVersion by extra("29.0.13113456")
 val androidSourceCompatibility by extra(JavaVersion.VERSION_21)
 val androidTargetCompatibility by extra(JavaVersion.VERSION_21)
 
-tasks.register("Delete", Delete::class) { delete(rootProject.layout.buildDirectory) }
-
 subprojects {
     plugins.withType(AndroidBasePlugin::class.java) {
         extensions.configure(CommonExtension::class.java) {
@@ -119,6 +80,7 @@ subprojects {
             ndkVersion = androidCompileNdkVersion
             buildToolsVersion = androidBuildToolsVersion
 
+            buildFeatures { buildConfig = true }
             externalNativeBuild {
                 cmake {
                     version = "3.29.8+"
@@ -128,10 +90,47 @@ subprojects {
 
             defaultConfig {
                 minSdk = androidMinSdkVersion
+                ndk { abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")) }
+
                 if (this is ApplicationDefaultConfig) {
                     targetSdk = androidTargetSdkVersion
-                    versionCode = verCode
-                    versionName = verName
+
+                    versionCode = versionCodeProvider.get().toInt()
+                    versionName = versionNameProvider.get()
+                }
+
+                val flags =
+                    listOf(
+                        "-DVERSION_CODE=${versionCodeProvider.get()}",
+                        "-DVERSION_NAME='\"${versionNameProvider.get()}\"'",
+                    )
+
+                val args =
+                    listOf(
+                        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                        "-DVECTOR_ROOT=${rootDir.absolutePath}",
+                    )
+
+                externalNativeBuild {
+                    cmake {
+                        cFlags.addAll(flags)
+                        cppFlags.addAll(flags)
+                        arguments.addAll(args)
+                    }
+                }
+            }
+
+            buildTypes {
+                getByName("release") {
+                    externalNativeBuild {
+                        cmake {
+                            arguments.add(
+                                "-DDEBUG_SYMBOLS_PATH=${
+                                layout.buildDirectory.dir("symbols").get().asFile.absolutePath
+                            }"
+                            )
+                        }
+                    }
                 }
             }
 
@@ -156,7 +155,12 @@ subprojects {
 
 tasks.register<KtfmtFormatTask>("format") {
     source = project.fileTree(rootDir)
-    include("*.gradle.kts", "*/build.gradle.kts")
+    include(
+        "*.gradle.kts",
+        "*/build.gradle.kts",
+        "hiddenapi/*/build.gradle.kts",
+        "services/*-service/build.gradle.kts",
+    )
     dependsOn(":xposed:ktfmtFormat")
     dependsOn(":zygisk:ktfmtFormat")
 }

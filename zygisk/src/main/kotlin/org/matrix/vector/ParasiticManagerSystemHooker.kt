@@ -35,19 +35,19 @@ class ParasiticManagerSystemHooker : HandleSystemServerProcessHooker.Callback {
             val intent = callback.args[0] as? Intent ?: return
 
             // Check if this intent is meant for the LSPosed Manager
-            if (!intent.hasCategory("org.lsposed.manager.LAUNCH_MANAGER")) return
+            if (!intent.hasCategory(BuildConfig.ManagerPackageName + ".LAUNCH_MANAGER")) return
 
             val result = callback.result as? ActivityInfo ?: return
 
             // We only intercept if it's currently resolving to the shell/fallback
-            if (result.packageName != "com.android.shell") return
+            if (result.packageName != BuildConfig.InjectedPackageName) return
 
             // --- Redirection Logic ---
             // We create a copy of the ActivityInfo to avoid polluting the system's cache.
             val redirectedInfo =
                 ActivityInfo(result).apply {
                     // Force the manager to run in its own dedicated process name
-                    processName = "org.lsposed.manager"
+                    processName = BuildConfig.ManagerPackageName
 
                     // Set a standard theme so transition animations work correctly
                     theme = android.R.style.Theme_DeviceDefault_Settings
