@@ -24,6 +24,7 @@ import android.app.ActivityThread;
 import android.app.LoadedApk;
 import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
+import android.os.IBinder;
 
 import com.android.internal.os.ZygoteInit;
 
@@ -34,6 +35,7 @@ import org.lsposed.lspd.hooker.HandleSystemServerProcessHooker;
 import org.lsposed.lspd.hooker.LoadedApkCtorHooker;
 import org.lsposed.lspd.hooker.LoadedApkCreateCLHooker;
 import org.lsposed.lspd.hooker.OpenDexFileHooker;
+import org.lsposed.lspd.hooker.StartBootstrapServicesHooker;
 import org.lsposed.lspd.impl.LSPosedContext;
 import org.lsposed.lspd.impl.LSPosedHelper;
 import org.lsposed.lspd.service.ILSPApplicationService;
@@ -63,13 +65,30 @@ public class Startup {
         LSPosedHelper.hookAllMethods(AttachHooker.class, ActivityThread.class, "attach");
     }
 
-    public static void bootstrapXposed() {
+    public static void bootstrapXposed(boolean systemServerStarted) {
         // Initialize the Xposed framework
         try {
             startBootstrapHook(XposedInit.startsSystemServer);
             XposedInit.loadLegacyModules();
         } catch (Throwable t) {
             Utils.logE("error during Xposed initialization", t);
+        }
+
+        if (systemServerStarted) {
+            Utils.logD("Manually triggering system_server module load for late injection");
+
+            IBinder activityService = android.os.ServiceManager.getService("activity");
+            if (activityService == null) {
+                Utils.logE("Activity service not found! Cannot get SystemServer ClassLoader.");
+                return;
+            }
+
+            // Maintain state consistency for the rest of the Vector framework
+            HandleSystemServerProcessHooker.systemServerCL = activityService.getClass().getClassLoader();
+            HandleSystemServerProcessHooker.after();
+            StartBootstrapServicesHooker.before();
+
+            Utils.logI("Late system_server injection successfully completed.");
         }
     }
 

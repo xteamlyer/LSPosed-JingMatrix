@@ -35,15 +35,17 @@ public class HandleSystemServerProcessHooker implements XposedInterface.Hooker {
         void onSystemServerLoaded(ClassLoader classLoader);
     }
 
-    public static volatile ClassLoader systemServerCL;
+    public static volatile ClassLoader systemServerCL = null;
     public static volatile Callback callback = null;
 
     @SuppressLint("PrivateApi")
     public static void after() {
         Hookers.logD("ZygoteInit#handleSystemServerProcess() starts");
         try {
-            // get system_server classLoader
-            systemServerCL = Thread.currentThread().getContextClassLoader();
+            if (systemServerCL == null) {
+                // get system_server classLoader
+                systemServerCL = Thread.currentThread().getContextClassLoader();
+            }
             // deopt methods in SYSTEMSERVERCLASSPATH
             PrebuiltMethodsDeopter.deoptSystemServerMethods(systemServerCL);
             var clazz = Class.forName("com.android.server.SystemServer", false, systemServerCL);
