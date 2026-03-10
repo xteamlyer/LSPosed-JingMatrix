@@ -313,11 +313,12 @@ lsplant::ScopedLocalRef<jobject> IPCBridge::RequestSystemServerBinder(
         binder = lsplant::JNI_CallStaticObjectMethod(env, service_manager_class_,
                                                      get_service_method_, service_name.get());
         if (binder) {
-            LOGI("Got system server binder on attempt {}.", i + 1);
+            LOGI("Got system server binder via {} on attempt {}.", bridgeServiceName.data(), i + 1);
             return binder;
         }
         if (i < 2) {
-            LOGW("Failed to get system server binder, will retry in 1 second...");
+            LOGW("Failed to get system server binder via {}, will retry in 1 second...",
+                 bridgeServiceName.data());
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }

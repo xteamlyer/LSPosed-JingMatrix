@@ -46,7 +46,7 @@ public class LSPSystemServerService extends ILSPSystemServerService.Stub impleme
     }
 
     public LSPSystemServerService(int maxRetry, String serviceName) {
-        Log.d(TAG, "LSPSystemServerService::LSPSystemServerService");
+        Log.d(TAG, "LSPSystemServerService::LSPSystemServerService with proxy " + serviceName);
         proxyServiceName = serviceName;
         requested = -maxRetry;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
