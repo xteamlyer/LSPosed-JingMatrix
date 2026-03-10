@@ -32,8 +32,7 @@ import android.util.Log;
 
 public class LSPSystemServerService extends ILSPSystemServerService.Stub implements IBinder.DeathRecipient {
 
-    public static final String PROXY_SERVICE_NAME = "serial";
-
+    private final String proxyServiceName;
     private IBinder originService = null;
     private int requested;
 
@@ -42,12 +41,13 @@ public class LSPSystemServerService extends ILSPSystemServerService.Stub impleme
     }
 
     public void putBinderForSystemServer() {
-        android.os.ServiceManager.addService(PROXY_SERVICE_NAME, this);
+        android.os.ServiceManager.addService(proxyServiceName, this);
         binderDied();
     }
 
-    public LSPSystemServerService(int maxRetry) {
+    public LSPSystemServerService(int maxRetry, String serviceName) {
         Log.d(TAG, "LSPSystemServerService::LSPSystemServerService");
+        proxyServiceName = serviceName;
         requested = -maxRetry;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Registers a callback when system is registering an authentic "serial" service
@@ -56,7 +56,7 @@ public class LSPSystemServerService extends ILSPSystemServerService.Stub impleme
                 @Override
                 public void onRegistration(String name, IBinder binder) {
                     Log.d(TAG, "LSPSystemServerService::LSPSystemServerService onRegistration: " + name + " " + binder);
-                    if (name.equals(PROXY_SERVICE_NAME) && binder != null && binder != LSPSystemServerService.this) {
+                    if (name.equals(proxyServiceName) && binder != null && binder != LSPSystemServerService.this) {
                         Log.d(TAG, "Register " + name + " " + binder);
                         originService = binder;
                         LSPSystemServerService.this.linkToDeath();
@@ -69,7 +69,7 @@ public class LSPSystemServerService extends ILSPSystemServerService.Stub impleme
                 }
             };
             try {
-                getSystemServiceManager().registerForNotifications(PROXY_SERVICE_NAME, serviceCallback);
+                getSystemServiceManager().registerForNotifications(proxyServiceName, serviceCallback);
             } catch (Throwable e) {
                 Log.e(TAG, "unregister: ", e);
             }

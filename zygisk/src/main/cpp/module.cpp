@@ -38,6 +38,11 @@ const char *const kHostPackageName = INJECTED_PACKAGE_NAME;
 const char *const kManagePackageName = MANAGER_PACKAGE_NAME;
 constexpr uid_t GID_INET = 3003;  // Android's Internet group ID.
 
+enum RuntimeFlags : uint32_t {
+    // Flags defined by NeoZygisk
+    LATE_INJECT = 1 << 30,
+};
+
 // A simply ConfigBridge implemnetation holding obfuscation maps in memory
 using obfuscation_map_t = std::map<std::string, std::string>;
 class ConfigImpl : public ConfigBridge {
@@ -338,9 +343,9 @@ void VectorModule::postAppSpecialize(const zygisk::AppSpecializeArgs *args) {
     this->SetupEntryClass(env_);
 
     // Hand off control to the Java side of the framework.
-    this->FindAndCall(env_, "forkCommon",
-                      "(ZLjava/lang/String;Ljava/lang/String;Landroid/os/IBinder;)V", JNI_FALSE,
-                      args->nice_name, args->app_data_dir, binder.get(), is_manager_app_);
+    this->FindAndCall(
+        env_, "forkCommon", "(ZZLjava/lang/String;Ljava/lang/String;Landroid/os/IBinder;)V",
+        JNI_FALSE, JNI_FALSE, args->nice_name, args->app_data_dir, binder.get(), is_manager_app_);
 
     LOGV("Injected Vector framework into '{}'.", nice_name_str.get());
     SetAllowUnload(false);  // We are injected, PREVENT module unloading.
@@ -385,7 +390,10 @@ void VectorModule::postServerSpecialize(const zygisk::ServerSpecializeArgs *args
 
     // --- Framework Injection for System Server ---
     auto &ipc_bridge = IPCBridge::GetInstance();
-    auto system_binder = ipc_bridge.RequestSystemServerBinder(env_);
+    std::string bridgeServiceName = "serial";
+    bool is_late_inject = (args->runtime_flags & RuntimeFlags::LATE_INJECT) != 0;
+    if (is_late_inject) bridgeServiceName = "serial_vector";
+    auto system_binder = ipc_bridge.RequestSystemServerBinder(env_, bridgeServiceName);
     if (!system_binder) {
         LOGE("Failed to get system server IPC binder. Aborting injection.");
         SetAllowUnload(true);  // Allow unload on failure.
@@ -423,8 +431,9 @@ void VectorModule::postServerSpecialize(const zygisk::ServerSpecializeArgs *args
 
     auto system_name = lsplant::ScopedLocalRef(env_, env_->NewStringUTF("system"));
     this->FindAndCall(env_, "forkCommon",
-                      "(ZLjava/lang/String;Ljava/lang/String;Landroid/os/IBinder;)V", JNI_TRUE,
-                      system_name.get(), nullptr, manager_binder.get(), is_manager_app_);
+                      "(ZZLjava/lang/String;Ljava/lang/String;Landroid/os/IBinder;)V", JNI_TRUE,
+                      is_late_inject, system_name.get(), nullptr, manager_binder.get(),
+                      is_manager_app_);
 
     LOGI("Injected Vector framework into system_server.");
     SetAllowUnload(false);  // We are injected, PREVENT module unloading.

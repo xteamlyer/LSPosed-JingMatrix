@@ -84,8 +84,6 @@ private:
 // The name of the system service we use as a rendezvous point to find our manager service.
 // Using "activity" is a common technique as it's always available.
 constexpr auto kBridgeServiceName = "activity"sv;
-// A different rendezvous point used only by the system_server.
-constexpr auto kSystemServerBridgeServiceName = "serial"sv;
 
 // Transaction codes for specific actions.
 constexpr jint kBridgeTransactionCode = ('_' << 24) | ('V' << 16) | ('E' << 8) | 'C';
@@ -299,14 +297,14 @@ lsplant::ScopedLocalRef<jobject> IPCBridge::RequestAppBinder(JNIEnv *env, jstrin
     return result_binder;
 }
 
-lsplant::ScopedLocalRef<jobject> IPCBridge::RequestSystemServerBinder(JNIEnv *env) {
+lsplant::ScopedLocalRef<jobject> IPCBridge::RequestSystemServerBinder(
+    JNIEnv *env, std::string bridgeServiceName) {
     if (!initialized_) {
         LOGE("RequestSystemServerBinder failed: IPCBridge not initialized.");
         return {env, nullptr};
     }
 
-    auto service_name =
-        lsplant::ScopedLocalRef(env, env->NewStringUTF(kSystemServerBridgeServiceName.data()));
+    auto service_name = lsplant::ScopedLocalRef(env, env->NewStringUTF(bridgeServiceName.data()));
     lsplant::ScopedLocalRef<jobject> binder = {env, nullptr};
 
     // The system_server might start its services slightly after Zygisk injects us.

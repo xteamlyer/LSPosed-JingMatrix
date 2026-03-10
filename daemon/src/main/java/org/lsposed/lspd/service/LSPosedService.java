@@ -479,6 +479,11 @@ public class LSPosedService extends ILSPosedService.Stub {
         registerOpenManagerReceiver();
         registerModuleScopeReceiver();
         registerUidObserver();
+
+        if (ServiceManager.isLateInject) {
+            Log.i(TAG, "System already booted during late injection. Manually triggering boot completed.");
+            dispatchBootCompleted(null);
+        }
     }
 
     @Override

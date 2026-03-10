@@ -49,9 +49,11 @@ public:
     /**
      * @brief Requests the system_server's dedicated Binder from the host service.
      * @param env JNI environment pointer.
+     * @param bridgeServiceName rendezvous point used by the system_server
      * @return A ScopedLocalRef to the Binder object, or nullptr on failure.
      */
-    lsplant::ScopedLocalRef<jobject> RequestSystemServerBinder(JNIEnv *env);
+    lsplant::ScopedLocalRef<jobject> RequestSystemServerBinder(JNIEnv *env,
+                                                               std::string bridgeServiceName);
 
     /**
      * @brief Asks the system_server binder for the application manager binder.

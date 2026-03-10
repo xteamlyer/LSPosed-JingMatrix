@@ -66,6 +66,9 @@ public class ServiceManager {
     private static LogcatService logcatService = null;
     private static Dex2OatService dex2OatService = null;
 
+    public static boolean isLateInject = false;
+    public static String proxyServiceName = "serial";
+
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -104,9 +107,13 @@ public class ServiceManager {
                     systemServerMaxRetry = Integer.parseInt(arg.substring(arg.lastIndexOf('=') + 1));
                 } catch (Throwable ignored) {
                 }
+            } else if (arg.equals("--late-inject")) {
+                isLateInject = true;
+                proxyServiceName = "serial_vector";
             }
         }
-        Log.i(TAG, "starting server...");
+
+        Log.i(TAG, "Vector daemon started: lateInject: " + isLateInject);
         Log.i(TAG, String.format("version %s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -136,7 +143,7 @@ public class ServiceManager {
         mainService = new LSPosedService();
         applicationService = new LSPApplicationService();
         managerService = new LSPManagerService();
-        systemServerService = new LSPSystemServerService(systemServerMaxRetry);
+        systemServerService = new LSPSystemServerService(systemServerMaxRetry, proxyServiceName);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             dex2OatService = new Dex2OatService();
             dex2OatService.start();
