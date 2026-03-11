@@ -1,6 +1,8 @@
 allow dex2oat dex2oat_exec file execute_no_trans
 allow dex2oat system_linker_exec file execute_no_trans
 
+allow system_server system_server process execmem
+
 allow shell shell dir write
 
 type xposed_file file_type
