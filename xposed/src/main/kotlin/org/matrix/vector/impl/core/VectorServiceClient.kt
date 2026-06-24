@@ -116,6 +116,12 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
             .getOrDefault(-1L)
     }
 
+    fun updatePendingHotReloadVersion(modulePackageName: String, loadedVersionCode: Long) {
+        pendingHotReloadTargets.computeIfPresent(modulePackageName) { _, pending ->
+            pending.copy(loadedVersionCode = loadedVersionCode)
+        }
+    }
+
     override fun asBinder(): IBinder? {
         return service?.asBinder()
     }

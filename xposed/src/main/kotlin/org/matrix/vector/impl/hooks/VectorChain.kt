@@ -73,7 +73,7 @@ class VectorChain(
             VectorChain(executable, thisObject, currentArgs, hooks, hookIndex + 1, terminal)
         val record = hooks[hookIndex]
         if (!record.isActive()) {
-            return nextChain.internalProceed(thisObject, currentArgs)
+            return executeDownstream { nextChain.internalProceed(thisObject, currentArgs) }
         }
 
         return try {

@@ -177,11 +177,16 @@ object ConfigCache {
                 apkPath == oldModule.apkPath &&
                 File(appInfo.sourceDir).parent == File(apkPath).parent) {
 
-              if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
-              newModules[pkgName] = oldModule
-              newModuleIdentities[pkgName] =
+              val currentIdentity =
+                  buildModuleCodeIdentity(pkgName, pkgInfo.longVersionCode, apkPath)
+              val oldIdentity =
                   buildModuleCodeIdentity(pkgName, oldModule.versionCode, oldModule.apkPath)
-              continue
+              if (currentIdentity == oldIdentity) {
+                if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
+                newModules[pkgName] = oldModule
+                newModuleIdentities[pkgName] = currentIdentity
+                continue
+              }
             }
 
             val realApkPath = getModuleApkPath(appInfo!!)

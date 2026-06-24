@@ -248,6 +248,10 @@ object VectorModuleManager {
                     generationId = generationCounter.getAndIncrement(),
                 )
             newStateCommitted = true
+            VectorServiceClient.updatePendingHotReloadVersion(
+                module.packageName,
+                module.versionCode,
+            )
             Log.i(TAG, "COMMITTED package=${module.packageName} version=${module.versionCode}")
             oldState.entries.forEach(VectorLifecycleManager::detach)
             newEntries.forEach { entry ->
