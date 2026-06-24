@@ -179,8 +179,7 @@ object ConfigCache {
 
               val currentIdentity =
                   buildModuleCodeIdentity(pkgName, pkgInfo.longVersionCode, apkPath)
-              val oldIdentity =
-                  buildModuleCodeIdentity(pkgName, oldModule.versionCode, oldModule.apkPath)
+              val oldIdentity = moduleCodeIdentities[pkgName]
               if (currentIdentity == oldIdentity) {
                 if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
                 newModules[pkgName] = oldModule
