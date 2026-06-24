@@ -89,14 +89,18 @@ object VectorModuleManager {
                 )
 
             val entries = instantiateEntries(module, moduleClassLoader, vectorContext)
-            if (entries.size != module.file.moduleClassNames.size) {
+            if (entries.isEmpty() && module.file.moduleClassNames.isNotEmpty()) {
                 Log.e(
                     TAG,
-                    "Failed to instantiate all entries for ${module.packageName}: " +
-                        "${entries.size}/${module.file.moduleClassNames.size}",
+                    "Failed to instantiate any entries for ${module.packageName}. Total entries: ${module.file.moduleClassNames.size}"
                 )
-                entries.forEach(VectorLifecycleManager::detach)
                 return false
+            }
+            if (entries.size != module.file.moduleClassNames.size) {
+                Log.i(
+                    TAG,
+                    "Loaded ${entries.size}/${module.file.moduleClassNames.size} entries for ${module.packageName}"
+                )
             }
             entries.forEach { moduleInstance ->
                 VectorLifecycleManager.activeModules.add(moduleInstance)
@@ -210,8 +214,8 @@ object VectorModuleManager {
                     service = module.service,
                 )
             newEntries = instantiateEntries(module, moduleClassLoader, vectorContext)
-            if (newEntries.size != module.file.moduleClassNames.size) {
-                throw IllegalStateException("Failed to instantiate hot reload entry")
+            if (newEntries.isEmpty() && module.file.moduleClassNames.isNotEmpty()) {
+                throw IllegalStateException("Failed to instantiate any hot reload entry")
             }
             Log.i(TAG, "NEW_INSTANTIATED package=${module.packageName}")
 
@@ -297,7 +301,16 @@ object VectorModuleManager {
                         return@runCatching
                     }
 
-                    val constructor = moduleClass.getDeclaredConstructor()
+                    val constructor = runCatching { 
+                        moduleClass.getDeclaredConstructor() 
+                    }.onFailure { e ->
+                        if (e is NoSuchMethodException) {
+                            Log.i(TAG, "Skipping incompatible modern entry $className (missing no-arg constructor)")
+                        } else {
+                            Log.e(TAG, "Failed to get constructor for $className", e)
+                        }
+                    }.getOrNull() ?: return@runCatching
+
                     constructor.isAccessible = true
                     val moduleInstance = constructor.newInstance() as XposedModule
                     moduleInstance.attachFramework(vectorContext) {
