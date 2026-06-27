@@ -19,4 +19,5 @@ data class DaemonState(
     val miscPath: Path? = null,
     val modules: Map<String, Module> = emptyMap(),
     val scopes: Map<ProcessScope, List<Module>> = emptyMap(),
+    val configGeneration: Long = 0L,
 )

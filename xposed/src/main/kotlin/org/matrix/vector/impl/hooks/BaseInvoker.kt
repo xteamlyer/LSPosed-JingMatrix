@@ -45,7 +45,9 @@ internal abstract class BaseInvoker<T : Invoker<T, U>, U : Executable>(
 
                 // Filter hooks to respect the maxPriority requested by the module
                 val filteredHooks =
-                    allModernHooks.filter { it.priority <= currentType.maxPriority }.toTypedArray()
+                    allModernHooks
+                        .filter { it.isActive() && it.priority <= currentType.maxPriority }
+                        .toTypedArray()
 
                 val terminal: (Any?, Array<Any?>) -> Any? = { tObj, tArgs ->
                     val delegate = VectorBootstrap.delegate

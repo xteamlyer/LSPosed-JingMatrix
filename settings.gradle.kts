@@ -27,6 +27,7 @@ include(
     ":hiddenapi:stubs",
     ":hiddenapi:bridge",
     ":legacy",
+    ":shared:libxposed-annotation",
     ":services:manager-service",
     ":services:daemon-service",
     ":xposed",

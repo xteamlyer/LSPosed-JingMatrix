@@ -15,6 +15,10 @@ object VectorLifecycleManager {
 
     val activeModules: MutableSet<XposedModule> = ConcurrentHashMap.newKeySet()
 
+    fun detach(module: XposedModule) {
+        activeModules.remove(module)
+    }
+
     fun dispatchPackageLoaded(
         packageName: String,
         appInfo: ApplicationInfo,

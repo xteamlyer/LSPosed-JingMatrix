@@ -58,7 +58,8 @@ public final class ModuleUtil {
     // xposedminversion below this
     public static int MIN_MODULE_VERSION = 2; // reject modules with
     public static final int MIN_OUTDATED_MODERN_MODULE_API = 100;
-    private static final int MODERN_API_VERSION = 101;
+    public static final int MIN_SUPPORTED_MODERN_MODULE_API = 101;
+    private static final int MODERN_API_VERSION = MIN_SUPPORTED_MODERN_MODULE_API;
     private static final String IGNORED_MODULE_UPDATES = "ignored_module_updates";
     private static ModuleUtil instance = null;
     private final PackageManager pm;

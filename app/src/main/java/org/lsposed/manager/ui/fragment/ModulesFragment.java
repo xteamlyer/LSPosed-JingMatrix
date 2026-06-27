@@ -583,7 +583,7 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
             } else if (!item.legacy
                     && installXposedVersion > 0
                     && item.targetVersion >= ModuleUtil.MIN_OUTDATED_MODERN_MODULE_API
-                    && item.targetVersion < installXposedVersion) {
+                    && item.targetVersion < ModuleUtil.MIN_SUPPORTED_MODERN_MODULE_API) {
                 warningText = getString(R.string.warning_min_version_too_low, item.minVersion, installXposedVersion);
             } else if (item.minVersion < ModuleUtil.MIN_MODULE_VERSION) {
                 warningText = getString(R.string.warning_min_version_too_low, item.minVersion, ModuleUtil.MIN_MODULE_VERSION);

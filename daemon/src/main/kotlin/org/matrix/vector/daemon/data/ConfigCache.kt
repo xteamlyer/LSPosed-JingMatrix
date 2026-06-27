@@ -24,6 +24,14 @@ import org.matrix.vector.daemon.utils.getRealUsers
 
 private const val TAG = "VectorConfigCache"
 
+data class ModuleCodeIdentity(
+    val packageName: String,
+    val versionCode: Long,
+    val apkPath: String?,
+    val apkSize: Long,
+    val apkLastModified: Long,
+)
+
 object ConfigCache {
   // Module preference operations are delegated to PreferenceStore
   // Writable operations of modules are delegated to ModuleDatabase
@@ -35,6 +43,8 @@ object ConfigCache {
   val dbHelper = Database() // Kept public for PreferenceStore and ModuleDatabase
 
   private val cacheUpdateChannel = Channel<Unit>(Channel.CONFLATED)
+
+  @Volatile private var moduleCodeIdentities = emptyMap<String, ModuleCodeIdentity>()
 
   init {
     VectorDaemon.scope.launch {
@@ -123,8 +133,10 @@ object ConfigCache {
     val oldState = state
 
     val newModules = mutableMapOf<String, Module>()
+    val newModuleIdentities = mutableMapOf<String, ModuleCodeIdentity>()
     val obsoleteModules = mutableSetOf<String>()
     val obsoletePaths = mutableMapOf<String, String>()
+    val nextGeneration = oldState.configGeneration + 1
 
     db.query(
             "modules",
@@ -165,9 +177,15 @@ object ConfigCache {
                 apkPath == oldModule.apkPath &&
                 File(appInfo.sourceDir).parent == File(apkPath).parent) {
 
-              if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
-              newModules[pkgName] = oldModule
-              continue
+              val currentIdentity =
+                  buildModuleCodeIdentity(pkgName, pkgInfo.longVersionCode, apkPath)
+              val oldIdentity = moduleCodeIdentities[pkgName]
+              if (currentIdentity == oldIdentity) {
+                if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
+                newModules[pkgName] = oldModule
+                newModuleIdentities[pkgName] = currentIdentity
+                continue
+              }
             }
 
             val realApkPath = getModuleApkPath(appInfo!!)
@@ -187,11 +205,14 @@ object ConfigCache {
                     packageName = pkgName
                     this.apkPath = apkPath
                     appId = appInfo.uid
+                    versionCode = pkgInfo.longVersionCode
                     applicationInfo = appInfo
                     service = oldModule?.service ?: InjectedModuleService(pkgName)
                     file = preLoadedApk
                   }
               newModules[pkgName] = module
+              newModuleIdentities[pkgName] =
+                  buildModuleCodeIdentity(pkgName, module.versionCode, apkPath)
             } else {
               Log.w(TAG, "Failed to parse DEX/ZIP for $pkgName, skipping.")
               obsoleteModules.add(pkgName)
@@ -256,7 +277,9 @@ object ConfigCache {
         }
 
     // --- ATOMIC STATE SWAP ---
-    state = oldState.copy(modules = newModules, scopes = newScopes)
+    state =
+        oldState.copy(modules = newModules, scopes = newScopes, configGeneration = nextGeneration)
+    moduleCodeIdentities = newModuleIdentities
 
     Log.d(TAG, "Cache Update Complete. Map Swap successful.")
     // Log.d(TAG, "cached modules:")
@@ -340,6 +363,11 @@ object ConfigCache {
   fun getModuleByUid(uid: Int): Module? =
       state.modules.values.firstOrNull { it.appId == uid % PER_USER_RANGE }
 
+  fun getModuleByPackage(packageName: String): Module? = state.modules[packageName]
+
+  fun getModuleCodeIdentity(packageName: String): ModuleCodeIdentity? =
+      moduleCodeIdentities[packageName]
+
   fun getModulesForSystemServer(): List<Module> {
     val modules = mutableListOf<Module>()
     if (!android.os.SELinux.checkSELinuxAccess(
@@ -376,6 +404,7 @@ object ConfigCache {
                   packageName = pkgName
                   this.apkPath = apkPath
                   appId = runCatching { Os.stat(statPath).st_uid }.getOrDefault(-1)
+                  versionCode = 0L
                   service = InjectedModuleService(pkgName)
                 }
 
@@ -423,6 +452,17 @@ object ConfigCache {
           }
           .getOrDefault(false)
     }
+  }
+
+  private fun buildModuleCodeIdentity(packageName: String, versionCode: Long, apkPath: String?): ModuleCodeIdentity {
+    val file = apkPath?.let { FileSystem.toGlobalNamespace(it) }
+    return ModuleCodeIdentity(
+        packageName = packageName,
+        versionCode = versionCode,
+        apkPath = apkPath,
+        apkSize = file?.length() ?: 0L,
+        apkLastModified = file?.lastModified() ?: 0L,
+    )
   }
 
   fun getInstalledModules(): List<ApplicationInfo> {

@@ -41,7 +41,8 @@ private const val TAG = "VectorFileSystem"
 private const val PRIVATE_FILE_MODE = 0x180 // 0600
 private const val PRIVATE_DIR_MODE = 0x1C0 // 0700
 private const val SYSTEM_FILE_CONTEXT = "u:object_r:system_file:s0"
-private const val FRAMEWORK_API_VERSION = 101
+private const val FRAMEWORK_API_VERSION = 102
+private const val MIN_SUPPORTED_MODERN_MODULE_API = 101
 private const val LEGACY_MAX_API_VERSION = 94
 
 private enum class ModuleLoadStrategy {
@@ -417,7 +418,8 @@ object FileSystem {
     return when {
       hasModernEntry &&
           apiVersions.minApiVersion <= FRAMEWORK_API_VERSION &&
-          apiVersions.targetApiVersion == FRAMEWORK_API_VERSION -> ModuleLoadStrategy.MODERN
+          apiVersions.targetApiVersion in
+              MIN_SUPPORTED_MODERN_MODULE_API..FRAMEWORK_API_VERSION -> ModuleLoadStrategy.MODERN
       hasLegacyEntry && apiVersions.minApiVersion <= LEGACY_MAX_API_VERSION ->
           ModuleLoadStrategy.LEGACY
       else -> ModuleLoadStrategy.UNSUPPORTED

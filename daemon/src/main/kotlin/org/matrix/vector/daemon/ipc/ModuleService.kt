@@ -5,8 +5,11 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.os.Parcelable
 import android.os.RemoteException
 import android.util.Log
+import io.github.libxposed.service.HookedProcess
+import io.github.libxposed.service.IHotReloadCallback
 import io.github.libxposed.service.IXposedScopeCallback
 import io.github.libxposed.service.IXposedService
 import java.io.Serializable
@@ -137,6 +140,92 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     packages.forEach { pkg ->
       runCatching { ModuleDatabase.removeModuleScope(loadedModule.packageName, pkg, userId) }
           .onFailure { Log.e(TAG, "Error removing scope for $pkg", it) }
+    }
+  }
+
+  override fun getRunningTargets(): List<HookedProcess> {
+    ensureModule()
+    return ApplicationService.getRunningTargets(loadedModule)
+  }
+
+  override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
+    ensureModule()
+    runCatching {
+          val latest =
+              ConfigCache.getModuleByPackage(loadedModule.packageName)
+                  ?: throw HotReloadUnsupportedException(
+                      "Module ${loadedModule.packageName} is not enabled")
+          ensureHotReloadSupported(latest)
+          data?.let { validateHotReloadBundle(it) }
+          ApplicationService.hotReloadTarget(targetId, latest, data)
+          callback?.onHotReloadResult(IXposedService.HOT_RELOAD_SUCCEEDED, null)
+        }
+        .onFailure { throwable ->
+          if (throwable is SecurityException) throw throwable
+          val status =
+              when (throwable) {
+                is HotReloadInProgressException -> IXposedService.HOT_RELOAD_IN_PROGRESS
+                is HotReloadProcessDiedException -> IXposedService.HOT_RELOAD_PROCESS_DIED
+                is HotReloadUnsupportedException -> IXposedService.HOT_RELOAD_UNSUPPORTED
+                else -> IXposedService.HOT_RELOAD_FAILED
+              }
+          callback?.onHotReloadResult(status, throwable.message)
+        }
+  }
+
+  private fun ensureHotReloadSupported(module: Module) {
+    when {
+      module.file.legacy ->
+          throw HotReloadUnsupportedException("Hot reload is unsupported for legacy modules")
+      module.file.moduleClassNames.isEmpty() ->
+          throw HotReloadUnsupportedException("Hot reload is unsupported for native-only modules")
+      module.file.moduleClassNames.size != 1 ->
+          throw HotReloadUnsupportedException("Hot reload requires exactly one Java entry class")
+      module.file.moduleLibraryNames.isNotEmpty() ->
+          throw HotReloadUnsupportedException(
+              "Hot reload is disabled for modules with native entries")
+    }
+  }
+
+  @Suppress("DEPRECATION")
+  private fun validateHotReloadBundle(bundle: Bundle) {
+    bundle.classLoader = javaClass.classLoader
+    bundle.keySet().forEach { key -> validateHotReloadValue(bundle.get(key), "data.$key") }
+  }
+
+  @Suppress("DEPRECATION")
+  private fun validateHotReloadValue(value: Any?, path: String) {
+    when (value) {
+      null,
+      is Boolean,
+      is Byte,
+      is Char,
+      is Short,
+      is Int,
+      is Long,
+      is Float,
+      is Double,
+      is String -> return
+      is Bundle -> validateHotReloadBundle(value)
+      is BooleanArray,
+      is ByteArray,
+      is CharArray,
+      is ShortArray,
+      is IntArray,
+      is LongArray,
+      is FloatArray,
+      is DoubleArray,
+      is Array<*> -> {
+        if (value is Array<*> && !value.all { it == null || it is String }) {
+          throw IllegalArgumentException("$path contains a custom object array")
+        }
+      }
+      is ArrayList<*> ->
+          value.forEachIndexed { index, item -> validateHotReloadValue(item, "$path[$index]") }
+      is Parcelable,
+      is Serializable ->
+          throw IllegalArgumentException("$path contains Parcelable/Serializable data")
+      else -> throw IllegalArgumentException("$path contains unsupported ${value.javaClass.name}")
     }
   }
 

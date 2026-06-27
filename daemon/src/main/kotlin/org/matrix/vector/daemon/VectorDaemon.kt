@@ -26,6 +26,7 @@ import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.env.CliSocketServer
 import org.matrix.vector.daemon.env.Dex2OatServer
 import org.matrix.vector.daemon.env.LogcatMonitor
+import org.matrix.vector.daemon.ipc.ApplicationService
 import org.matrix.vector.daemon.ipc.BRIDGE_TRANSACTION_CODE
 import org.matrix.vector.daemon.ipc.ManagerService
 import org.matrix.vector.daemon.ipc.SystemServerService
@@ -190,6 +191,8 @@ object VectorDaemon {
                           "System Server died! Owner `${leaseResult.owner?.toLogString() ?: daemonInstanceId}` handling reinjection round=${lease.round}.")
                       try {
                         withRootIdentity {
+                          ApplicationService.clearHotReloadTargetsForSoftRestart(
+                              "system_server reinjection round=${lease.round}")
                           clearSystemCaches()
                           // KernelSU soft reboot keeps this daemon alive while Android services
                           // stop/start; keep the wrapper socket and only refresh the bind mounts.
@@ -295,6 +298,7 @@ object VectorDaemon {
   }
 
   private fun terminateStaleDaemon(reason: String): Nothing {
+    ApplicationService.clearHotReloadTargetsForSoftRestart("stale daemon terminating: $reason")
     Log.w(TAG, "$reason Terminating stale daemon instance.")
     Process.killProcess(Process.myPid())
     kotlin.system.exitProcess(0)

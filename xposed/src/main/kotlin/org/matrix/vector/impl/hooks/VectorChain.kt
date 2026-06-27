@@ -4,14 +4,24 @@ import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedInterface.Chain
 import io.github.libxposed.api.XposedInterface.ExceptionMode
 import java.lang.reflect.Executable
+import java.util.concurrent.atomic.AtomicBoolean
 import org.lsposed.lspd.util.Utils
 
 /** Represents a registered hook configuration, stored natively by [HookBridge]. */
-data class VectorHookRecord(
-    val hooker: XposedInterface.Hooker,
+class VectorHookRecord(
+    val modulePackageName: String,
+    val executable: Executable,
+    val id: String?,
     val priority: Int,
+    val hooker: XposedInterface.Hooker,
     val exceptionMode: ExceptionMode,
-)
+) {
+    private val active = AtomicBoolean(true)
+
+    fun isActive(): Boolean = active.get()
+
+    fun deactivate(): Boolean = active.compareAndSet(true, false)
+}
 
 /**
  * Core interceptor chain engine. Manages recursive hook execution and enforces [ExceptionMode]
@@ -59,9 +69,12 @@ class VectorChain(
             return executeDownstream { terminal(thisObject, currentArgs) }
         }
 
-        val record = hooks[hookIndex]
         val nextChain =
             VectorChain(executable, thisObject, currentArgs, hooks, hookIndex + 1, terminal)
+        val record = hooks[hookIndex]
+        if (!record.isActive()) {
+            return executeDownstream { nextChain.internalProceed(thisObject, currentArgs) }
+        }
 
         return try {
             executeDownstream { record.hooker.intercept(nextChain) }
