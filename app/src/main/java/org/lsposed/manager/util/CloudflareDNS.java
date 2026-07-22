@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import org.lsposed.manager.App;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -72,12 +73,16 @@ public final class CloudflareDNS implements Dns {
             try {
                 return cloudflare.lookup(hostname);
             } catch (UnknownHostException e) {
-                // The DoH resolver is unreachable on this network (e.g. Cloudflare
-                // is blocked). Fall back to the system resolver so the app keeps
-                // working instead of failing every lookup, and skip DoH for the
-                // rest of the session.
-                dohUnavailable = true;
-                Log.w(App.TAG, "DoH resolver unreachable, falling back to system DNS for this session: " + e.getMessage());
+                // DnsOverHttps throws a cause-less UnknownHostException for DNS
+                // responses such as NXDOMAIN and SERVFAIL. Transport and HTTP
+                // failures are wrapped as the cause, so only those establish that
+                // the DoH endpoint itself is unavailable.
+                if (e.getCause() instanceof IOException) {
+                    dohUnavailable = true;
+                    Log.w(App.TAG, "DoH resolver unavailable, falling back to system DNS for this session", e);
+                } else {
+                    Log.d(App.TAG, "DoH lookup failed for " + hostname + ", trying system DNS without disabling DoH");
+                }
             }
         }
         return SYSTEM.lookup(hostname);
