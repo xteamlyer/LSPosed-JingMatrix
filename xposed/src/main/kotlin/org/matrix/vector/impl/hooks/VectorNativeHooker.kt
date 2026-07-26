@@ -52,24 +52,38 @@ class VectorHookBuilder(private val origin: Executable, private val moduleId: An
         val id = this.id
         if (id != null) {
             val key = IdKey(moduleId, origin, id)
-            val existing = idRegistry[key]
-            if (existing != null && existing.installed.get()) {
-                // Same (module, executable, id): replace in place via the volatile-write path rather
-                // than installing a second native record. Bumping the epoch invalidates the old
-                // handle; native registration is untouched.
-                val epoch = existing.epoch.incrementAndGet()
-                existing.hooker = hooker
-                return handleFor(existing, epoch)
+            // Claiming the key with putIfAbsent is the only atomic point: whoever wins installs the
+            // single native record, everyone else replaces its hooker in place. A check-then-act here
+            // would let two threads install two records for one id, which is the very duplication
+            // this design exists to avoid.
+            val candidate = VectorHookRecord(hooker, priority, exceptionMode, id)
+            while (true) {
+                val existing = idRegistry.putIfAbsent(key, candidate) ?: break
+                if (existing.installed.get()) {
+                    // Same (module, executable, id): replace in place via the volatile-write path
+                    // rather than installing a second native record. Bumping the epoch invalidates
+                    // the old handle; native registration is untouched.
+                    val epoch = existing.epoch.incrementAndGet()
+                    existing.hooker = hooker
+                    return handleFor(existing, epoch)
+                }
+                // The id is held by a record that has since been unhooked; drop it and retry.
+                idRegistry.remove(key, existing)
             }
 
-            val record = VectorHookRecord(hooker, priority, exceptionMode, id)
             if (
-                !HookBridge.hookMethod(true, origin, VectorNativeHooker::class.java, priority, record)
+                !HookBridge.hookMethod(
+                    true,
+                    origin,
+                    VectorNativeHooker::class.java,
+                    priority,
+                    candidate,
+                )
             ) {
+                idRegistry.remove(key, candidate)
                 throw HookFailedError("Cannot hook $origin")
             }
-            idRegistry[key] = record
-            return handleFor(record, record.epoch.get())
+            return handleFor(candidate, candidate.epoch.get())
         }
 
         val record = VectorHookRecord(hooker, priority, exceptionMode, null)
