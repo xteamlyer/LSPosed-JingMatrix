@@ -52,6 +52,7 @@ appiconloader = { module = "me.zhanghai.android.appiconloader:appiconloader", ve
 material = { module = "com.google.android.material:material", version = "1.12.0" }
 gson = { module = "com.google.code.gson:gson", version = "2.14.0" }
 hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version = "6.1" }
+libxposed-annotation = { module = "io.github.libxposed:annotation", version = "1.0.0" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

@@ -40,14 +40,14 @@ class VectorContext(
     }
 
     override fun hook(origin: Executable): XposedInterface.HookBuilder {
-        return VectorHookBuilder(origin)
+        return VectorHookBuilder(origin, packageName)
     }
 
     override fun hookClassInitializer(origin: Class<*>): XposedInterface.HookBuilder {
         val clinit =
             HookBridge.getStaticInitializer(origin)
                 ?: throw IllegalArgumentException("Class ${origin.name} has no static initializer")
-        return VectorHookBuilder(clinit)
+        return VectorHookBuilder(clinit, packageName)
     }
 
     override fun deoptimize(executable: Executable): Boolean {

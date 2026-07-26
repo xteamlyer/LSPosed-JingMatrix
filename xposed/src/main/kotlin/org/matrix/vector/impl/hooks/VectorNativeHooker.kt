@@ -10,21 +10,31 @@ import java.lang.reflect.Executable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.concurrent.ConcurrentHashMap
 import org.lsposed.lspd.util.Utils
 import org.matrix.vector.impl.di.VectorBootstrap
 import org.matrix.vector.nativebridge.HookBridge
 
-/** Builder for configuring and registering hooks. */
-class VectorHookBuilder(private val origin: Executable) : HookBuilder {
+/**
+ * Builder for configuring and registering hooks.
+ *
+ * [moduleId] identifies the owning module so hook ids can be isolated between modules; it is null for
+ * framework-internal hooks, which never use ids.
+ */
+class VectorHookBuilder(private val origin: Executable, private val moduleId: Any? = null) :
+    HookBuilder {
 
     private var priority = XposedInterface.PRIORITY_DEFAULT
     private var exceptionMode = ExceptionMode.DEFAULT
+    private var id: String? = null
 
     override fun setPriority(priority: Int): HookBuilder = apply { this.priority = priority }
 
     override fun setExceptionMode(mode: ExceptionMode): HookBuilder = apply {
         this.exceptionMode = mode
     }
+
+    override fun setId(id: String?): HookBuilder = apply { this.id = id }
 
     override fun intercept(hooker: Hooker): HookHandle {
         if (Modifier.isAbstract(origin.modifiers)) {
@@ -39,7 +49,30 @@ class VectorHookBuilder(private val origin: Executable) : HookBuilder {
             throw IllegalArgumentException("Cannot hook Method.invoke")
         }
 
-        val record = VectorHookRecord(hooker, priority, exceptionMode)
+        val id = this.id
+        if (id != null) {
+            val key = IdKey(moduleId, origin, id)
+            val existing = idRegistry[key]
+            if (existing != null && existing.installed.get()) {
+                // Same (module, executable, id): replace in place via the volatile-write path rather
+                // than installing a second native record. Bumping the epoch invalidates the old
+                // handle; native registration is untouched.
+                val epoch = existing.epoch.incrementAndGet()
+                existing.hooker = hooker
+                return handleFor(existing, epoch)
+            }
+
+            val record = VectorHookRecord(hooker, priority, exceptionMode, id)
+            if (
+                !HookBridge.hookMethod(true, origin, VectorNativeHooker::class.java, priority, record)
+            ) {
+                throw HookFailedError("Cannot hook $origin")
+            }
+            idRegistry[key] = record
+            return handleFor(record, record.epoch.get())
+        }
+
+        val record = VectorHookRecord(hooker, priority, exceptionMode, null)
 
         // Register natively. HookBridge now stores VectorHookRecord instead of HookerCallback.
         if (
@@ -48,15 +81,47 @@ class VectorHookBuilder(private val origin: Executable) : HookBuilder {
             throw HookFailedError("Cannot hook $origin")
         }
 
-        return object : HookHandle {
+        return handleFor(record, record.epoch.get())
+    }
+
+    /**
+     * Creates a handle bound to [record] and the epoch at which it became valid. The handle is stale
+     * once the record is replaced (epoch moves on) or unhooked.
+     */
+    private fun handleFor(record: VectorHookRecord, epoch: Int): HookHandle =
+        object : HookHandle {
             override fun getExecutable(): Executable = origin
 
+            override fun getId(): String? = record.id
+
             override fun unhook() {
-                HookBridge.unhookMethod(true, origin, record)
+                if (record.installed.compareAndSet(true, false)) {
+                    HookBridge.unhookMethod(true, origin, record)
+                    record.id?.let { idRegistry.remove(IdKey(moduleId, origin, it), record) }
+                }
+            }
+
+            override fun replaceHook(hooker: Hooker): HookHandle {
+                // Valid only while still installed and no replacement happened since this handle.
+                // The epoch CAS also makes concurrent replacements from the same handle mutually
+                // exclusive.
+                if (!record.installed.get() || !record.epoch.compareAndSet(epoch, epoch + 1)) {
+                    throw IllegalStateException("Hook handle is no longer valid")
+                }
+                record.hooker = hooker
+                return handleFor(record, epoch + 1)
             }
         }
+
+    companion object {
+        // Registry of id-bearing hooks keyed by (module, executable, id). Lets a repeated intercept()
+        // with an already-registered id reuse the installed record. Ids are isolated per module.
+        private val idRegistry = ConcurrentHashMap<IdKey, VectorHookRecord>()
     }
 }
+
+/** Registry key scoping a hook id to its owning module and executable. */
+private data class IdKey(val moduleId: Any?, val executable: Executable, val id: String)
 
 /**
  * The native callback entrypoint. Instantiated natively by [HookBridge] when a hooked method is

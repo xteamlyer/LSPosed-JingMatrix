@@ -79,8 +79,11 @@ object VectorModuleManager {
                         constructor.isAccessible = true
                         val moduleInstance = constructor.newInstance() as XposedModule
 
-                        // Attach the framework context to the module
-                        moduleInstance.attachFramework(vectorContext)
+                        // Attach the framework context to the module. The detach implementation is
+                        // per entry: only the instance that calls detach() stops receiving events.
+                        moduleInstance.attachFramework(vectorContext) {
+                            VectorLifecycleManager.detach(moduleInstance)
+                        }
 
                         // Register the active module to receive future lifecycle events
                         VectorLifecycleManager.activeModules.add(moduleInstance)
