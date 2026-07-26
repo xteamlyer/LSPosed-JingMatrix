@@ -57,6 +57,8 @@
     <string name="developer_warning_title">Tips for module developer</string>
     <string name="developer_warning_summary">Please disable deploy optimizations on Android Studio, or use `gradlew installDebug` command to install. Otherwise the module apk will not be updated.</string>
     <string name="info_api_version">API version</string>
+    <string name="module_api_version">API %1$d</string>
+    <string name="module_api_version_range">API %1$d–%2$d</string>
     <string name="info_framework_version">Framework version</string>
     <string name="info_manager_package_name">Manager package name</string>
     <string name="info_system_version">System version</string>

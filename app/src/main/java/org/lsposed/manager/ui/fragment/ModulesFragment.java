@@ -642,7 +642,7 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
                     }
                 });
                 holder.appVersion.setVisibility(View.VISIBLE);
-                holder.appVersion.setText(item.versionName);
+                holder.appVersion.setText(formatVersion(item));
                 holder.appVersion.setSelected(true);
             } else {
                 holder.itemView.setTag(item);
@@ -650,6 +650,19 @@ public class ModulesFragment extends BaseFragment implements ModuleUtil.ModuleLi
                     if (onPickListener != null) onPickListener.onClick(v);
                 });
             }
+        }
+
+        /**
+         * The module version line, with the Xposed API the module was built against. Which API a
+         * module targets decides how the framework loads it, so it belongs next to the version
+         * rather than only in the warning that fires when it is out of range.
+         */
+        private String formatVersion(ModuleUtil.InstalledModule item) {
+            if (item.targetVersion <= 0) return item.versionName;
+            var api = item.minVersion > 0 && item.minVersion != item.targetVersion
+                    ? getString(R.string.module_api_version_range, item.minVersion, item.targetVersion)
+                    : getString(R.string.module_api_version, item.targetVersion);
+            return item.versionName + " · " + api;
         }
 
         @Override
