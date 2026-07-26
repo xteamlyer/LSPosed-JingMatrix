@@ -16,7 +16,9 @@ import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.Module
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.VectorDaemon
+import org.matrix.vector.daemon.ipc.ApplicationService
 import org.matrix.vector.daemon.ipc.InjectedModuleService
+import org.matrix.vector.daemon.ipc.ModuleService
 import org.matrix.vector.daemon.system.*
 import org.matrix.vector.daemon.utils.InstallerVerifier
 import org.matrix.vector.daemon.utils.applySqliteHelperWorkaround
@@ -260,6 +262,16 @@ object ConfigCache {
     state = oldState.copy(modules = newModules, scopes = newScopes)
 
     Log.d(TAG, "Cache Update Complete. Map Swap successful.")
+
+    // Modules that lost their entry here can no longer own a target. Done after the swap so a
+    // target is only dropped once the module is really gone from the live state.
+    (oldState.modules.keys - newModules.keys).forEach {
+      ApplicationService.forgetHotReloadTargets(it)
+    }
+
+    // App-update triggered hot reload. This runs after the swap so the generation the targets are
+    // asked to load is the one that was just installed.
+    newModules.values.forEach { ModuleService.autoHotReload(it) }
     // Log.d(TAG, "cached modules:")
     // newModules.forEach { (pkg, mod) -> Log.d(TAG, "$pkg ${mod.apkPath}") }
 

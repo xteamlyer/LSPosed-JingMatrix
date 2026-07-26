@@ -46,7 +46,9 @@ object ApplicationService : ILSPApplicationService.Stub() {
       val processName: String,
       val uid: Int,
       val pid: Int,
-      val loadedVersionCode: Long,
+      // Moves to the installed version once a reload of this target succeeds; until then the target
+      // keeps reporting STALE.
+      @Volatile var loadedVersionCode: Long,
       val hotReloadable: Boolean,
   ) {
     val state = AtomicInteger(HookedProcess.TARGET_STATE_UP_TO_DATE)
@@ -103,19 +105,52 @@ object ApplicationService : ILSPApplicationService.Stub() {
    * getRunningTargets() is documented as returning hooked processes, and a target that cannot be
    * reloaded answers UNSUPPORTED rather than being hidden.
    */
-  fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> =
-      hotReloadTargets.values
-          .filter { it.modulePackageName == modulePackageName }
-          .map { target ->
-            HookedProcess().apply {
-              targetId = target.id
-              uid = target.uid
-              pid = target.pid
-              processName = target.processName
-              state = target.state.get()
-              loadedVersionCode = target.loadedVersionCode
-            }
+  fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> {
+    val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode
+    return hotReloadTargets.values
+        .filter { it.modulePackageName == modulePackageName }
+        .map { target ->
+          HookedProcess().apply {
+            targetId = target.id
+            uid = target.uid
+            pid = target.pid
+            processName = target.processName
+            state = reportedState(target, installedVersion)
+            loadedVersionCode = target.loadedVersionCode
           }
+        }
+  }
+
+  /**
+   * A target running a generation older than the installed one is STALE. Without this the state a
+   * module app polls for never changes, and the documented "notice STALE, then request a reload"
+   * flow has nothing to notice. RELOADING and FAILED describe the last attempt and outrank it.
+   */
+  private fun reportedState(target: HotReloadTarget, installedVersion: Long?): Int {
+    val state = target.state.get()
+    if (state != HookedProcess.TARGET_STATE_UP_TO_DATE) return state
+    return if (installedVersion != null && installedVersion != target.loadedVersionCode) {
+      HookedProcess.TARGET_STATE_STALE
+    } else {
+      state
+    }
+  }
+
+  /** Drops every target of [modulePackageName], for when it is disabled or uninstalled. */
+  fun forgetHotReloadTargets(modulePackageName: String) {
+    hotReloadTargets.values.removeIf { it.modulePackageName == modulePackageName }
+    processes.values.forEach { it.targetIds.remove(modulePackageName) }
+  }
+
+  /** Targets of [modulePackageName] that are running an older generation than the installed one. */
+  fun staleHotReloadTargets(modulePackageName: String): List<HotReloadTarget> {
+    val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode ?: return emptyList()
+    return hotReloadTargets.values.filter {
+      it.modulePackageName == modulePackageName &&
+          it.hotReloadable &&
+          it.loadedVersionCode != installedVersion
+    }
+  }
 
   /** Resolves a target id, but only for the module that owns it. */
   fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
@@ -133,7 +168,10 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  fun endHotReload(target: HotReloadTarget, state: Int) = target.state.set(state)
+  fun endHotReload(target: HotReloadTarget, state: Int, loadedVersionCode: Long? = null) {
+    loadedVersionCode?.let { target.loadedVersionCode = it }
+    target.state.set(state)
+  }
 
   /** The reload entry point of the process holding [target], or null if it never registered one. */
   fun getHotReloadBinder(target: HotReloadTarget): IHotReloadTarget? =

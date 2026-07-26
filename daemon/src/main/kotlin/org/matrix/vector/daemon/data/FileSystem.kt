@@ -176,6 +176,8 @@ object FileSystem {
     val moduleLibraryNames = mutableListOf<String>()
     var isLegacy = false
     var targetApiVersion = 0
+    var minApiVersion = 0
+    var autoHotReload = false
 
     runCatching {
           ZipFile(file).use { zip ->
@@ -198,6 +200,11 @@ object FileSystem {
             // sides cannot disagree about a value like "101.0".
             val targetApi = leadingInt(props.getProperty("targetApiVersion"))
             targetApiVersion = targetApi
+            // package-info lists minApiVersion as a required property alongside targetApiVersion.
+            minApiVersion = leadingInt(props.getProperty("minApiVersion"))
+            // Whether an app update should trigger hot reloading on its own. The module still gets
+            // to refuse it from onHotReloading.
+            autoHotReload = props.getProperty("autoHotReload")?.trim().toBoolean()
             val hasLegacyFile = zip.getEntry("assets/xposed_init") != null
 
             // Determine Loading Strategy based on Priority: API 101+ > Legacy > API 100
@@ -275,6 +282,8 @@ object FileSystem {
       this.moduleLibraryNames = moduleLibraryNames
       this.legacy = isLegacy
       this.targetApiVersion = targetApiVersion
+      this.minApiVersion = minApiVersion
+      this.autoHotReload = autoHotReload
     }
 
     return preLoadedApk

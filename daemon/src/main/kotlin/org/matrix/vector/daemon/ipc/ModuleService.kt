@@ -59,6 +59,22 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     fun uidGone(uid: Int) {
       uidSet.remove(uid)
     }
+
+    /**
+     * Reloads every target of [module] still running an older generation, for modules that opted in
+     * with autoHotReload in module.prop. The module keeps the final say: this drives the same cycle
+     * as a service request, so returning false from onHotReloading still cancels it.
+     */
+    fun autoHotReload(module: Module) {
+      if (!module.file.autoHotReload) return
+      val service = serviceMap.getOrPut(module) { ModuleService(module) }
+      ApplicationService.staleHotReloadTargets(module.packageName).forEach { target ->
+        if (target.hotReloadable && ApplicationService.beginHotReload(target)) {
+          Log.d(TAG, "Auto hot reloading ${module.packageName} in ${target.processName}")
+          hotReloadExecutor.execute { service.runHotReload(target, null, null) }
+        }
+      }
+    }
   }
 
   /**
@@ -190,6 +206,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     var status = IXposedService.HOT_RELOAD_FAILED
     var message: String? = "Hot reload did not run"
     var refreeze: (() -> Unit)? = null
+    var loadedVersion: Long? = null
 
     try {
       val binder = ApplicationService.getHotReloadBinder(target)
@@ -221,6 +238,9 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
       val outcome = binder.hotReload(loadedModule.packageName, data, newModule)
       status = outcome.status
+      // Only a success moves the target off the generation it was running, which is what stops it
+      // reporting STALE.
+      if (status == IXposedService.HOT_RELOAD_SUCCEEDED) loadedVersion = newModule.versionCode
       // A null message is reserved for a module refusal. Anything else that arrives without one
       // gets a framework-provided string, so the module app can tell the two apart.
       message =
@@ -239,7 +259,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       Log.e(TAG, "Hot reload of ${loadedModule.packageName} failed", t)
     } finally {
       refreeze?.invoke()
-      ApplicationService.endHotReload(target, stateFor(status))
+      ApplicationService.endHotReload(target, stateFor(status), loadedVersion)
       report(callback, status, message)
     }
   }
@@ -248,8 +268,9 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       when (status) {
         IXposedService.HOT_RELOAD_SUCCEEDED -> HookedProcess.TARGET_STATE_UP_TO_DATE
         IXposedService.HOT_RELOAD_FAILED -> HookedProcess.TARGET_STATE_FAILED
-        // Unsupported and process-died say nothing about the generation the target is running.
-        else -> HookedProcess.TARGET_STATE_STALE
+        // Unsupported and process-died say nothing about the generation the target is running, so
+        // the reported state falls back to comparing versions.
+        else -> HookedProcess.TARGET_STATE_UP_TO_DATE
       }
 
   private fun report(callback: IHotReloadCallback?, status: Int, message: String?) {
