@@ -1,0 +1,9 @@
+id=org.matrix.hrmodule
+name=Hot Reload Test
+version=1
+versionCode=1
+author=review-harness
+description=API 102 hot reload conformance harness
+minApiVersion=102
+targetApiVersion=102
+staticScope=false
