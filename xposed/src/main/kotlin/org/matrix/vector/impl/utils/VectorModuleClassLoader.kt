@@ -159,6 +159,7 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
          * fully instantiated.
          */
         @JvmStatic
+        @JvmOverloads
         fun loadApk(
             apk: String,
             dexes: List<SharedMemory>,

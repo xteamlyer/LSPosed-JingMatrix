@@ -187,6 +187,7 @@ object ConfigCache {
                     packageName = pkgName
                     this.apkPath = apkPath
                     appId = appInfo.uid
+                    versionCode = pkgInfo?.longVersionCode ?: 0L
                     applicationInfo = appInfo
                     service = oldModule?.service ?: InjectedModuleService(pkgName)
                     file = preLoadedApk
@@ -383,6 +384,9 @@ object ConfigCache {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
                   module.applicationInfo = pkg.applicationInfo
+                  // This is the system_server path, which runs before PMS is available. Reading the
+                  // version here keeps its hot reload targets as well described as any other.
+                  module.versionCode = pkg.mVersionCode.toLong()
                 }
                 .onFailure {
                   Log.w(TAG, "PackageParser failed for $apkPath, using fallback ApplicationInfo")

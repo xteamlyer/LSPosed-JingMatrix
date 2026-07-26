@@ -6,7 +6,10 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.os.RemoteException
 import android.util.Log
+import io.github.libxposed.service.HookedProcess
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import org.lsposed.lspd.models.Module
 import org.lsposed.lspd.service.ILSPApplicationService
 import org.matrix.vector.daemon.data.ConfigCache
@@ -30,8 +33,34 @@ object ApplicationService : ILSPApplicationService.Stub() {
 
   private val processes = ConcurrentHashMap<ProcessKey, ProcessInfo>()
 
+  /**
+   * One module generation loaded into one process: the unit a hot reload request addresses. Targets
+   * are derived from the process registry rather than registered by the injected process itself, so
+   * a target exists as soon as the daemon has handed the module out - including in system_server,
+   * whose modules are loaded long before a module-initiated registration could be answered.
+   */
+  class HotReloadTarget(
+      val id: Long,
+      val modulePackageName: String,
+      val processName: String,
+      val uid: Int,
+      val pid: Int,
+      val loadedVersionCode: Long,
+      val hotReloadable: Boolean,
+  ) {
+    val state = AtomicInteger(HookedProcess.TARGET_STATE_UP_TO_DATE)
+  }
+
+  private val hotReloadTargets = ConcurrentHashMap<Long, HotReloadTarget>()
+
+  // Ids are framework-assigned and never reused, as HookedProcess.targetId requires.
+  private val nextHotReloadTargetId = AtomicLong(1)
+
   private class ProcessInfo(val key: ProcessKey, val processName: String, val heartBeat: IBinder) :
       IBinder.DeathRecipient {
+    /** Hot reload target ids owned by this process, keyed by module package name. */
+    val targetIds = ConcurrentHashMap<String, Long>()
+
     init {
       heartBeat.linkToDeath(this, 0)
       processes[key] = this
@@ -40,8 +69,67 @@ object ApplicationService : ILSPApplicationService.Stub() {
     override fun binderDied() {
       heartBeat.unlinkToDeath(this, 0)
       processes.remove(key)
+      targetIds.values.forEach { hotReloadTargets.remove(it) }
     }
   }
+
+  /** Records the module generations handed to [info], assigning a target id to each. */
+  private fun recordHotReloadTargets(info: ProcessInfo, modules: List<Module>) {
+    for (module in modules) {
+      info.targetIds.computeIfAbsent(module.packageName) {
+        val id = nextHotReloadTargetId.getAndIncrement()
+        hotReloadTargets[id] =
+            HotReloadTarget(
+                id = id,
+                modulePackageName = module.packageName,
+                processName = info.processName,
+                uid = info.key.uid,
+                pid = info.key.pid,
+                loadedVersionCode = module.versionCode,
+                // Hot reload is specified only for modules with exactly one Java entry class.
+                hotReloadable = module.file.moduleClassNames.size == 1,
+            )
+        id
+      }
+    }
+  }
+
+  /**
+   * All processes currently hooked by [modulePackageName]. Not filtered to hot-reloadable targets:
+   * getRunningTargets() is documented as returning hooked processes, and a target that cannot be
+   * reloaded answers UNSUPPORTED rather than being hidden.
+   */
+  fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> =
+      hotReloadTargets.values
+          .filter { it.modulePackageName == modulePackageName }
+          .map { target ->
+            HookedProcess().apply {
+              targetId = target.id
+              uid = target.uid
+              pid = target.pid
+              processName = target.processName
+              state = target.state.get()
+              loadedVersionCode = target.loadedVersionCode
+            }
+          }
+
+  /** Resolves a target id, but only for the module that owns it. */
+  fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
+      hotReloadTargets[targetId]?.takeIf { it.modulePackageName == modulePackageName }
+
+  /**
+   * Claims [target] for a reload. Reloads are serialized per target, so the check and the transition
+   * have to be one atomic step rather than a read followed by a write.
+   */
+  fun beginHotReload(target: HotReloadTarget): Boolean {
+    while (true) {
+      val current = target.state.get()
+      if (current == HookedProcess.TARGET_STATE_RELOADING) return false
+      if (target.state.compareAndSet(current, HookedProcess.TARGET_STATE_RELOADING)) return true
+    }
+  }
+
+  fun endHotReload(target: HotReloadTarget, state: Int) = target.state.set(state)
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
     when (code) {
@@ -98,7 +186,8 @@ object ApplicationService : ILSPApplicationService.Stub() {
     return ConfigCache.getModulesForProcess(info.processName, info.key.uid)
   }
 
-  override fun getModulesList() = getAllModules().filter { !it.file.legacy }
+  override fun getModulesList() =
+      getAllModules().filter { !it.file.legacy }.also { recordHotReloadTargets(ensureRegistered(), it) }
 
   override fun getLegacyModulesList() = getAllModules().filter { it.file.legacy }
 

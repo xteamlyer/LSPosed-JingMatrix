@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.util.Log
+import io.github.libxposed.service.HookedProcess
+import io.github.libxposed.service.IHotReloadCallback
 import io.github.libxposed.service.IXposedScopeCallback
 import io.github.libxposed.service.IXposedService
 import java.io.Serializable
@@ -138,6 +140,44 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       runCatching { ModuleDatabase.removeModuleScope(loadedModule.packageName, pkg, userId) }
           .onFailure { Log.e(TAG, "Error removing scope for $pkg", it) }
     }
+  }
+
+  override fun getRunningTargets(): List<HookedProcess> {
+    ensureModule()
+    return ApplicationService.getHotReloadTargets(loadedModule.packageName)
+  }
+
+  override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
+    ensureModule()
+    // SecurityException is reserved by the AIDL for exactly these two conditions, so it must not be
+    // raised for anything else on this path - a module-thrown SecurityException in particular has
+    // to reach the caller as a FAILED result, not as "invalid target id".
+    val target =
+        ApplicationService.getHotReloadTarget(targetId, loadedModule.packageName)
+            ?: throw SecurityException("Target $targetId is not a target of ${loadedModule.packageName}")
+
+    if (!target.hotReloadable) {
+      // Hot reload is specified only for modules declaring exactly one Java entry class.
+      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "Module has no single Java entry class")
+      return
+    }
+
+    if (!ApplicationService.beginHotReload(target)) {
+      report(callback, IXposedService.HOT_RELOAD_IN_PROGRESS, "A reload is already running")
+      return
+    }
+
+    // No new generation can be staged yet, which package-info explicitly allows a framework to
+    // report as unsupported. Reporting SUCCEEDED here would be a lie, and FAILED would tell the
+    // module app its own code refused.
+    ApplicationService.endHotReload(target, HookedProcess.TARGET_STATE_UP_TO_DATE)
+    report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "Hot reload is not implemented yet")
+  }
+
+  private fun report(callback: IHotReloadCallback?, status: Int, message: String?) {
+    // The callback is oneway, so a dead module app must not surface as a failure here.
+    runCatching { callback?.onHotReloadResult(status, message) }
+        .onFailure { Log.w(TAG, "Cannot deliver hot reload result to ${loadedModule.packageName}", it) }
   }
 
   override fun requestRemotePreferences(group: String): Bundle {
