@@ -33,8 +33,7 @@ private const val TAG = "VectorModuleService"
 class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
   companion object {
-    // Reloads run off the binder thread that served the module app. Per-target serialization is
-    // enforced by the target's own state, so this pool only has to keep one slow target from
+    // Per-target serialization lives on the target itself; this only keeps one slow target from
     // delaying another.
     private val hotReloadExecutor =
         Executors.newCachedThreadPool { r -> Thread(r, "vector-hot-reload") }
@@ -60,11 +59,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       uidSet.remove(uid)
     }
 
-    /**
-     * Reloads every target of [module] still running an older generation, for modules that opted in
-     * with autoHotReload in module.prop. The module keeps the final say: this drives the same cycle
-     * as a service request, so returning false from onHotReloading still cancels it.
-     */
+    // Drives the same cycle as a service request, so onHotReloading can still refuse it.
     fun autoHotReload(module: Module) {
       if (!module.file.autoHotReload) return
       val service = serviceMap.getOrPut(module) { ModuleService(module) }
@@ -238,11 +233,8 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
       val outcome = binder.hotReload(loadedModule.packageName, data, newModule)
       status = outcome.status
-      // Only a success moves the target off the generation it was running, which is what stops it
-      // reporting STALE.
       if (status == IXposedService.HOT_RELOAD_SUCCEEDED) loadedVersion = newModule.versionCode
-      // A null message is reserved for a module refusal. Anything else that arrives without one
-      // gets a framework-provided string, so the module app can tell the two apart.
+      // A null message is reserved for a refusal, so anything else gets one supplied.
       message =
           outcome.message
               ?: if (status == IXposedService.HOT_RELOAD_FAILED && !outcome.refused) {
@@ -274,7 +266,6 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       }
 
   private fun report(callback: IHotReloadCallback?, status: Int, message: String?) {
-    // The callback is oneway, so a dead module app must not surface as a failure here.
     runCatching { callback?.onHotReloadResult(status, message) }
         .onFailure { Log.w(TAG, "Cannot deliver hot reload result to ${loadedModule.packageName}", it) }
   }

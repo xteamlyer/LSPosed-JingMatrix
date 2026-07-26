@@ -30,15 +30,8 @@ object VectorModuleManager {
 
     private const val TAG = "VectorModuleManager"
 
-    /**
-     * One loaded generation of a module: the code a hot reload replaces.
-     *
-     * Entry instances are referenced weakly on purpose. `VectorLifecycleManager.activeModules` owns
-     * the framework's only strong reference to them, and detach is specified to remove it, so a
-     * generation resolves its entries through [liveEntries] instead of keeping a list of its own. A
-     * hot reload turns that into a local strong list for the duration of the cycle, which is what
-     * keeps the old generation reachable until `onHotReloaded` finishes.
-     */
+    // Entries are weak on purpose: activeModules owns the only strong reference, and detach()
+    // removes it. A reload holds a local strong list for the cycle instead.
     private class Generation(
         val classLoader: ClassLoader,
         val context: VectorContext,
@@ -89,11 +82,7 @@ object VectorModuleManager {
         return true
     }
 
-    /**
-     * Creates the classloader, the framework context and the entry instances of one generation.
-     * Nothing is published: the caller decides when the entries become active, which is what lets a
-     * hot reload fail cleanly before the old generation is touched.
-     */
+    // Publishes nothing, so a reload can fail before the old generation is touched.
     private fun buildGeneration(
         module: Module,
         isSystemServer: Boolean,
@@ -156,8 +145,7 @@ object VectorModuleManager {
                         constructor.isAccessible = true
                         val moduleInstance = constructor.newInstance() as XposedModule
 
-                        // Attach the framework context to the module. The detach implementation is
-                        // per entry: only the instance that calls detach() stops receiving events.
+                        // detach() is per entry: only the instance that calls it stops.
                         moduleInstance.attachFramework(vectorContext) {
                             VectorLifecycleManager.detach(moduleInstance)
                         }
@@ -176,10 +164,6 @@ object VectorModuleManager {
         }
     }
 
-    /**
-     * Replaces the loaded generation of [modulePackageName] with [newModule], running the old code's
-     * `onHotReloading` and the new code's `onHotReloaded`. Blocks for the whole cycle.
-     */
     fun hotReload(
         modulePackageName: String?,
         extras: Bundle?,
@@ -221,12 +205,10 @@ object VectorModuleManager {
             return unsupported("$packageName does not declare exactly one Java entry class")
         }
 
-        // Strong references for the whole cycle: the old generation must stay reachable until
-        // onHotReloaded has finished.
+        // Keeps the old generation reachable until onHotReloaded has finished.
         val oldEntries = old.liveEntries()
         if (oldEntries.isEmpty()) {
-            // Every entry has detached, so no module code can be asked. This must not be reported as
-            // a refusal: a null message means onHotReloading returned false, and nothing ran here.
+            // Not a refusal: a null message means onHotReloading returned false, and nothing ran.
             Log.w(TAG, "No attached entry of $packageName can accept a hot reload")
             return unsupported("Every entry of $packageName has detached in this process")
         }
@@ -236,8 +218,7 @@ object VectorModuleManager {
                 ?: return unsupported("Cannot build a new generation of $packageName")
         val (newGeneration, newEntries) = built
 
-        // Freeze before the callback runs, so hook registrations attempted by old code from inside
-        // onHotReloading fail while the unhook and replace paths it needs keep working.
+        // Before the callback, so registrations from inside it fail while unhook and replace work.
         old.context.freeze()
 
         var savedState: Any? = null
@@ -268,15 +249,12 @@ object VectorModuleManager {
 
         // Captured after the freeze and after old code had its chance to unhook.
         val oldHandles = VectorHookBuilder.snapshotHandles(packageName)
-        // The hooks carried into this cycle. Tracking has to survive the reload: replaceHook swaps
-        // the hooker inside a record that stays installed, so dropping it would hand the next
-        // generation an empty handle list and strand the retired hookers. The rollback below undoes
-        // only what the incoming generation adds on top of this set.
+        // replaceHook swaps the hooker inside an installed record, so tracking must survive the
+        // reload; the rollback below undoes only what the new generation adds on top of this.
         val inherited = VectorHookBuilder.trackedRecords(packageName)
 
         oldEntries.forEach { VectorLifecycleManager.activeModules.remove(it) }
-        // The new entries have to be active before the callback so that an entry detaching from
-        // inside onHotReloaded is honoured like any other detach.
+        // Active before the callback, so an entry detaching from inside it is honoured.
         newEntries.forEach { VectorLifecycleManager.activeModules.add(it) }
 
         val reloadedParam =
@@ -293,8 +271,7 @@ object VectorModuleManager {
             }
 
         try {
-            // The old hooks are not unhooked here: the default onHotReloaded already does that, and
-            // doing both would double-unhook.
+            // The default onHotReloaded already unhooks these; doing both would double-unhook.
             newEntries.filter { VectorLifecycleManager.isActive(it) }.forEach {
                 it.onHotReloaded(reloadedParam)
             }
@@ -343,7 +320,6 @@ object VectorModuleManager {
         }
     }
 
-    /** Whether [clazz] was defined by [classLoader] or by any loader descending from it. */
     private fun definedBy(clazz: Class<*>, classLoader: ClassLoader): Boolean {
         var loader: ClassLoader? =
             (if (clazz.isArray) clazz.componentType else clazz)?.classLoader
@@ -365,9 +341,7 @@ object VectorModuleManager {
 
     private fun failed(message: String) = outcome(IXposedService.HOT_RELOAD_FAILED, message)
 
-    /** A null message is reserved for a module refusal, so only this path may produce one. */
     private fun refusal() = outcome(IXposedService.HOT_RELOAD_FAILED, null, refused = true)
 
-    /** Throwables carry no message often enough that the diagnostic has to be synthesized. */
     private fun describe(t: Throwable) = "${t.javaClass.name}: ${t.message ?: "no message"}"
 }

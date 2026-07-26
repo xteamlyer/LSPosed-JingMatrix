@@ -34,20 +34,13 @@ object ApplicationService : ILSPApplicationService.Stub() {
 
   private val processes = ConcurrentHashMap<ProcessKey, ProcessInfo>()
 
-  /**
-   * One module generation loaded into one process: the unit a hot reload request addresses. Targets
-   * are derived from the process registry rather than registered by the injected process itself, so
-   * a target exists as soon as the daemon has handed the module out - including in system_server,
-   * whose modules are loaded long before a module-initiated registration could be answered.
-   */
+  /** One module generation loaded into one process: what a hot reload request addresses. */
   class HotReloadTarget(
       val id: Long,
       val modulePackageName: String,
       val processName: String,
       val uid: Int,
       val pid: Int,
-      // Moves to the installed version once a reload of this target succeeds; until then the target
-      // keeps reporting STALE.
       @Volatile var loadedVersionCode: Long,
       val hotReloadable: Boolean,
   ) {
@@ -61,10 +54,8 @@ object ApplicationService : ILSPApplicationService.Stub() {
 
   private class ProcessInfo(val key: ProcessKey, val processName: String, val heartBeat: IBinder) :
       IBinder.DeathRecipient {
-    /** Hot reload target ids owned by this process, keyed by module package name. */
     val targetIds = ConcurrentHashMap<String, Long>()
 
-    /** Set once while the process bootstraps; null until then, and for legacy-only processes. */
     @Volatile var hotReloadBinder: IHotReloadTarget? = null
 
     init {
@@ -79,7 +70,6 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  /** Records the module generations handed to [info], assigning a target id to each. */
   private fun recordHotReloadTargets(info: ProcessInfo, modules: List<Module>) {
     for (module in modules) {
       info.targetIds.computeIfAbsent(module.packageName) {
@@ -100,11 +90,8 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  /**
-   * All processes currently hooked by [modulePackageName]. Not filtered to hot-reloadable targets:
-   * getRunningTargets() is documented as returning hooked processes, and a target that cannot be
-   * reloaded answers UNSUPPORTED rather than being hidden.
-   */
+  // Not filtered to hot-reloadable targets: the AIDL documents this as hooked processes, and one
+  // that cannot be reloaded answers UNSUPPORTED rather than disappearing.
   fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> {
     val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode
     return hotReloadTargets.values
@@ -121,16 +108,11 @@ object ApplicationService : ILSPApplicationService.Stub() {
         }
   }
 
-  /**
-   * A target running a generation older than the installed one is STALE. Without this the state a
-   * module app polls for never changes, and the documented "notice STALE, then request a reload"
-   * flow has nothing to notice. RELOADING and FAILED describe the last attempt and outrank it.
-   */
+  // RELOADING and FAILED describe the last attempt and outrank a version comparison.
   private fun reportedState(target: HotReloadTarget, installedVersion: Long?): Int {
     val state = target.state.get()
     if (state != HookedProcess.TARGET_STATE_UP_TO_DATE) return state
-    // A zero means the generation could not be determined, not that it is old, so it must not turn
-    // into a target that reports STALE forever and can never be satisfied by a reload.
+    // Zero means unknown, not old; claiming STALE would never be satisfiable by a reload.
     if (target.loadedVersionCode == 0L) return state
     return if (installedVersion != null && installedVersion != target.loadedVersionCode) {
       HookedProcess.TARGET_STATE_STALE
@@ -139,13 +121,7 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  /**
-   * Fills in the generation of targets recorded before the daemon knew it. system_server loads its
-   * modules before PMS exists, so those targets start at zero; the first cache that does know the
-   * version supplies it, and nothing can have updated the module in between without also having
-   * rebuilt the process. Without this such a target has no comparable generation and is invisible
-   * to both stale reporting and autoHotReload.
-   */
+  // system_server records its targets before PMS exists, so they start without a version.
   fun backfillLoadedVersions() {
     hotReloadTargets.values
         .filter { it.loadedVersionCode == 0L }
@@ -157,32 +133,25 @@ object ApplicationService : ILSPApplicationService.Stub() {
         }
   }
 
-  /** Drops every target of [modulePackageName], for when it is disabled or uninstalled. */
   fun forgetHotReloadTargets(modulePackageName: String) {
     hotReloadTargets.values.removeIf { it.modulePackageName == modulePackageName }
     processes.values.forEach { it.targetIds.remove(modulePackageName) }
   }
 
-  /** Targets of [modulePackageName] that are running an older generation than the installed one. */
   fun staleHotReloadTargets(modulePackageName: String): List<HotReloadTarget> {
     val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode ?: return emptyList()
     return hotReloadTargets.values.filter {
       it.modulePackageName == modulePackageName &&
           it.hotReloadable &&
-          // Same reasoning as the reported state: zero means unknown, not old.
           it.loadedVersionCode != 0L &&
           it.loadedVersionCode != installedVersion
     }
   }
 
-  /** Resolves a target id, but only for the module that owns it. */
   fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
       hotReloadTargets[targetId]?.takeIf { it.modulePackageName == modulePackageName }
 
-  /**
-   * Claims [target] for a reload. Reloads are serialized per target, so the check and the transition
-   * have to be one atomic step rather than a read followed by a write.
-   */
+  // Reloads are serialized per target, so check and transition must be one atomic step.
   fun beginHotReload(target: HotReloadTarget): Boolean {
     while (true) {
       val current = target.state.get()
@@ -196,7 +165,6 @@ object ApplicationService : ILSPApplicationService.Stub() {
     target.state.set(state)
   }
 
-  /** The reload entry point of the process holding [target], or null if it never registered one. */
   fun getHotReloadBinder(target: HotReloadTarget): IHotReloadTarget? =
       processes[ProcessKey(target.uid, target.pid)]?.hotReloadBinder
 

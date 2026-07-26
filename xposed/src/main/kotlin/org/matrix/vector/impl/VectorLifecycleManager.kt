@@ -13,24 +13,16 @@ object VectorLifecycleManager {
 
     private const val TAG = "VectorLifecycle"
 
-    /**
-     * The framework's only strong reference to module entry instances. [detach] is specified to
-     * remove that reference and to stop *every* lifecycle callback, so any dispatch added later
-     * (including hot reload) must iterate this set rather than keep an entry list of its own.
-     */
+    // The framework's only strong reference to entry instances, and what detach() removes. Any
+    // dispatch added later, hot reload included, must iterate this rather than keep its own list.
     val activeModules: MutableSet<XposedModule> = ConcurrentHashMap.newKeySet()
 
-    /**
-     * Backs `XposedInterfaceWrapper.detach()` for a single entry instance. Idempotent, as the API
-     * requires.
-     */
     fun detach(module: XposedModule) {
         if (activeModules.remove(module)) {
             Log.d(TAG, "Detached entry ${module.javaClass.name}")
         }
     }
 
-    /** Whether [module] still receives callbacks, i.e. has not detached. */
     fun isActive(module: XposedModule): Boolean = activeModules.contains(module)
 
     fun dispatchPackageLoaded(

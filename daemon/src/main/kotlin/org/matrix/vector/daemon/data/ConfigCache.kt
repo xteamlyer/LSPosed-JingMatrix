@@ -263,18 +263,14 @@ object ConfigCache {
 
     Log.d(TAG, "Cache Update Complete. Map Swap successful.")
 
-    // Modules that lost their entry here can no longer own a target. Done after the swap so a
-    // target is only dropped once the module is really gone from the live state.
+    // After the swap, so a target is only dropped once the module is really gone.
     (oldState.modules.keys - newModules.keys).forEach {
       ApplicationService.forgetHotReloadTargets(it)
     }
 
-    // Before deciding what is stale, give targets recorded without a version the one this cache
-    // knows, or they would look stale on every update and never stop.
     ApplicationService.backfillLoadedVersions()
 
-    // App-update triggered hot reload. This runs after the swap so the generation the targets are
-    // asked to load is the one that was just installed.
+    // After the swap, so targets are asked to load the generation that was just installed.
     newModules.values.forEach { ModuleService.autoHotReload(it) }
     // Log.d(TAG, "cached modules:")
     // newModules.forEach { (pkg, mod) -> Log.d(TAG, "$pkg ${mod.apkPath}") }
@@ -399,9 +395,7 @@ object ConfigCache {
             runCatching {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
-                  // The ApplicationInfo a raw parse produces carries no version, and this path runs
-                  // before PMS exists, so versionCode stays zero here and is backfilled by the
-                  // first cache update that does know it.
+                  // A raw parse carries no version; backfillLoadedVersions supplies it later.
                   module.applicationInfo = pkg.applicationInfo
                 }
                 .onFailure {

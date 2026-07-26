@@ -29,16 +29,14 @@ class VectorContext(
 
     private val remotePrefs = ConcurrentHashMap<String, SharedPreferences>()
 
-    // Set when a hot reload retires this generation. Keyed on the module generation rather than on
-    // the hooker's classloader, which says nothing about which generation registered a hook.
+    // Keyed on the generation, not the hooker's classloader, which says nothing about who
+    // registered a hook.
     @Volatile private var frozen = false
 
-    /** Stops this generation from registering further hooks. Existing handles keep working. */
     fun freeze() {
         frozen = true
     }
 
-    /** Undoes [freeze] when a hot reload was refused or rolled back. */
     fun unfreeze() {
         frozen = false
     }

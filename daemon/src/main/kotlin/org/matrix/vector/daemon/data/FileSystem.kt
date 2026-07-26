@@ -161,7 +161,7 @@ object FileSystem {
     return memory
   }
 
-  /** Reads the leading integer of a module.prop value, as the manager's extractIntPart does. */
+  // Matches ModuleUtil.extractIntPart in the manager, so the two cannot disagree on "101.0".
   private fun leadingInt(value: String?): Int =
       value?.trim()?.takeWhile { it.isDigit() }?.toIntOrNull() ?: 0
 
@@ -196,14 +196,9 @@ object FileSystem {
                   }
                 }
 
-            // Leading-digit parsing, matching ModuleUtil.extractIntPart in the manager, so the two
-            // sides cannot disagree about a value like "101.0".
             val targetApi = leadingInt(props.getProperty("targetApiVersion"))
             targetApiVersion = targetApi
-            // package-info lists minApiVersion as a required property alongside targetApiVersion.
             minApiVersion = leadingInt(props.getProperty("minApiVersion"))
-            // Whether an app update should trigger hot reloading on its own. The module still gets
-            // to refuse it from onHotReloading.
             autoHotReload = props.getProperty("autoHotReload")?.trim().toBoolean()
             val hasLegacyFile = zip.getEntry("assets/xposed_init") != null
 

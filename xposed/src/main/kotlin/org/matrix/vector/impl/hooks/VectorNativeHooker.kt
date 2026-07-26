@@ -16,14 +16,8 @@ import org.matrix.vector.impl.di.VectorBootstrap
 import org.matrix.vector.nativebridge.HookBridge
 
 /**
- * Builder for configuring and registering hooks.
- *
- * [moduleId] identifies the owning module so hook ids can be isolated between modules; it is null for
- * framework-internal hooks, which never use ids.
- *
- * [frozen] reports whether the generation that created this builder has been retired by a hot
- * reload. It gates registration only: the handles a frozen generation already holds keep working, as
- * `onHotReloading` requires modules to unregister from inside the callback.
+ * Builder for configuring and registering hooks. [moduleId] scopes hook ids per module and is null
+ * for framework hooks; [frozen] gates registration only, so a retired generation can still unhook.
  */
 class VectorHookBuilder(
     private val origin: Executable,
@@ -64,17 +58,13 @@ class VectorHookBuilder(
         val id = this.id
         if (id != null) {
             val key = IdKey(moduleId, origin, id)
-            // Claiming the key with putIfAbsent is the only atomic point: whoever wins installs the
-            // single native record, everyone else replaces its hooker in place. A check-then-act here
-            // would let two threads install two records for one id, which is the very duplication
-            // this design exists to avoid.
+            // putIfAbsent is the only atomic point: a check-then-act would let two threads install
+            // two records for one id, which is the duplication this design exists to avoid.
             val candidate = VectorHookRecord(hooker, priority, exceptionMode, id)
             while (true) {
                 val existing = idRegistry.putIfAbsent(key, candidate) ?: break
                 if (existing.installed.get()) {
-                    // Same (module, executable, id): replace in place via the volatile-write path
-                    // rather than installing a second native record. Bumping the epoch invalidates
-                    // the old handle; native registration is untouched.
+                    // Replace in place rather than installing a second native record.
                     val epoch = existing.epoch.incrementAndGet()
                     existing.hooker = hooker
                     return handleFor(existing, epoch)
@@ -112,7 +102,6 @@ class VectorHookBuilder(
         return handleFor(record, record.epoch.get())
     }
 
-    /** Records an installed hook against its owning module. Framework hooks have no module. */
     private fun track(record: VectorHookRecord) {
         val moduleId = this.moduleId ?: return
         moduleHooks
@@ -124,18 +113,12 @@ class VectorHookBuilder(
         handleFor(origin, moduleId, record, epoch)
 
     companion object {
-        // Registry of id-bearing hooks keyed by (module, executable, id). Lets a repeated intercept()
-        // with an already-registered id reuse the installed record. Ids are isolated per module.
+        // Keyed by (module, executable, id) so a repeated intercept() reuses the installed record.
         private val idRegistry = ConcurrentHashMap<IdKey, VectorHookRecord>()
 
-        // Hooks a module currently has installed, so a hot reload can hand the old generation's
-        // handles to the new one and can unhook a new generation that failed to take over.
         private val moduleHooks = ConcurrentHashMap<Any, MutableSet<InstalledHook>>()
 
-        /**
-         * Creates a handle bound to [record] and the epoch at which it became valid. The handle is
-         * stale once the record is replaced (epoch moves on) or unhooked.
-         */
+        // Stale once the record is replaced (epoch moves on) or unhooked.
         private fun handleFor(
             origin: Executable,
             moduleId: Any?,
@@ -158,9 +141,7 @@ class VectorHookBuilder(
                 }
 
                 override fun replaceHook(hooker: Hooker): HookHandle {
-                    // Valid only while still installed and no replacement happened since this
-                    // handle. The epoch CAS also makes concurrent replacements from the same handle
-                    // mutually exclusive.
+                    // The epoch CAS also makes concurrent replacements mutually exclusive.
                     if (!record.installed.get() || !record.epoch.compareAndSet(epoch, epoch + 1)) {
                         throw IllegalStateException("Hook handle is no longer valid")
                     }
@@ -169,33 +150,18 @@ class VectorHookBuilder(
                 }
             }
 
-        /**
-         * Fresh handles for every hook [moduleId] currently has installed. Handles are minted at the
-         * current epoch so the receiver can still replace them, which is what hot reload hands to
-         * `HotReloadedParam.getOldHookHandles()`.
-         */
+        // Minted at the current epoch so the receiver can still replace them.
         fun snapshotHandles(moduleId: Any): List<HookHandle> =
             moduleHooks[moduleId]
                 ?.filter { it.record.installed.get() }
                 ?.map { handleFor(it.origin, moduleId, it.record, it.record.epoch.get()) }
                 ?: emptyList()
 
-        /**
-         * The records [moduleId] has tracked right now, so a hot reload can tell the hooks it
-         * inherited from the ones the incoming generation adds.
-         */
         fun trackedRecords(moduleId: Any): Set<VectorHookRecord> =
             moduleHooks[moduleId]?.mapTo(mutableSetOf()) { it.record } ?: emptySet()
 
-        /**
-         * Unhooks what [moduleId] gained since [keep] was taken, leaving inherited hooks installed.
-         *
-         * Tracking deliberately survives a reload. `replaceHook` swaps the hooker inside the record
-         * that is already installed, so forgetting the record would leave a live hook the framework
-         * can no longer hand back through `getOldHookHandles()` - and since the default
-         * `onHotReloaded` unhooks exactly those handles, an empty list means the retired hookers,
-         * and the classloader behind them, are never released.
-         */
+        // Tracking survives a reload: replaceHook swaps the hooker inside an installed record,
+        // so forgetting it would strand a live hook the framework can no longer hand back.
         fun unhookSince(moduleId: Any, keep: Set<VectorHookRecord>) {
             val tracked = moduleHooks[moduleId] ?: return
             tracked
@@ -213,10 +179,8 @@ class VectorHookBuilder(
     }
 }
 
-/** An installed hook and the executable it was installed on. */
 private data class InstalledHook(val origin: Executable, val record: VectorHookRecord)
 
-/** Registry key scoping a hook id to its owning module and executable. */
 private data class IdKey(val moduleId: Any?, val executable: Executable, val id: String)
 
 /**

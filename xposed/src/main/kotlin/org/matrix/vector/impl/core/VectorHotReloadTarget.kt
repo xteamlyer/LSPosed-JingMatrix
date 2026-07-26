@@ -5,13 +5,7 @@ import org.lsposed.lspd.models.HotReloadOutcome
 import org.lsposed.lspd.models.Module
 import org.lsposed.lspd.service.IHotReloadTarget
 
-/**
- * The process's hot reload entry point. Registered once while the framework bootstraps, before any
- * module is loaded, so the daemon has a target regardless of when modules arrive.
- *
- * The call blocks for the whole reload cycle; the daemon calls it off the binder thread that served
- * the module app.
- */
+/** Registered once while the framework bootstraps, before any module is loaded. */
 object VectorHotReloadTarget : IHotReloadTarget.Stub() {
 
     override fun hotReload(
