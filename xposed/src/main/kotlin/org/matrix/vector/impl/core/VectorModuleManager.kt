@@ -45,6 +45,7 @@ object VectorModuleManager {
                     module.file.preLoadedDexes,
                     librarySearchPath,
                     initLoader,
+                    blockLegacyApi = module.file.targetApiVersion >= 102,
                 )
 
             // Security/Integrity Check: Ensure the module isn't bundling its own API classes
