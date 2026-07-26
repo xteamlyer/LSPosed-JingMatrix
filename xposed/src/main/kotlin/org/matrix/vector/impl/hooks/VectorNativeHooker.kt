@@ -181,25 +181,34 @@ class VectorHookBuilder(
                 ?: emptyList()
 
         /**
-         * Drops the framework-owned registrations of a module generation. The id registry
-         * strongly references hook records and through them the module classloader, so a hot reload
-         * that skipped this would leak one classloader per generation.
-         *
-         * Hooks themselves stay installed; hot reload hands their handles to the new generation.
+         * The records [moduleId] has tracked right now, so a hot reload can tell the hooks it
+         * inherited from the ones the incoming generation adds.
          */
-        fun releaseModule(moduleId: Any) {
-            idRegistry.keys.removeIf { it.moduleId == moduleId }
-            moduleHooks.remove(moduleId)
-        }
+        fun trackedRecords(moduleId: Any): Set<VectorHookRecord> =
+            moduleHooks[moduleId]?.mapTo(mutableSetOf()) { it.record } ?: emptySet()
 
-        /** Unhooks everything currently tracked for [moduleId] and forgets it. */
-        fun unhookAll(moduleId: Any) {
-            moduleHooks.remove(moduleId)?.forEach { hook ->
-                if (hook.record.installed.compareAndSet(true, false)) {
-                    HookBridge.unhookMethod(true, hook.origin, hook.record)
+        /**
+         * Unhooks what [moduleId] gained since [keep] was taken, leaving inherited hooks installed.
+         *
+         * Tracking deliberately survives a reload. `replaceHook` swaps the hooker inside the record
+         * that is already installed, so forgetting the record would leave a live hook the framework
+         * can no longer hand back through `getOldHookHandles()` - and since the default
+         * `onHotReloaded` unhooks exactly those handles, an empty list means the retired hookers,
+         * and the classloader behind them, are never released.
+         */
+        fun unhookSince(moduleId: Any, keep: Set<VectorHookRecord>) {
+            val tracked = moduleHooks[moduleId] ?: return
+            tracked
+                .filter { it.record !in keep }
+                .forEach { hook ->
+                    if (hook.record.installed.compareAndSet(true, false)) {
+                        HookBridge.unhookMethod(true, hook.origin, hook.record)
+                    }
+                    tracked.remove(hook)
+                    hook.record.id?.let {
+                        idRegistry.remove(IdKey(moduleId, hook.origin, it), hook.record)
+                    }
                 }
-            }
-            idRegistry.keys.removeIf { it.moduleId == moduleId }
         }
     }
 }

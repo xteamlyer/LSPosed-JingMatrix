@@ -268,10 +268,11 @@ object VectorModuleManager {
 
         // Captured after the freeze and after old code had its chance to unhook.
         val oldHandles = VectorHookBuilder.snapshotHandles(packageName)
-        // The id registry strongly references hook records and through them the old classloader.
-        // Dropping the old generation's entries here also makes everything tracked from now on
-        // belong to the new generation, which is what the rollback below unhooks.
-        VectorHookBuilder.releaseModule(packageName)
+        // The hooks carried into this cycle. Tracking has to survive the reload: replaceHook swaps
+        // the hooker inside a record that stays installed, so dropping it would hand the next
+        // generation an empty handle list and strand the retired hookers. The rollback below undoes
+        // only what the incoming generation adds on top of this set.
+        val inherited = VectorHookBuilder.trackedRecords(packageName)
 
         oldEntries.forEach { VectorLifecycleManager.activeModules.remove(it) }
         // The new entries have to be active before the callback so that an entry detaching from
@@ -299,7 +300,7 @@ object VectorModuleManager {
             }
         } catch (t: Throwable) {
             // Nothing has been committed yet, so the old generation is still the live one.
-            VectorHookBuilder.unhookAll(packageName)
+            VectorHookBuilder.unhookSince(packageName, inherited)
             newEntries.forEach { VectorLifecycleManager.activeModules.remove(it) }
             oldEntries.forEach { VectorLifecycleManager.activeModules.add(it) }
             old.context.unfreeze()
