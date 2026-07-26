@@ -269,6 +269,10 @@ object ConfigCache {
       ApplicationService.forgetHotReloadTargets(it)
     }
 
+    // Before deciding what is stale, give targets recorded without a version the one this cache
+    // knows, or they would look stale on every update and never stop.
+    ApplicationService.backfillLoadedVersions()
+
     // App-update triggered hot reload. This runs after the swap so the generation the targets are
     // asked to load is the one that was just installed.
     newModules.values.forEach { ModuleService.autoHotReload(it) }
@@ -350,21 +354,6 @@ object ConfigCache {
     return state.scopes[ProcessScope(processName, uid)] ?: emptyList()
   }
 
-  /**
-   * ApplicationInfo carries the version code, but the field is hidden, so it is read reflectively
-   * rather than by adding a stub that would shadow the real class for the whole daemon.
-   */
-  private fun versionCodeOf(info: ApplicationInfo?): Long {
-    if (info == null) return 0L
-    return runCatching {
-          ApplicationInfo::class.java.getField("longVersionCode").getLong(info)
-        }
-        .getOrElse {
-          runCatching { ApplicationInfo::class.java.getField("versionCode").getInt(info).toLong() }
-              .getOrDefault(0L)
-        }
-  }
-
   fun getModuleByUid(uid: Int): Module? =
       state.modules.values.firstOrNull { it.appId == uid % PER_USER_RANGE }
 
@@ -410,11 +399,10 @@ object ConfigCache {
             runCatching {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
+                  // The ApplicationInfo a raw parse produces carries no version, and this path runs
+                  // before PMS exists, so versionCode stays zero here and is backfilled by the
+                  // first cache update that does know it.
                   module.applicationInfo = pkg.applicationInfo
-                  // This is the system_server path, which runs before PMS is available. Without a
-                  // version here the module's targets compare unequal to every installed version
-                  // and would report STALE forever.
-                  module.versionCode = versionCodeOf(pkg.applicationInfo)
                 }
                 .onFailure {
                   Log.w(TAG, "PackageParser failed for $apkPath, using fallback ApplicationInfo")

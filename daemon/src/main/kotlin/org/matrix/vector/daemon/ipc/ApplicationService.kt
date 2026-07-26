@@ -139,6 +139,24 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
+  /**
+   * Fills in the generation of targets recorded before the daemon knew it. system_server loads its
+   * modules before PMS exists, so those targets start at zero; the first cache that does know the
+   * version supplies it, and nothing can have updated the module in between without also having
+   * rebuilt the process. Without this such a target has no comparable generation and is invisible
+   * to both stale reporting and autoHotReload.
+   */
+  fun backfillLoadedVersions() {
+    hotReloadTargets.values
+        .filter { it.loadedVersionCode == 0L }
+        .forEach { target ->
+          ConfigCache.state.modules[target.modulePackageName]
+              ?.versionCode
+              ?.takeIf { it != 0L }
+              ?.let { target.loadedVersionCode = it }
+        }
+  }
+
   /** Drops every target of [modulePackageName], for when it is disabled or uninstalled. */
   fun forgetHotReloadTargets(modulePackageName: String) {
     hotReloadTargets.values.removeIf { it.modulePackageName == modulePackageName }
