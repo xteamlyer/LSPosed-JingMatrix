@@ -42,5 +42,8 @@
     public static *** v(...);
     public static *** d(...);
 }
+# The libxposed annotations are compile-only metadata and are not packaged
+-dontwarn io.github.libxposed.annotation.**
+
 -repackageclasses
 -allowaccessmodification
