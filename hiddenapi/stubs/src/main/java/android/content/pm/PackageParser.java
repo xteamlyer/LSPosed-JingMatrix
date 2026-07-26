@@ -9,7 +9,6 @@ public class PackageParser {
 
 	public final static class Package {
         public ApplicationInfo applicationInfo;
-        public int mVersionCode;
 	}
 
 	/** Before SDK21 */

@@ -350,6 +350,21 @@ object ConfigCache {
     return state.scopes[ProcessScope(processName, uid)] ?: emptyList()
   }
 
+  /**
+   * ApplicationInfo carries the version code, but the field is hidden, so it is read reflectively
+   * rather than by adding a stub that would shadow the real class for the whole daemon.
+   */
+  private fun versionCodeOf(info: ApplicationInfo?): Long {
+    if (info == null) return 0L
+    return runCatching {
+          ApplicationInfo::class.java.getField("longVersionCode").getLong(info)
+        }
+        .getOrElse {
+          runCatching { ApplicationInfo::class.java.getField("versionCode").getInt(info).toLong() }
+              .getOrDefault(0L)
+        }
+  }
+
   fun getModuleByUid(uid: Int): Module? =
       state.modules.values.firstOrNull { it.appId == uid % PER_USER_RANGE }
 
@@ -396,9 +411,10 @@ object ConfigCache {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
                   module.applicationInfo = pkg.applicationInfo
-                  // This is the system_server path, which runs before PMS is available. Reading the
-                  // version here keeps its hot reload targets as well described as any other.
-                  module.versionCode = pkg.mVersionCode.toLong()
+                  // This is the system_server path, which runs before PMS is available. Without a
+                  // version here the module's targets compare unequal to every installed version
+                  // and would report STALE forever.
+                  module.versionCode = versionCodeOf(pkg.applicationInfo)
                 }
                 .onFailure {
                   Log.w(TAG, "PackageParser failed for $apkPath, using fallback ApplicationInfo")

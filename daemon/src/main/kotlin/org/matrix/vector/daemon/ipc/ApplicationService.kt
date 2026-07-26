@@ -129,6 +129,9 @@ object ApplicationService : ILSPApplicationService.Stub() {
   private fun reportedState(target: HotReloadTarget, installedVersion: Long?): Int {
     val state = target.state.get()
     if (state != HookedProcess.TARGET_STATE_UP_TO_DATE) return state
+    // A zero means the generation could not be determined, not that it is old, so it must not turn
+    // into a target that reports STALE forever and can never be satisfied by a reload.
+    if (target.loadedVersionCode == 0L) return state
     return if (installedVersion != null && installedVersion != target.loadedVersionCode) {
       HookedProcess.TARGET_STATE_STALE
     } else {
@@ -148,6 +151,8 @@ object ApplicationService : ILSPApplicationService.Stub() {
     return hotReloadTargets.values.filter {
       it.modulePackageName == modulePackageName &&
           it.hotReloadable &&
+          // Same reasoning as the reported state: zero means unknown, not old.
+          it.loadedVersionCode != 0L &&
           it.loadedVersionCode != installedVersion
     }
   }
