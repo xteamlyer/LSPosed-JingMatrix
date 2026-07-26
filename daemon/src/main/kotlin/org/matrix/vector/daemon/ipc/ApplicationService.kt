@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import org.lsposed.lspd.models.Module
+import org.lsposed.lspd.service.IHotReloadTarget
 import org.lsposed.lspd.service.ILSPApplicationService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
@@ -60,6 +61,9 @@ object ApplicationService : ILSPApplicationService.Stub() {
       IBinder.DeathRecipient {
     /** Hot reload target ids owned by this process, keyed by module package name. */
     val targetIds = ConcurrentHashMap<String, Long>()
+
+    /** Set once while the process bootstraps; null until then, and for legacy-only processes. */
+    @Volatile var hotReloadBinder: IHotReloadTarget? = null
 
     init {
       heartBeat.linkToDeath(this, 0)
@@ -130,6 +134,16 @@ object ApplicationService : ILSPApplicationService.Stub() {
   }
 
   fun endHotReload(target: HotReloadTarget, state: Int) = target.state.set(state)
+
+  /** The reload entry point of the process holding [target], or null if it never registered one. */
+  fun getHotReloadBinder(target: HotReloadTarget): IHotReloadTarget? =
+      processes[ProcessKey(target.uid, target.pid)]?.hotReloadBinder
+
+  override fun registerHotReloadTarget(target: IHotReloadTarget) {
+    val info = ensureRegistered()
+    info.hotReloadBinder = target
+    Log.d(TAG, "Hot reload target registered for ${info.processName} (pid=${info.key.pid})")
+  }
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
     when (code) {

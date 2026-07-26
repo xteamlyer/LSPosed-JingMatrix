@@ -30,6 +30,9 @@ object VectorLifecycleManager {
         }
     }
 
+    /** Whether [module] still receives callbacks, i.e. has not detached. */
+    fun isActive(module: XposedModule): Boolean = activeModules.contains(module)
+
     fun dispatchPackageLoaded(
         packageName: String,
         appInfo: ApplicationInfo,

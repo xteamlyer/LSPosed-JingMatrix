@@ -20,9 +20,16 @@ import org.matrix.vector.nativebridge.HookBridge
  *
  * [moduleId] identifies the owning module so hook ids can be isolated between modules; it is null for
  * framework-internal hooks, which never use ids.
+ *
+ * [frozen] reports whether the generation that created this builder has been retired by a hot
+ * reload. It gates registration only: the handles a frozen generation already holds keep working, as
+ * `onHotReloading` requires modules to unregister from inside the callback.
  */
-class VectorHookBuilder(private val origin: Executable, private val moduleId: Any? = null) :
-    HookBuilder {
+class VectorHookBuilder(
+    private val origin: Executable,
+    private val moduleId: Any? = null,
+    private val frozen: (() -> Boolean)? = null,
+) : HookBuilder {
 
     private var priority = XposedInterface.PRIORITY_DEFAULT
     private var exceptionMode = ExceptionMode.DEFAULT
@@ -37,6 +44,11 @@ class VectorHookBuilder(private val origin: Executable, private val moduleId: An
     override fun setId(id: String?): HookBuilder = apply { this.id = id }
 
     override fun intercept(hooker: Hooker): HookHandle {
+        if (frozen?.invoke() == true) {
+            throw IllegalStateException(
+                "This module generation has been retired by a hot reload and cannot register hooks"
+            )
+        }
         if (Modifier.isAbstract(origin.modifiers)) {
             throw IllegalArgumentException("Cannot hook abstract methods: $origin")
         } else if (origin.declaringClass.classLoader == VectorHookBuilder::class.java.classLoader) {
@@ -83,6 +95,7 @@ class VectorHookBuilder(private val origin: Executable, private val moduleId: An
                 idRegistry.remove(key, candidate)
                 throw HookFailedError("Cannot hook $origin")
             }
+            track(candidate)
             return handleFor(candidate, candidate.epoch.get())
         }
 
@@ -95,44 +108,104 @@ class VectorHookBuilder(private val origin: Executable, private val moduleId: An
             throw HookFailedError("Cannot hook $origin")
         }
 
+        track(record)
         return handleFor(record, record.epoch.get())
     }
 
-    /**
-     * Creates a handle bound to [record] and the epoch at which it became valid. The handle is stale
-     * once the record is replaced (epoch moves on) or unhooked.
-     */
+    /** Records an installed hook against its owning module. Framework hooks have no module. */
+    private fun track(record: VectorHookRecord) {
+        val moduleId = this.moduleId ?: return
+        moduleHooks
+            .computeIfAbsent(moduleId) { ConcurrentHashMap.newKeySet() }
+            .add(InstalledHook(origin, record))
+    }
+
     private fun handleFor(record: VectorHookRecord, epoch: Int): HookHandle =
-        object : HookHandle {
-            override fun getExecutable(): Executable = origin
-
-            override fun getId(): String? = record.id
-
-            override fun unhook() {
-                if (record.installed.compareAndSet(true, false)) {
-                    HookBridge.unhookMethod(true, origin, record)
-                    record.id?.let { idRegistry.remove(IdKey(moduleId, origin, it), record) }
-                }
-            }
-
-            override fun replaceHook(hooker: Hooker): HookHandle {
-                // Valid only while still installed and no replacement happened since this handle.
-                // The epoch CAS also makes concurrent replacements from the same handle mutually
-                // exclusive.
-                if (!record.installed.get() || !record.epoch.compareAndSet(epoch, epoch + 1)) {
-                    throw IllegalStateException("Hook handle is no longer valid")
-                }
-                record.hooker = hooker
-                return handleFor(record, epoch + 1)
-            }
-        }
+        handleFor(origin, moduleId, record, epoch)
 
     companion object {
         // Registry of id-bearing hooks keyed by (module, executable, id). Lets a repeated intercept()
         // with an already-registered id reuse the installed record. Ids are isolated per module.
         private val idRegistry = ConcurrentHashMap<IdKey, VectorHookRecord>()
+
+        // Hooks a module currently has installed, so a hot reload can hand the old generation's
+        // handles to the new one and can unhook a new generation that failed to take over.
+        private val moduleHooks = ConcurrentHashMap<Any, MutableSet<InstalledHook>>()
+
+        /**
+         * Creates a handle bound to [record] and the epoch at which it became valid. The handle is
+         * stale once the record is replaced (epoch moves on) or unhooked.
+         */
+        private fun handleFor(
+            origin: Executable,
+            moduleId: Any?,
+            record: VectorHookRecord,
+            epoch: Int,
+        ): HookHandle =
+            object : HookHandle {
+                override fun getExecutable(): Executable = origin
+
+                override fun getId(): String? = record.id
+
+                override fun unhook() {
+                    if (record.installed.compareAndSet(true, false)) {
+                        HookBridge.unhookMethod(true, origin, record)
+                        record.id?.let { idRegistry.remove(IdKey(moduleId, origin, it), record) }
+                        moduleId?.let {
+                            moduleHooks[it]?.remove(InstalledHook(origin, record))
+                        }
+                    }
+                }
+
+                override fun replaceHook(hooker: Hooker): HookHandle {
+                    // Valid only while still installed and no replacement happened since this
+                    // handle. The epoch CAS also makes concurrent replacements from the same handle
+                    // mutually exclusive.
+                    if (!record.installed.get() || !record.epoch.compareAndSet(epoch, epoch + 1)) {
+                        throw IllegalStateException("Hook handle is no longer valid")
+                    }
+                    record.hooker = hooker
+                    return handleFor(origin, moduleId, record, epoch + 1)
+                }
+            }
+
+        /**
+         * Fresh handles for every hook [moduleId] currently has installed. Handles are minted at the
+         * current epoch so the receiver can still replace them, which is what hot reload hands to
+         * `HotReloadedParam.getOldHookHandles()`.
+         */
+        fun snapshotHandles(moduleId: Any): List<HookHandle> =
+            moduleHooks[moduleId]
+                ?.filter { it.record.installed.get() }
+                ?.map { handleFor(it.origin, moduleId, it.record, it.record.epoch.get()) }
+                ?: emptyList()
+
+        /**
+         * Drops the framework-owned registrations of a module generation. The id registry
+         * strongly references hook records and through them the module classloader, so a hot reload
+         * that skipped this would leak one classloader per generation.
+         *
+         * Hooks themselves stay installed; hot reload hands their handles to the new generation.
+         */
+        fun releaseModule(moduleId: Any) {
+            idRegistry.keys.removeIf { it.moduleId == moduleId }
+            moduleHooks.remove(moduleId)
+        }
+
+        /** Unhooks everything currently tracked for [moduleId] and forgets it. */
+        fun unhookAll(moduleId: Any) {
+            moduleHooks.remove(moduleId)?.forEach { hook ->
+                if (hook.record.installed.compareAndSet(true, false)) {
+                    HookBridge.unhookMethod(true, hook.origin, hook.record)
+                }
+            }
+            idRegistry.keys.removeIf { it.moduleId == moduleId }
+        }
     }
 }
+
+/** An installed hook and the executable it was installed on. */
+private data class InstalledHook(val origin: Executable, val record: VectorHookRecord)
 
 /** Registry key scoping a hook id to its owning module and executable. */
 private data class IdKey(val moduleId: Any?, val executable: Executable, val id: String)
