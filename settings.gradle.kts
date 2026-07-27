@@ -19,7 +19,6 @@ dependencyResolutionManagement {
 rootProject.name = "Vector"
 
 include(
-    ":app",
     ":daemon",
     ":dex2oat",
     ":external:axml",
