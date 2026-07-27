@@ -28,3 +28,11 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# androidx.window compiles against the OEM window extensions and the older sidecar
+# interface. Neither ships in the SDK — they are provided by the device at runtime, and
+# on a device that has neither the library falls back — so R8 sees the references as
+# unresolvable and refuses to complete. The navigation suite scaffold pulls the library
+# in, so the manager inherits them whether or not it ever asks about a folding screen.
+-dontwarn androidx.window.extensions.**
+-dontwarn androidx.window.sidecar.**
