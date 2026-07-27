@@ -15,6 +15,9 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Vector: fully disable LOGV/D/I/W/E/F/PLOGE (see logging.h).
+target_compile_definitions(${PROJECT_NAME} PRIVATE LOG_DISABLED)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE lsplant_static dex_builder_static android log)
 
 if (DEFINED DEBUG_SYMBOLS_PATH)

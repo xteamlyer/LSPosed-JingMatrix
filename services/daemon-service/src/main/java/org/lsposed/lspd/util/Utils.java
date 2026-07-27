@@ -41,11 +41,10 @@ public class Utils {
         public static final int ERROR = android.util.Log.ERROR;
         public static final int ASSERT = android.util.Log.ASSERT;
 
-        public static boolean muted = false;
+        public static boolean muted = true;
 
         public static void println(int priority, String tag, String msg) {
-            // Respect the muted flag for everything except ERROR/ASSERT
-            if (muted && priority < android.util.Log.ERROR) return;
+            if (muted) return;
             android.util.Log.println(priority, tag, msg);
         }
 
@@ -91,10 +90,12 @@ public class Utils {
         }
 
         public static void e(String tag, String msg) {
+            if (muted) return;
             android.util.Log.e(tag, msg);
         }
 
         public static void e(String tag, String msg, Throwable tr) {
+            if (muted) return;
             android.util.Log.e(tag, msg, tr);
         }
 
