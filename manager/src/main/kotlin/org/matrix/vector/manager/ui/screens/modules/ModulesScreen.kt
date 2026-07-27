@@ -100,6 +100,7 @@ import org.matrix.vector.manager.ui.components.SnackbarTone
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
 import org.matrix.vector.manager.ui.components.show
 import org.matrix.vector.manager.ui.components.PackageActionResult
+import org.matrix.vector.manager.ui.components.PanelHeader
 import org.matrix.vector.manager.ui.components.SearchField
 import org.matrix.vector.manager.ui.theme.VectorMono
 import androidx.compose.material3.Surface
@@ -541,50 +542,39 @@ private fun ModulesHeader(
     onRestore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 10.dp, top = 20.dp, bottom = 14.dp),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Text(
-            text = stringResource(R.string.nav_modules),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f),
-        )
-        // Both actions shown rather than hidden behind an overflow. There are exactly two, they
-        // are opposites, and a menu that holds two items costs a tap to tell you what a glance
-        // could. The count sits beneath them so the right edge carries one idea — the state of
-        // the collection, and what you can do with it.
-        Column(horizontalAlignment = Alignment.End) {
-            Row {
-                IconButton(onClick = onRestore) {
-                    Icon(
-                        Icons.Rounded.Restore,
-                        contentDescription = stringResource(R.string.modules_restore),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                IconButton(onClick = onBackup) {
-                    Icon(
-                        Icons.Rounded.Backup,
-                        contentDescription = stringResource(R.string.modules_backup),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+    PanelHeader(
+        title = stringResource(R.string.nav_modules),
+        modifier = modifier,
+        actions = {
+            // Both shown rather than hidden behind an overflow. There are exactly two, they are
+            // opposites, and a menu holding two items costs a tap to say what a glance could.
+            IconButton(onClick = onRestore) {
+                Icon(
+                    Icons.Rounded.Restore,
+                    contentDescription = stringResource(R.string.modules_restore),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+            IconButton(onClick = onBackup) {
+                Icon(
+                    Icons.Rounded.Backup,
+                    contentDescription = stringResource(R.string.modules_backup),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        // Under the icons, so the right edge carries one idea: the state of the collection and
+        // what can be done with it.
+        endSubtitle = {
             if (total > 0) {
                 Text(
                     text = stringResource(R.string.modules_active_of, active, total),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 10.dp),
                 )
             }
-        }
-    }
+        },
+    )
 }
 
 /**

@@ -116,6 +116,7 @@ import org.matrix.vector.manager.BuildConfig
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.ui.theme.VectorLogLine
 import org.matrix.vector.manager.data.log.LogLevel
+import org.matrix.vector.manager.ui.components.PanelHeader
 import org.matrix.vector.manager.ui.components.SearchField
 import org.matrix.vector.manager.ui.theme.VectorMono
 
@@ -198,24 +199,21 @@ fun LogsScreen(viewModel: LogsViewModel = viewModel(factory = LogsViewModelFacto
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbars) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    // The title block is the one horizontal surface on this screen with no other
-                    // claim on a drag — the list pans, the rows select — so the swipe lives here
-                    // rather than over the log, where it had to be fenced into a corner to stop it
-                    // firing by accident.
-                    Column(
-                        Modifier.partSwipe(currentState) { viewModel.selectPart(currentTab, it) }
-                    ) {
-                        Text(stringResource(R.string.logs_title))
-                        WindowCounter(currentState) { viewModel.selectPart(currentTab, it) }
-                    }
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            // The same header the other two list panels use, so the search field below it does not
+            // move when the tab does. It used to be a TopAppBar, which is a different height again.
+            PanelHeader(
+                title = stringResource(R.string.logs_title),
+                modifier =
+                    Modifier.partSwipe(currentState) { viewModel.selectPart(currentTab, it) },
+                startSubtitle = {
+                    WindowCounter(currentState) { viewModel.selectPart(currentTab, it) }
                 },
                 actions = {
                     // Selected, not shouted. A filled accent with a shadow made a reading
-                    // preference look like the most important control in the bar; a quiet neutral
-                    // container says pressed-in without competing with anything.
+                    // preference look like the most important control on the screen; a quiet
+                    // neutral container says pressed-in without competing with anything.
                     FilledIconToggleButton(
                         checked = wordWrap,
                         onCheckedChange = { viewModel.setWordWrap(it) },
@@ -241,9 +239,6 @@ fun LogsScreen(viewModel: LogsViewModel = viewModel(factory = LogsViewModelFacto
                     }
                 },
             )
-        },
-    ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             LogPane(
                 tab = currentTab,
                 viewModel = viewModel,
@@ -363,7 +358,8 @@ private fun LogPane(
             query = state.query.text,
             onQueryChange = { viewModel.setQuery(tab, it) },
             placeholder = stringResource(R.string.logs_search_hint),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            // Identical to the other panels, so the field does not shift when the tab does.
+            modifier = Modifier.padding(horizontal = 16.dp),
             trailing = {
                 LogSourceToggle(tab = tab, onSelect = onSelectTab)
                 IconButton(

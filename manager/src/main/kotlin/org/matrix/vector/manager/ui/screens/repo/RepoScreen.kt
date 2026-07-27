@@ -58,6 +58,7 @@ import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.StoreCatalog
 import org.matrix.vector.manager.data.model.StoreEntry
 import org.matrix.vector.manager.di.ServiceLocator
+import org.matrix.vector.manager.ui.components.PanelHeader
 import org.matrix.vector.manager.ui.components.SearchField
 import org.matrix.vector.manager.ui.theme.VectorMono
 
@@ -154,60 +155,34 @@ fun RepoScreen(
 @Composable
 private fun StoreHeader(catalog: StoreCatalog, updates: Int) {
     val context = LocalContext.current
-    Column(
-        modifier =
-            Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 14.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.nav_store),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Medium,
-        )
-        if (catalog.modules.isNotEmpty()) {
-            val total =
-                context.resources.getQuantityString(
-                    R.plurals.store_module_count,
-                    catalog.modules.size,
-                    catalog.modules.size,
-                )
-            // "Up to date" is stated in words rather than as a zero, because a zero in a row of
-            // counts reads as a failure to load rather than as good news.
-            val state =
-                if (updates > 0)
+    PanelHeader(
+        title = stringResource(R.string.nav_store),
+        startSubtitle = {
+            if (catalog.modules.isNotEmpty()) {
+                val total =
                     context.resources.getQuantityString(
-                        R.plurals.store_update_count,
-                        updates,
-                        updates,
+                        R.plurals.store_module_count,
+                        catalog.modules.size,
+                        catalog.modules.size,
                     )
-                else stringResource(R.string.store_all_current)
-            Text(
-                text = "$total  ·  $state",
-                style = MaterialTheme.typography.bodyMedium,
-                color =
-                    if (updates > 0) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (catalog.fromCache) {
-            // The quiet line Home shows, for the same reason: this is not an error, it is last
-            // week's catalogue, which is almost all of this week's.
-            Spacer(Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Rounded.CloudOff,
-                    contentDescription = null,
-                    modifier = Modifier.height(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.width(6.dp))
+                // "Up to date" is stated in words rather than as a zero, because a zero in a row
+                // of counts reads as a failure to load rather than as good news.
+                val state =
+                    if (updates > 0)
+                        context.resources.getQuantityString(
+                            R.plurals.store_update_count,
+                            updates,
+                            updates,
+                        )
+                    else stringResource(R.string.store_all_current)
                 Text(
-                    text = stringResource(R.string.store_offline),
-                    style = MaterialTheme.typography.labelSmall,
+                    text = "$total  ·  $state",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        }
-    }
+        },
+    )
 }
 
 /**

@@ -186,7 +186,9 @@ private fun EntryRow(
     var framesOpen by remember { mutableStateOf(false) }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     val accent = levelColor(entry.level)
-    val railWidth = with(LocalDensity.current) { 3.dp.toPx() }
+    // Wide enough to read as a colour rather than as a hairline, narrow enough to stay a
+    // margin rather than a column.
+    val railWidth = with(LocalDensity.current) { 4.5.dp.toPx() }
 
     val muted = MaterialTheme.colorScheme.outline
     val tagBackground = MaterialTheme.colorScheme.secondaryContainer
