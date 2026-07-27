@@ -32,7 +32,12 @@ apksign {
     keyPasswordProperty = "androidKeyPassword"
 }
 
-val defaultManagerPackageName: String by rootProject.extra
+// The legacy manager keeps its own package name rather than following
+// rootProject.extra["defaultManagerPackageName"], which now points at the Compose
+// rewrite in :manager. Pinning it here keeps :app buildable and separately
+// installable alongside :manager for A/B comparison during the transition; its
+// Java sources live in org.lsposed.manager, so the namespace must match them.
+val legacyManagerPackageName = "org.lsposed.manager"
 
 android {
     buildFeatures {
@@ -41,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = defaultManagerPackageName
+        applicationId = legacyManagerPackageName
         buildConfigField("long", "BUILD_TIME", Instant.now().epochSecond.toString())
     }
 
@@ -67,7 +72,7 @@ android {
     }
 
     sourceSets { named("main") { res { srcDirs("src/common/res") } } }
-    namespace = defaultManagerPackageName
+    namespace = legacyManagerPackageName
 }
 
 // Generate the translated-locale list and the Material accent-color theme overlays at build time

@@ -11,6 +11,11 @@ import org.gradle.process.ExecOperations
 plugins {
     alias(libs.plugins.agp.lib) apply false
     alias(libs.plugins.agp.app) apply false
+    // Declaring the Kotlin plugin here pins the version on the buildscript classpath for
+    // every module. AGP 9 otherwise supplies its own, older Kotlin, and a module that
+    // asks for a specific version fails with "already on the classpath with an unknown
+    // version". The Compose stack in :manager needs the newer compiler.
+    alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.ktfmt)
 }
 
@@ -60,7 +65,7 @@ val versionNameProvider by extra(providers.of(GitLatestTagValueSource::class.jav
 
 val injectedPackageName by extra("com.android.shell")
 val injectedPackageUid by extra(2000)
-val defaultManagerPackageName by extra("org.lsposed.manager")
+val defaultManagerPackageName by extra("org.matrix.vector.manager")
 
 val androidTargetSdkVersion by extra(37)
 val androidMinSdkVersion by extra(27)
@@ -165,6 +170,7 @@ tasks.register<KtfmtFormatTask>("format") {
     // :daemon:ktfmtFormat, which formats the daemon (scripts included) in Meta style.
     exclude("daemon/**")
     dependsOn(":daemon:ktfmtFormat")
+    dependsOn(":manager:ktfmtFormat")
     dependsOn(":xposed:ktfmtFormat")
     dependsOn(":zygisk:ktfmtFormat")
 }

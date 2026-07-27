@@ -23,35 +23,37 @@ plugins {
 }
 
 android {
-  defaultConfig {
-    buildConfigField(
-        "String",
-        "DEFAULT_MANAGER_PACKAGE_NAME",
-        """"$defaultManagerPackageName"""",
-    )
-    buildConfigField("String", "FRAMEWORK_NAME", """"${rootProject.name}"""")
-    buildConfigField("String", "MANAGER_INJECTED_PKG_NAME", """"$injectedPackageName"""")
-    buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
-    buildConfigField("String", "VERSION_NAME", """"${versionNameProvider.get()}"""")
-    buildConfigField("long", "VERSION_CODE", versionCodeProvider.get())
+    defaultConfig {
+        buildConfigField(
+            "String",
+            "DEFAULT_MANAGER_PACKAGE_NAME",
+            """"$defaultManagerPackageName"""",
+        )
+        buildConfigField("String", "FRAMEWORK_NAME", """"${rootProject.name}"""")
+        buildConfigField("String", "MANAGER_INJECTED_PKG_NAME", """"$injectedPackageName"""")
+        buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
+        buildConfigField("String", "VERSION_NAME", """"${versionNameProvider.get()}"""")
+        buildConfigField("long", "VERSION_CODE", versionCodeProvider.get())
 
-    val cliToken = UUID.randomUUID()
-    // Inject the MSB and LSB as Long constants
-    buildConfigField("Long", "CLI_TOKEN_MSB", "${cliToken.mostSignificantBits}L")
-    buildConfigField("Long", "CLI_TOKEN_LSB", "${cliToken.leastSignificantBits}L")
-  }
-
-  buildTypes {
-    all { externalNativeBuild { cmake { arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true" } } }
-    release {
-      isMinifyEnabled = true
-      proguardFiles("proguard-rules.pro")
+        val cliToken = UUID.randomUUID()
+        // Inject the MSB and LSB as Long constants
+        buildConfigField("Long", "CLI_TOKEN_MSB", "${cliToken.mostSignificantBits}L")
+        buildConfigField("Long", "CLI_TOKEN_LSB", "${cliToken.leastSignificantBits}L")
     }
-  }
 
-  externalNativeBuild { cmake { path("src/main/jni/CMakeLists.txt") } }
+    buildTypes {
+        all {
+            externalNativeBuild { cmake { arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true" } }
+        }
+        release {
+            isMinifyEnabled = true
+            proguardFiles("proguard-rules.pro")
+        }
+    }
 
-  namespace = "org.matrix.vector.daemon"
+    externalNativeBuild { cmake { path("src/main/jni/CMakeLists.txt") } }
+
+    namespace = "org.matrix.vector.daemon"
 }
 
 /**
@@ -107,10 +109,10 @@ androidComponents {
 
     val signInfoTask =
         tasks.register<GenerateSignInfoTask>("generate${variantCapped}SignInfo") {
-          dependsOn(":app:validateSigning${variantCapped}")
+          dependsOn(":manager:validateSigning${variantCapped}")
           val sign =
               rootProject
-                  .project(":app")
+                  .project(":manager")
                   .extensions
                   .getByType(ApplicationExtension::class.java)
                   .buildTypes
@@ -132,15 +134,15 @@ androidComponents {
 }
 
 dependencies {
-  implementation(libs.agp.apksig)
-  implementation(libs.gson)
-  implementation(libs.picocli)
-  implementation(libs.kotlinx.coroutines.android)
-  implementation(libs.kotlinx.coroutines.core)
-  implementation(projects.external.apache)
-  implementation(projects.hiddenapi.bridge)
-  implementation(projects.services.daemonService)
-  implementation(projects.services.managerService)
-  compileOnly(libs.androidx.annotation)
-  compileOnly(projects.hiddenapi.stubs)
+    implementation(libs.agp.apksig)
+    implementation(libs.gson)
+    implementation(libs.picocli)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(projects.external.apache)
+    implementation(projects.hiddenapi.bridge)
+    implementation(projects.services.daemonService)
+    implementation(projects.services.managerService)
+    compileOnly(libs.androidx.annotation)
+    compileOnly(projects.hiddenapi.stubs)
 }
