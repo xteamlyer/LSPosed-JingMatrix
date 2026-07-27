@@ -487,6 +487,39 @@ object FileSystem {
     return "${prefix}_${formatter.format(Instant.now())}.log"
   }
 
+  /**
+   * The parts still on disk for one of the two logs, oldest first.
+   *
+   * Read from the directory rather than from LogcatMonitor's LRU so that a manager opened after a
+   * daemon restart still sees the history: the LRU is rebuilt empty, the files are not.
+   */
+  fun listLogParts(verbose: Boolean): List<String> {
+    val prefix = if (verbose) "verbose_" else "modules_"
+    return runCatching {
+          logDirPath
+              .toFile()
+              .listFiles { file -> file.isFile && file.name.startsWith(prefix) && file.name.endsWith(".log") }
+              ?.map { it.name }
+              // The names carry an ISO-8601 timestamp, so lexicographic order is chronological.
+              ?.sorted()
+              .orEmpty()
+        }
+        .getOrDefault(emptyList())
+  }
+
+  /**
+   * Opens one part by name.
+   *
+   * The name arrives from an unprivileged process and is used to build a path inside a directory
+   * only root can read, so it is never trusted: it has to be one of the names [listLogParts] just
+   * returned, which rules out traversal and anything outside the log directory by construction
+   * rather than by pattern-matching for "..".
+   */
+  fun openLogPart(verbose: Boolean, name: String): File? {
+    if (name !in listLogParts(verbose)) return null
+    return logDirPath.resolve(name).toFile().takeIf { it.isFile }
+  }
+
   fun getNewVerboseLogPath(): File {
     createLogDirPath()
     return logDirPath.resolve(getNewLogFileName("verbose")).toFile()

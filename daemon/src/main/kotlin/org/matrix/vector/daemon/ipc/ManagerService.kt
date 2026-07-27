@@ -147,7 +147,7 @@ object ManagerService : ILSPManagerService.Stub() {
           }
 
           intent.categories?.clear()
-          intent.addCategory("org.lsposed.manager.LAUNCH_MANAGER")
+          intent.addCategory("${BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME}.LAUNCH_MANAGER")
           intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME)
           managerIntent = Intent(intent)
         }
@@ -233,12 +233,24 @@ object ManagerService : ILSPManagerService.Stub() {
 
   override fun getModuleScope(packageName: String) = ConfigCache.getModuleScope(packageName)
 
-  override fun isVerboseLog() = PreferenceStore.isVerboseLogEnabled() || BuildConfig.DEBUG
+  // Reports the setting, not the setting OR'd with the build type. It used to be
+  // `|| BuildConfig.DEBUG`, which made the value unwritable on a debug daemon: the manager could
+  // never read false, so its switch snapped back on every tap and had to be greyed out. The OR was
+  // redundant anyway — `isVerboseLogEnabled()` already defaults to true — so a debug build still
+  // logs verbosely out of the box, and now a developer can also turn it off.
+  override fun isVerboseLog() = PreferenceStore.isVerboseLogEnabled()
 
   override fun setVerboseLog(enabled: Boolean) {
     PreferenceStore.setVerboseLog(enabled)
     if (isVerboseLog()) LogcatMonitor.startVerbose() else LogcatMonitor.stopVerbose()
   }
+
+  override fun getLogParts(verbose: Boolean): List<String> = FileSystem.listLogParts(verbose)
+
+  override fun getLogPart(verbose: Boolean, name: String): ParcelFileDescriptor? =
+      FileSystem.openLogPart(verbose, name)?.let {
+        ParcelFileDescriptor.open(it, ParcelFileDescriptor.MODE_READ_ONLY)
+      }
 
   override fun getVerboseLog() =
       LogcatMonitor.getVerboseLog()?.let {

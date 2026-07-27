@@ -32,6 +32,17 @@ interface ILSPManagerService {
 
     ParcelFileDescriptor getModulesLog() = 17;
 
+    /**
+     * The rotated log parts the daemon still holds, oldest first, as bare file names.
+     *
+     * getVerboseLog()/getModulesLog() only ever hand over the part being written. The daemon keeps
+     * ten, so on a device that has been logging for an hour most of the history was unreachable.
+     */
+    List<String> getLogParts(boolean verbose) = 53;
+
+    /** Opens one part by the name getLogParts() returned. Any other name is refused. */
+    ParcelFileDescriptor getLogPart(boolean verbose, String name) = 54;
+
     long getXposedVersionCode() = 18;
 
     String getXposedVersionName() = 19;
