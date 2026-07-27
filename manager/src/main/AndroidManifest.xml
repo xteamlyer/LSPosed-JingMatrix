@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Note that parasitically NONE of this is installed: the manager is injected into the
+  host process, so no component declared here exists at runtime and no permission
+  listed here is granted — the host's are what apply. This manifest governs the
+  standalone install used for development, and the LAUNCH_MANAGER category below is
+  what ParasiticManagerSystemHooker matches on to redirect the activity.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The module store and the GitHub activity feed on Home. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Required from API 33 for the framework's status notification toggle to do anything. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Installing a module downloaded from the store. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- The module and scope lists have to see every installed package, not just launchable ones. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:enableOnBackInvokedCallback="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Vector">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.Vector">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="org.matrix.vector.manager.LAUNCH_MANAGER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Lets the system Settings app surface Vector under an app's preferences entry. -->
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
