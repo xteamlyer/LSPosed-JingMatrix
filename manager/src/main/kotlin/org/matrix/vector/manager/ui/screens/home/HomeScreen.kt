@@ -1,0 +1,598 @@
+package org.matrix.vector.manager.ui.screens.home
+
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.CallSplit
+import androidx.compose.material.icons.rounded.BugReport
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.VolunteerActivism
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import java.text.DateFormat
+import java.util.Date
+import kotlinx.coroutines.launch
+import org.matrix.vector.manager.R
+import org.matrix.vector.manager.di.ServiceLocator
+import org.matrix.vector.manager.ui.components.VectorSnackbarHost
+import org.matrix.vector.manager.ui.components.show
+import org.matrix.vector.manager.data.github.CommunityFeed
+import org.matrix.vector.manager.data.github.FeedItem
+import org.matrix.vector.manager.data.github.FeedLayout
+import org.matrix.vector.manager.data.github.Contributor
+import org.matrix.vector.manager.data.github.GitHubRepository
+import org.matrix.vector.manager.data.github.TimelineCommit
+import org.matrix.vector.manager.ui.components.BotBundleRow
+import org.matrix.vector.manager.ui.components.CommitRow
+import org.matrix.vector.manager.ui.components.InstalledMarkerRow
+import org.matrix.vector.manager.ui.components.MonthMarkerRow
+import org.matrix.vector.manager.ui.components.GapRow
+import org.matrix.vector.manager.ui.components.ContributorAvatar
+import org.matrix.vector.manager.ui.components.GitHubSignInCard
+import org.matrix.vector.manager.ui.components.TakePartSection
+import org.matrix.vector.manager.ui.components.StatusHeader
+import org.matrix.vector.manager.ui.components.ambience.AmbienceKind
+import org.matrix.vector.manager.ui.screens.splash.WingedVictory
+import org.matrix.vector.manager.ui.components.compactCount
+import org.matrix.vector.manager.ui.theme.VectorMono
+
+/**
+ * Home is the front page of the *project*, not only of the app.
+ *
+ * A framework manager is opened by every user, and Vector is built by volunteers, so this screen
+ * spends its space on the two questions that matter on opening it: is the framework healthy (one
+ * line), and what has the project been doing (everything else). The legacy manager spent the whole
+ * screen restating the first.
+ *
+ * The window is a fixed quarter rather than "the latest N commits". In a quiet quarter the page
+ * honestly reads *7 commits by 4 people*, which is real information about the project; a rolling N
+ * would hide that.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    onOpenStatus: () -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onOpenCanary: () -> Unit,
+    onOpenReport: () -> Unit,
+    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
+) {
+    val status by viewModel.status.collectAsStateWithLifecycle()
+    val feed by viewModel.feed.collectAsStateWithLifecycle()
+    val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val signIn by viewModel.signInState.collectAsStateWithLifecycle()
+    val openExternally by viewModel.openLinksExternally.collectAsStateWithLifecycle()
+    val feedItems by viewModel.feedItems.collectAsStateWithLifecycle()
+    val ambienceKey by viewModel.headerAmbience.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    var showSplash by rememberSaveable { mutableStateOf(false) }
+    var showAppearance by rememberSaveable { mutableStateOf(false) }
+
+    // Four taps on the wordmark. The count is announced from the second one, because a secret
+    // nobody can find is not an easter egg — it is dead code. Two taps could be an accident;
+    // by the second the user is clearly poking at it, so the app plays along.
+    var brandTaps by remember { mutableStateOf(0) }
+    var lastBrandTapAt by remember { mutableStateOf(0L) }
+    val twoMore = stringResource(R.string.egg_two_more)
+    val oneMore = stringResource(R.string.egg_one_more)
+    val haptics = LocalHapticFeedback.current
+    val snackbars = remember { SnackbarHostState() }
+    val eggScope = rememberCoroutineScope()
+
+    fun onBrandTap() {
+        val now = System.currentTimeMillis()
+        brandTaps = if (now - lastBrandTapAt > BRAND_TAP_WINDOW_MS) 1 else brandTaps + 1
+        lastBrandTapAt = now
+        when (brandTaps) {
+            // The app's own snackbar, not a platform toast. A toast is drawn by the system in
+            // the system's style and ignores the theme entirely, which on a screen whose whole
+            // point is the surface underneath it looked like a message from another app.
+            2 -> eggScope.launch { snackbars.show(twoMore) }
+            3 -> eggScope.launch { snackbars.show(oneMore) }
+            BRAND_TAPS_TO_SUMMON -> {
+                brandTaps = 0
+                lastBrandTapAt = 0L
+                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                showSplash = true
+            }
+        }
+    }
+
+    // Every GitHub link goes through the in-app viewer by default; the setting sends them to a
+    // browser instead for users who would rather stay in one.
+    fun open(url: String) {
+        if (openExternally) {
+            try {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            } catch (_: ActivityNotFoundException) {
+                // No browser in the host process is a normal condition parasitically; falling
+                // back to the built-in viewer beats doing nothing on a link tap.
+                onOpenUrl(url)
+            }
+        } else {
+            onOpenUrl(url)
+        }
+    }
+
+    Scaffold(
+        // The header draws its own status-bar inset so it can run under the bar; letting the
+        // Scaffold consume it here would leave a band of plain background above the pane.
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { VectorSnackbarHost(snackbars) },
+    ) { padding ->
+        val listState = rememberLazyListState()
+        var headerHeightPx by remember { mutableIntStateOf(0) }
+        val density = LocalDensity.current
+
+        // How far the feed has climbed into the header, 0 to 1. The header is not a list item —
+        // it is pinned behind one — so this is derived from the scroll position rather than from
+        // the header's own layout, which never moves.
+        val collapse by remember {
+            derivedStateOf {
+                when {
+                    headerHeightPx == 0 -> 0f
+                    listState.firstVisibleItemIndex > 0 -> 1f
+                    else ->
+                        (listState.firstVisibleItemScrollOffset / headerHeightPx.toFloat())
+                            .coerceIn(0f, 1f)
+                }
+            }
+        }
+
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            PullToRefreshBox(
+                isRefreshing = refreshing,
+                onRefresh = { viewModel.refreshFeed(GitHubRepository.Freshness.Force) },
+            ) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth(),
+                    // The feed starts below the header and scrolls up underneath it, which is
+                    // what lets the header get out of the way as the content arrives.
+                    contentPadding =
+                        PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = with(density) { headerHeightPx.toDp() } + 16.dp,
+                            bottom = 16.dp,
+                        ),
+                ) {
+                    // Everything short and actionable comes first. The activity rail is
+                    // open-ended — six months can be a hundred rows — so anything placed after it
+                    // is effectively unreachable without a long scroll.
+                    item {
+                        TakePartSection(
+                            onOpen = ::open,
+                            onCanary = onOpenCanary,
+                            onReport = onOpenReport,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        GitHubSignInCard(
+                            state = signIn,
+                            isConfigured = viewModel.isSignInConfigured,
+                            onSignIn = viewModel::signIn,
+                            onSignOut = viewModel::signOut,
+                            onCancel = viewModel::cancelSignIn,
+                            onOpen = ::open,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        ProjectFooter(feed = feed, onClick = { open(GitHubRepository.REPO_URL) })
+                        Spacer(Modifier.height(26.dp))
+                    }
+
+                    communitySection(
+                        feed = feed,
+                        items = feedItems,
+                        onOpenCommit = { c -> open(c.htmlUrl ?: GitHubRepository.REPO_URL) },
+                        onOpenPullRequest = { pr -> open("${GitHubRepository.REPO_URL}/pull/$pr") },
+                        onOpenProfile = { c -> open(c.profileUrl ?: GitHubRepository.REPO_URL) },
+                    )
+
+                    item { Spacer(Modifier.height(24.dp)) }
+                }
+            }
+
+            StatusHeader(
+                state = status.state,
+                version = status.versionLabel,
+                apiVersion = status.apiVersion,
+                ambience = AmbienceKind.from(ambienceKey),
+                onOpenStatus = onOpenStatus,
+                onOpenAppearance = { showAppearance = true },
+                onBrandTap = ::onBrandTap,
+                modifier =
+                    Modifier.onSizeChanged { headerHeightPx = it.height }
+                        .graphicsLayer {
+                            // Fades and drifts upward together, so the feed appears to pass over
+                            // it rather than to shove it off screen.
+                            alpha = 1f - collapse
+                            translationY = -collapse * headerHeightPx * 0.5f
+                        },
+            )
+        }
+    }
+
+    if (showAppearance) {
+        HomeAppearanceSheet(onDismiss = { showAppearance = false })
+    }
+
+    // Summoned by four taps on the wordmark. A dialog rather than an overlay inside the content,
+    // so it covers the navigation bar too — a splash framed by app chrome is not a splash.
+    if (showSplash) {
+        Dialog(
+            onDismissRequest = { showSplash = false },
+            properties =
+                DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = true),
+        ) {
+            Box(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            showSplash = false
+                        }
+            ) {
+                WingedVictory()
+            }
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(2800)
+                showSplash = false
+            }
+        }
+    }
+}
+
+/**
+ * The window's activity: a headline, the people, then the rail.
+ *
+ * People come before commits deliberately. The section exists to make participation visible, and
+ * faces do that faster than a list of subjects does.
+ */
+private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
+    feed: CommunityFeed,
+    items: List<FeedItem>,
+    onOpenCommit: (TimelineCommit) -> Unit,
+    onOpenPullRequest: (Int) -> Unit,
+    onOpenProfile: (Contributor) -> Unit,
+) {
+    item { QuarterHeadline(feed) }
+
+    if (feed.contributors.isNotEmpty()) {
+        item {
+            ContributorRow(contributors = feed.contributors, onClick = onOpenProfile)
+            Spacer(Modifier.height(20.dp))
+        }
+    }
+
+    items(items = items, key = { it.key() }) { entry ->
+        when (entry) {
+            is FeedItem.Commit ->
+                CommitRow(
+                    commit = entry.commit,
+                    isFirst = entry.isFirst,
+                    isLast = entry.isLast,
+                    onOpenCommit = onOpenCommit,
+                    onOpenPullRequest = onOpenPullRequest,
+                )
+            is FeedItem.Gap ->
+                GapRow(
+                    days = entry.days,
+                    heightDp = FeedLayout.railHeightDp(entry.days),
+                    showLabel = entry.days >= FeedLayout.QUIET_THRESHOLD_DAYS,
+                )
+            is FeedItem.InstalledMarker ->
+                InstalledMarkerRow(
+                    versionCode = entry.versionCode,
+                    commitsAhead = entry.commitsAhead,
+                    aheadOfMaster = entry.aheadOfMaster,
+                )
+            is FeedItem.MonthMarker ->
+                MonthMarkerRow(entry.label, entry.commits, entry.people)
+            is FeedItem.Bots -> BotBundle(count = entry.count, commits = entry.commits)
+        }
+    }
+}
+
+/** Stable identity per row, so a refresh does not rebuild the whole rail. */
+private fun FeedItem.key(): String =
+    when (this) {
+        is FeedItem.Commit -> "c:${commit.sha}"
+        is FeedItem.Gap -> "g:$afterSha"
+        is FeedItem.InstalledMarker -> "installed"
+        is FeedItem.MonthMarker -> "m:$label"
+        is FeedItem.Bots -> "bots"
+    }
+
+@Composable
+private fun BotBundle(count: Int, commits: List<TimelineCommit>) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    BotBundleRow(
+        count = count,
+        expanded = expanded,
+        onToggle = { expanded = !expanded },
+        isLast = true,
+    ) {
+        commits.forEach { c ->
+            Row(modifier = Modifier.padding(start = 36.dp, bottom = 10.dp)) {
+                Text(
+                    text = c.subject,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuarterHeadline(feed: CommunityFeed) {
+    val people = feed.contributors.size
+    val context = LocalContext.current
+    Column(Modifier.padding(bottom = 16.dp)) {
+        Text(
+            text = stringResource(R.string.home_quarter_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.height(2.dp))
+        if (!feed.loaded) {
+            Text(
+                text = stringResource(R.string.home_loading_activity),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else if (feed.isEmpty) {
+            Text(
+                text = stringResource(R.string.home_no_activity),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            val commits =
+                context.resources.getQuantityString(
+                    R.plurals.home_commit_count,
+                    feed.commitCount,
+                    feed.commitCount,
+                )
+            val by = context.resources.getQuantityString(R.plurals.home_people_count, people, people)
+            val since =
+                DateFormat.getDateInstance(DateFormat.MEDIUM)
+                    .format(Date(feed.windowStartEpochSeconds * 1000))
+            Text(
+                text = "$commits $by  ·  ${stringResource(R.string.home_since, since)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        // Three different situations, and only one of them is a failure. Home reads the feed from
+        // disk on most launches *on purpose* — the window moves a few times a week, and revalidating
+        // every time spends battery and rate limit to redraw identical rows — so reporting that as
+        // "could not reach GitHub" accused the network of something the app chose not to do.
+        if (feed.offline || feed.fromCache) {
+            Spacer(Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    if (feed.offline) Icons.Rounded.CloudOff else Icons.Rounded.Bedtime,
+                    contentDescription = null,
+                    modifier = Modifier.height(14.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text =
+                        stringResource(
+                            if (feed.offline) R.string.home_offline else R.string.home_resting
+                        ),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * How the contributor row is ordered.
+ *
+ * Recency is not a lesser ordering, it is a different kind of credit: by volume the maintainer is
+ * first forever and the row never moves, which is accurate and says nothing new; by recency the
+ * person who last landed something leads, and a first contribution is visible the day it happens.
+ * Both break ties with the other, so neither is ever arbitrary.
+ */
+enum class ContributorOrder(val key: String, val labelRes: Int) {
+    Commits("commits", R.string.home_contributors_by_commits),
+    Recent("recent", R.string.home_contributors_by_recent);
+
+    fun sort(people: List<Contributor>): List<Contributor> =
+        when (this) {
+            Commits ->
+                people.sortedWith(
+                    compareByDescending<Contributor> { it.commits }
+                        .thenByDescending { it.lastEpochSeconds }
+                        .thenBy { it.login }
+                )
+            Recent ->
+                people.sortedWith(
+                    compareByDescending<Contributor> { it.lastEpochSeconds }
+                        .thenByDescending { it.commits }
+                        .thenBy { it.login }
+                )
+        }
+
+    companion object {
+        fun from(key: String?): ContributorOrder = entries.firstOrNull { it.key == key } ?: Commits
+    }
+}
+
+/**
+ * The people of the quarter, the leader wreathed.
+ *
+ * Scoped to the window rather than all time on purpose: an all-time leaderboard is a monument and
+ * never changes, so nobody reads it twice. A quarterly one moves, and a first-time contributor
+ * appears on it immediately.
+ */
+@Composable
+private fun ContributorRow(contributors: List<Contributor>, onClick: (Contributor) -> Unit) {
+    // The preference is read here rather than threaded down from the screen: the row is emitted
+    // from a LazyListScope extension, which is not a composable and has no state to hand over.
+    // Sorting here also means changing the setting reorders the row immediately, with no re-fetch
+    // of a feed that has not changed.
+    val order =
+        ContributorOrder.from(
+            ServiceLocator.settings.contributorOrder.collectAsStateWithLifecycle().value
+        )
+    val people = remember(contributors, order) { order.sort(contributors) }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(people, key = { it.login }) { person ->
+            val leader = person == people.first()
+            // A co-author signed with a plain email address has no GitHub identity to open, so
+            // the row is dimmed and inert rather than offering a tap that goes nowhere. They are
+            // still shown and still counted — the credit is theirs either way.
+            val hasProfile = !person.profileUrl.isNullOrBlank()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier =
+                    Modifier.then(
+                            if (hasProfile) Modifier.clickable { onClick(person) } else Modifier
+                        )
+                        .alpha(if (hasProfile) 1f else 0.45f)
+                        .width(72.dp),
+            ) {
+                ContributorAvatar(
+                    login = person.login,
+                    avatarUrl = person.avatarUrl,
+                    size = 44.dp,
+                    laurelled = leader,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = person.login,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = person.commits.toString(),
+                    style = VectorMono,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProjectFooter(feed: CommunityFeed, onClick: () -> Unit) {
+    val repo = feed.repo ?: return
+    Box(
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        // Centred: it is a standing fact about the project rather than a list item, and centring
+        // reads as a footer rather than as one more left-aligned row in the stack above.
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FooterStat(Icons.Rounded.Star, compactCount(repo.stars))
+            FooterStat(Icons.AutoMirrored.Rounded.CallSplit, compactCount(repo.forks))
+            FooterStat(Icons.Rounded.BugReport, repo.openIssues.toString())
+            repo.license?.spdxId?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FooterStat(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            icon,
+            contentDescription = null,
+            modifier = Modifier.height(14.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** Taps must land within this window of each other to count towards the same run. */
+private const val BRAND_TAP_WINDOW_MS = 2600L
+
+private const val BRAND_TAPS_TO_SUMMON = 4
