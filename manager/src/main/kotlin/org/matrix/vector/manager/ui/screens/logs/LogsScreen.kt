@@ -207,8 +207,16 @@ fun LogsScreen(viewModel: LogsViewModel = viewModel(factory = LogsViewModelFacto
                 title = stringResource(R.string.logs_title),
                 modifier =
                     Modifier.partSwipe(currentState) { viewModel.selectPart(currentTab, it) },
-                startSubtitle = {
+                description = {
                     WindowCounter(currentState) { viewModel.selectPart(currentTab, it) }
+                },
+                search = {
+                    LogSearch(
+                        tab = currentTab,
+                        state = currentState,
+                        viewModel = viewModel,
+                        onSelectTab = { currentTab = it },
+                    )
                 },
                 actions = {
                     // Selected, not shouted. A filled accent with a shadow made a reading
@@ -309,7 +317,6 @@ private fun LogPane(
     val listState = rememberLazyListState()
     val pan = rememberLogPan()
     val context = LocalContext.current
-    var filterOpen by remember { mutableStateOf(false) }
 
     // The jump buttons float over the list, so the list has to end above them. Measured rather than
     // assumed — README §8 records a hardcoded bottom inset as a bug precisely because a constant
@@ -354,32 +361,6 @@ private fun LogPane(
     }
 
     Column(Modifier.fillMaxSize()) {
-        SearchField(
-            query = state.query.text,
-            onQueryChange = { viewModel.setQuery(tab, it) },
-            placeholder = stringResource(R.string.logs_search_hint),
-            // Identical to the other panels, so the field does not shift when the tab does.
-            modifier = Modifier.padding(horizontal = 16.dp),
-            trailing = {
-                LogSourceToggle(tab = tab, onSelect = onSelectTab)
-                IconButton(
-                    onClick = {
-                        filterOpen = true
-                        viewModel.loadFacets(tab)
-                    }
-                ) {
-                    Icon(
-                        Icons.Rounded.FilterList,
-                        contentDescription = stringResource(R.string.logs_filter),
-                        tint =
-                            if (state.query.levels.isNotEmpty() || state.query.tag != null)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                }
-            },
-        )
-
         // The active tag is stated once, here, instead of on every line — see the tag column in
         // LogRows, which disappears while this is showing.
         ActiveFilterRow(
@@ -459,15 +440,6 @@ private fun LogPane(
         }
     }
 
-    if (filterOpen) {
-        LogFilterSheet(
-            state = state,
-            onDismiss = { filterOpen = false },
-            onToggleLevel = { viewModel.toggleLevel(tab, it) },
-            onTag = { viewModel.setTag(tab, it) },
-            onClear = { viewModel.clearFilter(tab) },
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -560,6 +532,49 @@ private fun LogList(
 }
 
 
+
+/** The log search field, as the header's third row: query, source and filters together. */
+@Composable
+private fun LogSearch(
+    tab: LogTab,
+    state: LogPaneState,
+    viewModel: LogsViewModel,
+    onSelectTab: (LogTab) -> Unit,
+) {
+    var filterOpen by remember { mutableStateOf(false) }
+    SearchField(
+        query = state.query.text,
+        onQueryChange = { viewModel.setQuery(tab, it) },
+        placeholder = stringResource(R.string.logs_search_hint),
+        trailing = {
+            LogSourceToggle(tab = tab, onSelect = onSelectTab)
+            IconButton(
+                onClick = {
+                    filterOpen = true
+                    viewModel.loadFacets(tab)
+                }
+            ) {
+                Icon(
+                    Icons.Rounded.FilterList,
+                    contentDescription = stringResource(R.string.logs_filter),
+                    tint =
+                        if (state.query.levels.isNotEmpty() || state.query.tag != null)
+                            MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+    )
+    if (filterOpen) {
+        LogFilterSheet(
+            state = state,
+            onDismiss = { filterOpen = false },
+            onToggleLevel = { viewModel.toggleLevel(tab, it) },
+            onTag = { viewModel.setTag(tab, it) },
+            onClear = { viewModel.clearFilter(tab) },
+        )
+    }
+}
 
 /**
  * Which log is being read, as one button.

@@ -248,6 +248,7 @@ fun ModulesScreen(
                     onBackup = { backupLauncher.launch("vector-modules.bak") },
                     onRestore = { restoreLauncher.launch(arrayOf("*/*")) },
                     modifier = Modifier.alpha(if (selection.isEmpty()) 1f else 0f),
+                    search = { ModulesSearch(query, viewModel, filter, sort) },
                 )
                 if (selection.isNotEmpty()) {
                     SelectionBar(
@@ -270,20 +271,6 @@ fun ModulesScreen(
                         onUninstall = { confirmUninstall = true },
                     )
                 }
-            }
-
-            SearchField(
-                query = query,
-                onQueryChange = viewModel::setQuery,
-                placeholder = stringResource(R.string.modules_search_hint),
-                modifier = Modifier.padding(horizontal = 16.dp),
-            ) {
-                ModuleFilterButton(
-                    filter = filter,
-                    onFilterChange = viewModel::setFilter,
-                    sort = sort,
-                    onSortChange = viewModel::setSort,
-                )
             }
 
             // No blocking spinner: the pull-to-refresh indicator already reports the reload, and
@@ -475,6 +462,28 @@ private fun SelectionAction(
     }
 }
 
+/** The module search field, as the header's third row. */
+@Composable
+private fun ModulesSearch(
+    query: String,
+    viewModel: ModulesViewModel,
+    filter: ModuleFilter,
+    sort: ModuleSort,
+) {
+    SearchField(
+        query = query,
+        onQueryChange = viewModel::setQuery,
+        placeholder = stringResource(R.string.modules_search_hint),
+    ) {
+        ModuleFilterButton(
+            filter = filter,
+            onFilterChange = viewModel::setFilter,
+            sort = sort,
+            onSortChange = viewModel::setSort,
+        )
+    }
+}
+
 /** The filter menu that lives in the search field's trailing slot. */
 @Composable
 private fun ModuleFilterButton(
@@ -541,6 +550,7 @@ private fun ModulesHeader(
     onBackup: () -> Unit,
     onRestore: () -> Unit,
     modifier: Modifier = Modifier,
+    search: @Composable () -> Unit,
 ) {
     PanelHeader(
         title = stringResource(R.string.nav_modules),
@@ -563,9 +573,7 @@ private fun ModulesHeader(
                 )
             }
         },
-        // Under the icons, so the right edge carries one idea: the state of the collection and
-        // what can be done with it.
-        endSubtitle = {
+        description = {
             if (total > 0) {
                 Text(
                     text = stringResource(R.string.modules_active_of, active, total),
@@ -574,6 +582,7 @@ private fun ModulesHeader(
                 )
             }
         },
+        search = search,
     )
 }
 

@@ -93,25 +93,11 @@ fun RepoScreen(
 
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-            StoreHeader(catalog = catalog, updates = updates)
-
-            SearchField(
-                query = query,
-                onQueryChange = viewModel::setQuery,
-                placeholder = stringResource(R.string.store_search_hint),
-                modifier = Modifier.padding(horizontal = 16.dp),
-            ) {
-                StoreFilterButton(
-                    sort = sort,
-                    onSortChange = viewModel::setSort,
-                    priorities = priorities,
-                    onTogglePriority = viewModel::togglePriority,
-                    channel = channel,
-                    onChannelChange = viewModel::setChannel,
-                    doh = doh,
-                    onDohChange = viewModel::setDoh,
-                )
-            }
+            StoreHeader(
+                catalog = catalog,
+                updates = updates,
+                search = { StoreSearch(query, viewModel, sort, priorities, channel, doh) },
+            )
 
             Spacer(Modifier.height(4.dp))
 
@@ -153,11 +139,11 @@ fun RepoScreen(
 }
 
 @Composable
-private fun StoreHeader(catalog: StoreCatalog, updates: Int) {
+private fun StoreHeader(catalog: StoreCatalog, updates: Int, search: @Composable () -> Unit) {
     val context = LocalContext.current
     PanelHeader(
         title = stringResource(R.string.nav_store),
-        startSubtitle = {
+        description = {
             if (catalog.modules.isNotEmpty()) {
                 val total =
                     context.resources.getQuantityString(
@@ -182,7 +168,36 @@ private fun StoreHeader(catalog: StoreCatalog, updates: Int) {
                 )
             }
         },
+        search = search,
     )
+}
+
+/** The store search field, as the header's third row. */
+@Composable
+private fun StoreSearch(
+    query: String,
+    viewModel: RepoViewModel,
+    sort: StoreSort,
+    priorities: List<StorePriority>,
+    channel: StoreChannel,
+    doh: Boolean,
+) {
+    SearchField(
+        query = query,
+        onQueryChange = viewModel::setQuery,
+        placeholder = stringResource(R.string.store_search_hint),
+    ) {
+        StoreFilterButton(
+            sort = sort,
+            onSortChange = viewModel::setSort,
+            priorities = priorities,
+            onTogglePriority = viewModel::togglePriority,
+            channel = channel,
+            onChannelChange = viewModel::setChannel,
+            doh = doh,
+            onDohChange = viewModel::setDoh,
+        )
+    }
 }
 
 /**

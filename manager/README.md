@@ -6,7 +6,7 @@ The manager is the user-facing surface of the Vector framework: a single-activit
 application that configures the root daemon over Binder. It is built as `:manager` and replaces the
 legacy `:app` module.
 
-Its architecture is dictated by one constraint. The manager normally runs **parasitically** — the
+Its architecture is dictated by one constraint. The manager normally runs *parasitically* — the
 Zygisk layer transplants its DEX into a host process, usually `com.android.shell` — so its manifest
 is never registered with the package manager. Nothing that depends on manifest registration exists
 at runtime: no `ContentProvider`, therefore no `androidx.startup`, no `WorkManager`, no guarantee
@@ -35,21 +35,21 @@ src/main/kotlin/org/matrix/vector/manager/
 
 ## Process Constraints
 
-* **Service location, not injection.** `ServiceLocator.attach(context)` and `bind(service)` are
+* *Service location, not injection.* `ServiceLocator.attach(context)` and `bind(service)` are
   idempotent and order-independent, because in parasitic mode there is no guaranteed initialisation
   point and the daemon binder may arrive before or after the first composition.
-* **Theme from code.** The window theme is the platform default; all colour comes from
+* *Theme from code.* The window theme is the platform default; all colour comes from
   `VectorTheme` at composition time, since a resource theme would require a registered manifest.
-* **Process death is routine.** The host process is killed frequently, so every reading preference
+* *Process death is routine.* The host process is killed frequently, so every reading preference
   (word wrap, header surface, activity window, colour seed) is persisted rather than held in a
   `ViewModel`.
-* **No `FileProvider`.** Exports go through the Storage Access Framework; the document belongs to
+* *No `FileProvider`.* Exports go through the Storage Access Framework; the document belongs to
   DocumentsUI, which is what makes it shareable at all.
 
 ## Daemon IPC
 
 `DaemonClient` wraps `ILSPManagerService`. Every call suspends on `Dispatchers.IO` and returns a
-`Result`. The binder reference is read **once** per call rather than null-checked and then used,
+`Result`. The binder reference is read *once* per call rather than null-checked and then used,
 which was a time-of-check/time-of-use race, and failures are caught as `Exception` rather than
 `RemoteException` alone — a daemon built without a given method throws `NoSuchMethodError`, which is
 the expected outcome when a newer manager meets an older framework.
@@ -78,7 +78,7 @@ over a 30,000-line file costs one scan and no re-parse.
 ## Colour Generation
 
 Android exposes no public API that converts a colour into a Material scheme; `dynamicColorScheme`
-reads the wallpaper and nothing else. `ui/theme/SeedScheme.kt` generates one in **CIE LCh** — the
+reads the wallpaper and nothing else. `ui/theme/SeedScheme.kt` generates one in *CIE LCh* — the
 same principle as Google's HCT — by holding the seed's hue and chroma and walking L\* across the
 Material tone scale.
 
@@ -93,24 +93,24 @@ conversion, once per tone, off the main thread and cached as an `ImageBitmap`.
 
 ## Remote Data
 
-* **Store mirrors.** The full `modules.json` is served by exactly one host today; the public site
+* *Store mirrors.* The full `modules.json` is served by exactly one host today; the public site
   answers it with 403 and two historical mirrors no longer resolve. Per-module detail *is* served by
   both, so the mirror lists are deliberately separate — merging them takes the catalogue offline.
-* **Freshness is declared per request.** The OkHttp disk cache is the offline story: on total mirror
+* *Freshness is declared per request.* The OkHttp disk cache is the offline story: on total mirror
   failure the same request is replayed against the cache alone, so a cold start with no network
   renders the last known catalogue instead of an error.
-* **DNS-over-HTTPS is a fallback, not a replacement.** `net/VectorDns.kt` attempts DoH, falls
+* *DNS-over-HTTPS is a fallback, not a replacement.* `net/VectorDns.kt` attempts DoH, falls
   through to the system resolver on failure, latches that failure for the session, and disables
   itself entirely when a proxy is configured. The setting is read per lookup, because OkHttp cannot
   have its DNS swapped on a live client and rebuilding the shared client would orphan the cache.
-* **Activity feed.** Commit history is fetched once per window and cached on disk with the total
+* *Activity feed.* Commit history is fetched once per window and cached on disk with the total
   commit count and repository statistics, both of which come from response headers and a second
   request that a cached read does not make. `versionCode` equals `git rev-list --count`, so a
   commit's distance from HEAD is its version number, and the feed can name exactly which commits an
   update would bring without an additional endpoint.
-* **Contributor resolution.** GitHub links commits to accounts by email and does not always succeed.
+* *Contributor resolution.* GitHub links commits to accounts by email and does not always succeed.
   A `@users.noreply.github.com` address encodes the account and needs only parsing. Otherwise the
-  name is probed against `/users/{name}` **only if it is shaped like a handle** — containing a digit,
+  name is probed against `/users/{name}` *only if it is shaped like a handle* — containing a digit,
   hyphen or underscore — because `GET /users/Qing` returns a real and unrelated account, and
   crediting a contribution to a stranger is worse than leaving it uncredited.
 
@@ -121,7 +121,7 @@ therefore attaches each master build to a `canary-<versionCode>` prerelease, and
 reads `/releases`. No account is required at any point, which matters for users who cannot reach
 GitHub's sign-in at all.
 
-Device-flow sign-in remains available and requests **no scopes**. It only raises the anonymous rate
+Device-flow sign-in remains available and requests *no scopes*. It only raises the anonymous rate
 limit; if `githubClientId` is not supplied as a Gradle property the app hides sign-in entirely rather
 than presenting a control that cannot work.
 
