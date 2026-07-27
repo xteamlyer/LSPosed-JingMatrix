@@ -1,0 +1,240 @@
+package org.matrix.vector.manager.ui.components.ambience
+
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
+import kotlin.math.abs
+import kotlin.random.Random
+
+/**
+ * Falling code.
+ *
+ * Columns of glyphs descending at their own speeds, each with a bright head and a tail that dims
+ * behind it, and glyphs that occasionally flip to something else mid-fall — the flicker is what
+ * makes it read as *code* rather than as text scrolling past.
+ *
+ * Three ways to interact, and the point of all of them is that the rain is normally too fast to
+ * read:
+ * - **Hold** and it stops dead. The whole field freezes so it can actually be read, and the glyph
+ *   under your finger is lifted out of the column — drawn larger and brighter, held between the
+ *   fingertip and the surface it came from. Let go and it drops back and the rain resumes.
+ * - **Pinch** to change the glyph size. Larger glyphs mean fewer, wider columns and a rain that can
+ *   be read at a glance; smaller ones mean a dense fine drizzle. It is a scale, not a camera —
+ *   simulating a viewer moving through the field looked like the columns were sliding sideways
+ *   rather than approaching, because a flat field of text has no parallax cues to sell the move.
+ * - **Tap** to seed a new column at that point, so a bare stretch can be filled in.
+ */
+class MatrixRenderer : AmbienceRenderer {
+
+    /**
+     * One falling column.
+     *
+     * [weight] is only variety — nearer-looking columns fall a little faster and draw a little
+     * brighter, so the field does not read as a metronome. It is deliberately *not* a depth
+     * coordinate any more: the size of a glyph is now one global number, so what a pinch changes
+     * is legibility rather than an imaginary camera position.
+     */
+    private class Column(
+        /** Position across the field, 0 (left edge) to 1 (right edge). */
+        val lane: Float,
+        var head: Float,
+        val weight: Float,
+        val length: Int,
+        val glyphs: MutableList<Char>,
+    )
+
+    private val random = Random(0x4D41)
+    private val columns = mutableListOf<Column>()
+    private var sized = Size.Zero
+    private var clock = 0f
+
+    /**
+     * Glyph size, as a multiple of the resting size.
+     *
+     * Clamped rather than unbounded: below the floor the glyphs stop being glyphs, and above the
+     * ceiling three columns fill the header and it stops being rain.
+     */
+    private var scale = 1f
+
+    private var frozen = false
+    private var heldAt: Offset? = null
+    private var heldGlyph: Char? = null
+    /** Eases the freeze so the rain slows to a stop rather than snapping. */
+    private var motion = 1f
+
+    private var cellHeight = 0f
+
+    override val isAnimating: Boolean
+        // Still frozen? Then the only thing that could change is the held glyph's own pulse, and
+        // that is worth a frame. Otherwise the rain is always moving.
+        get() = true
+
+    /**
+     * Half-width katakana, digits and a few latin letters.
+     *
+     * Half-width katakana is what the original used and it is why the effect reads as *code* and
+     * not as prose — the glyphs are dense, unfamiliar and uniform in width.
+     */
+    private val alphabet: List<Char> =
+        buildList {
+            for (c in 'ｱ'..'ﾝ') add(c)
+            for (c in '0'..'9') add(c)
+            addAll("VECTORXPOSED".toList())
+        }
+
+    private fun randomGlyph(): Char = alphabet[random.nextInt(alphabet.size)]
+
+    private fun seed(size: Size) {
+        if (sized == size && columns.isNotEmpty()) return
+        sized = size
+        cellHeight = size.height * 0.26f
+        columns.clear()
+        // Deliberately more columns than fit at rest: the extras live far away as a faint
+        // drizzle, and they are what there is to *find* when you pull the view closer.
+        repeat(52) { columns += newColumn(size) }
+    }
+
+    private fun newColumn(size: Size, atLane: Float? = null, atHead: Float? = null): Column {
+        val length = 3 + random.nextInt(6)
+        return Column(
+            lane = atLane ?: random.nextFloat(),
+            head = atHead ?: (-random.nextFloat() * size.height * 1.6f),
+            weight = 0.45f + random.nextFloat() * 0.85f,
+            length = length,
+            glyphs = MutableList(length + 1) { randomGlyph() },
+        )
+    }
+
+    /** The height of one glyph cell at the current zoom. */
+    private fun cell(): Float = cellHeight * scale
+
+    override fun update(dt: Float, size: Size) {
+        if (size.width <= 0f || size.height <= 0f) return
+        seed(size)
+        clock += dt
+
+        // Ease into and out of the freeze.
+        val target = if (frozen) 0f else 1f
+        motion += (target - motion) * (dt / 220f).coerceAtMost(1f)
+
+        val seconds = dt / 1000f
+        val cell = cell()
+        columns.forEach { column ->
+            // Speed follows the glyph size, so zooming in does not turn the rain into a crawl.
+            column.head += cell * column.weight * 1.5f * seconds * motion
+
+            // Glyphs flicker as they fall; this is the detail that makes it look alive.
+            if (motion > 0.05f && random.nextFloat() < dt / 340f) {
+                column.glyphs[random.nextInt(column.glyphs.size)] = randomGlyph()
+            }
+
+            if (column.head - column.length * cell > size.height) {
+                column.head = -random.nextFloat() * size.height * 0.6f
+                for (i in column.glyphs.indices) column.glyphs[i] = randomGlyph()
+            }
+        }
+    }
+
+    override fun onTap(position: Offset, size: Size) {
+        seed(size)
+        if (columns.size >= 90) return
+        // Seeded right where the finger went down, so it is plainly the one you just made.
+        columns += newColumn(size, atLane = position.x / size.width, atHead = position.y)
+    }
+
+    override fun onLongPress(position: Offset, size: Size) {
+        seed(size)
+        frozen = true
+        heldAt = position
+        // Whichever column the finger is over gives up its glyph. Nearer columns win ties,
+        // because those are the ones the eye was on.
+        val column = columns.minByOrNull { abs(screenX(it, sized) - position.x) }
+        heldGlyph = column?.glyphs?.firstOrNull() ?: randomGlyph()
+    }
+
+    override fun onRelease() {
+        frozen = false
+        heldAt = null
+        heldGlyph = null
+    }
+
+    override fun onZoom(factor: Float) {
+        scale = (scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
+    }
+
+    /** Where a column lands on screen. Lanes are fixed; only the glyphs on them change size. */
+    private fun screenX(column: Column, size: Size): Float = column.lane * size.width
+
+    override fun DrawScope.render(tint: Color) {
+        val measurer = textMeasurer ?: return
+        if (cellHeight < 1f) return
+
+        // The simulation works in pixels; text is specified in sp, so the conversion goes
+        // through the draw scope's own density rather than a guess.
+        val style = TextStyle(fontFamily = FontFamily.Monospace)
+        val cell = cell()
+        val glyphSize = cell * 0.82f
+        if (glyphSize < 2f) return
+
+        columns.forEach { column ->
+            val x = screenX(column, size)
+            if (x < -cell || x > size.width + cell) return@forEach
+
+            for (i in 0..column.length) {
+                val y = column.head - i * cell
+                if (y < -cell || y > size.height + cell) continue
+
+                val fade = 1f - i / (column.length + 1f)
+                // Weight only varies brightness now, so a column reads as nearer or further
+                // without the field pretending to have depth it cannot show.
+                val weightAlpha = (column.weight / 1.3f).coerceIn(0.25f, 1f)
+                val alpha = (if (i == 0) 0.50f else 0.26f * fade * fade) * weightAlpha
+                if (alpha < 0.005f) continue
+
+                drawText(
+                    textMeasurer = measurer,
+                    text = column.glyphs.getOrElse(i) { ' ' }.toString(),
+                    style =
+                        style.copy(color = tint.copy(alpha = alpha), fontSize = glyphSize.toSp()),
+                    topLeft = Offset(x, y),
+                )
+            }
+        }
+
+        // The glyph lifted out of the rain, held under the finger.
+        val held = heldAt
+        val glyph = heldGlyph
+        if (held != null && glyph != null) {
+            val pulse = 0.82f + 0.18f * kotlin.math.sin(clock / 260f)
+            drawText(
+                textMeasurer = measurer,
+                text = glyph.toString(),
+                style =
+                    style.copy(
+                        color = tint.copy(alpha = 0.85f),
+                        fontSize = (glyphSize * 2.1f * pulse).toSp(),
+                    ),
+                topLeft = Offset(held.x - glyphSize * 0.6f, held.y - glyphSize * 1.5f),
+            )
+        }
+    }
+
+    /**
+     * Text needs a measurer, which a [DrawScope] does not carry. The surface injects it.
+     *
+     * Kept as a plain field rather than a constructor parameter so every renderer can share one
+     * factory signature.
+     */
+    var textMeasurer: TextMeasurer? = null
+
+    private companion object {
+        const val MIN_SCALE = 0.45f
+        const val MAX_SCALE = 3.5f
+    }
+}
