@@ -86,6 +86,9 @@ public final class ModuleUtil {
     }
 
     public static int extractIntPart(String str) {
+        // minApiVersion and targetApiVersion are required of a module, but a third-party module
+        // omitting one must not take down the module list.
+        if (str == null) return 0;
         int result = 0, length = str.length();
         for (int offset = 0; offset < length; offset++) {
             char c = str.charAt(offset);
@@ -295,11 +298,20 @@ public final class ModuleUtil {
                 try (modernModuleApk) {
                     var propEntry = modernModuleApk.getEntry("META-INF/xposed/module.prop");
                     if (propEntry != null) {
-                        var prop = new Properties();
-                        prop.load(modernModuleApk.getInputStream(propEntry));
-                        minVersion = extractIntPart(prop.getProperty("minApiVersion"));
-                        targetVersion = extractIntPart(prop.getProperty("targetApiVersion"));
-                        staticScope = TextUtils.equals(prop.getProperty("staticScope"), "true");
+                        try {
+                            var prop = new Properties();
+                            prop.load(modernModuleApk.getInputStream(propEntry));
+                            minVersion = extractIntPart(prop.getProperty("minApiVersion"));
+                            targetVersion = extractIntPart(prop.getProperty("targetApiVersion"));
+                            staticScope = TextUtils.equals(prop.getProperty("staticScope"), "true");
+                        } catch (IllegalArgumentException e) {
+                            // Properties.load rejects a malformed unicode escape, and nothing read
+                            // out of the file before that point can be trusted either, so the
+                            // module reports no version rather than the defaults above.
+                            minVersion = 0;
+                            targetVersion = 0;
+                            Log.e(App.TAG, "Malformed module.prop in " + pkg.packageName, e);
+                        }
                     }
                     var scopeEntry = modernModuleApk.getEntry("META-INF/xposed/scope.list");
                     if (scopeEntry != null) {
@@ -309,8 +321,11 @@ public final class ModuleUtil {
                     } else {
                         scopeList = Collections.emptyList();
                     }
-                } catch (IOException | OutOfMemoryError e) {
-                    Log.e(App.TAG, "Error while closing modern module APK", e);
+                } catch (IOException | OutOfMemoryError | IllegalArgumentException e) {
+                    // Properties.load is documented to throw IllegalArgumentException for a
+                    // malformed unicode escape. Uncaught, one such module.prop leaves the user
+                    // with an empty module list instead of one unreadable entry.
+                    Log.e(App.TAG, "Error while reading modern module APK", e);
                 }
                 this.minVersion = minVersion;
                 this.targetVersion = targetVersion;

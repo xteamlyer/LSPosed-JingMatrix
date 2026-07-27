@@ -27,6 +27,7 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Properties
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -160,6 +161,34 @@ object FileSystem {
     return memory
   }
 
+  /**
+   * The packages a module claims, when its module.prop fixes the scope. Null when it does not, so
+   * a caller can tell "claims nothing" from "claims no restriction".
+   *
+   * staticScope is documented as "the module scope is fixed and users should not apply the module
+   * on apps outside the scope list". Enforcing that in the manager alone leaves the socket CLI, a
+   * backup restore and the module's own requestScope walking straight past it, so the daemon has
+   * to know about it too.
+   */
+  fun readStaticScope(apkPath: String): Set<String>? =
+      runCatching {
+            ZipFile(File(apkPath)).use { zip ->
+              val props =
+                  Properties().apply {
+                    zip.getEntry("META-INF/xposed/module.prop")?.let { entry ->
+                      runCatching { zip.getInputStream(entry).use { load(it) } }
+                    }
+                  }
+              if (!props.getProperty("staticScope").toBoolean()) return@use null
+              val entry = zip.getEntry("META-INF/xposed/scope.list") ?: return@use emptySet()
+              zip.getInputStream(entry).bufferedReader().useLines { lines ->
+                lines.filter { it.isNotEmpty() }.toSet()
+              }
+            }
+          }
+          .onFailure { Log.w(TAG, "Cannot read the scope list of $apkPath", it) }
+          .getOrNull()
+
   /** Parses the module APK, extracts init lists, and loads DEXes into SharedMemory. */
   fun loadModule(apkPath: String, obfuscate: Boolean): PreLoadedApk? {
     val file = File(apkPath)
@@ -170,23 +199,32 @@ object FileSystem {
     val moduleClassNames = mutableListOf<String>()
     val moduleLibraryNames = mutableListOf<String>()
     var isLegacy = false
+    var exceptionPassthrough = false
 
     runCatching {
           ZipFile(file).use { zip ->
-            // Parse module.prop to get targetApiVersion
+            // module.prop is specified as Java Properties format. Parsing it by hand mishandles
+            // ':' as a separator, '!' comments, escapes and line continuations, and the manager
+            // app already reads the same file with Properties.load.
             val props =
-                zip.getEntry("META-INF/xposed/module.prop")?.let { entry ->
-                  zip.getInputStream(entry).bufferedReader().useLines { lines ->
-                    lines
-                        .filter { it.contains("=") }
-                        .associate {
-                          val parts = it.split("=", limit = 2)
-                          parts[0].trim() to parts[1].trim()
-                        }
+                Properties().apply {
+                  zip.getEntry("META-INF/xposed/module.prop")?.let { entry ->
+                    // Properties.load rejects a malformed \uXXXX escape, which the old hand-rolled
+                    // parser tolerated. Keep that tolerance: a bad module.prop must not make the
+                    // APK unloadable, not least because a legacy module is selected by
+                    // assets/xposed_init and needs no module.prop at all.
+                    runCatching { zip.getInputStream(entry).use { load(it) } }
+                        .onFailure { Log.w(TAG, "Malformed module.prop in $apkPath", it) }
                   }
-                } ?: emptyMap()
+                }
 
-            val targetApi = props["targetApiVersion"]?.toIntOrNull() ?: 0
+            val targetApi = props.getProperty("targetApiVersion")?.trim()?.toIntOrNull() ?: 0
+            // The module-wide mode ExceptionMode.DEFAULT resolves to. Anything that is not
+            // "passthrough" - absent, misspelled, or an explicit "protective" - keeps the
+            // protective default the API specifies.
+            exceptionPassthrough =
+                props.getProperty("exceptionMode")?.trim().equals("passthrough", true)
+
             val hasLegacyFile = zip.getEntry("assets/xposed_init") != null
 
             // Determine Loading Strategy based on Priority: API 101+ > Legacy > API 100
@@ -263,6 +301,7 @@ object FileSystem {
       this.moduleClassNames = moduleClassNames
       this.moduleLibraryNames = moduleLibraryNames
       this.legacy = isLegacy
+      this.exceptionPassthrough = exceptionPassthrough
     }
 
     return preLoadedApk

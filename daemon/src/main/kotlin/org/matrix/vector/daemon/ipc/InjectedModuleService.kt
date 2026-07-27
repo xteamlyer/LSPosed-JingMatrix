@@ -19,8 +19,11 @@ private const val TAG = "VectorInjectedModuleService"
 
 class InjectedModuleService(private val packageName: String) : ILSPInjectedModuleService.Stub() {
 
-  // Tracks active RemotePreferenceCallbacks linked by config group
-  private val callbacks = ConcurrentHashMap<String, MutableSet<IRemotePreferenceCallback>>()
+  // Tracks active RemotePreferenceCallbacks linked by config group. Preferences are stored per
+  // Android user, so a registration is only interested in updates made by its own user.
+  private data class Subscriber(val userId: Int, val callback: IRemotePreferenceCallback)
+
+  private val callbacks = ConcurrentHashMap<String, MutableSet<Subscriber>>()
 
   override fun getFrameworkProperties(): Long {
     var prop = IXposedService.PROP_CAP_SYSTEM or IXposedService.PROP_CAP_REMOTE
@@ -41,21 +44,26 @@ class InjectedModuleService(private val packageName: String) : ILSPInjectedModul
 
     if (callback != null) {
       val groupCallbacks = callbacks.getOrPut(group) { ConcurrentHashMap.newKeySet() }
-      groupCallbacks.add(callback)
-      runCatching { callback.asBinder().linkToDeath({ groupCallbacks.remove(callback) }, 0) }
+      val subscriber = Subscriber(userId, callback)
+      groupCallbacks.add(subscriber)
+      runCatching { callback.asBinder().linkToDeath({ groupCallbacks.remove(subscriber) }, 0) }
           .onFailure { Log.w(TAG, "requestRemotePreferences linkToDeath failed", it) }
     }
     return bundle
   }
 
-  override fun openRemoteFile(path: String): ParcelFileDescriptor {
-    FileSystem.ensureModuleFilePath(path)
+  override fun openRemoteFile(path: String): ParcelFileDescriptor? {
+    // XposedInterface#openRemoteFile documents FileNotFoundException for a missing *or* forbidden
+    // path. Returning null lets VectorContext raise exactly that; throwing here surfaced a
+    // RemoteException for a missing file and an IllegalArgumentException for a rejected path.
     val userId = Binder.getCallingUid() / PER_USER_RANGE
     return runCatching {
+          FileSystem.ensureModuleFilePath(path)
           val dir = FileSystem.resolveModuleDir(packageName, "files", userId, -1)
           ParcelFileDescriptor.open(dir.resolve(path).toFile(), ParcelFileDescriptor.MODE_READ_ONLY)
         }
-        .getOrElse { throw RemoteException(it.message) }
+        .onFailure { Log.w(TAG, "Cannot open remote file $path for $packageName: ${it.message}") }
+        .getOrNull()
   }
 
   override fun getRemoteFileList(): Array<String> {
@@ -67,11 +75,13 @@ class InjectedModuleService(private val packageName: String) : ILSPInjectedModul
         .getOrElse { throw RemoteException(it.message) }
   }
 
-  // Called by ModuleService when prefs are updated globally
-  fun onUpdateRemotePreferences(group: String, diff: Bundle) {
+  // Called by ModuleService when the module app has changed the group for one Android user.
+  fun onUpdateRemotePreferences(group: String, userId: Int, diff: Bundle) {
     val groupCallbacks = callbacks[group] ?: return
-    for (callback in groupCallbacks) {
-      runCatching { callback.onUpdate(diff) }.onFailure { groupCallbacks.remove(callback) }
+    for (subscriber in groupCallbacks) {
+      if (subscriber.userId != userId) continue
+      runCatching { subscriber.callback.onUpdate(diff) }
+          .onFailure { groupCallbacks.remove(subscriber) }
     }
   }
 }

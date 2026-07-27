@@ -6,6 +6,7 @@ import io.github.libxposed.api.XposedInterface.HookBuilder
 import io.github.libxposed.api.XposedInterface.HookHandle
 import io.github.libxposed.api.XposedInterface.Hooker
 import io.github.libxposed.api.error.HookFailedError
+import java.lang.reflect.Constructor
 import java.lang.reflect.Executable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -15,7 +16,12 @@ import org.matrix.vector.impl.di.VectorBootstrap
 import org.matrix.vector.nativebridge.HookBridge
 
 /** Builder for configuring and registering hooks. */
-class VectorHookBuilder(private val origin: Executable) : HookBuilder {
+class VectorHookBuilder(
+    private val origin: Executable,
+    // Framework-internal hooks have no module.prop, and must stay protective: letting one of
+    // them propagate would take the boot path down with it.
+    private val defaultExceptionMode: ExceptionMode = ExceptionMode.PROTECTIVE,
+) : HookBuilder {
 
     private var priority = XposedInterface.PRIORITY_DEFAULT
     private var exceptionMode = ExceptionMode.DEFAULT
@@ -37,9 +43,22 @@ class VectorHookBuilder(private val origin: Executable) : HookBuilder {
                 origin.name == "invoke"
         ) {
             throw IllegalArgumentException("Cannot hook Method.invoke")
+        } else if (
+            origin is Method &&
+                origin.declaringClass == Constructor::class.java &&
+                origin.name == "newInstance"
+        ) {
+            // Named alongside Method.invoke by the API: the framework reflects through both, so
+            // hooking either recurses into the hook dispatch.
+            throw IllegalArgumentException("Cannot hook Constructor.newInstance")
         }
 
-        val record = VectorHookRecord(hooker, priority, exceptionMode)
+        // Resolve DEFAULT here rather than at throw time: the record is stored natively and
+        // reaches VectorChain with no way back to the module, and module.prop cannot change
+        // for the life of the process.
+        val resolvedMode =
+            if (exceptionMode == ExceptionMode.DEFAULT) defaultExceptionMode else exceptionMode
+        val record = VectorHookRecord(hooker, priority, resolvedMode)
 
         // Register natively. HookBridge now stores VectorHookRecord instead of HookerCallback.
         if (
@@ -72,8 +91,11 @@ class VectorNativeHooker<T : Executable>(private val method: T) {
         val thisObject = if (isStatic) null else args[0]
         val actualArgs = if (isStatic) args else args.sliceArray(1 until args.size)
 
-        // Retrieve the hook snapshots
-        val snapshots = HookBridge.callbackSnapshot(VectorHookRecord::class.java, method)
+        // Retrieve the hook snapshots. Null means every hook was removed after this trampoline was
+        // entered, which is indistinguishable from having none.
+        val snapshots =
+            HookBridge.callbackSnapshot(VectorHookRecord::class.java, method)
+                ?: return invokeOriginalSafely(thisObject, actualArgs)
 
         @Suppress("UNCHECKED_CAST") val modernHooks = snapshots[0] as Array<VectorHookRecord>
         val legacyHooks = snapshots[1]
