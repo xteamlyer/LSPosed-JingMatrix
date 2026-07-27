@@ -307,31 +307,11 @@ object FileSystem {
     return preLoadedApk
   }
 
-  /** Safely creates the log directory. If a file exists with the same name, it deletes it first. */
-  private fun createLogDirPath() {
-    if (!Files.isDirectory(logDirPath, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
-      logDirPath.toFile().deleteRecursively()
-    }
-    Files.createDirectories(logDirPath)
-  }
+  /** Vector: log directory creation disabled - intentional no-op. */
+  private fun createLogDirPath() {}
 
-  /**
-   * Rotates the log directory by clearing file attributes (chattr 0), deleting the old backup, and
-   * renaming the current log directory to the backup.
-   */
-  fun moveLogDir() {
-    runCatching {
-          if (Files.exists(logDirPath)) {
-            if (chattr0(logDirPath)) {
-              // Kotlin's deleteRecursively replaces the verbose Java SimpleFileVisitor
-              oldLogDirPath.toFile().deleteRecursively()
-              Files.move(logDirPath, oldLogDirPath)
-            }
-          }
-          Files.createDirectories(logDirPath)
-        }
-        .onFailure { Log.e(TAG, "Failed to move log directory", it) }
-  }
+  /** Vector: log directory rotation disabled - intentional no-op. */
+  fun moveLogDir() {}
 
   fun getPropsPath(): File {
     createLogDirPath()

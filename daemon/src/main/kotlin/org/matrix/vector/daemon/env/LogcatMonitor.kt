@@ -13,8 +13,6 @@ import java.io.FileDescriptor
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Paths
-import kotlinx.coroutines.launch
-import org.matrix.vector.daemon.VectorDaemon
 import org.matrix.vector.daemon.data.FileSystem
 
 private const val TAG = "VectorLogcat"
@@ -51,15 +49,14 @@ object LogcatMonitor {
   private val verboseLogs = ThreadSafeLRU()
 
   init {
-    loadNativeLibrary()
-    FileSystem.moveLogDir() // Defined in FileSystem
+    loadNativeLibrary() // still needed by ObfuscationManager / Dex2OatServer JNI
 
     // Meizu log_reject_level workaround
     if (SystemProperties.getInt("persist.sys.log_reject_level", 0) > 0) {
       SystemProperties.set("persist.sys.log_reject_level", "0")
     }
 
-    dumpPropsAndDmesg()
+    // Vector: log dir rotation and props/dmesg dumping disabled
   }
 
   @SuppressLint("UnsafeDynamicallyLoadedCode")
@@ -70,38 +67,10 @@ object LogcatMonitor {
     System.load("$classPath!/lib/$abi/${System.mapLibraryName("daemon")}")
   }
 
-  private fun dumpPropsAndDmesg() {
-    VectorDaemon.scope.launch {
-      // Filter privacy props by temporarily assuming an untrusted context
-      runCatching {
-            SELinux.setFSCreateContext("u:object_r:app_data_file:s0")
-            ProcessBuilder(
-                    "sh",
-                    "-c",
-                    "echo -n u:r:untrusted_app:s0 > /proc/thread-self/attr/current; getprop")
-                .redirectOutput(FileSystem.getPropsPath()) // Ensure this exists in FileSystem
-                .start()
-          }
-          .onFailure { Log.e(TAG, "getprop failed", it) }
-          .also { SELinux.setFSCreateContext(null) }
-
-      runCatching { ProcessBuilder("dmesg").redirectOutput(FileSystem.getKmsgPath()).start() }
-          .onFailure { Log.e(TAG, "dmesg failed", it) }
-    }
-  }
+  // Vector: dumpPropsAndDmesg() removed - no longer called, no props.txt/kmsg.log written
 
   fun start() {
-    if (isRunning) return
-    isRunning = true
-    VectorDaemon.scope.launch {
-      runCatching {
-            Log.i(TAG, "Logcat daemon starting")
-            runLogcat() // Blocks until the native logcat process dies
-            Log.i(TAG, "Logcat daemon stopped")
-          }
-          .onFailure { Log.e(TAG, "Logcat crashed", it) }
-      isRunning = false
-    }
+    // Vector: logcat capture daemon disabled, never spawns runLogcat()
   }
 
   fun getVerboseLog(): File? = fdToPath(verboseFd)?.toFile()
@@ -136,18 +105,13 @@ object LogcatMonitor {
         .onFailure { Log.w(TAG, "checkFd failed for $fd", it) }
   }
 
-  fun startVerbose() = Log.i(TAG, "!!start_verbose!!")
+  fun startVerbose() {}
 
-  fun stopVerbose() = Log.i(TAG, "!!stop_verbose!!")
+  fun stopVerbose() {}
 
-  fun refresh(isVerboseLog: Boolean) {
-    Log.i(TAG, if (isVerboseLog) "!!refresh_verbose!!" else "!!refresh_modules!!")
-  }
+  fun refresh(isVerboseLog: Boolean) {}
 
-  fun checkLogFile() {
-    if (modulesFd == -1) refresh(false)
-    if (verboseFd == -1) refresh(true)
-  }
+  fun checkLogFile() {}
 
   @Suppress("unused") // Called via JNI
   private fun refreshFd(isVerboseLog: Boolean): Int {

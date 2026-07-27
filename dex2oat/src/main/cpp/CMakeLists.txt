@@ -12,6 +12,10 @@ target_include_directories(dex2oat PUBLIC include)
 target_link_libraries(dex2oat log)
 target_link_libraries(oat_hook log lsplt_static)
 
+# Vector: fully disable LOGV/D/I/W/E/F/PLOGE (see include/logging.h).
+target_compile_definitions(dex2oat PUBLIC LOG_DISABLED)
+target_compile_definitions(oat_hook PUBLIC LOG_DISABLED)
+
 if (DEFINED DEBUG_SYMBOLS_PATH)
     message(STATUS "Debug symbols will be placed at ${DEBUG_SYMBOLS_PATH}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

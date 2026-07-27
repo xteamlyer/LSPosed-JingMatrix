@@ -16,7 +16,6 @@ using namespace std::chrono_literals;
 
 // Log rotation thresholds
 constexpr size_t kMaxLogSize = 4 * 1024 * 1024;  // 4MB per part
-constexpr long kLogBufferSize = 128 * 1024;      // Internal logd buffer size (128KB)
 
 namespace {
 // Standard Logcat priority characters
@@ -215,11 +214,9 @@ void Logcat::Run() {
         auto* list = android_logger_list_alloc(0, tail, 0);
         tail = 10;
 
+        // Vector: no longer forces logd buffer size. Respect whatever the user/system has set.
         for (log_id_t id : {LOG_ID_MAIN, LOG_ID_CRASH}) {
-            auto* logger = android_logger_open(list, id);
-            if (logger && android_logger_get_log_size(logger) < kLogBufferSize) {
-                android_logger_set_log_size(logger, kLogBufferSize);
-            }
+            android_logger_open(list, id);
         }
 
         struct log_msg msg;

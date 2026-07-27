@@ -24,6 +24,10 @@ set(IGNORED_WARNINGS
 # target that links against vector_native will also inherit this include path.
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
+# Vector: fully disable LOGV/D/I/W/E/F/PLOGE (see common/logging.h).
+# PUBLIC so it propagates to zygisk, which links this target.
+target_compile_definitions(${PROJECT_NAME} PUBLIC LOG_DISABLED)
+
 # Add the 'src' directory and external XZ library includes as PRIVATE.
 # These are only needed to build vector_native itself.
 target_include_directories(${PROJECT_NAME} PRIVATE src ${VECTOR_ROOT}/external/xz-embedded/linux/include)
