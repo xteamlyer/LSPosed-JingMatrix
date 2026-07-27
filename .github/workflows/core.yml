@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Needed to publish the canary prerelease below. Everything else here only reads.
+    permissions:
+      contents: write
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -83,6 +86,8 @@ jobs:
         run: |
           zygiskReleaseName=`ls zygisk/release/Vector-v*-Release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "zygiskReleaseName=$zygiskReleaseName" >> $GITHUB_OUTPUT
           zygiskDebugName=`ls zygisk/release/Vector-v*-Debug.zip | awk -F '(/|.zip)' '{print $3}'` && echo "zygiskDebugName=$zygiskDebugName" >> $GITHUB_OUTPUT
+          versionCode=`echo "$zygiskDebugName" | awk -F '-' '{print $3}'` && echo "versionCode=$versionCode" >> $GITHUB_OUTPUT
+          versionName=`echo "$zygiskDebugName" | awk -F '-' '{print $2}'` && echo "versionName=$versionName" >> $GITHUB_OUTPUT
           unzip zygisk/release/Vector-v*-Release.zip -d Vector-Release
           unzip zygisk/release/Vector-v*-Debug.zip -d Vector-Debug
 
@@ -112,3 +117,79 @@ jobs:
           name: symbols
           path: build/symbols
 
+      # --- canary distribution ---------------------------------------------------------------
+      #
+      # The zips above are also attached to a prerelease, because an Actions artifact cannot be
+      # downloaded without a GitHub account — `GET /actions/artifacts/<id>/zip` answers 401 to an
+      # anonymous caller, while a release asset answers 206. Testing a canary is the lowest-friction
+      # way for an ordinary user to help, so it must not require handing an OAuth grant to anyone,
+      # and it must work for the many users who cannot reach GitHub's login page at all.
+      #
+      # Marked prerelease so `releases/latest` — which is what update checks read — keeps pointing
+      # at the last stable tag.
+      - name: Publish canary prerelease
+        if: >-
+          success() &&
+          (github.event_name == 'workflow_dispatch' ||
+           (github.event_name == 'push' && github.ref == 'refs/heads/master'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_CODE: ${{ steps.prepareArtifact.outputs.versionCode }}
+          VERSION_NAME: ${{ steps.prepareArtifact.outputs.versionName }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tag="canary-${VERSION_CODE}"
+          subject=$(git log -1 --pretty=%s)
+          short=$(git rev-parse --short HEAD)
+
+          notes=$(cat <<EOF
+          **${subject}**
+
+          Built from [\`${short}\`](${COMMIT_URL}) by [run ${{ github.run_id }}](${RUN_URL}).
+
+          This is a canary: the current state of \`master\`, tested by CI and nothing else. It is
+          published here rather than left as a workflow artifact so that it can be downloaded
+          without a GitHub account.
+
+          | Build | Use it when |
+          | :-- | :-- |
+          | \`Vector-${VERSION_NAME}-${VERSION_CODE}-Debug.zip\` | You are chasing a bug. Far more logging, and the build maintainers ask for in reports. |
+          | \`Vector-${VERSION_NAME}-${VERSION_CODE}-Release.zip\` | You just want the newest code. |
+
+          Only the five most recent canaries are kept.
+          EOF
+          )
+
+          # Recreated rather than edited: re-running the workflow for the same commit should
+          # replace that build, not append a second copy of every asset to it.
+          gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$tag" \
+            --prerelease \
+            --target "${{ github.sha }}" \
+            --title "Vector ${VERSION_NAME} canary ${VERSION_CODE}" \
+            --notes "$notes" \
+            zygisk/release/Vector-v*-Release.zip \
+            zygisk/release/Vector-v*-Debug.zip
+
+      # Five is what a tester needs: enough to bisect a regression across a few days, few enough
+      # that the releases page is still mostly releases. Sorted by version code, which is the commit
+      # count and therefore monotonic, rather than by date, which reruns and reverts can disorder.
+      - name: Keep only the five most recent canaries
+        if: >-
+          success() &&
+          (github.event_name == 'workflow_dispatch' ||
+           (github.event_name == 'push' && github.ref == 'refs/heads/master'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # `grep` exits 1 when nothing matches, which under `pipefail` would fail the step on a
+          # repository that has no canaries yet. Collected first, then acted on.
+          tags=$(gh release list --limit 100 --json tagName --jq '.[].tagName' | grep '^canary-' || true)
+          [ -n "$tags" ] || exit 0
+          echo "$tags" | sort -t- -k2 -n -r | tail -n +6 | while read -r old; do
+            echo "Removing $old"
+            gh release delete "$old" --yes --cleanup-tag
+          done
