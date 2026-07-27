@@ -126,7 +126,7 @@ public final class XposedBridge {
      * @param text The log message.
      */
     public synchronized static void log(String text) {
-        Log.i(TAG, text);
+        // Vector: module logging disabled
     }
 
     /**
@@ -138,12 +138,7 @@ public final class XposedBridge {
      * @param t The Throwable object for the stack trace.
      */
     public synchronized static void log(Throwable t) {
-        // Written out in full because this file also imports android.util.Log, and it is the
-        // framework's own that is wanted: the platform's returns an empty string for any
-        // UnknownHostException cause chain, so a module logging a failed request landed an empty
-        // line in the modules log.
-        String logStr = org.matrix.vector.util.Log.getStackTraceString(t);
-        Log.e(TAG, logStr);
+        // Vector: module logging disabled
     }
 
     /**
