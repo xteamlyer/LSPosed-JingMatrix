@@ -137,18 +137,7 @@ public final class XposedBridge {
      * @param text The log message.
      */
     public synchronized static void log(String text) {
-        Log.i(TAG, text);
-        LogPrinter printer = logPrinter;
-        if (printer != null) {
-            printer.println(
-                    LOG_TIME_FORMAT.format(new Date())
-                            + " "
-                            + ActivityThread.currentProcessName()
-                            + ";"
-                            + Thread.currentThread().getName()
-                            + "]"
-                            + text);
-        }
+        // Vector: module logging disabled
     }
 
     /**
@@ -160,22 +149,7 @@ public final class XposedBridge {
      * @param t The Throwable object for the stack trace.
      */
     public synchronized static void log(Throwable t) {
-        // Utils.Log's, not android.util.Log's: the latter returns an empty string for any
-        // UnknownHostException cause chain, so a module logging a failed request landed an empty
-        // line in the modules log.
-        String logStr = Utils.Log.getStackTraceString(t);
-        Log.e(TAG, logStr);
-        LogPrinter printer = logPrinter;
-        if (printer != null) {
-            printer.println(
-                    LOG_TIME_FORMAT.format(new Date())
-                            + " "
-                            + ActivityThread.currentProcessName()
-                            + ";"
-                            + Thread.currentThread().getName()
-                            + "]"
-                            + logStr);
-        }
+        // Vector: module logging disabled
     }
 
     /**

@@ -83,7 +83,7 @@ object VectorDaemon {
     SystemServerService.registerProxyService(proxyServiceName)
 
     // Start Environmental Daemons
-    LogcatMonitor.start()
+    // Vector: LogcatMonitor.start() disabled - no logcat capture daemon
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Dex2OatServer.start()
     CliSocketServer.start()
 
