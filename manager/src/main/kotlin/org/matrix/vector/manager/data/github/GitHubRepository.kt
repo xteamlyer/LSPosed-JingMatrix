@@ -75,7 +75,9 @@ class GitHubRepository(
             if (fresh != null) {
                 runCatching {
                     snapshotFile.writeText(
-                        json.encodeToString(Snapshot(fresh.totalCommits, fresh.rawCommits))
+                        json.encodeToString(
+                            Snapshot(fresh.totalCommits, fresh.rawCommits, fresh.repo)
+                        )
                     )
                 }
                 return@withContext build(
@@ -93,7 +95,9 @@ class GitHubRepository(
                     // A file written before the total was stored still parses as a bare list, and
                     // is worth reading — it only costs the "you are here" line until the next fetch.
                     .recoverCatching {
-                        Snapshot(0L, json.decodeFromString<List<GhCommit>>(snapshotFile.readText()))
+                        Snapshot(
+                            commits = json.decodeFromString<List<GhCommit>>(snapshotFile.readText())
+                        )
                     }
                     .getOrNull()
                     ?: return@withContext CommunityFeed(
@@ -105,7 +109,7 @@ class GitHubRepository(
                     )
             build(
                 cached.commits,
-                null,
+                cached.repo,
                 windowStart,
                 fromCache = true,
                 offline = freshness != Freshness.Cached,
@@ -124,7 +128,18 @@ class GitHubRepository(
      * the `Link: rel="last"` header of the commit request, and a cached read makes no request.
      */
     @Serializable
-    private data class Snapshot(val totalCommits: Long = 0L, val commits: List<GhCommit> = emptyList())
+    private data class Snapshot(
+        val totalCommits: Long = 0L,
+        val commits: List<GhCommit> = emptyList(),
+        /**
+         * The stars, forks and licence line.
+         *
+         * Stored for the same reason as the total: it comes from a second request, and a cached
+         * read makes none — so without it the "take part" numbers vanished on every launch that
+         * deliberately did not fetch, which is most of them.
+         */
+        val repo: GhRepo? = null,
+    )
 
     private class Fetched(
         val rawCommits: List<GhCommit>,

@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -76,10 +77,14 @@ suspend fun SnackbarHostState.show(message: String, tone: SnackbarTone = Snackba
 /**
  * The app's snackbar.
  *
- * Material's default is a dark slab with a hard 4dp corner, which in an Expressive app reads as
- * something left over from another decade. This one keeps the same inverse-surface contrast — a
- * message has to stand off the screen it covers — but takes the shape language of everything else,
- * and leads with an icon so the outcome is legible before the sentence is read.
+ * Material's default is a dark slab with a hard 4dp corner: inverse-surface, so it is dark on a
+ * light theme and light on a dark one. That inversion is deliberate in the spec and wrong here — a
+ * message that is the opposite colour to everything around it reads as belonging to the system
+ * rather than to the app, which is exactly the complaint an easter egg's message drew.
+ *
+ * So it sits on the app's own raised surface and earns its prominence from elevation and shape
+ * instead of from inversion, and leads with an icon so the outcome is legible before the sentence
+ * is read.
  */
 @Composable
 fun VectorSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifier) {
@@ -91,23 +96,24 @@ fun VectorSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifi
         val container =
             when (tone) {
                 SnackbarTone.Failure -> colors.errorContainer
-                else -> colors.inverseSurface
+                else -> colors.surfaceContainerHighest
             }
         val content =
             when (tone) {
                 SnackbarTone.Failure -> colors.onErrorContainer
-                else -> colors.inverseOnSurface
+                else -> colors.onSurface
             }
         val accent =
             when (tone) {
                 SnackbarTone.Success -> colors.primary
                 SnackbarTone.Failure -> colors.error
-                SnackbarTone.Working -> colors.inversePrimary
-                SnackbarTone.Neutral -> colors.inversePrimary
+                else -> colors.primary
             }
 
+        // Lifted rather than inverted: it still reads as laid over the screen without being the
+        // opposite colour to it.
         Snackbar(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = 12.dp).shadow(6.dp, RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),
             containerColor = container,
             contentColor = content,
