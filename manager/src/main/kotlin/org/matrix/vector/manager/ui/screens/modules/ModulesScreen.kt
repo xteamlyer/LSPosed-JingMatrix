@@ -828,12 +828,33 @@ private fun ModuleRow(
                             ),
                 )
             }
+            val brokenSince = facts?.apiBrokenSince
             if (incompatible) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.modules_incompatible, module.minVersion),
+                    text =
+                        stringResource(
+                            if (module.isLegacy) R.string.modules_incompatible_legacy
+                            else R.string.modules_incompatible,
+                            module.minVersion,
+                        ),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.error,
+                )
+            } else if (brokenSince != null) {
+                // Not an error: the framework will load this and it may work perfectly. It is a
+                // caution, in the caution colour, naming the version that changed underneath it so
+                // the reader can go and ask its author about that specific thing.
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text =
+                        stringResource(
+                            R.string.modules_api_behind,
+                            module.minVersion,
+                            brokenSince,
+                        ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.tertiary,
                 )
             } else if (module.description.isNotBlank()) {
                 Spacer(Modifier.height(4.dp))

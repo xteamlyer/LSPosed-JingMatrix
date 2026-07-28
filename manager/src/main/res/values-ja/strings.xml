@@ -129,7 +129,9 @@
     <string name="modules_filter_all">すべて</string>
     <string name="modules_filter_active">有効</string>
     <string name="modules_filter_inactive">無効</string>
-    <string name="modules_incompatible">Xposed API %1$d が必要ですが、このフレームワークは提供していません。</string>
+    <string name="modules_incompatible">libxposed API %1$d が必要ですが、このフレームワークは提供していません。</string>
+    <string name="modules_incompatible_legacy">Xposed API %1$d が必要ですが、このフレームワークは提供していません。</string>
+    <string name="modules_api_behind">libxposed API %1$d 向けにビルドされています。API %2$d でインターフェースが変わったため、完全には動作しない可能性があります。</string>
     <string name="modules_no_daemon">Vector が動作していないため、モジュール一覧を取得できません。理由はホームのシステム状態で確認できます。</string>
     <string name="module_toggle_failed">%1$s を変更できませんでした。フレームワークが変更を拒否しました。</string>
 

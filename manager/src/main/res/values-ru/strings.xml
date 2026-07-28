@@ -142,7 +142,9 @@
     <string name="modules_filter_all">Все</string>
     <string name="modules_filter_active">Включённые</string>
     <string name="modules_filter_inactive">Выключенные</string>
-    <string name="modules_incompatible">Требуется Xposed API %1$d, которого этот фреймворк не предоставляет.</string>
+    <string name="modules_incompatible">Требуется libxposed API %1$d, которого этот фреймворк не предоставляет.</string>
+    <string name="modules_incompatible_legacy">Требуется Xposed API %1$d, которого этот фреймворк не предоставляет.</string>
+    <string name="modules_api_behind">Собран под libxposed API %1$d. В API %2$d интерфейс изменился, поэтому модуль может работать не полностью.</string>
     <string name="modules_no_daemon">Vector не запущен, поэтому список модулей недоступен. Откройте состояние системы с главного экрана, чтобы узнать причину.</string>
     <string name="module_toggle_failed">Не удалось изменить %1$s. Фреймворк отклонил изменение.</string>
     <string name="web_open_external">Открыть в браузере</string>

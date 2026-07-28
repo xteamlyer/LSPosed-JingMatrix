@@ -129,7 +129,9 @@
     <string name="modules_filter_all">全部</string>
     <string name="modules_filter_active">已啟用</string>
     <string name="modules_filter_inactive">未啟用</string>
-    <string name="modules_incompatible">需要 Xposed API %1$d，本框架未提供該版本。</string>
+    <string name="modules_incompatible">需要 libxposed API %1$d，此框架未提供。</string>
+    <string name="modules_incompatible_legacy">需要 Xposed API %1$d，本框架未提供該版本。</string>
+    <string name="modules_api_behind">針對 libxposed API %1$d 建置。API %2$d 變更了介面，此模組可能無法完全運作。</string>
     <string name="modules_no_daemon">Vector 未執行，因此無法列出模組。請從主畫面開啟系統狀態以查看原因。</string>
     <string name="module_toggle_failed">無法變更 %1$s。框架拒絕了這次變更。</string>
 

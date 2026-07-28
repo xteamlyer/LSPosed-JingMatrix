@@ -66,13 +66,19 @@ android {
         // that carry our own strings.xml. AssetManager.getLocales() cannot answer this: it reports
         // every locale any dependency ships a resource for — AndroidX alone drags in dozens — plus
         // the pseudo-locales, so a picker built from it offers languages the app has never seen.
+        //
+        // English is added by hand because it is not in a `values-xx` folder to be found: it lives
+        // in `values/`, the base the others fall back to. Scanning alone therefore listed every
+        // language the app has *except* the one it is written in — and a picker without English is
+        // one that someone who switched to Polish to see how it looked cannot use to switch back.
         val translations =
-            file("src/main/res")
-                .listFiles()
-                .orEmpty()
-                .filter { it.isDirectory && it.name.startsWith("values-") }
-                .filter { File(it, "strings.xml").exists() }
-                .map { it.name.removePrefix("values-").replace("-r", "-") }
+            (listOf("en") +
+                    file("src/main/res")
+                        .listFiles()
+                        .orEmpty()
+                        .filter { it.isDirectory && it.name.startsWith("values-") }
+                        .filter { File(it, "strings.xml").exists() }
+                        .map { it.name.removePrefix("values-").replace("-r", "-") })
                 .sorted()
         buildConfigField("String", "TRANSLATIONS", "\"${translations.joinToString(",")}\"")
     }

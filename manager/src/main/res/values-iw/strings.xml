@@ -157,7 +157,9 @@
     <string name="modules_filter_all">הכול</string>
     <string name="modules_filter_active">פעילים</string>
     <string name="modules_filter_inactive">לא פעילים</string>
-    <string name="modules_incompatible">דורש ממשק Xposed %1$d, שהמסגרת הזאת לא מספקת.</string>
+    <string name="modules_incompatible">דורש libxposed API %1$d, שהמסגרת הזו לא מספקת.</string>
+    <string name="modules_incompatible_legacy">דורש ממשק Xposed %1$d, שהמסגרת הזאת לא מספקת.</string>
+    <string name="modules_api_behind">נבנה עבור libxposed API %1$d. גרסה %2$d שינתה את הממשק, ולכן ייתכן שהמודול לא יעבוד במלואו.</string>
     <string name="modules_no_daemon">‏Vector לא פועל, ולכן רשימת המודולים לא זמינה. פתחו את מצב המערכת מהבית כדי לראות למה.</string>
     <string name="module_toggle_failed">לא ניתן היה לשנות את %1$s. המסגרת דחתה את השינוי.</string>
 

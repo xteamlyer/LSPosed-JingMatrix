@@ -137,7 +137,9 @@
     <string name="modules_filter_all">Tümü</string>
     <string name="modules_filter_active">Etkin</string>
     <string name="modules_filter_inactive">Etkin değil</string>
-    <string name="modules_incompatible">Xposed API %1$d gerekiyor; bu çatı onu sağlamıyor.</string>
+    <string name="modules_incompatible">libxposed API %1$d gerekiyor; bu çerçeve onu sağlamıyor.</string>
+    <string name="modules_incompatible_legacy">Xposed API %1$d gerekiyor; bu çatı onu sağlamıyor.</string>
+    <string name="modules_api_behind">libxposed API %1$d için derlendi. API %2$d arayüzü değiştirdi; bu modül tam çalışmayabilir.</string>
     <string name="modules_no_daemon">Vector çalışmıyor, bu yüzden modül listesi alınamıyor. Nedenini görmek için Ana sayfadan sistem durumunu açın.</string>
     <string name="module_toggle_failed">%1$s değiştirilemedi. Çatı değişikliği reddetti.</string>
 

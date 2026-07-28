@@ -133,7 +133,9 @@
     <string name="modules_filter_all">Semua</string>
     <string name="modules_filter_active">Aktif</string>
     <string name="modules_filter_inactive">Nonaktif</string>
-    <string name="modules_incompatible">Butuh API Xposed %1$d, yang tidak disediakan framework ini.</string>
+    <string name="modules_incompatible">Membutuhkan libxposed API %1$d, yang tidak disediakan framework ini.</string>
+    <string name="modules_incompatible_legacy">Butuh API Xposed %1$d, yang tidak disediakan framework ini.</string>
+    <string name="modules_api_behind">Dibuat untuk libxposed API %1$d. API %2$d mengubah antarmukanya, jadi modul ini mungkin tidak berfungsi penuh.</string>
     <string name="modules_no_daemon">Vector tidak berjalan, jadi daftar modul tidak tersedia. Buka status sistem dari Beranda untuk melihat sebabnya.</string>
     <string name="module_toggle_failed">%1$s tidak bisa diubah. Framework menolak perubahan itu.</string>
 

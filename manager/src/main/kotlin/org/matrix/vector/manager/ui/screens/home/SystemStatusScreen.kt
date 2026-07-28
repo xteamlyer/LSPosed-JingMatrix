@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.lsposed.lspd.ILSPManagerService
 import org.matrix.vector.manager.BuildConfig
 import org.matrix.vector.manager.R
+import org.matrix.vector.manager.data.model.XposedApi
 import org.matrix.vector.manager.ui.components.SnackbarTone
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
 import org.matrix.vector.manager.ui.components.show
@@ -194,7 +195,14 @@ private fun buildRows(
     val unknown = "—"
     return listOf(
         stringResource(R.string.info_framework_version) to (status.versionLabel ?: unknown),
-        stringResource(R.string.info_api_version) to (status.apiVersion?.toString() ?: unknown),
+        // Named by which scale the number is on. The two share a field and nothing else: 93 is a
+        // legacy Xposed API, 101 is a libxposed one, and calling both "Xposed API" is how a reader
+        // ends up comparing versions that were never comparable.
+        stringResource(
+            if (status.apiVersion?.let { XposedApi.isLibxposed(it) } == true)
+                R.string.info_api_version_libxposed
+            else R.string.info_api_version
+        ) to (status.apiVersion?.toString() ?: unknown),
         stringResource(R.string.info_manager_package) to context.packageName,
         stringResource(R.string.info_selinux) to
             stringResource(

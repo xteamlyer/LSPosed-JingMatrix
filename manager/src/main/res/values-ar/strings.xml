@@ -169,7 +169,9 @@
     <string name="modules_filter_all">الكل</string>
     <string name="modules_filter_active">نشطة</string>
     <string name="modules_filter_inactive">غير نشطة</string>
-    <string name="modules_incompatible">تحتاج واجهة Xposed %1$d، وهذا الإطار لا يوفّرها.</string>
+    <string name="modules_incompatible">يحتاج إلى libxposed API %1$d، وهو غير متوفّر في هذا الإطار.</string>
+    <string name="modules_incompatible_legacy">تحتاج واجهة Xposed %1$d، وهذا الإطار لا يوفّرها.</string>
+    <string name="modules_api_behind">بُني على libxposed API %1$d. غيّر الإصدار %2$d الواجهة، لذا قد لا تعمل هذه الوحدة بالكامل.</string>
     <string name="modules_no_daemon">‏Vector لا يعمل، لذا قائمة الوحدات غير متاحة. افتح حالة النظام من الرئيسية لمعرفة السبب.</string>
     <string name="module_toggle_failed">تعذّر تغيير %1$s. رفض الإطار التغيير.</string>
 

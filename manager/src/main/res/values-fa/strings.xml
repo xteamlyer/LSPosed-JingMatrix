@@ -137,7 +137,9 @@
     <string name="modules_filter_all">همه</string>
     <string name="modules_filter_active">فعال</string>
     <string name="modules_filter_inactive">غیرفعال</string>
-    <string name="modules_incompatible">به واسط Xposed %1$d نیاز دارد که این چارچوب فراهم نمی‌کند.</string>
+    <string name="modules_incompatible">به libxposed API %1$d نیاز دارد که این چارچوب ارائه نمی‌کند.</string>
+    <string name="modules_incompatible_legacy">به واسط Xposed %1$d نیاز دارد که این چارچوب فراهم نمی‌کند.</string>
+    <string name="modules_api_behind">برای libxposed API %1$d ساخته شده است. API %2$d رابط را تغییر داد، پس ممکن است این ماژول کامل کار نکند.</string>
     <string name="modules_no_daemon">‏Vector در حال اجرا نیست، پس فهرست ماژول‌ها در دسترس نیست. برای دیدن علت، وضعیت سامانه را از خانه باز کنید.</string>
     <string name="module_toggle_failed">تغییر %1$s ممکن نشد. چارچوب این تغییر را نپذیرفت.</string>
 

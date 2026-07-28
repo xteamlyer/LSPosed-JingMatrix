@@ -26,6 +26,7 @@ import org.matrix.vector.manager.data.model.PER_USER_RANGE
 import org.matrix.vector.manager.data.repository.ModuleRepository
 import org.matrix.vector.manager.data.model.StoreEntry
 import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
+import org.matrix.vector.manager.data.model.XposedApi
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ipc.DaemonClient
 
@@ -51,6 +52,15 @@ data class ModuleKey(val packageName: String, val userId: Int)
 data class ModuleFacts(
     val scopeCount: Int = -1,
     val incompatible: Boolean = false,
+    /**
+     * The libxposed version that broke what this module was built against, if one has.
+     *
+     * Distinct from [incompatible], which is "the framework does not go that high". This is the
+     * opposite direction: the module is *behind* a break, so the framework can load it and it may
+     * still misbehave. The number is kept rather than a flag because naming the version is the
+     * explanation.
+     */
+    val apiBrokenSince: Int? = null,
     /**
      * The first few apps in the module's scope, for the row's preview.
      *
@@ -434,6 +444,9 @@ class ModulesViewModel(
                         // A module asking for a newer API than the framework provides cannot
                         // load; saying so here beats letting the user wonder why nothing happens.
                         incompatible = api > 0 && module.minVersion > api,
+                        apiBrokenSince =
+                            if (api <= 0) null
+                            else XposedApi.brokenSince(module.minVersion, api),
                         scopeFramework = framework,
                         scopePreview =
                             apps

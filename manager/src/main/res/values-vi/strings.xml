@@ -129,7 +129,9 @@
     <string name="modules_filter_all">Tất cả</string>
     <string name="modules_filter_active">Đang bật</string>
     <string name="modules_filter_inactive">Đang tắt</string>
-    <string name="modules_incompatible">Cần API Xposed %1$d, framework này không cung cấp.</string>
+    <string name="modules_incompatible">Cần libxposed API %1$d, mà framework này không cung cấp.</string>
+    <string name="modules_incompatible_legacy">Cần API Xposed %1$d, framework này không cung cấp.</string>
+    <string name="modules_api_behind">Được dựng cho libxposed API %1$d. API %2$d đã đổi giao diện nên mô-đun này có thể không chạy đầy đủ.</string>
     <string name="modules_no_daemon">Vector không chạy nên không lấy được danh sách mô-đun. Mở trạng thái hệ thống ở trang chính để xem vì sao.</string>
     <string name="module_toggle_failed">Không đổi được %1$s. Framework đã từ chối thay đổi.</string>
 

@@ -137,7 +137,9 @@
     <string name="modules_filter_all">Tutti</string>
     <string name="modules_filter_active">Attivi</string>
     <string name="modules_filter_inactive">Inattivi</string>
-    <string name="modules_incompatible">Richiede l\'API Xposed %1$d, che questo framework non fornisce.</string>
+    <string name="modules_incompatible">Richiede l’API libxposed %1$d, che questo framework non fornisce.</string>
+    <string name="modules_incompatible_legacy">Richiede l\'API Xposed %1$d, che questo framework non fornisce.</string>
+    <string name="modules_api_behind">Compilato per l’API libxposed %1$d. L’API %2$d ha cambiato l’interfaccia, quindi questo modulo potrebbe non funzionare del tutto.</string>
     <string name="modules_no_daemon">Vector non è in esecuzione, quindi l\'elenco dei moduli non è disponibile. Apri lo stato del sistema dalla Home per vedere perché.</string>
     <string name="module_toggle_failed">Impossibile modificare %1$s. Il framework ha rifiutato la modifica.</string>
 

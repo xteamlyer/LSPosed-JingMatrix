@@ -33,6 +33,7 @@
     <!-- System status detail -->
     <string name="system_status">System status</string>
     <string name="info_api_version">Xposed API</string>
+    <string name="info_api_version_libxposed" translatable="false">libxposed API</string>
     <string name="info_framework_version">Framework</string>
     <string name="info_manager_package">Manager package</string>
     <string name="info_dex2oat">Dex optimizer wrapper</string>
@@ -187,7 +188,9 @@
     <string name="modules_filter_all">All</string>
     <string name="modules_filter_active">Active</string>
     <string name="modules_filter_inactive">Inactive</string>
-    <string name="modules_incompatible">Needs Xposed API %1$d, which this framework does not provide.</string>
+    <string name="modules_incompatible">Needs libxposed API %1$d, which this framework does not provide.</string>
+    <string name="modules_incompatible_legacy">Needs Xposed API %1$d, which this framework does not provide.</string>
+    <string name="modules_api_behind">Built for libxposed API %1$d. API %2$d changed the interface, so this module may not work fully.</string>
     <string name="modules_no_daemon">Vector is not running, so the module list is unavailable. Open system status from Home to see why.</string>
     <string name="module_toggle_failed">Could not change %1$s. The framework refused the change.</string>
 
