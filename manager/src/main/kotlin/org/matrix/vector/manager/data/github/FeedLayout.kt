@@ -86,7 +86,30 @@ object FeedLayout {
         if (visible.isEmpty()) return emptyList()
 
         val bots = feed.commits.filter { it.isBot }
-        val items = mutableListOf<FeedItem>()
+        val items = ArrayList<FeedItem>(visible.size * 2 + 8)
+
+        // Each commit's month, worked out once.
+        //
+        // This used to be a `filter` over every commit at each month boundary, with a fresh
+        // Calendar per comparison — O(commits × months), which on a six-month window was a few
+        // thousand cheap operations and on the full archive was 1517 × 55 Calendar allocations and
+        // a 1.9-second freeze on the thread laying out the feed. Two passes and a map do the same
+        // work in one sweep.
+        val months = ArrayList<String>(visible.size)
+        val calendar = Calendar.getInstance()
+        visible.forEach { commit ->
+            calendar.timeInMillis = commit.epochSeconds * 1000
+            months += monthKey(calendar)
+        }
+        val commitsPerMonth = HashMap<String, Int>()
+        val peoplePerMonth = HashMap<String, MutableSet<String>>()
+        visible.forEachIndexed { index, commit ->
+            val key = months[index]
+            commitsPerMonth[key] = (commitsPerMonth[key] ?: 0) + 1
+            val people = peoplePerMonth.getOrPut(key) { HashSet() }
+            commit.authors.forEach { if (!it.isBot) people += it.login.lowercase() }
+        }
+        val thisYear = Calendar.getInstance().get(Calendar.YEAR)
 
         // Only meaningful once both numbers are known, and only when the reader is actually
         // behind — telling someone who is up to date that they are up to date is noise.
@@ -115,20 +138,17 @@ object FeedLayout {
                 markerPlaced = true
             }
 
-            val month = monthLabel(commit.epochSeconds)
+            val month = months[index]
             if (month != lastMonth) {
-                val inMonth = visible.filter { monthLabel(it.epochSeconds) == month }
+                calendar.timeInMillis = commit.epochSeconds * 1000
+                val year = calendar.get(Calendar.YEAR)
                 items +=
                     FeedItem.MonthMarker(
                         key = month,
-                        month = monthOf(commit.epochSeconds),
-                        year = yearOf(commit.epochSeconds).takeIf { it != currentYear() },
-                        commits = inMonth.size,
-                        people =
-                            inMonth
-                                .flatMap { c -> c.authors.filterNot { it.isBot } }
-                                .distinctBy { it.login.lowercase() }
-                                .size,
+                        month = calendar.get(Calendar.MONTH),
+                        year = year.takeIf { it != thisYear },
+                        commits = commitsPerMonth[month] ?: 0,
+                        people = peoplePerMonth[month]?.size ?: 0,
                     )
                 lastMonth = month
             }
@@ -177,16 +197,6 @@ object FeedLayout {
      * is not visible at all. So the model now groups by an invariant key and the screen names the
      * month at draw time.
      */
-    private fun monthLabel(epochSeconds: Long): String {
-        val cal = Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }
-        return "%d-%02d".format(Locale.ROOT, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH))
-    }
-
-    private fun monthOf(epochSeconds: Long): Int =
-        Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }.get(Calendar.MONTH)
-
-    private fun yearOf(epochSeconds: Long): Int =
-        Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }.get(Calendar.YEAR)
-
-    private fun currentYear(): Int = Calendar.getInstance().get(Calendar.YEAR)
+    private fun monthKey(calendar: Calendar): String =
+        "%d-%02d".format(Locale.ROOT, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH))
 }
