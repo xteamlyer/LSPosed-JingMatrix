@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 /**
@@ -30,8 +31,10 @@ import kotlin.random.Random
 class MazeRenderer : AmbienceRenderer {
 
     private companion object {
-        const val COLS = 13
-        const val ROWS = 5
+        const val BASE_COLS = 13
+        const val BASE_ROWS = 5
+        const val MIN_SCALE = 0.5f
+        const val MAX_SCALE = 2.5f
         /** Cells per second. Slow: this sits behind text somebody is reading. */
         const val SPEED = 3.4f
         /**
@@ -52,8 +55,27 @@ class MazeRenderer : AmbienceRenderer {
      * (x, y + 1). Storing edges rather than cells is what makes "is this move legal" a single
      * lookup with no bounds arithmetic in the hot path.
      */
-    private val right = Array(COLS) { BooleanArray(ROWS) }
-    private val down = Array(COLS) { BooleanArray(ROWS) }
+    /**
+     * Cell size, as a multiple of the resting size.
+     *
+     * A maze is the one ambience where a scale changes the *problem* and not just the picture:
+     * pinching out gives a finer grid with more corridors to solve, pinching in gives a few large
+     * rooms. Changing it rebuilds the maze, because a grid cannot be resized in place — and a
+     * fresh maze is the honest answer to "make it finer" anyway.
+     */
+    override var scale: Float = 1f
+        set(value) {
+            val next = value.coerceIn(MIN_SCALE, MAX_SCALE)
+            if (next == field) return
+            field = next
+            resize()
+        }
+
+    private var cols = BASE_COLS
+    private var rows = BASE_ROWS
+
+    private var right = Array(cols) { BooleanArray(rows) }
+    private var down = Array(cols) { BooleanArray(rows) }
 
     /** Rows where the left and right edges are open. Several of each, by construction. */
     private val leftDoors = mutableListOf<Int>()
@@ -92,16 +114,25 @@ class MazeRenderer : AmbienceRenderer {
      * time reversing out of them; opening roughly half the dead ends back up leaves loops, so there
      * is more than one way through and its turns are choices rather than the only legal move.
      */
+    /** A finer or coarser grid is a different maze, so the grids are replaced and re-carved. */
+    private fun resize() {
+        cols = (BASE_COLS / scale).roundToInt().coerceIn(4, 40)
+        rows = (BASE_ROWS / scale).roundToInt().coerceIn(2, 16)
+        right = Array(cols) { BooleanArray(rows) }
+        down = Array(cols) { BooleanArray(rows) }
+        build()
+    }
+
     private fun build() {
-        for (x in 0 until COLS) for (y in 0 until ROWS) {
-            right[x][y] = x < COLS - 1
-            down[x][y] = y < ROWS - 1
+        for (x in 0 until cols) for (y in 0 until rows) {
+            right[x][y] = x < cols - 1
+            down[x][y] = y < rows - 1
         }
 
-        val visited = Array(COLS) { BooleanArray(ROWS) }
+        val visited = Array(cols) { BooleanArray(rows) }
         val stack = ArrayDeque<Pair<Int, Int>>()
-        var sx = random.nextInt(COLS)
-        var sy = random.nextInt(ROWS)
+        var sx = random.nextInt(cols)
+        var sy = random.nextInt(rows)
         visited[sx][sy] = true
         stack.addLast(sx to sy)
 
@@ -111,7 +142,7 @@ class MazeRenderer : AmbienceRenderer {
                 DIRECTIONS.filter { (ddx, ddy) ->
                     val nx = x + ddx
                     val ny = y + ddy
-                    nx in 0 until COLS && ny in 0 until ROWS && !visited[nx][ny]
+                    nx in 0 until cols && ny in 0 until rows && !visited[nx][ny]
                 }
             if (unvisited.isEmpty()) {
                 stack.removeLast()
@@ -125,14 +156,14 @@ class MazeRenderer : AmbienceRenderer {
             stack.addLast(sx to sy)
         }
 
-        for (x in 0 until COLS) for (y in 0 until ROWS) {
+        for (x in 0 until cols) for (y in 0 until rows) {
             val exits = DIRECTIONS.count { (ddx, ddy) -> open(x, y, ddx, ddy) }
             if (exits <= 1 && random.nextFloat() < BRAID) {
                 val closed =
                     DIRECTIONS.filter { (ddx, ddy) ->
                         val nx = x + ddx
                         val ny = y + ddy
-                        nx in 0 until COLS && ny in 0 until ROWS && !open(x, y, ddx, ddy)
+                        nx in 0 until cols && ny in 0 until rows && !open(x, y, ddx, ddy)
                     }
                 closed.randomOrNull(random)?.let { (ddx, ddy) -> carve(x, y, ddx, ddy) }
             }
@@ -142,12 +173,12 @@ class MazeRenderer : AmbienceRenderer {
         // walls can come out sealed, and a sealed maze has nothing to watch.
         leftDoors.clear()
         rightDoors.clear()
-        val rows = (0 until ROWS).toMutableList()
-        rows.shuffle(random)
+        val candidates = (0 until rows).toMutableList()
+        candidates.shuffle(random)
         val doorCount = 2 + random.nextInt(2)
-        leftDoors += rows.take(doorCount)
-        rows.shuffle(random)
-        rightDoors += rows.take(doorCount)
+        leftDoors += candidates.take(doorCount)
+        candidates.shuffle(random)
+        rightDoors += candidates.take(doorCount)
 
         trail.clear()
         travelling = false
@@ -173,9 +204,9 @@ class MazeRenderer : AmbienceRenderer {
     /** True when a move from (x, y) in a direction is not blocked by a wall or the top/bottom. */
     private fun open(x: Int, y: Int, ddx: Int, ddy: Int): Boolean =
         when {
-            ddx == 1 -> x < COLS - 1 && !right[x][y]
+            ddx == 1 -> x < cols - 1 && !right[x][y]
             ddx == -1 -> x > 0 && !right[x - 1][y]
-            ddy == 1 -> y < ROWS - 1 && !down[x][y]
+            ddy == 1 -> y < rows - 1 && !down[x][y]
             else -> y > 0 && !down[x][y - 1]
         }
 
@@ -186,7 +217,7 @@ class MazeRenderer : AmbienceRenderer {
             cy = leftDoors.random(random)
             dx = 1
         } else if (rightDoors.isNotEmpty()) {
-            cx = COLS - 1
+            cx = cols - 1
             cy = rightDoors.random(random)
             dx = -1
         } else {
@@ -249,7 +280,7 @@ class MazeRenderer : AmbienceRenderer {
             val ny = cy + dy
 
             // Leaving through a door on either edge ends the run.
-            if (nx < 0 || nx >= COLS) {
+            if (nx < 0 || nx >= cols) {
                 travelling = false
                 restDelay = 700f + random.nextFloat() * 900f
                 return
@@ -263,7 +294,7 @@ class MazeRenderer : AmbienceRenderer {
             // At an edge door, carry straight on out; otherwise choose.
             val leaving =
                 (cx == 0 && dx == -1 && cy in leftDoors) ||
-                    (cx == COLS - 1 && dx == 1 && cy in rightDoors)
+                    (cx == cols - 1 && dx == 1 && cy in rightDoors)
             if (!leaving) turn()
         }
     }
@@ -294,30 +325,37 @@ class MazeRenderer : AmbienceRenderer {
     }
 
     /** A different maze. Watching one lay itself out is half of what the surface is for. */
-    override fun onSwipe(from: Offset, to: Offset, size: Size) {
-        if (abs(to.x - from.x) < size.width * 0.12f) return
+    private var dragged = 0f
+
+    override fun onDrag(pan: Offset, at: Offset, size: Size) {
+        if (size.width <= 0f) return
+        // Sideways travel only, accumulated across the drag: a maze is rebuilt by a deliberate
+        // sweep, not by the vertical wobble of a finger resting on the header.
+        dragged += pan.x
+        if (abs(dragged) < size.width * 0.12f) return
+        dragged = 0f
         seed(size)
         build()
     }
 
     private fun cellAt(position: Offset, size: Size): Pair<Int, Int>? {
-        val w = size.width / COLS
-        val h = size.height / ROWS
+        val w = size.width / cols
+        val h = size.height / rows
         if (w <= 0f || h <= 0f) return null
-        val x = (position.x / w).toInt().coerceIn(0, COLS - 1)
-        val y = (position.y / h).toInt().coerceIn(0, ROWS - 1)
+        val x = (position.x / w).toInt().coerceIn(0, cols - 1)
+        val y = (position.y / h).toInt().coerceIn(0, rows - 1)
         return x to y
     }
 
     override fun DrawScope.render(tint: Color) {
         if (sized.width <= 0f) return
-        val w = size.width / COLS
-        val h = size.height / ROWS
+        val w = size.width / cols
+        val h = size.height / rows
         val stroke = Stroke(width = 1.6f)
 
         // Walls first, faint: they are the setting, not the subject.
         val wallColor = tint.copy(alpha = 0.16f)
-        for (x in 0 until COLS) for (y in 0 until ROWS) {
+        for (x in 0 until cols) for (y in 0 until rows) {
             if (right[x][y]) {
                 drawLine(
                     color = wallColor,
@@ -337,7 +375,7 @@ class MazeRenderer : AmbienceRenderer {
         }
 
         // The outer frame, minus the doors — which is what makes the openings legible as openings.
-        for (y in 0 until ROWS) {
+        for (y in 0 until rows) {
             if (y !in leftDoors) {
                 drawLine(wallColor, Offset(0f, y * h), Offset(0f, (y + 1) * h), stroke.width)
             }

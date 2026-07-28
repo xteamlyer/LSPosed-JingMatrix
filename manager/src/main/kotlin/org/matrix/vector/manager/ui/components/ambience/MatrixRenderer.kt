@@ -60,7 +60,23 @@ class MatrixRenderer : AmbienceRenderer {
      * Clamped rather than unbounded: below the floor the glyphs stop being glyphs, and above the
      * ceiling three columns fill the header and it stops being rain.
      */
-    private var scale = 1f
+    override var scale: Float = 1f
+        set(value) {
+            field = value.coerceIn(MIN_SCALE, MAX_SCALE)
+        }
+
+    /**
+     * How fast the rain falls, as a multiple of its resting speed.
+     *
+     * A vertical drag sets it, which is the one axis the rain itself already means: dragging down
+     * pushes it along, dragging up holds it back. Pinch was already spoken for by the glyph size,
+     * and the two are genuinely different questions — how much can I read at once, and how long do
+     * I get to read it.
+     */
+    override var speed: Float = 1f
+        set(value) {
+            field = value.coerceIn(MIN_SPEED, MAX_SPEED)
+        }
 
     private var frozen = false
     private var heldAt: Offset? = null
@@ -69,6 +85,7 @@ class MatrixRenderer : AmbienceRenderer {
     private var motion = 1f
 
     private var cellHeight = 0f
+
 
     override val isAnimating: Boolean
         // Still frozen? Then the only thing that could change is the held glyph's own pulse, and
@@ -93,7 +110,10 @@ class MatrixRenderer : AmbienceRenderer {
     private fun seed(size: Size) {
         if (sized == size && columns.isNotEmpty()) return
         sized = size
-        cellHeight = size.height * 0.26f
+        // A quarter of the header was one very large glyph per column; at that size the rain read
+        // as a headline rather than as code. Small enough that a column is a stream of characters,
+        // and the pinch is there for anyone who wants them bigger.
+        cellHeight = size.height * 0.155f
         columns.clear()
         // Deliberately more columns than fit at rest: the extras live far away as a faint
         // drizzle, and they are what there is to *find* when you pull the view closer.
@@ -127,7 +147,7 @@ class MatrixRenderer : AmbienceRenderer {
         val cell = cell()
         columns.forEach { column ->
             // Speed follows the glyph size, so zooming in does not turn the rain into a crawl.
-            column.head += cell * column.weight * 1.5f * seconds * motion
+            column.head += cell * column.weight * 1.5f * seconds * motion * speed
 
             // Glyphs flicker as they fall; this is the detail that makes it look alive.
             if (motion > 0.05f && random.nextFloat() < dt / 340f) {
@@ -164,8 +184,17 @@ class MatrixRenderer : AmbienceRenderer {
         heldGlyph = null
     }
 
-    override fun onZoom(factor: Float) {
-        scale = (scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
+    /**
+     * A vertical drag changes how fast it falls.
+     *
+     * Scaled against the header's own height, so the same physical gesture does the same thing on
+     * any screen, and multiplicative so it is as easy to slow a fast rain as to speed a slow one.
+     */
+    override fun onDrag(pan: Offset, at: Offset, size: Size) {
+        if (size.height <= 0f) return
+        val delta = pan.y / size.height
+        if (abs(delta) < 0.0005f) return
+        speed *= 1f + delta * 1.6f
     }
 
     /** Where a column lands on screen. Lanes are fixed; only the glyphs on them change size. */
@@ -236,5 +265,7 @@ class MatrixRenderer : AmbienceRenderer {
     private companion object {
         const val MIN_SCALE = 0.45f
         const val MAX_SCALE = 3.5f
+        const val MIN_SPEED = 0.15f
+        const val MAX_SPEED = 6f
     }
 }

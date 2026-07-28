@@ -61,11 +61,39 @@ interface AmbienceRenderer {
     /** The held press ended. */
     fun onRelease() {}
 
-    /** A drag across the surface. */
-    fun onSwipe(from: Offset, to: Offset, size: Size) {}
+    /**
+     * A drag, reported as the movement since the previous event.
+     *
+     * The increment rather than the distance from where the finger went down, because the surface
+     * has no reliable notion of where that was: the transform detector in this version of Compose
+     * reports no gesture boundary, so a remembered origin leaked from one drag into the next — the
+     * maze rebuilt on a nudge, and the rain hit its speed ceiling on the first flick. A renderer
+     * that wants a total accumulates one and decides for itself when it has seen enough.
+     */
+    fun onDrag(pan: Offset, at: Offset, size: Size) {}
 
-    /** A pinch. [factor] is relative to the previous frame's span. */
-    fun onZoom(factor: Float) {}
+    /**
+     * How large this render draws itself, as a multiple of its resting size.
+     *
+     * Every ambience answers a pinch, and every one answers it the same way: a *scale*, not a
+     * camera. Zooming out gives more of the thing — finer drizzle, a bigger maze, more traces —
+     * and zooming in gives fewer and larger. Simulating a viewer moving through the field was the
+     * first attempt and it read as sliding rather than approaching, because none of these have the
+     * parallax cues that would sell the move.
+     *
+     * The surface owns the number so it can be persisted; the renderer only has to honour it.
+     */
+    var scale: Float
+
+    /**
+     * How fast it moves, as a multiple of its resting speed.
+     *
+     * Only meaningful where there is continuous motion — the maze wanderer and the circuit pulses
+     * move on their own schedule, so they ignore it.
+     */
+    var speed: Float
+        get() = 1f
+        set(_) {}
 
     /**
      * False when nothing is moving, letting the header park the frame loop.

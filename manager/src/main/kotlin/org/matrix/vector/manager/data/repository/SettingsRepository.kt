@@ -101,6 +101,26 @@ class SettingsRepository(context: Context) {
         MutableStateFlow(prefs.getString("header_ambience", DEFAULT_AMBIENCE) ?: DEFAULT_AMBIENCE)
     val headerAmbience: StateFlow<String> = _headerAmbience.asStateFlow()
 
+    /**
+     * How big, and how fast, each ambience draws itself.
+     *
+     * Per kind rather than global: a comfortable glyph size for the code rain says nothing about
+     * how large a maze cell should be, and someone who has tuned one and switches away should find
+     * it as they left it. Written straight through on every gesture — these are a handful of bytes
+     * and the alternative is losing the adjustment to the next process death.
+     */
+    fun ambienceScale(kind: String): Float = prefs.getFloat("ambience_scale_$kind", 1f)
+
+    fun setAmbienceScale(kind: String, value: Float) {
+        prefs.edit().putFloat("ambience_scale_$kind", value).apply()
+    }
+
+    fun ambienceSpeed(kind: String): Float = prefs.getFloat("ambience_speed_$kind", 1f)
+
+    fun setAmbienceSpeed(kind: String, value: Float) {
+        prefs.edit().putFloat("ambience_speed_$kind", value).apply()
+    }
+
     fun setHeaderAmbience(key: String) {
         prefs.edit().putString("header_ambience", key).apply()
         _headerAmbience.value = key

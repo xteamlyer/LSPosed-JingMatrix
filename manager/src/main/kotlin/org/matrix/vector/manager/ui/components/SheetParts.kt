@@ -1,15 +1,14 @@
 package org.matrix.vector.manager.ui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ListItem
@@ -55,20 +54,19 @@ fun SheetHeading(text: String, icon: ImageVector) {
 }
 
 /**
- * A row of choices.
+ * A row of choices, wrapping onto as many lines as it needs.
  *
- * Scrolls sideways rather than wrapping: a chip that reflows to a second line moves every chip
- * after it, so the same option sits in a different place in each language and the row stops being
- * something you can learn the shape of.
+ * This scrolled sideways at first, on the theory that a chip which reflows moves every chip after
+ * it, so an option sits somewhere different in each language. True, but it is the lesser problem:
+ * scrolling *hides* the options past the edge, and an option nobody knows about is worse than one
+ * that moved. In a sheet the vertical room costs nothing, so everything is shown at once.
  */
 @Composable
 fun ChoiceRow(content: @Composable () -> Unit) {
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 4.dp),
+    FlowRow(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         content()
     }

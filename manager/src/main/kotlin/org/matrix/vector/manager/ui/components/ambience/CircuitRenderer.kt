@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 /**
@@ -23,6 +24,8 @@ class CircuitRenderer : AmbienceRenderer {
 
     private companion object {
         /** Average gap between unprompted pulses. */
+        const val MIN_SCALE = 0.4f
+        const val MAX_SCALE = 3f
         const val PULSE_INTERVAL_MS = 5_000f
 
         /** How long a board lasts before it re-routes itself. */
@@ -57,6 +60,21 @@ class CircuitRenderer : AmbienceRenderer {
     }
 
     private var traces: List<Trace> = emptyList()
+
+    /**
+     * How densely the board is laid out.
+     *
+     * Pinching out routes more traces with shorter runs between turns — a busier board seen from
+     * further back; pinching in gives a few wide traces with long straight stretches. The stroke
+     * follows it too, so a dense board does not turn into a grey wash.
+     */
+    override var scale: Float = 1f
+        set(value) {
+            val next = value.coerceIn(MIN_SCALE, MAX_SCALE)
+            if (next == field) return
+            field = next
+            if (sized != Size.Zero) route(sized)
+        }
     private val pulses = mutableListOf<Pulse>()
     private var sized = Size.Zero
 
@@ -87,14 +105,14 @@ class CircuitRenderer : AmbienceRenderer {
     private fun route(size: Size) {
         val random = Random(0xB0A2D + layoutSeed * 7919)
         traces =
-            List(6 + random.nextInt(4)) {
+            List(((6 + random.nextInt(4)) / scale).roundToInt().coerceIn(2, 26)) {
                 val startY = size.height * (0.12f + random.nextFloat() * 0.76f)
                 val points = mutableListOf(Offset(0f, startY))
                 var x = 0f
                 var y = startY
                 // Walk rightwards, stepping vertically now and then — routed, not drawn.
                 while (x < size.width) {
-                    val run = size.width * (0.10f + random.nextFloat() * 0.22f)
+                    val run = size.width * (0.10f + random.nextFloat() * 0.22f) * scale
                     x = (x + run).coerceAtMost(size.width)
                     points += Offset(x, y)
                     if (x < size.width && random.nextFloat() < 0.72f) {
@@ -156,8 +174,13 @@ class CircuitRenderer : AmbienceRenderer {
      * The traces are generated, not drawn by hand, so there is no reason the user should be stuck
      * with the one they were given — and watching a new board lay itself out is half the appeal.
      */
-    override fun onSwipe(from: Offset, to: Offset, size: Size) {
-        if (hypot(to.x - from.x, to.y - from.y) < size.height * 0.25f) return
+    private var dragged = 0f
+
+    override fun onDrag(pan: Offset, at: Offset, size: Size) {
+        if (size.height <= 0f) return
+        dragged += hypot(pan.x, pan.y)
+        if (dragged < size.height * 0.25f) return
+        dragged = 0f
         reroute(size)
         nextRouteMs = ROUTE_INTERVAL_MS
     }
@@ -205,7 +228,7 @@ class CircuitRenderer : AmbienceRenderer {
     }
 
     override fun DrawScope.render(tint: Color) {
-        val width = size.height * 0.005f
+        val width = size.height * 0.005f * scale.coerceAtMost(1.8f)
 
         traces.forEachIndexed { traceIndex, trace ->
             // On a fresh board the traces draw themselves in left to right, one slightly after

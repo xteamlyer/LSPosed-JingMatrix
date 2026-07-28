@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -25,6 +26,12 @@ import kotlin.random.Random
  *   joins the fall. So the field is something you can prune and reseed rather than only disturb.
  */
 class SnowRenderer : AmbienceRenderer {
+
+    private companion object {
+        const val BASE_FLAKES = 22
+        const val MIN_SCALE = 0.4f
+        const val MAX_SCALE = 3f
+    }
 
     private class Flake(
         var x: Float,
@@ -65,18 +72,32 @@ class SnowRenderer : AmbienceRenderer {
     override val isAnimating: Boolean
         get() = true
 
+    /**
+     * Crystal size, and with it how many there are.
+     *
+     * Inversely: pinching out gives a fine dense drizzle, pinching in gives a few large crystals.
+     * Keeping the *coverage* roughly constant is what makes it read as one snowfall seen closer or
+     * further rather than as two different settings.
+     */
+    override var scale: Float = 1f
+        set(value) {
+            field = value.coerceIn(MIN_SCALE, MAX_SCALE)
+        }
+
+    private fun target(): Int = (BASE_FLAKES / scale).roundToInt().coerceIn(6, 90)
+
     private fun seed(size: Size) {
         if (sized == size && flakes.isNotEmpty()) return
         sized = size
         flakes.clear()
-        repeat(22) { flakes += newFlake(size, random.nextFloat() * size.height) }
+        repeat(target()) { flakes += newFlake(size, random.nextFloat() * size.height) }
     }
 
     private fun newFlake(size: Size, atY: Float, atX: Float? = null, growing: Boolean = false) =
         Flake(
             x = atX ?: (random.nextFloat() * size.width),
             y = atY,
-            fullRadius = size.height * (0.018f + random.nextFloat() * 0.030f),
+            fullRadius = size.height * (0.018f + random.nextFloat() * 0.030f) * scale,
             // Bigger crystals read as nearer, so they fall faster.
             fallSpeed = 10f + random.nextFloat() * 22f,
             swayPhase = random.nextFloat() * 2f * PI.toFloat(),
@@ -88,6 +109,11 @@ class SnowRenderer : AmbienceRenderer {
     override fun update(dt: Float, size: Size) {
         if (size.width <= 0f || size.height <= 0f) return
         seed(size)
+        // Follow the scale without restarting the snowfall: new crystals drift in from above and
+        // surplus ones are taken from the top, so a pinch never blanks the field.
+        val want = target()
+        while (flakes.size < want) flakes += newFlake(size, -random.nextFloat() * size.height)
+        while (flakes.size > want) flakes.removeAt(flakes.indexOf(flakes.minByOrNull { it.y }))
         clock += dt
         val seconds = dt / 1000f
 

@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.android.awaitFrame
+import org.matrix.vector.manager.di.ServiceLocator
 
 /**
  * The header's living background.
@@ -37,7 +38,16 @@ import kotlinx.coroutines.android.awaitFrame
  */
 @Composable
 fun AmbientSurface(kind: AmbienceKind, tint: Color, modifier: Modifier = Modifier) {
-    val renderer = remember(kind) { rendererFor(kind) } ?: return
+    val settings = ServiceLocator.settings
+    // Restored before the first frame, so the header comes back the size it was left rather than
+    // snapping from the default once the setting loads.
+    val renderer =
+        remember(kind) {
+            rendererFor(kind)?.apply {
+                scale = settings.ambienceScale(kind.key)
+                speed = settings.ambienceSpeed(kind.key)
+            }
+        } ?: return
     val haptics = LocalHapticFeedback.current
 
     // Bumped every frame purely to invalidate the Canvas; the renderer owns the real state.
@@ -95,12 +105,16 @@ fun AmbientSurface(kind: AmbienceKind, tint: Color, modifier: Modifier = Modifie
                 .pointerInput(kind) {
                     // Drag and pinch, in one pass so they cannot fight each other. Taps are
                     // handled above; this gesture detector deliberately ignores them.
-                    var dragStart: Offset? = null
                     detectTransformGestures(panZoomLock = false) { centroid, pan, gestureZoom, _ ->
-                        if (gestureZoom != 1f) renderer.onZoom(gestureZoom)
+                        if (gestureZoom != 1f) {
+                            // The renderer clamps to its own range, so what is stored is what it
+                            // settled on rather than what the fingers asked for.
+                            renderer.scale *= gestureZoom
+                            settings.setAmbienceScale(kind.key, renderer.scale)
+                        }
                         if (pan != Offset.Zero) {
-                            val start = dragStart ?: centroid.also { dragStart = it }
-                            renderer.onSwipe(start, centroid, size.toSize())
+                            renderer.onDrag(pan, centroid, size.toSize())
+                            settings.setAmbienceSpeed(kind.key, renderer.speed)
                         }
                     }
                 }
