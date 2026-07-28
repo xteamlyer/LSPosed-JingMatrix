@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,8 +36,8 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.rounded.CloudOff
-import androidx.compose.material.icons.rounded.ChevronLeft
-import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Notes
@@ -100,11 +101,13 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.LocalDateTime
@@ -692,12 +695,17 @@ private fun LogSettingsSheet(
 ) {
     val enabled by viewModel.verboseEnabled.collectAsStateWithLifecycle()
     val enforced by viewModel.verboseEnforced.collectAsStateWithLifecycle()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // No skipPartiallyExpanded. Passing it removed the half-height stop, which is the only thing
+    // a drag on a sheet can *do* other than dismiss it — so a sheet taller than half the screen
+    // opened at full height and could not be made smaller. Left at the default, Material adds the
+    // stop only when the content is actually taller than half the screen, so short sheets still
+    // open at their own height and nothing gains a useless drag.
+    val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
 LocalizedOverlay {
 
-        Column(Modifier.padding(bottom = 24.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
             Text(
                 stringResource(R.string.logs_settings),
                 style = MaterialTheme.typography.titleSmall,
@@ -780,9 +788,12 @@ private fun Modifier.partSwipe(state: LogPaneState, onSelectPart: (Int) -> Unit)
     if (state.parts.size < 2) return this
     val threshold = with(LocalDensity.current) { 72.dp.toPx() }
     var travelled by remember(state.partIndex) { mutableFloatStateOf(0f) }
+    // Dragging leftwards moves forward the way a carousel does — which in a right-to-left language
+    // means dragging *rightwards*. The sign, not the thresholds, is what has to flip.
+    val forward = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
 
     val scroll = rememberScrollableState { delta ->
-        travelled += delta
+        travelled += delta * forward
         when {
             travelled <= -threshold && state.partIndex < state.parts.lastIndex -> {
                 onSelectPart(state.partIndex + 1)
@@ -840,7 +851,7 @@ private fun WindowCounter(state: LogPaneState, onSelectPart: (Int) -> Unit) {
         if (parts > 1) {
             // Older is to the left, the way earlier is to the left of later everywhere else.
             PartStep(
-                icon = Icons.Rounded.ChevronLeft,
+                icon = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                 descriptionRes = R.string.logs_part_older,
                 enabled = state.partIndex > 0,
                 onClick = { onSelectPart(state.partIndex - 1) },
@@ -859,7 +870,7 @@ private fun WindowCounter(state: LogPaneState, onSelectPart: (Int) -> Unit) {
         }
         if (parts > 1) {
             PartStep(
-                icon = Icons.Rounded.ChevronRight,
+                icon = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 descriptionRes = R.string.logs_part_newer,
                 enabled = state.partIndex < parts - 1,
                 onClick = { onSelectPart(state.partIndex + 1) },
@@ -924,11 +935,15 @@ private fun LogFilterSheet(
     onTag: (String?) -> Unit,
     onClear: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
 LocalizedOverlay {
 
-        Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
+        Column(
+            Modifier.verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

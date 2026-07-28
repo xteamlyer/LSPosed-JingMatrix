@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -67,6 +68,13 @@ fun SearchField(
                             text = placeholder,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            // A search field is a fixed-height control, so its hint may never
+                            // wrap: in French "Rechercher une application" took a second line and
+                            // grew the whole bar, breaking the three-row header every panel
+                            // shares. One line, always — the field cannot change shape by
+                            // language.
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     inner()

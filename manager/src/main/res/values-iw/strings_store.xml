@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">חיפוש בקטלוג</string>
+    <string name="store_filter">מיון וסינון</string>
+    <string name="store_sort_recent">עודכנו לאחרונה</string>
+    <string name="store_sort_name">שם</string>
+    <string name="store_sort_stars">הכי הרבה כוכבים</string>
+    <string name="store_updates_first">עדכונים קודם</string>
+    <string name="store_channel_stable">גרסאות יציבות בלבד</string>
+    <string name="store_channel_prerelease">לכלול גרסאות מקדימות</string>
+
+    <plurals name="store_module_count">
+        <item quantity="one">מודול אחד</item>
+        <item quantity="two">שני מודולים</item>
+        <item quantity="many">%1$d מודולים</item>
+        <item quantity="other">%1$d מודולים</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="one">עדכון אחד</item>
+        <item quantity="two">שני עדכונים</item>
+        <item quantity="many">%1$d עדכונים</item>
+        <item quantity="other">%1$d עדכונים</item>
+    </plurals>
+    <string name="store_all_current">כל מה שיש לכם עדכני</string>
+    <string name="store_offline">מוצג הקטלוג השמור</string>
+
+    <string name="store_badge_update">עדכון ל-%1$s</string>
+    <string name="store_badge_installed">מותקן</string>
+    <string name="store_badge_prerelease">גרסה מקדימה</string>
+    <string name="store_updated_on">עודכן ב-%1$s</string>
+
+    <string name="store_unreachable">לא הייתה גישה לקטלוג המודולים, ועדיין לא נשמר דבר במכשיר הזה.</string>
+    <string name="store_no_match">אין מודול שתואם לחיפוש הזה.</string>
+    <string name="store_empty">הקטלוג לא החזיר אף מודול.</string>
+
+    <string name="store_tab_readme">תיאור</string>
+    <string name="store_tab_releases">גרסאות</string>
+    <string name="store_tab_information">מידע</string>
+
+    <string name="store_readme_missing">המודול הזה לא כולל קובץ תיאור.</string>
+    <string name="store_detail_partial">מוצג מה שרשימת המודולים כבר ידעה. התיאור והגרסאות הישנות דורשים חיבור.</string>
+    <string name="store_releases_none">המודול הזה לא פרסם גרסאות בערוץ הזה.</string>
+    <string name="store_release_notes">הערות גרסה</string>
+    <string name="store_open_release">פתיחה ב-GitHub</string>
+    <string name="store_open_module">פתיחת דף המודול</string>
+
+    <string name="store_install">התקנה</string>
+    <string name="store_update">עדכון</string>
+    <string name="store_reinstall">התקנה מחדש</string>
+    <string name="store_choose_asset">בחרו קובץ להתקנה</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="one">הורדה אחת</item>
+        <item quantity="two">שתי הורדות</item>
+        <item quantity="many">%1$d הורדות</item>
+        <item quantity="other">%1$d הורדות</item>
+    </plurals>
+
+    <string name="store_confirm_title">להתקין את %1$s?</string>
+    <string name="store_confirm_body">‏%1$s ‏(%2$s) יורד מקטלוג המודולים ויותקן בתור %3$s.</string>
+    <string name="store_confirm_trust">מודול רץ עם ההרשאות של המסגרת בתוך האפליקציות שהוא מתחבר אליהן. התקינו רק אם אתם סומכים על מי שכתב אותו.</string>
+    <string name="store_confirm_silent">‏Vector מתקין את זה בעצמו והמערכת לא תשאל שוב.</string>
+
+    <string name="store_downloading">מוריד %1$s מתוך %2$s</string>
+    <string name="store_installing">מתקין…</string>
+    <string name="store_confirming">ממתין לבקשת המערכת…</string>
+    <string name="store_install_failed">לא ניתן היה להתקין את %1$s</string>
+    <string name="store_install_failed_reason">לא ניתן היה להתקין את %1$s: %2$s</string>
+    <string name="store_cancel">ביטול</string>
+
+    <string name="store_info_summary">תקציר</string>
+    <string name="store_info_scope">חיבורים</string>
+    <string name="store_info_scope_undeclared">לא הוצהר. המודול הזה לא אומר לאילו אפליקציות הוא מתחבר.</string>
+    <string name="store_info_homepage">דף הבית</string>
+    <string name="store_info_source">קוד המקור</string>
+    <string name="store_info_collaborators">מתחזקים</string>
+    <string name="store_info_stars">כוכבים</string>
+    <string name="store_info_updated">הגרסה האחרונה</string>
+    <string name="store_info_created">פרסום ראשון</string>
+
+    <string name="store_doh">פענוח כתובות המראות דרך HTTPS</string>
+    <string name="store_release_notes_hide">הסתרת ההערות</string>
+    <string name="store_installed_first">המותקנים קודם</string>
+
+    <string name="store_group_sort">מיון</string>
+    <string name="store_group_priority">עדיפות</string>
+    <string name="store_group_channel">ערוץ</string>
+    <string name="store_group_network">רשת</string>
+    <string name="store_doh_summary">לרשתות שלא מצליחות לפענח את כתובות מראות המודולים.</string>
+</resources>

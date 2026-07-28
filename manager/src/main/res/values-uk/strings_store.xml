@@ -81,4 +81,10 @@
     <string name="store_doh">Визначати дзеркала через HTTPS</string>
     <string name="store_release_notes_hide">Сховати нотатки</string>
     <string name="store_installed_first">Спершу встановлені</string>
+
+    <string name="store_group_sort">Сортування</string>
+    <string name="store_group_priority">Пріоритет</string>
+    <string name="store_group_channel">Канал</string>
+    <string name="store_group_network">Мережа</string>
+    <string name="store_doh_summary">Для мереж, які не визначають адреси дзеркал модулів.</string>
 </resources>

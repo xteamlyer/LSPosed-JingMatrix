@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hebrew. The folder is values-iw, not values-he: Android still keeps the obsolete ISO 639
+  code, the same way it keeps values-in for Indonesian, and a values-he folder is never matched.
+-->
+<resources>
+
+    <string name="nav_home">בית</string>
+    <string name="nav_modules">מודולים</string>
+    <string name="nav_store">קטלוג</string>
+    <string name="nav_logs">יומנים</string>
+
+    <string name="status_active">פעיל</string>
+    <string name="status_degraded">דורש תשומת לב</string>
+    <string name="status_inactive">לא הופעל</string>
+    <string name="status_checking">בודק…</string>
+    <string name="status_open_details">פתיחת מצב המערכת</string>
+
+    <string name="issue_sepolicy_title">מדיניות SELinux לא נטענה</string>
+    <string name="issue_sepolicy_summary">חלק מהיכולות לא יעבדו. בדרך כלל זה אומר שמימוש ההרשאות לא החיל את כללי Vector.</string>
+    <string name="issue_system_server_title">ההזרקה למסגרת המערכת נכשלה</string>
+    <string name="issue_system_server_summary">מודולים לא יכולים להתחבר לשירותי המערכת. זה נדיר, ובדרך כלל נגרם ממודול root אחר שמפריע.</string>
+    <string name="issue_dex2oat_title">עוטף dex2oat לא זמין</string>
+    <string name="issue_dex2oat_summary">חלק ממאפייני המערכת הוסרו או שונו. ייתכן שמודולים יפסיקו לפעול אחרי עדכון של אפליקציה.</string>
+
+    <string name="system_status">מצב המערכת</string>
+    <string name="info_api_version">ממשק Xposed</string>
+    <string name="info_framework_version">מסגרת</string>
+    <string name="info_manager_package">חבילת המנהל</string>
+    <string name="info_dex2oat">עוטף dex2oat</string>
+    <string name="info_selinux">מדיניות SELinux</string>
+    <string name="info_system_server">מסגרת המערכת</string>
+    <string name="info_android">אנדרואיד</string>
+    <string name="info_device">מכשיר</string>
+    <string name="info_abi">ארכיטקטורה</string>
+    <string name="info_supported">נתמכת</string>
+    <string name="info_unsupported">לא נתמכת</string>
+    <string name="info_loaded">נטענה</string>
+    <string name="info_not_loaded">לא נטענה</string>
+    <string name="info_injected">הוזרק</string>
+    <string name="info_not_injected">לא הוזרק</string>
+    <string name="status_notification">התראת מצב</string>
+    <string name="status_notification_summary">התראה קבועה שמראה ש-Vector פועל.</string>
+    <string name="hidden_icon">אילוץ סמלים במסך הבית</string>
+    <string name="hidden_icon_summary">הצגת סמלים של אפליקציות שמסתירות את עצמן ממסך הבית.</string>
+    <string name="action_copy_all">העתקת הכול</string>
+    <string name="copied">הועתק ללוח</string>
+
+    <string name="home_quarter_title">פעילות אחרונה</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">קומיט אחד</item>
+        <item quantity="two">שני קומיטים</item>
+        <item quantity="many">%1$d קומיטים</item>
+        <item quantity="other">%1$d קומיטים</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">מאדם אחד</item>
+        <item quantity="two">משני אנשים</item>
+        <item quantity="many">מ-%1$d אנשים</item>
+        <item quantity="other">מ-%1$d אנשים</item>
+    </plurals>
+    <string name="home_since">מאז %1$s</string>
+    <string name="home_no_activity">אין קומיטים בששת החודשים האחרונים.</string>
+    <string name="home_loading_activity">טוען פעילות אחרונה…</string>
+    <string name="home_offline">מוצגת פעילות שמורה — לא הייתה גישה ל-GitHub.</string>
+    <string name="home_bumps">%1$d עדכוני תלויות</string>
+    <string name="home_contribute">קחו חלק</string>
+    <string name="home_test_canary">נסו גרסת canary</string>
+    <string name="home_open_issue">דיווח על תקלה</string>
+    <string name="home_discussions">דיונים</string>
+    <string name="home_review_prs">סקירת שינוי</string>
+
+    <string name="github_sign_in">התחברות ל-GitHub</string>
+    <string name="github_sign_in_why">רשות. מעלה את המגבלה השעתית על עדכוני פעילות, ומאפשר ל-Vector להראות מה מחכה לכם. קריאה בלבד — לא מתבקשות שום הרשאות.</string>
+    <string name="github_sign_in_code">הזינו את הקוד הזה ב-%1$s</string>
+    <string name="github_open_browser">פתיחת דפדפן</string>
+    <string name="github_copy_code">העתקת הקוד</string>
+    <string name="github_signed_in_as">מחוברים בתור %1$s</string>
+    <string name="github_sign_out">התנתקות</string>
+    <string name="github_cancel">ביטול</string>
+    <string name="github_unreachable">לא הייתה גישה ל-GitHub. כל השאר עדיין עובד.</string>
+    <string name="home_with_coauthor">%1$s ו-%2$s</string>
+    <string name="home_with_coauthors">%1$s ועוד %2$d</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">אדם אחד</item>
+        <item quantity="two">שני אנשים</item>
+        <item quantity="many">%1$d אנשים</item>
+        <item quantity="other">%1$d אנשים</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">קומיט אחד חדש משלכם</item>
+        <item quantity="two">שני קומיטים חדשים משלכם</item>
+        <item quantity="many">%1$d קומיטים חדשים משלכם</item>
+        <item quantity="other">%1$d קומיטים חדשים משלכם</item>
+    </plurals>
+    <string name="home_your_build">הגרסה שלכם %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">יום אחד של שקט</item>
+        <item quantity="two">יומיים של שקט</item>
+        <item quantity="many">%1$d ימי שקט</item>
+        <item quantity="other">%1$d ימי שקט</item>
+    </plurals>
+
+    <string name="time_yesterday">אתמול</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">לפני יום</item>
+        <item quantity="two">לפני יומיים</item>
+        <item quantity="many">לפני %1$d ימים</item>
+        <item quantity="other">לפני %1$d ימים</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">לפני שבוע</item>
+        <item quantity="two">לפני שבועיים</item>
+        <item quantity="many">לפני %1$d שבועות</item>
+        <item quantity="other">לפני %1$d שבועות</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">לפני חודש</item>
+        <item quantity="two">לפני חודשיים</item>
+        <item quantity="many">לפני %1$d חודשים</item>
+        <item quantity="other">לפני %1$d חודשים</item>
+    </plurals>
+
+    <string name="appearance_title">מראה</string>
+    <string name="appearance_theme">ערכת נושא</string>
+    <string name="appearance_theme_system">לפי המערכת</string>
+    <string name="appearance_theme_light">בהיר</string>
+    <string name="appearance_theme_dark">כהה</string>
+    <string name="appearance_dynamic_color">צבעים מהרקע</string>
+    <string name="appearance_amoled">שחור מלא בערכה כהה</string>
+    <string name="appearance_amoled_summary">חוסך סוללה במסכי OLED.</string>
+    <string name="egg_two_more">עוד פעמיים…</string>
+    <string name="egg_one_more">עוד פעם אחת…</string>
+
+    <string name="modules_empty">לא מותקנים מודולים.</string>
+    <string name="modules_active_of">%1$d מתוך %2$d פעילים</string>
+    <string name="modules_no_match">אין מודול שתואם לחיפוש הזה.</string>
+    <string name="modules_backup">גיבוי המודולים</string>
+    <string name="modules_restore">שחזור המודולים</string>
+    <string name="modules_backup_done">גובו %1$d מודולים והתחומים שלהם.</string>
+    <string name="modules_backup_failed">לא ניתן היה לכתוב את הגיבוי.</string>
+    <string name="modules_restore_done">שוחזרו %1$d מודולים, %2$d דולגו כי אינם מותקנים כאן.</string>
+    <string name="modules_restore_failed">לא ניתן היה לקרוא את הגיבוי הזה.</string>
+    <string name="modules_search_hint">חיפוש מודולים</string>
+    <string name="modules_clear_search">ניקוי החיפוש</string>
+    <string name="modules_filter">סינון</string>
+    <string name="modules_section_active">פועלים</string>
+    <string name="modules_section_inactive">לא פועלים</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">הפועלים קודם</string>
+    <string name="modules_sort_name">לפי שם</string>
+    <string name="modules_sort_recent">עודכנו לאחרונה</string>
+    <string name="modules_sort_scope">התחום הרחב ביותר</string>
+    <string name="modules_filter_all">הכול</string>
+    <string name="modules_filter_active">פעילים</string>
+    <string name="modules_filter_inactive">לא פעילים</string>
+    <string name="modules_incompatible">דורש ממשק Xposed %1$d, שהמסגרת הזאת לא מספקת.</string>
+    <string name="modules_no_daemon">‏Vector לא פועל, ולכן רשימת המודולים לא זמינה. פתחו את מצב המערכת מהבית כדי לראות למה.</string>
+    <string name="module_toggle_failed">לא ניתן היה לשנות את %1$s. המסגרת דחתה את השינוי.</string>
+
+    <string name="web_open_external">פתיחה בדפדפן</string>
+
+    <string name="settings_ambience">משטח הכותרת</string>
+    <string name="ambience_snow">שלג</string>
+    <string name="ambience_maze">מבוך</string>
+    <string name="ambience_circuit">מעגל</string>
+    <string name="ambience_matrix">גשם של קוד</string>
+    <string name="ambience_none">דומם</string>
+
+    <string name="settings_activity">זרם הפעילות</string>
+    <string name="settings_window">ההיסטוריה שמוצגת בבית</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">החודש האחרון</item>
+        <item quantity="two">החודשיים האחרונים</item>
+        <item quantity="many">%1$d החודשים האחרונים</item>
+        <item quantity="other">%1$d החודשים האחרונים</item>
+    </plurals>
+    <string name="settings_open_externally">פתיחת קישורים בדפדפן</string>
+    <string name="settings_open_externally_summary">כבוי: דפי GitHub נפתחים בתוך Vector.</string>
+
+    <string name="scope_use_recommended">להשתמש במה שהמודול מבקש</string>
+    <string name="scope_select_visible">בחירת כל מה שמוצג</string>
+    <string name="scope_clear_visible">ביטול הבחירה בכל מה שמוצג</string>
+    <string name="scope_backup_done">התחום נשמר.</string>
+    <string name="scope_backup_failed">לא ניתן היה לקרוא או לכתוב את הקובץ הזה.</string>
+    <string name="scope_select">בחירה</string>
+    <string name="scope_sort">מיון</string>
+    <string name="scope_modules">מודולים אחרים</string>
+    <string name="scope_auto_include">לכלול גם את המודול עצמו</string>
+    <string name="scope_backup">גיבוי התחום הזה</string>
+    <string name="scope_restore">שחזור התחום הזה</string>
+    <string name="scope_sort_package">לפי שם החבילה</string>
+    <string name="scope_sort_installed">הותקנו לאחרונה</string>
+    <string name="scope_sort_updated">עודכנו לאחרונה</string>
+    <string name="scope_sort_reverse">סדר הפוך</string>
+    <string name="scope_sort_relevance">הנבחרים קודם</string>
+    <string name="scope_sort_name">לפי שם</string>
+    <string name="scope_search_hint">חיפוש אפליקציות</string>
+    <string name="scope_system_apps">אפליקציות מערכת</string>
+    <string name="scope_games">משחקים</string>
+    <string name="scope_recommended">מבוקשת על ידי המודול הזה</string>
+    <string name="scope_static">המודול הזה מגדיר תחום קבוע ואי אפשר להפנות אותו לאפליקציות אחרות.</string>
+    <string name="scope_pending">%1$d להוספה, %2$d להסרה</string>
+    <string name="scope_apply_warning">החלה מפעילה מחדש את האפליקציות המושפעות.</string>
+    <string name="scope_apply">החלה</string>
+    <string name="scope_discard">ביטול</string>
+    <string name="scope_applied">התחום הוחל.</string>
+    <string name="scope_apply_failed">המסגרת דחתה את התחום החדש.</string>
+    <string name="scope_toggle_failed">המסגרת דחתה את השינוי הזה.</string>
+    <string name="scope_empty_title">אין למה להתחבר</string>
+    <string name="scope_empty_message">המודול הזה מופעל אבל לא נבחרו לו אפליקציות, ולכן הוא לא יעשה דבר. כבו אותו, או בחרו כמה אפליקציות.</string>
+    <string name="scope_empty_disable">כיבוי המודול</string>
+    <string name="scope_empty_keep">להשאיר מופעל</string>
+
+    <string name="action_launch">פתיחה</string>
+    <string name="action_app_info">פרטי האפליקציה</string>
+    <string name="action_force_stop">עצירה כפויה</string>
+    <string name="action_optimize">אופטימיזציה מחדש</string>
+    <string name="action_uninstall">הסרה</string>
+    <string name="action_launched">פותח…</string>
+    <string name="action_no_launcher">לאפליקציה הזאת אין מה לפתוח.</string>
+    <string name="action_opened_info">פותח את פרטי האפליקציה…</string>
+    <string name="action_force_stopped">‏%1$s נעצרה.</string>
+    <string name="action_optimizing">מבצע אופטימיזציה מחדש ל-%1$s. זה עשוי לקחת זמן.</string>
+    <string name="action_optimized">בוצעה אופטימיזציה מחדש ל-%1$s. חיבורים שאבדו בגלל שילוב בקוד אמורים לעבוד עכשיו.</string>
+    <string name="action_optimize_failed">לא ניתן היה לבצע אופטימיזציה מחדש ל-%1$s.</string>
+    <string name="action_uninstalled">‏%1$s הוסרה.</string>
+    <string name="action_uninstall_failed">לא ניתן היה להסיר את %1$s.</string>
+
+    <string name="settings">הגדרות</string>
+    <string name="back">חזרה</string>
+    <string name="retry">ניסיון נוסף</string>
+
+    <string name="appearance_color">צבע</string>
+    <string name="appearance_custom_color">בחירת צבע</string>
+    <string name="modules_expand">הצגת התיאור המלא</string>
+    <string name="modules_collapse">הצגה מצומצמת</string>
+    <string name="action_optimize_summary">מהדר מחדש את האפליקציה כדי ש-ART יפסיק לשלב בקוד את המתודות שהמודול צריך להתחבר אליהן</string>
+    <string name="modules_scope_framework">מתחבר למסגרת המערכת</string>
+    <string name="scope_origin_locked">נקבע על ידי המודול</string>
+    <string name="scope_origin_auto">נשמר בתחום אוטומטית</string>
+    <string name="scope_origin_chosen">הבחירה שלכם</string>
+    <string name="modules_selection_clear">ניקוי הבחירה</string>
+    <plurals name="modules_selected">
+        <item quantity="one">נבחר אחד</item>
+        <item quantity="two">נבחרו שניים</item>
+        <item quantity="many">נבחרו %1$d</item>
+        <item quantity="other">נבחרו %1$d</item>
+    </plurals>
+    <string name="modules_batch_enable">הפעלת כל הנבחרים</string>
+    <string name="modules_batch_disable">כיבוי כל הנבחרים</string>
+    <string name="modules_batch_enabled">הופעלו %1$s מודולים</string>
+    <string name="modules_batch_disabled">כובו %1$s מודולים</string>
+    <string name="modules_batch_uninstalled">הוסרו %1$s מודולים</string>
+    <string name="modules_batch_partial">רק %1$s מהם הצליחו</string>
+    <string name="modules_uninstall_title">להסיר את המודולים האלה?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">המודול וכל מה שהגדיר יימחקו. אי אפשר לבטל את זה.</item>
+        <item quantity="two">שני המודולים וכל מה שהגדירו יימחקו. אי אפשר לבטל את זה.</item>
+        <item quantity="many">כל %1$d המודולים וכל מה שהגדירו יימחקו. אי אפשר לבטל את זה.</item>
+        <item quantity="other">כל %1$d המודולים וכל מה שהגדירו יימחקו. אי אפשר לבטל את זה.</item>
+    </plurals>
+    <string name="canary_open_actions">פתיחה ב-GitHub</string>
+    <string name="canary_open_run">פתיחת ההרצה הזאת</string>
+    <string name="canary_download">הורדה</string>
+    <string name="canary_expired">התוצרים של הגרסה הזאת פגו.</string>
+    <string name="canary_none">עדיין לא פורסמו גרסאות canary.</string>
+    <string name="home_contributors_by_commits">הכי הרבה קומיטים</string>
+    <string name="home_contributors_by_recent">העדכניים ביותר</string>
+    <string name="scope_recommended_only">רק מה שהמודול מבקש</string>
+    <string name="home_resting">בהפסקה — פעילות שמורה. משכו כדי לרענן.</string>
+    <string name="report_title">לפני שמדווחים</string>
+    <string name="report_step_canary">נסו קודם את ה-canary האחרון</string>
+    <string name="report_step_canary_body">ייתכן שזה כבר תוקן, וגרסת ניפוי שגיאות היא מה שהמתחזקים צריכים כדי לעזור לכם. הישארו על master — גרסאות מ-pull request אינן יציבות.</string>
+    <string name="report_step_zygisk">לא על Magisk? עדכנו את Zygisk</string>
+    <string name="report_step_zygisk_body">התקינו את המימוש העדכני של Zygisk, בגרסת ניפוי השגיאות אם קיימת.</string>
+    <string name="report_step_logs">צרפו יומנים</string>
+    <string name="report_step_logs_body">דיווח בלי יומנים הוא שיחה שמתחילה מהתחלה. הפעולה הזאת כותבת את שני היומנים לקובץ zip שאפשר לצרף.</string>
+    <string name="report_step_crashed">אם Zygisk קרס</string>
+    <string name="report_step_crashed_body">אי אפשר יותר לבקש את ה-zip מהשירות, אבל הקבצים נכתבו בכל זאת. הרשאות root יכולות לקרוא אותם גם כששום דבר אחר לא יכול.</string>
+    <string name="report_open_tracker">פתיחת מעקב התקלות</string>
+    <string name="report_save_with_root">שמירת תיקיית היומנים (דורש root)</string>
+    <string name="report_saved_to">נשמר ב-%1$s</string>
+    <string name="report_see_guide">המדריך המלא בתקלה</string>
+    <string name="report_root_refused">‏root נדחה. אשרו את Vector במנהל ה-root שלכם ונסו שוב%1$s</string>
+    <string name="home_custom_build">גרסה עצמאית — מקדימה את master</string>
+    <string name="github_device_code">קוד מכשיר של GitHub</string>
+    <string name="language_title">שפה</string>
+    <string name="language_system">ברירת המחדל של המערכת</string>
+    <string name="language_system_summary">לפי השפה שמוגדרת בטלפון</string>
+</resources>

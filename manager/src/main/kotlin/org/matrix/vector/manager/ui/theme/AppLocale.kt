@@ -3,8 +3,10 @@ package org.matrix.vector.manager.ui.theme
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
+import android.text.TextUtils
 import android.content.res.Resources
 import android.os.LocaleList
+import android.view.View
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -17,6 +19,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.Locale
 import org.matrix.vector.manager.BuildConfig
@@ -66,6 +70,7 @@ fun LocalizedContent(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalConfiguration provides localized,
         LocalContext provides localizedContext,
+        LocalLayoutDirection provides localized.layoutDirection(),
     ) {
         // The whole app is about to say something different, and a cut makes that read as a
         // glitch. Crossfading it makes the change look like the thing the user just asked for.
@@ -113,8 +118,27 @@ fun LocalizedOverlay(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalConfiguration provides localized,
         LocalContext provides localizedContext,
+        LocalLayoutDirection provides localized.layoutDirection(),
         content = content,
     )
+}
+
+/**
+ * Which way the chosen language runs.
+ *
+ * Compose does not read this from the configuration we provide — `LocalLayoutDirection` is set once
+ * from the host view, which is the activity's, so choosing Arabic would have translated every
+ * string and then laid them out left-to-right. Providing it alongside the configuration mirrors the
+ * whole tree at once: `Row`, `start`/`end` padding, alignment and the auto-mirrored icons all
+ * follow it, so no screen needs its own RTL handling.
+ */
+private fun Configuration.layoutDirection(): LayoutDirection {
+    val locale = locales.takeIf { it.size() > 0 }?.get(0) ?: Locale.getDefault()
+    return if (TextUtils.getLayoutDirectionFromLocale(locale) == View.LAYOUT_DIRECTION_RTL) {
+        LayoutDirection.Rtl
+    } else {
+        LayoutDirection.Ltr
+    }
 }
 
 /**

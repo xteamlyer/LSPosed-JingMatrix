@@ -1,5 +1,16 @@
 package org.matrix.vector.manager.ui.screens.repo
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.LowPriority
+import androidx.compose.material.icons.rounded.NewReleases
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import org.matrix.vector.manager.ui.components.ChoiceRow
+import org.matrix.vector.manager.ui.components.SheetHeading
+import org.matrix.vector.manager.ui.components.ToggleRow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -203,7 +214,20 @@ private fun StoreSearch(
 }
 
 /**
- * Sort, the updates-first rule, the release channel and DNS, in the search field's trailing slot.
+ * Sort, priority, channel and DNS — as a sheet, not a menu.
+ *
+ * This was a dropdown, and it had outgrown one. A menu is for a short list of like things; this
+ * holds three exclusive groups, one multi-select group that ranks its choices, and a network
+ * switch, separated only by dividers with nothing to say which group is which. The switch was the
+ * visible symptom — the only row carrying a leading icon, so its label started 24dp right of every
+ * other and the menu lost its left edge, and the only label long enough to wrap inside a menu that
+ * sizes itself to its widest child.
+ *
+ * A sheet fixes all of it by having room: each group gets a heading, the switch gets the anatomy a
+ * boolean setting should have — title, the sentence explaining the cost, and a Switch — and the
+ * label has the full width, so it does not wrap in any language. Marquee was the alternative
+ * considered for the label and rejected: scrolling text hides a choice behind a delay in a list
+ * whose whole purpose is comparing choices, and it fights the reduce-motion setting.
  *
  * DNS-over-HTTPS lives here rather than in a settings screen because this is the panel it exists
  * for: it is the workaround for a network that will not resolve the module mirrors. When the
@@ -221,93 +245,131 @@ private fun StoreFilterButton(
     doh: Boolean,
     onDohChange: (Boolean) -> Unit,
 ) {
-    var menuOpen by remember { mutableStateOf(false) }
+    var sheetOpen by remember { mutableStateOf(false) }
     val narrowed =
         sort != StoreSort.RecentlyUpdated ||
             channel != StoreChannel.Stable ||
             doh ||
             priorities != listOf(StorePriority.Updates)
 
-    Box {
-        IconButton(onClick = { menuOpen = true }) {
-            BadgedBox(badge = { if (narrowed) Badge(modifier = Modifier.size(6.dp)) }) {
-                Icon(
-                    Icons.Rounded.FilterList,
-                    contentDescription = stringResource(R.string.store_filter),
-                    tint =
-                        if (narrowed) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-LocalizedOverlay {
-
-            StoreSort.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(option.labelRes())) },
-                    trailingIcon = {
-                        if (option == sort) Icon(Icons.Rounded.Check, contentDescription = null)
-                    },
-                    onClick = {
-                        onSortChange(option)
-                        menuOpen = false
-                    },
-                )
-            }
-            HorizontalDivider()
-            StorePriority.entries.forEach { priority ->
-                val rank = priorities.indexOf(priority)
-                DropdownMenuItem(
-                    text = { Text(stringResource(priority.labelRes)) },
-                    trailingIcon = {
-                        if (rank >= 0) {
-                            // Several of these can be on at once, so a tick is not enough — the
-                            // one that wins for a module in both groups is the one chosen last,
-                            // and the list says so rather than leaving it to be inferred.
-                            if (priorities.size > 1) {
-                                Text(
-                                    text = "${rank + 1}",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            } else {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        }
-                    },
-                    onClick = { onTogglePriority(priority) },
-                )
-            }
-            HorizontalDivider()
-            StoreChannel.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(option.labelRes())) },
-                    trailingIcon = {
-                        if (option == channel) Icon(Icons.Rounded.Check, contentDescription = null)
-                    },
-                    onClick = {
-                        onChannelChange(option)
-                        menuOpen = false
-                    },
-                )
-            }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.store_doh)) },
-                // Says what it is for rather than what it is. "DNS over HTTPS" tells someone who
-                // already knows; "when the mirrors will not resolve" tells the person who needs it.
-                leadingIcon = { Icon(Icons.Rounded.Dns, contentDescription = null) },
-                trailingIcon = {
-                    if (doh) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = {
-                    onDohChange(!doh)
-                    menuOpen = false
-                },
+    IconButton(onClick = { sheetOpen = true }) {
+        BadgedBox(badge = { if (narrowed) Badge(modifier = Modifier.size(6.dp)) }) {
+            Icon(
+                Icons.Rounded.FilterList,
+                contentDescription = stringResource(R.string.store_filter),
+                tint =
+                    if (narrowed) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+
+    if (sheetOpen) {
+        StoreFilterSheet(
+            sort = sort,
+            onSortChange = onSortChange,
+            priorities = priorities,
+            onTogglePriority = onTogglePriority,
+            channel = channel,
+            onChannelChange = onChannelChange,
+            doh = doh,
+            onDohChange = onDohChange,
+            onDismiss = { sheetOpen = false },
+        )
+    }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StoreFilterSheet(
+    sort: StoreSort,
+    onSortChange: (StoreSort) -> Unit,
+    priorities: List<StorePriority>,
+    onTogglePriority: (StorePriority) -> Unit,
+    channel: StoreChannel,
+    onChannelChange: (StoreChannel) -> Unit,
+    doh: Boolean,
+    onDohChange: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    // No skipPartiallyExpanded. Passing it removed the half-height stop, which is the only thing
+    // a drag on a sheet can *do* other than dismiss it — so a sheet taller than half the screen
+    // opened at full height and could not be made smaller. Left at the default, Material adds the
+    // stop only when the content is actually taller than half the screen, so short sheets still
+    // open at their own height and nothing gains a useless drag.
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        LocalizedOverlay {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
+                SheetHeading(stringResource(R.string.store_group_sort), Icons.AutoMirrored.Rounded.Sort)
+                ChoiceRow {
+                    StoreSort.entries.forEach { option ->
+                        FilterChip(
+                            selected = option == sort,
+                            onClick = { onSortChange(option) },
+                            label = { Text(stringResource(option.labelRes())) },
+                        )
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+                SheetHeading(
+                    stringResource(R.string.store_group_priority),
+                    Icons.Rounded.LowPriority,
+                )
+                ChoiceRow {
+                    StorePriority.entries.forEach { priority ->
+                        val rank = priorities.indexOf(priority)
+                        FilterChip(
+                            selected = rank >= 0,
+                            onClick = { onTogglePriority(priority) },
+                            label = { Text(stringResource(priority.labelRes)) },
+                            // Several of these can be on at once, so a tick is not enough — the
+                            // one that wins for a module in both groups is the one chosen last,
+                            // and the chip says so rather than leaving it to be inferred.
+                            leadingIcon =
+                                if (rank >= 0 && priorities.size > 1) {
+                                    {
+                                        Text(
+                                            text = "${rank + 1}",
+                                            style = MaterialTheme.typography.labelMedium,
+                                        )
+                                    }
+                                } else null,
+                        )
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+                SheetHeading(
+                    stringResource(R.string.store_group_channel),
+                    Icons.Rounded.NewReleases,
+                )
+                ChoiceRow {
+                    StoreChannel.entries.forEach { option ->
+                        FilterChip(
+                            selected = option == channel,
+                            onClick = { onChannelChange(option) },
+                            label = { Text(stringResource(option.labelRes())) },
+                        )
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+                SheetHeading(stringResource(R.string.store_group_network), Icons.Rounded.Dns)
+                ToggleRow(
+                    title = stringResource(R.string.store_doh),
+                    icon = Icons.Rounded.Dns,
+                    subtitle = stringResource(R.string.store_doh_summary),
+                    checked = doh,
+                    onCheckedChange = onDohChange,
+                )
+            }
+        }
     }
 }
 

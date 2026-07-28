@@ -75,4 +75,10 @@
     <string name="store_doh">Risolvi i mirror via HTTPS</string>
     <string name="store_release_notes_hide">Nascondi le note</string>
     <string name="store_installed_first">Prima gli installati</string>
+
+    <string name="store_group_sort">Ordinamento</string>
+    <string name="store_group_priority">Priorità</string>
+    <string name="store_group_channel">Canale</string>
+    <string name="store_group_network">Rete</string>
+    <string name="store_doh_summary">Per le reti che non risolvono i mirror dei moduli.</string>
 </resources>

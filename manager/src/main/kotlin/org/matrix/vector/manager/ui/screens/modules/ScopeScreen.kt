@@ -1,5 +1,22 @@
 package org.matrix.vector.manager.ui.screens.modules
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.RemoveDone
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material.icons.rounded.SwapVert
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.graphics.vector.ImageVector
+import org.matrix.vector.manager.ui.components.ChoiceRow
+import org.matrix.vector.manager.ui.components.SheetAction
+import org.matrix.vector.manager.ui.components.SheetHeading
+import org.matrix.vector.manager.ui.components.ToggleRow
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -30,7 +47,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Checklist
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Sort
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -222,18 +239,25 @@ fun ScopeScreen(
                             maxLines = 1,
                             softWrap = false,
                             // The column is a fixed slice of one row, and module names are not.
-                            // Rather than truncate the end of a name — which is often exactly the
-                            // part that distinguishes two builds of the same module — the text
-                            // scrolls itself when it does not fit.
-                            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                            // Rather than truncate the end of a name — often exactly the part that
+                            // distinguishes two builds of the same module — it scrolls itself.
+                            //
+                            // Finite, not endless: this is a screen someone sits on while working
+                            // through a long list, and a title that never stops moving is a
+                            // distraction rather than an affordance. It says its piece and settles.
+                            modifier = Modifier.basicMarquee(iterations = 3),
                         )
                         Text(
                             text = packageName,
                             style = VectorMono,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            softWrap = false,
-                            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                            // A package name is read from both ends: the head says who publishes
+                            // it, the tail says which one it is. Ellipsising the middle keeps both
+                            // — "org.matrix…chromext" — where cutting the end would throw away the
+                            // only part that distinguishes it. Static, so the line above is the
+                            // only thing on this bar that ever moves.
+                            overflow = TextOverflow.MiddleEllipsis,
                         )
                     }
                 },
@@ -382,7 +406,14 @@ fun ScopeScreen(
     }
 }
 
-/** Everything that changes the *selection*, in the search field's trailing slot. */
+/**
+ * Everything that changes the *selection*, in the search field's trailing slot.
+ *
+ * A sheet rather than a dropdown, for the same reason the catalogue's filters became one: these are
+ * sentences, not words. "Sélectionner tout ce qui est affiché" does not fit the width a menu gives
+ * itself, so in French every second row wrapped and the menu read as a paragraph. A sheet has the
+ * full width, and it can carry the leading icons that tell an action from a setting.
+ */
 @Composable
 private fun ScopeSelectMenu(
     hasRecommended: Boolean,
@@ -395,66 +426,73 @@ private fun ScopeSelectMenu(
     onRestore: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { open = true }) {
-            Icon(
-                Icons.Rounded.Checklist,
-                contentDescription = stringResource(R.string.scope_select),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-LocalizedOverlay {
-
+    IconButton(onClick = { open = true }) {
+        Icon(
+            Icons.Rounded.Checklist,
+            contentDescription = stringResource(R.string.scope_select),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    if (open) {
+        ScopeSheet(
+            stringResource(R.string.scope_select),
+            Icons.Rounded.Checklist,
+            { open = false },
+        ) {
             if (hasRecommended) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.scope_use_recommended)) },
+                SheetAction(
+                    title = stringResource(R.string.scope_use_recommended),
+                    icon = Icons.Rounded.AutoAwesome,
                     onClick = {
                         onUseRecommended()
                         open = false
                     },
                 )
             }
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_select_visible)) },
+            SheetAction(
+                title = stringResource(R.string.scope_select_visible),
+                icon = Icons.Rounded.DoneAll,
                 onClick = {
                     onSelectAll()
                     open = false
                 },
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_clear_visible)) },
+            SheetAction(
+                title = stringResource(R.string.scope_clear_visible),
+                icon = Icons.Rounded.RemoveDone,
                 onClick = {
                     onSelectNone()
                     open = false
                 },
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_auto_include)) },
-                trailingIcon = {
-                    if (autoInclude) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = { onAutoInclude(!autoInclude) },
+            ToggleRow(
+                title = stringResource(R.string.scope_auto_include),
+                icon = Icons.Rounded.Extension,
+                checked = autoInclude,
+                onCheckedChange = onAutoInclude,
             )
-            HorizontalDivider()
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
             // This module's scope alone, separate from the whole-list backup on the module
             // screen — useful when moving one module's configuration between devices.
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_backup)) },
+            SheetAction(
+                title = stringResource(R.string.scope_backup),
+                icon = Icons.Rounded.Save,
                 onClick = {
                     onBackup()
                     open = false
                 },
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_restore)) },
+            SheetAction(
+                title = stringResource(R.string.scope_restore),
+                icon = Icons.Rounded.Restore,
                 onClick = {
                     onRestore()
                     open = false
                 },
             )
         }
-}
     }
 }
 
@@ -464,6 +502,9 @@ LocalizedOverlay {
  * All three were in the legacy manager and all three earn their place: system apps are usually
  * noise but occasionally the target, games are bulk, and other modules are installed apps that are
  * rarely what you are hooking.
+ *
+ * Chips rather than rows: these are short, all of one kind, and several are on at once — which a
+ * column of ticks states less clearly than a row of filled chips.
  */
 @Composable
 private fun ScopeFilterMenu(
@@ -483,62 +524,59 @@ private fun ScopeFilterMenu(
     // Anything other than the defaults is narrowing the list, and must not be silent.
     val filtering = !locked && (showSystem || !showGames || !showModules || recommendedOnly)
 
-    Box {
-        // Under a static scope the list is already exactly the module's own fixed set, so there is
-        // nothing to filter. The control stays present but visibly dead, and says why when
-        // pressed — removing it entirely would just raise the same question silently.
-        IconButton(onClick = { if (locked) onLockedClick() else open = true }) {
-            BadgedBox(badge = { if (filtering) Badge(modifier = Modifier.size(6.dp)) }) {
-                Icon(
-                    Icons.Rounded.FilterList,
-                    contentDescription = stringResource(R.string.modules_filter),
-                    tint =
-                        when {
-                            locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                            filtering -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                )
-            }
+    // Under a static scope the list is already exactly the module's own fixed set, so there is
+    // nothing to filter. The control stays present but visibly dead, and says why when pressed —
+    // removing it entirely would just raise the same question silently.
+    IconButton(onClick = { if (locked) onLockedClick() else open = true }) {
+        BadgedBox(badge = { if (filtering) Badge(modifier = Modifier.size(6.dp)) }) {
+            Icon(
+                Icons.Rounded.FilterList,
+                contentDescription = stringResource(R.string.modules_filter),
+                tint =
+                    when {
+                        locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                        filtering -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            )
         }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-LocalizedOverlay {
-
+    }
+    if (open) {
+        ScopeSheet(
+            stringResource(R.string.modules_filter),
+            Icons.Rounded.FilterList,
+            { open = false },
+        ) {
             if (hasRecommended) {
                 // The static-scope view, on request. Offered only when the module actually asked
                 // for something — otherwise it would narrow the list to nothing.
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.scope_recommended_only)) },
-                    trailingIcon = {
-                        if (recommendedOnly) Icon(Icons.Rounded.Check, contentDescription = null)
-                    },
-                    onClick = { onToggleRecommendedOnly() },
-                )
-                HorizontalDivider()
+                ChoiceRow {
+                    FilterChip(
+                        selected = recommendedOnly,
+                        onClick = { onToggleRecommendedOnly() },
+                        label = { Text(stringResource(R.string.scope_recommended_only)) },
+                    )
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
             }
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_system_apps)) },
-                trailingIcon = {
-                    if (showSystem) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = { onToggleSystem() },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_games)) },
-                trailingIcon = {
-                    if (showGames) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = { onToggleGames() },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_modules)) },
-                trailingIcon = {
-                    if (showModules) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = { onToggleModules() },
-            )
+            ChoiceRow {
+                FilterChip(
+                    selected = showSystem,
+                    onClick = { onToggleSystem() },
+                    label = { Text(stringResource(R.string.scope_system_apps)) },
+                )
+                FilterChip(
+                    selected = showGames,
+                    onClick = { onToggleGames() },
+                    label = { Text(stringResource(R.string.scope_games)) },
+                )
+                FilterChip(
+                    selected = showModules,
+                    onClick = { onToggleModules() },
+                    label = { Text(stringResource(R.string.scope_modules)) },
+                )
+            }
         }
-}
     }
 }
 
@@ -551,44 +589,61 @@ private fun ScopeSortMenu(
     onReverse: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { open = true }) {
-            Icon(
-                Icons.Rounded.Sort,
-                contentDescription = stringResource(R.string.scope_sort),
-                tint =
-                    if (sort != ScopeSort.Relevance || reversed)
-                        MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-LocalizedOverlay {
-
-            ScopeSort.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(option.labelRes())) },
-                    trailingIcon = {
-                        if (option == sort) Icon(Icons.Rounded.Check, contentDescription = null)
-                    },
-                    onClick = {
-                        onSort(option)
-                        open = false
-                    },
-                )
+    IconButton(onClick = { open = true }) {
+        Icon(
+            Icons.AutoMirrored.Rounded.Sort,
+            contentDescription = stringResource(R.string.scope_sort),
+            tint =
+                if (sort != ScopeSort.Relevance || reversed) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    if (open) {
+        ScopeSheet(
+            stringResource(R.string.scope_sort),
+            Icons.AutoMirrored.Rounded.Sort,
+            { open = false },
+        ) {
+            ChoiceRow {
+                ScopeSort.entries.forEach { option ->
+                    FilterChip(
+                        selected = option == sort,
+                        onClick = { onSort(option) },
+                        label = { Text(stringResource(option.labelRes())) },
+                    )
+                }
             }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.scope_sort_reverse)) },
-                trailingIcon = {
-                    if (reversed) Icon(Icons.Rounded.Check, contentDescription = null)
-                },
-                onClick = { onReverse() },
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            ToggleRow(
+                title = stringResource(R.string.scope_sort_reverse),
+                icon = Icons.Rounded.SwapVert,
+                checked = reversed,
+                onCheckedChange = { onReverse() },
             )
         }
-}
     }
 }
+
+/** The shell all three of this screen's sheets share, so they cannot drift apart. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ScopeSheet(
+    title: String,
+    icon: ImageVector,
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        LocalizedOverlay {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
+                SheetHeading(title, icon)
+                content()
+            }
+        }
+    }
+}
+
 
 /**
  * How a row came to be in the scope, which decides the ring around its icon.

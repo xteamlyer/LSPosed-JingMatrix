@@ -5,8 +5,10 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -64,24 +66,38 @@ fun TakePartSection(
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        // IntrinsicSize.Min, so the two doors in a row settle on the height of the taller one and
+        // each can then fill it. Without it a card is only as tall as its own label, and a language
+        // where one label wraps and its neighbour does not — "Relire une modification" beside
+        // "Discussions" — leaves a short card floating in a tall row.
+        //
+        // Deliberately not a fixed two lines: that would pay for the worst case in every language,
+        // and English, where all four fit on one line, would carry a blank line in each card. It
+        // also only postpones the problem to the first label that needs three.
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             Door(
                 Icons.Rounded.RateReview,
                 stringResource(R.string.home_review_prs),
-                Modifier.weight(1f),
+                Modifier.weight(1f).fillMaxHeight(),
             ) {
                 onOpen(GitHubRepository.PULLS_URL)
             }
             Door(
                 Icons.Rounded.Forum,
                 stringResource(R.string.home_discussions),
-                Modifier.weight(1f),
+                Modifier.weight(1f).fillMaxHeight(),
             ) {
                 onOpen(GitHubRepository.DISCUSSIONS_URL)
             }
         }
         Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             // The one door that opens a screen rather than a browser. The Actions page shows an
             // anonymous visitor that a build exists and then refuses to hand it over, so sending
             // people there was sending them to a dead end; the screen explains the sign-in and
@@ -89,7 +105,7 @@ fun TakePartSection(
             Door(
                 Icons.Rounded.Science,
                 stringResource(R.string.home_test_canary),
-                Modifier.weight(1f),
+                Modifier.weight(1f).fillMaxHeight(),
                 onClick = onCanary,
             )
             // Also a screen rather than a link. The maintainer's own first reply to a bug report
@@ -97,7 +113,7 @@ fun TakePartSection(
             Door(
                 Icons.Rounded.BugReport,
                 stringResource(R.string.home_open_issue),
-                Modifier.weight(1f),
+                Modifier.weight(1f).fillMaxHeight(),
                 onClick = onReport,
             )
         }
@@ -112,7 +128,12 @@ private fun Door(
     onClick: () -> Unit,
 ) {
     OutlinedCard(onClick = onClick, modifier = modifier) {
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        // fillMaxHeight so the content is centred in whatever height the row settled on, rather
+        // than sitting at the top of a card that was stretched to match its neighbour.
+        Row(
+            modifier = Modifier.fillMaxHeight().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Icon(
                 icon,
                 contentDescription = null,

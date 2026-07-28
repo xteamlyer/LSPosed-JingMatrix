@@ -75,7 +75,12 @@ fun LanguageSheet(onDismiss: () -> Unit) {
     val current by settings.appLocale.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val locales = remember { availableLocales() }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // No skipPartiallyExpanded. Passing it removed the half-height stop, which is the only thing
+    // a drag on a sheet can *do* other than dismiss it — so a sheet taller than half the screen
+    // opened at full height and could not be made smaller. Left at the default, Material adds the
+    // stop only when the content is actually taller than half the screen, so short sheets still
+    // open at their own height and nothing gains a useless drag.
+    val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
 LocalizedOverlay {

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">خانه</string>
+    <string name="nav_modules">ماژول‌ها</string>
+    <string name="nav_store">فهرست</string>
+    <string name="nav_logs">گزارش‌ها</string>
+
+    <string name="status_active">فعال</string>
+    <string name="status_degraded">نیازمند توجه</string>
+    <string name="status_inactive">فعال نشده</string>
+    <string name="status_checking">در حال بررسی…</string>
+    <string name="status_open_details">باز کردن وضعیت سامانه</string>
+
+    <string name="issue_sepolicy_title">سیاست SELinux بارگذاری نشده است</string>
+    <string name="issue_sepolicy_summary">برخی قابلیت‌ها کار نخواهند کرد. معمولاً یعنی پیاده‌سازی روت قواعد Vector را اعمال نکرده است.</string>
+    <string name="issue_system_server_title">تزریق به چارچوب سامانه ناموفق بود</string>
+    <string name="issue_system_server_summary">ماژول‌ها نمی‌توانند به سرویس‌های سامانه قلاب بزنند. این کمیاب است و معمولاً ماژول روت دیگری مزاحمت ایجاد می‌کند.</string>
+    <string name="issue_dex2oat_title">پوشش dex2oat در دسترس نیست</string>
+    <string name="issue_dex2oat_summary">برخی ویژگی‌های سامانه حذف یا تغییر کرده‌اند. ممکن است پس از به‌روزرسانی یک برنامه، ماژول‌ها دیگر اثر نکنند.</string>
+
+    <string name="system_status">وضعیت سامانه</string>
+    <string name="info_api_version">واسط Xposed</string>
+    <string name="info_framework_version">چارچوب</string>
+    <string name="info_manager_package">بستهٔ مدیر</string>
+    <string name="info_dex2oat">پوشش dex2oat</string>
+    <string name="info_selinux">سیاست SELinux</string>
+    <string name="info_system_server">چارچوب سامانه</string>
+    <string name="info_android">اندروید</string>
+    <string name="info_device">دستگاه</string>
+    <string name="info_abi">معماری</string>
+    <string name="info_supported">پشتیبانی‌شده</string>
+    <string name="info_unsupported">پشتیبانی‌نشده</string>
+    <string name="info_loaded">بارگذاری‌شده</string>
+    <string name="info_not_loaded">بارگذاری‌نشده</string>
+    <string name="info_injected">تزریق‌شده</string>
+    <string name="info_not_injected">تزریق‌نشده</string>
+    <string name="status_notification">اعلان وضعیت</string>
+    <string name="status_notification_summary">اعلانی ماندگار که نشان می‌دهد Vector در حال اجراست.</string>
+    <string name="hidden_icon">اجبار به نمایش نماد در لانچر</string>
+    <string name="hidden_icon_summary">نماد برنامه‌هایی که خود را از لانچر پنهان می‌کنند نیز نشان داده شود.</string>
+    <string name="action_copy_all">رونوشت همه</string>
+    <string name="copied">در بریده‌دان رونوشت شد</string>
+
+    <string name="home_quarter_title">فعالیت اخیر</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d کامیت</item>
+        <item quantity="other">%1$d کامیت</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">از %1$d نفر</item>
+        <item quantity="other">از %1$d نفر</item>
+    </plurals>
+    <string name="home_since">از %1$s</string>
+    <string name="home_no_activity">در شش ماه گذشته کامیتی نبوده است.</string>
+    <string name="home_loading_activity">در حال بارگیری فعالیت اخیر…</string>
+    <string name="home_offline">فعالیت ذخیره‌شده نمایش داده می‌شود — دسترسی به GitHub ممکن نشد.</string>
+    <string name="home_bumps">%1$d به‌روزرسانی وابستگی</string>
+    <string name="home_contribute">مشارکت کنید</string>
+    <string name="home_test_canary">یک ساخت canary را بیازمایید</string>
+    <string name="home_open_issue">گزارش مشکل</string>
+    <string name="home_discussions">گفتگوها</string>
+    <string name="home_review_prs">بازبینی یک تغییر</string>
+
+    <string name="github_sign_in">ورود به GitHub</string>
+    <string name="github_sign_in_why">اختیاری. سقف ساعتی به‌روزرسانی فعالیت را بالا می‌برد و به Vector اجازه می‌دهد آنچه چشم‌به‌راه شماست را نشان دهد. فقط‌خواندنی — هیچ اجازه‌ای درخواست نمی‌شود.</string>
+    <string name="github_sign_in_code">این کد را در %1$s وارد کنید</string>
+    <string name="github_open_browser">باز کردن مرورگر</string>
+    <string name="github_copy_code">رونوشت کد</string>
+    <string name="github_signed_in_as">واردشده با نام %1$s</string>
+    <string name="github_sign_out">خروج</string>
+    <string name="github_cancel">انصراف</string>
+    <string name="github_unreachable">دسترسی به GitHub ممکن نشد. باقی چیزها همچنان کار می‌کنند.</string>
+    <string name="home_with_coauthor">%1$s و %2$s</string>
+    <string name="home_with_coauthors">%1$s و %2$d نفر دیگر</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d نفر</item>
+        <item quantity="other">%1$d نفر</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">%1$d کامیت تازه‌تر از ساخت شما</item>
+        <item quantity="other">%1$d کامیت تازه‌تر از ساخت شما</item>
+    </plurals>
+    <string name="home_your_build">ساخت شما %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d روز آرامش</item>
+        <item quantity="other">%1$d روز آرامش</item>
+    </plurals>
+
+    <string name="time_yesterday">دیروز</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%1$d روز پیش</item>
+        <item quantity="other">%1$d روز پیش</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">%1$d هفته پیش</item>
+        <item quantity="other">%1$d هفته پیش</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">%1$d ماه پیش</item>
+        <item quantity="other">%1$d ماه پیش</item>
+    </plurals>
+
+    <string name="appearance_title">ظاهر</string>
+    <string name="appearance_theme">پوسته</string>
+    <string name="appearance_theme_system">هماهنگ با سامانه</string>
+    <string name="appearance_theme_light">روشن</string>
+    <string name="appearance_theme_dark">تیره</string>
+    <string name="appearance_dynamic_color">رنگ از تصویر پس‌زمینه</string>
+    <string name="appearance_amoled">سیاه ناب در پوستهٔ تیره</string>
+    <string name="appearance_amoled_summary">در نمایشگرهای OLED مصرف را کم می‌کند.</string>
+    <string name="egg_two_more">دو بار دیگر…</string>
+    <string name="egg_one_more">یک بار دیگر…</string>
+
+    <string name="modules_empty">هیچ ماژولی نصب نشده است.</string>
+    <string name="modules_active_of">%1$d از %2$d فعال</string>
+    <string name="modules_no_match">ماژولی با این جستجو هم‌خوان نیست.</string>
+    <string name="modules_backup">پشتیبان‌گیری از ماژول‌ها</string>
+    <string name="modules_restore">بازگردانی ماژول‌ها</string>
+    <string name="modules_backup_done">از %1$d ماژول و دامنه‌شان پشتیبان گرفته شد.</string>
+    <string name="modules_backup_failed">نوشتن پشتیبان ممکن نشد.</string>
+    <string name="modules_restore_done">%1$d ماژول بازگردانده شد؛ %2$d مورد که اینجا نصب نیست نادیده گرفته شد.</string>
+    <string name="modules_restore_failed">خواندن آن پشتیبان ممکن نشد.</string>
+    <string name="modules_search_hint">جستجوی ماژول</string>
+    <string name="modules_clear_search">پاک کردن جستجو</string>
+    <string name="modules_filter">پالایه</string>
+    <string name="modules_section_active">در حال اجرا</string>
+    <string name="modules_section_inactive">متوقف</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">نخست در حال اجرا</string>
+    <string name="modules_sort_name">بر پایهٔ نام</string>
+    <string name="modules_sort_recent">تازه به‌روز شده</string>
+    <string name="modules_sort_scope">گسترده‌ترین دامنه</string>
+    <string name="modules_filter_all">همه</string>
+    <string name="modules_filter_active">فعال</string>
+    <string name="modules_filter_inactive">غیرفعال</string>
+    <string name="modules_incompatible">به واسط Xposed %1$d نیاز دارد که این چارچوب فراهم نمی‌کند.</string>
+    <string name="modules_no_daemon">‏Vector در حال اجرا نیست، پس فهرست ماژول‌ها در دسترس نیست. برای دیدن علت، وضعیت سامانه را از خانه باز کنید.</string>
+    <string name="module_toggle_failed">تغییر %1$s ممکن نشد. چارچوب این تغییر را نپذیرفت.</string>
+
+    <string name="web_open_external">باز کردن در مرورگر</string>
+
+    <string name="settings_ambience">سطح سربرگ</string>
+    <string name="ambience_snow">برف</string>
+    <string name="ambience_maze">هزارتو</string>
+    <string name="ambience_circuit">مدار</string>
+    <string name="ambience_matrix">باران کد</string>
+    <string name="ambience_none">ساکن</string>
+
+    <string name="settings_activity">جریان فعالیت</string>
+    <string name="settings_window">تاریخچهٔ نمایش‌داده‌شده در خانه</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">%1$d ماه اخیر</item>
+        <item quantity="other">%1$d ماه اخیر</item>
+    </plurals>
+    <string name="settings_open_externally">باز کردن پیوندها در مرورگر</string>
+    <string name="settings_open_externally_summary">خاموش: صفحه‌های GitHub درون Vector باز می‌شوند.</string>
+
+    <string name="scope_use_recommended">همان چیزی که ماژول می‌خواهد</string>
+    <string name="scope_select_visible">گزینش همهٔ موارد نمایان</string>
+    <string name="scope_clear_visible">برداشتن گزینش همهٔ موارد نمایان</string>
+    <string name="scope_backup_done">دامنه ذخیره شد.</string>
+    <string name="scope_backup_failed">خواندن یا نوشتن آن پرونده ممکن نشد.</string>
+    <string name="scope_select">گزینش</string>
+    <string name="scope_sort">چینش</string>
+    <string name="scope_modules">ماژول‌های دیگر</string>
+    <string name="scope_auto_include">خودِ ماژول هم در دامنه باشد</string>
+    <string name="scope_backup">پشتیبان‌گیری از این دامنه</string>
+    <string name="scope_restore">بازگردانی این دامنه</string>
+    <string name="scope_sort_package">بر پایهٔ نام بسته</string>
+    <string name="scope_sort_installed">تازه نصب‌شده</string>
+    <string name="scope_sort_updated">تازه به‌روز شده</string>
+    <string name="scope_sort_reverse">ترتیب وارونه</string>
+    <string name="scope_sort_relevance">نخست گزیده‌ها</string>
+    <string name="scope_sort_name">بر پایهٔ نام</string>
+    <string name="scope_search_hint">جستجوی برنامه</string>
+    <string name="scope_system_apps">برنامه‌های سامانه</string>
+    <string name="scope_games">بازی‌ها</string>
+    <string name="scope_recommended">درخواست این ماژول</string>
+    <string name="scope_static">این ماژول دامنه‌ای ثابت اعلام می‌کند و نمی‌توان آن را به برنامه‌های دیگر نشانه رفت.</string>
+    <string name="scope_pending">%1$d افزوده، %2$d برداشته</string>
+    <string name="scope_apply_warning">اعمال، برنامه‌های دربرگرفته را از نو راه‌اندازی می‌کند.</string>
+    <string name="scope_apply">اعمال</string>
+    <string name="scope_discard">دور انداختن</string>
+    <string name="scope_applied">دامنه اعمال شد.</string>
+    <string name="scope_apply_failed">چارچوب دامنهٔ تازه را نپذیرفت.</string>
+    <string name="scope_toggle_failed">چارچوب آن تغییر را نپذیرفت.</string>
+    <string name="scope_empty_title">چیزی برای قلاب زدن نیست</string>
+    <string name="scope_empty_message">این ماژول فعال است اما هیچ برنامه‌ای برایش گزیده نشده، پس کاری نخواهد کرد. یا خاموشش کنید یا چند برنامه برگزینید.</string>
+    <string name="scope_empty_disable">خاموش کردن ماژول</string>
+    <string name="scope_empty_keep">روشن بماند</string>
+
+    <string name="action_launch">باز کردن</string>
+    <string name="action_app_info">اطلاعات برنامه</string>
+    <string name="action_force_stop">توقف اجباری</string>
+    <string name="action_optimize">بهینه‌سازی دوباره</string>
+    <string name="action_uninstall">حذف نصب</string>
+    <string name="action_launched">در حال باز کردن…</string>
+    <string name="action_no_launcher">این برنامه چیزی برای باز کردن ندارد.</string>
+    <string name="action_opened_info">در حال باز کردن اطلاعات برنامه…</string>
+    <string name="action_force_stopped">‏%1$s متوقف شد.</string>
+    <string name="action_optimizing">در حال بهینه‌سازی دوبارهٔ %1$s. ممکن است اندکی طول بکشد.</string>
+    <string name="action_optimized">‏%1$s دوباره بهینه شد. قلاب‌هایی که با درون‌ریزی از دست رفته بودند باید اکنون کار کنند.</string>
+    <string name="action_optimize_failed">بهینه‌سازی دوبارهٔ %1$s ممکن نشد.</string>
+    <string name="action_uninstalled">‏%1$s حذف شد.</string>
+    <string name="action_uninstall_failed">حذف %1$s ممکن نشد.</string>
+
+    <string name="settings">تنظیمات</string>
+    <string name="back">بازگشت</string>
+    <string name="retry">تلاش دوباره</string>
+
+    <string name="appearance_color">رنگ</string>
+    <string name="appearance_custom_color">یک رنگ برگزینید</string>
+    <string name="modules_expand">نمایش توضیح کامل</string>
+    <string name="modules_collapse">نمایش کمتر</string>
+    <string name="action_optimize_summary">برنامه را از نو ترجمه می‌کند تا ART متدهایی را که ماژول باید به آن‌ها قلاب بزند درون‌ریزی نکند</string>
+    <string name="modules_scope_framework">به چارچوب سامانه قلاب می‌زند</string>
+    <string name="scope_origin_locked">ثابت‌شده از سوی ماژول</string>
+    <string name="scope_origin_auto">به‌طور خودکار در دامنه می‌ماند</string>
+    <string name="scope_origin_chosen">گزینش شما</string>
+    <string name="modules_selection_clear">برداشتن گزینش</string>
+    <plurals name="modules_selected">
+        <item quantity="one">%1$d گزیده</item>
+        <item quantity="other">%1$d گزیده</item>
+    </plurals>
+    <string name="modules_batch_enable">فعال‌سازی همهٔ گزیده‌ها</string>
+    <string name="modules_batch_disable">غیرفعال‌سازی همهٔ گزیده‌ها</string>
+    <string name="modules_batch_enabled">‏%1$s ماژول فعال شد</string>
+    <string name="modules_batch_disabled">‏%1$s ماژول غیرفعال شد</string>
+    <string name="modules_batch_uninstalled">‏%1$s ماژول حذف شد</string>
+    <string name="modules_batch_partial">تنها %1$s مورد از آن‌ها کارساز بود</string>
+    <string name="modules_uninstall_title">این ماژول‌ها حذف شوند؟</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">ماژول و هر آنچه پیکربندی کرده حذف می‌شود. این کار برگشت‌پذیر نیست.</item>
+        <item quantity="other">هر %1$d ماژول و هر آنچه پیکربندی کرده‌اند حذف می‌شود. این کار برگشت‌پذیر نیست.</item>
+    </plurals>
+    <string name="canary_open_actions">باز کردن در GitHub</string>
+    <string name="canary_open_run">باز کردن این اجرا</string>
+    <string name="canary_download">بارگیری</string>
+    <string name="canary_expired">فرآورده‌های این ساخت منقضی شده‌اند.</string>
+    <string name="canary_none">هنوز هیچ ساخت canary منتشر نشده است.</string>
+    <string name="home_contributors_by_commits">بیشترین کامیت</string>
+    <string name="home_contributors_by_recent">تازه‌ترین</string>
+    <string name="scope_recommended_only">تنها آنچه ماژول می‌خواهد</string>
+    <string name="home_resting">در حال استراحت — فعالیت ذخیره‌شده. برای نوسازی بکشید.</string>
+    <string name="report_title">پیش از گزارش</string>
+    <string name="report_step_canary">نخست تازه‌ترین canary را بیازمایید</string>
+    <string name="report_step_canary_body">شاید همین حالا درست شده باشد، و نگه‌دارندگان برای کمک به شما به ساخت اشکال‌زدایی نیاز دارند. روی master بمانید — ساخت‌های pull request ناپایدارند.</string>
+    <string name="report_step_zygisk">‏Magisk ندارید؟ Zygisk را به‌روز کنید</string>
+    <string name="report_step_zygisk_body">تازه‌ترین پیاده‌سازی Zygisk را نصب کنید؛ اگر ساخت اشکال‌زدایی دارد، همان را.</string>
+    <string name="report_step_logs">گزارش‌ها را پیوست کنید</string>
+    <string name="report_step_logs_body">گزارشی بدون لاگ، گفتگویی است که از صفر آغاز می‌شود. اینجا هر دو گزارش در یک zip نوشته می‌شود که می‌توانید پیوست کنید.</string>
+    <string name="report_step_crashed">اگر Zygisk فروپاشیده است</string>
+    <string name="report_step_crashed_body">دیگر نمی‌توان zip را از سرویس خواست، اما پرونده‌ها به‌هر‌حال نوشته شده‌اند. روت می‌تواند آن‌ها را بخواند، حتی وقتی هیچ راه دیگری نمانده است.</string>
+    <string name="report_open_tracker">باز کردن پی‌گیر مشکلات</string>
+    <string name="report_save_with_root">ذخیرهٔ پوشهٔ گزارش‌ها (نیازمند روت)</string>
+    <string name="report_saved_to">در %1$s ذخیره شد</string>
+    <string name="report_see_guide">راهنمای کامل در همان مسئله</string>
+    <string name="report_root_refused">روت رد شد. در مدیر روت خود به Vector اجازه دهید و دوباره تلاش کنید%1$s</string>
+    <string name="home_custom_build">ساخت شخصی — جلوتر از master</string>
+    <string name="github_device_code">کد دستگاه GitHub</string>
+    <string name="language_title">زبان</string>
+    <string name="language_system">پیش‌فرض سامانه</string>
+    <string name="language_system_summary">هماهنگ با زبانی که روی گوشی تنظیم شده است</string>
+</resources>

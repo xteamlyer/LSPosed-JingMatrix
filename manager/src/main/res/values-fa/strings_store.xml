@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">جستجو در فهرست</string>
+    <string name="store_filter">چینش و پالایش</string>
+    <string name="store_sort_recent">تازه به‌روز شده</string>
+    <string name="store_sort_name">نام</string>
+    <string name="store_sort_stars">بیشترین ستاره</string>
+    <string name="store_updates_first">نخست به‌روزرسانی‌ها</string>
+    <string name="store_channel_stable">تنها انتشارهای پایدار</string>
+    <string name="store_channel_prerelease">همراه با پیش‌انتشارها</string>
+
+    <plurals name="store_module_count">
+        <item quantity="one">%1$d ماژول</item>
+        <item quantity="other">%1$d ماژول</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="one">%1$d به‌روزرسانی</item>
+        <item quantity="other">%1$d به‌روزرسانی</item>
+    </plurals>
+    <string name="store_all_current">هر چه دارید تازه است</string>
+    <string name="store_offline">فهرست ذخیره‌شده نمایش داده می‌شود</string>
+
+    <string name="store_badge_update">به‌روزرسانی به %1$s</string>
+    <string name="store_badge_installed">نصب‌شده</string>
+    <string name="store_badge_prerelease">پیش‌انتشار</string>
+    <string name="store_updated_on">به‌روز شده در %1$s</string>
+
+    <string name="store_unreachable">دسترسی به فهرست ماژول‌ها ممکن نشد و هنوز چیزی روی این دستگاه ذخیره نشده است.</string>
+    <string name="store_no_match">ماژولی با این جستجو هم‌خوان نیست.</string>
+    <string name="store_empty">فهرست هیچ ماژولی برنگرداند.</string>
+
+    <string name="store_tab_readme">توضیح</string>
+    <string name="store_tab_releases">انتشارها</string>
+    <string name="store_tab_information">اطلاعات</string>
+
+    <string name="store_readme_missing">این ماژول پروندهٔ توضیح ندارد.</string>
+    <string name="store_detail_partial">آنچه فهرست ماژول‌ها از پیش می‌دانست نشان داده می‌شود. توضیح و انتشارهای قدیمی‌تر به اتصال نیاز دارند.</string>
+    <string name="store_releases_none">این ماژول روی این کانال چیزی منتشر نکرده است.</string>
+    <string name="store_release_notes">یادداشت‌های انتشار</string>
+    <string name="store_open_release">باز کردن در GitHub</string>
+    <string name="store_open_module">باز کردن صفحهٔ ماژول</string>
+
+    <string name="store_install">نصب</string>
+    <string name="store_update">به‌روزرسانی</string>
+    <string name="store_reinstall">نصب دوباره</string>
+    <string name="store_choose_asset">پرونده‌ای برای نصب برگزینید</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="one">%1$d بارگیری</item>
+        <item quantity="other">%1$d بارگیری</item>
+    </plurals>
+
+    <string name="store_confirm_title">‏%1$s نصب شود؟</string>
+    <string name="store_confirm_body">‏%1$s ‏(%2$s) از فهرست ماژول‌ها بارگیری و با نام %3$s نصب می‌شود.</string>
+    <string name="store_confirm_trust">ماژول با اختیارات چارچوب درون برنامه‌هایی که به آن‌ها قلاب می‌زند اجرا می‌شود. تنها در صورتی نصب کنید که به سازنده‌اش اعتماد دارید.</string>
+    <string name="store_confirm_silent">‏Vector خودش نصب می‌کند و سامانه دوباره نخواهد پرسید.</string>
+
+    <string name="store_downloading">بارگیری %1$s از %2$s</string>
+    <string name="store_installing">در حال نصب…</string>
+    <string name="store_confirming">در انتظار پرسش سامانه…</string>
+    <string name="store_install_failed">نصب %1$s ممکن نشد</string>
+    <string name="store_install_failed_reason">نصب %1$s ممکن نشد: %2$s</string>
+    <string name="store_cancel">انصراف</string>
+
+    <string name="store_info_summary">چکیده</string>
+    <string name="store_info_scope">قلاب‌ها</string>
+    <string name="store_info_scope_undeclared">اعلام‌نشده. این ماژول نمی‌گوید به کدام برنامه‌ها قلاب می‌زند.</string>
+    <string name="store_info_homepage">صفحهٔ خانگی</string>
+    <string name="store_info_source">کد منبع</string>
+    <string name="store_info_collaborators">نگه‌دارندگان</string>
+    <string name="store_info_stars">ستاره‌ها</string>
+    <string name="store_info_updated">آخرین انتشار</string>
+    <string name="store_info_created">نخستین انتشار</string>
+
+    <string name="store_doh">تحلیل نشانی آینه‌ها روی HTTPS</string>
+    <string name="store_release_notes_hide">پنهان کردن یادداشت‌ها</string>
+    <string name="store_installed_first">نخست نصب‌شده‌ها</string>
+
+    <string name="store_group_sort">چینش</string>
+    <string name="store_group_priority">اولویت</string>
+    <string name="store_group_channel">کانال</string>
+    <string name="store_group_network">شبکه</string>
+    <string name="store_doh_summary">برای شبکه‌هایی که نشانی آینه‌های ماژول را تحلیل نمی‌کنند.</string>
+</resources>

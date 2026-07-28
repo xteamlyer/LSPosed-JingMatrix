@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
+import org.matrix.vector.manager.ui.components.ChoiceRow
+import org.matrix.vector.manager.ui.components.SheetHeading
+import org.matrix.vector.manager.ui.components.ToggleRow
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.components.ColorWheel
 import org.matrix.vector.manager.ui.components.ambience.AmbienceKind
@@ -102,12 +106,22 @@ fun HomeAppearanceSheet(onDismiss: () -> Unit) {
     val windowMonths by settings.activityWindowMonths.collectAsStateWithLifecycle()
     val openExternally by settings.openLinksExternally.collectAsStateWithLifecycle()
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // No skipPartiallyExpanded. Passing it removed the half-height stop, which is the only thing
+    // a drag on a sheet can *do* other than dismiss it — so a sheet taller than half the screen
+    // opened at full height and could not be made smaller. Left at the default, Material adds the
+    // stop only when the content is actually taller than half the screen, so short sheets still
+    // open at their own height and nothing gains a useless drag.
+    val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
 LocalizedOverlay {
 
-        Column(modifier = Modifier.padding(bottom = 24.dp)) {
+        Column(
+            // Scrollable, so the sheet is usable at the half-height stop rather than only when
+            // dragged to full — and so nested scroll can hand the drag to the sheet at the top
+            // of the content, which is what makes pulling it up feel like one gesture.
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)
+        ) {
             SheetHeading(stringResource(R.string.appearance_theme), Icons.Rounded.Palette)
             BrightnessSelector(
                 selected = ThemeMode.from(themeMode),
@@ -126,8 +140,8 @@ LocalizedOverlay {
             )
             ToggleRow(
                 title = stringResource(R.string.appearance_amoled),
-                subtitle = stringResource(R.string.appearance_amoled_summary),
                 icon = Icons.Rounded.DarkMode,
+                subtitle = stringResource(R.string.appearance_amoled_summary),
                 checked = amoled,
                 onCheckedChange = settings::setAmoledBlack,
             )
@@ -176,8 +190,8 @@ LocalizedOverlay {
             }
             ToggleRow(
                 title = stringResource(R.string.settings_open_externally),
-                subtitle = stringResource(R.string.settings_open_externally_summary),
                 icon = Icons.Rounded.OpenInBrowser,
+                subtitle = stringResource(R.string.settings_open_externally_summary),
                 checked = openExternally,
                 onCheckedChange = settings::setOpenLinksExternally,
             )
@@ -428,58 +442,9 @@ private fun ThemeMode.icon() =
         ThemeMode.Dark -> Icons.Rounded.DarkMode
     }
 
-@Composable
-private fun SheetHeading(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Row(
-        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.height(16.dp),
-        )
-        Spacer(Modifier.width(10.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-        )
-    }
-}
 
 /** A row of chips that scrolls if it must, so a long option set never clips. */
-@Composable
-private fun ChoiceRow(content: @Composable () -> Unit) {
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        content()
-    }
-}
 
-@Composable
-private fun ToggleRow(
-    title: String,
-    subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    ListItem(
-        modifier = Modifier.clickable { onCheckedChange(!checked) },
-        headlineContent = { Text(title) },
-        supportingContent = { Text(subtitle) },
-        leadingContent = { Icon(icon, contentDescription = null) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = null) },
-    )
-}
 
 private fun ThemeMode.labelRes(): Int =
     when (this) {

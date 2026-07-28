@@ -176,7 +176,7 @@
     <string name="scope_sort_reverse">Ordre inverse</string>
     <string name="scope_sort_relevance">Sélectionnées d\'abord</string>
     <string name="scope_sort_name">Par nom</string>
-    <string name="scope_search_hint">Rechercher une application</string>
+    <string name="scope_search_hint">Rechercher une appli</string>
     <string name="scope_system_apps">Applications système</string>
     <string name="scope_games">Jeux</string>
     <string name="scope_recommended">Demandée par ce module</string>
