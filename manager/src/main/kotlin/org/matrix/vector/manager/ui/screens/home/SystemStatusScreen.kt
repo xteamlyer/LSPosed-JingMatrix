@@ -29,15 +29,19 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +58,7 @@ import android.content.res.Configuration
 import java.util.Locale
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.ui.components.FrameworkState
+import org.matrix.vector.manager.data.log.CrashRecorder
 import org.matrix.vector.manager.data.model.XposedApi
 import org.matrix.vector.manager.ui.components.SnackbarTone
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
@@ -98,6 +103,9 @@ fun SystemStatusScreen(
                 )
             buildSections(status, device, english)
         }
+    // Read once per visit rather than watched: a crash cannot be recorded while this screen is on
+    // screen, because the process that would record it is the one drawing it.
+    var crashes by remember { mutableStateOf(CrashRecorder.read(context)) }
     // The two switches below belong to the framework, so they are only live while it is.
     val daemonAlive = status.state != FrameworkState.Inactive
     val snackbars = remember { SnackbarHostState() }
@@ -149,6 +157,22 @@ fun SystemStatusScreen(
             if (status.issues.isNotEmpty()) {
                 items(status.issues, key = { it.name }) { issue -> IssueCard(issue) }
                 item { Spacer(Modifier.height(4.dp)) }
+            }
+            if (crashes != null) {
+                item(key = "crashes") {
+                    CrashCard(
+                        report = crashes!!,
+                        onCopy = {
+                            copy(context, crashes!!)
+                            scope.launch { snackbars.show(copied, SnackbarTone.Success) }
+                        },
+                        onClear = {
+                            CrashRecorder.clear(context)
+                            crashes = null
+                        },
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
             }
             sections.forEach { (heading, items) ->
                 item(key = "h:$heading") { SectionHeading(heading) }
@@ -210,6 +234,54 @@ private fun IssueCard(issue: HealthIssue) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+    }
+}
+
+/**
+ * The manager's own crashes, which nothing else on the device keeps.
+ *
+ * On this page rather than under Logs because every other tab there belongs to the daemon, and
+ * because this is the page someone opens when they are about to report something. It shows the
+ * newest trace only — the older ones are on file and travel with the copy — since the question
+ * being asked is "what just happened", not "what has ever happened".
+ *
+ * The card is absent when there have been no crashes, which is the normal state and deserves no
+ * row of its own.
+ */
+@Composable
+private fun CrashCard(report: String, onCopy: () -> Unit, onClear: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val newest = remember(report) { report.trim().lines().take(CRASH_PREVIEW_LINES) }
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                Icon(Icons.Rounded.WarningAmber, contentDescription = null, tint = colors.error)
+                Spacer(Modifier.padding(horizontal = 6.dp))
+                Text(
+                    stringResource(R.string.crash_recorded_title),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.crash_recorded_summary),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                newest.joinToString("\n"),
+                style = VectorMono.copy(fontSize = 12.sp),
+                color = colors.onSurfaceVariant,
+                maxLines = CRASH_PREVIEW_LINES,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row {
+                TextButton(onClick = onCopy) { Text(stringResource(R.string.action_copy_all)) }
+                TextButton(onClick = onClear) { Text(stringResource(R.string.crash_recorded_clear)) }
             }
         }
     }
@@ -443,3 +515,6 @@ private fun FrameworkToggle(
         Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
 }
+
+/** Enough of the newest trace to recognise it; the rest travels in the copy. */
+private const val CRASH_PREVIEW_LINES = 6

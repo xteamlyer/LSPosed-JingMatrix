@@ -29,6 +29,9 @@
     <string name="issue_system_server_summary">Modules cannot hook system services. This is rare, and is usually caused by another root module interfering.</string>
     <string name="issue_dex2oat_title">Dex optimizer wrapper unavailable</string>
     <string name="issue_dex2oat_summary">Some system properties were removed or changed. Modules may stop applying after an app updates.</string>
+    <string name="crash_recorded_title">The manager closed unexpectedly</string>
+    <string name="crash_recorded_summary">The full trace travels in the log export, under crash_manager.</string>
+    <string name="crash_recorded_clear">Discard</string>
 
     <!-- System status detail -->
     <string name="system_status">System status</string>
