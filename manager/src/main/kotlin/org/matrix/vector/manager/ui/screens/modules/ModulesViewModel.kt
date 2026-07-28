@@ -493,12 +493,17 @@ class ModulesViewModel(
                         // showing neither of them — the count and the icons disagreed because
                         // they were derived from different lists.
                         scopeCount = if (targets == null) -1 else apps.size,
-                        // A module asking for a newer API than the framework provides cannot
-                        // load; saying so here beats letting the user wonder why nothing happens.
+                        // Still the *minimum*, and deliberately: it is the author's stated floor,
+                        // and this is the only place it is honoured at all — the framework never
+                        // reads it. A module saying it needs 102 on a framework implementing 101
+                        // will be loaded anyway, and its author has said not to expect it to work.
                         incompatible = api > 0 && module.minVersion > api,
+                        // Judged on what the module was built against, not on the floor it
+                        // asks for. A module declaring min 100 and target 101 is a 101 module and
+                        // was being warned about a break it is on the far side of.
                         apiBrokenSince =
                             if (api <= 0) null
-                            else XposedApi.brokenSince(module.minVersion, api),
+                            else XposedApi.brokenSince(module.apiVersion, api),
                         loadFailure = unloadable[module.packageName],
                         scopeFramework = framework,
                         scopePreview =

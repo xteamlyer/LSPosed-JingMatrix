@@ -32,8 +32,15 @@ data class ModuleManifest(
     /** The module's own description, which the two generations store in different places. */
     val description: String = "",
 ) {
+    /**
+     * Either number counts as declaring one.
+     *
+     * `minApiVersion` alone was the test, so a module that states only `targetApiVersion` — the
+     * one the framework actually loads by — was shown as declaring no API at all, with a red "?"
+     * where its version belongs. Nothing about it is undeclared.
+     */
     val declaresApiVersion: Boolean
-        get() = minApiVersion > 0
+        get() = minApiVersion > 0 || targetApiVersion > 0
 }
 
 object ModuleDetection {

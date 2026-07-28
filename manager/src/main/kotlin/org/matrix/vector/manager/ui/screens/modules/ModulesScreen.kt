@@ -906,7 +906,10 @@ private fun ModuleRow(
                     text =
                         stringResource(
                             R.string.modules_api_behind,
-                            module.minVersion,
+                            // "Built for" is the target, and it is what decided this caution was
+                            // due; showing the floor beside a verdict reached from the target
+                            // would be two numbers disagreeing in one sentence.
+                            module.apiVersion,
                             brokenSince,
                         ),
                     style = MaterialTheme.typography.bodySmall,
@@ -1057,7 +1060,7 @@ private fun ApiBadge(module: InstalledModule, incompatible: Boolean) {
             color = colors.onSurfaceVariant.copy(alpha = 0.7f),
         )
         Text(
-            text = if (undeclared) "?" else module.minVersion.toString(),
+            text = if (undeclared) "?" else module.apiVersion.toString(),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = if (incompatible || undeclared) colors.error else colors.primary,

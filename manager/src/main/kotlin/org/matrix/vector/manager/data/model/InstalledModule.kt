@@ -19,4 +19,28 @@ data class InstalledModule(
     val lastUpdateTime: Long,
     val isEnabled: Boolean,
     val applicationInfo: ApplicationInfo, // Kept for Icon loading via Coil/Glide later
-)
+) {
+    /**
+     * The API version this module *is*, as opposed to the one it asks for.
+     *
+     * These are two different numbers and the screen was showing the wrong one. `module.prop`
+     * carries both `minApiVersion` — the author's stated floor — and `targetApiVersion`, what the
+     * module was built against; the WeType module declares 101 and 102 respectively, and the badge
+     * said 101.
+     *
+     * `targetApiVersion` is the one that decides anything. `FileSystem.readModuleInfo` picks the
+     * loading strategy from it alone — `targetApi >= 101` is MODERN, `targetApi == 100` is
+     * refused, and anything else falls back to a legacy `assets/xposed_init` or does not load at
+     * all. `minApiVersion` is read *nowhere* in the daemon or the framework: zero occurrences.
+     * Showing it as "API n" therefore reported a number the framework ignores.
+     *
+     * Legacy modules keep their own number, because there is no target on that scale — it comes
+     * from the `xposedminversion` manifest entry and is all they have.
+     */
+    val apiVersion: Int =
+        when {
+            isLegacy -> minVersion
+            targetVersion > 0 -> targetVersion
+            else -> minVersion
+        }
+}
