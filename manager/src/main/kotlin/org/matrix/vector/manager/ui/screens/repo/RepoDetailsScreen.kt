@@ -442,7 +442,17 @@ private fun InstallBar(
                         color = MaterialTheme.colorScheme.error,
                     )
                     Spacer(Modifier.height(4.dp))
-                    TextButton(onClick = onAcknowledge) { Text(stringResource(R.string.retry)) }
+                    // The same body as the resting button below, because this is the same press.
+                    // It only cleared the failure before, which put the Install button back and
+                    // left the reader to press it again — a retry that retried nothing.
+                    TextButton(
+                        onClick = {
+                            onAcknowledge()
+                            onInstall(newest)
+                        }
+                    ) {
+                        Text(stringResource(R.string.retry))
+                    }
                 }
                 else -> {
                     Button(

@@ -19,6 +19,7 @@ import org.matrix.vector.manager.ui.components.ChoiceRow
 import org.matrix.vector.manager.ui.components.SheetAction
 import org.matrix.vector.manager.ui.components.SheetHeading
 import org.matrix.vector.manager.ui.components.ToggleRow
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -55,6 +56,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -91,6 +93,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -230,6 +233,11 @@ fun ScopeScreen(
     fun attemptBack() {
         if (viewModel.wouldStrandModule()) confirmStranded = true else onNavigateBack()
     }
+
+    // The gesture leaves this screen exactly as the arrow does, so it has to ask the same question
+    // first. Only the arrow did: a swipe went straight out, past the check and past anything still
+    // sitting in the draft. Declared here it wins over the navigator's own back handling.
+    BackHandler { attemptBack() }
 
     Scaffold(
         topBar = {
@@ -376,6 +384,23 @@ fun ScopeScreen(
             }
 
             Spacer(Modifier.height(10.dp))
+
+            // Every installed package, with its label and its icon, read through the package
+            // manager: on a phone with a few hundred of them that is a visible wait, and it used
+            // to be spent staring at a blank half-screen with no way to tell a slow load from a
+            // filter that had matched nothing. Only while there is nothing to show — a spinner
+            // over a list already on screen would be the worse lie.
+            if (state.loading && apps.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+                return@Column
+            }
+
+            if (apps.isEmpty()) {
+                ScopeEmptyState()
+                return@Column
+            }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -685,6 +710,33 @@ private fun ScopeSheet(
     }
 }
 
+
+/**
+ * Why the list is empty, which the list itself can never say.
+ *
+ * Search and the two filter sheets sit directly above, and any of them can narrow this to nothing —
+ * so an empty area under them reads as a screen that failed rather than as a question that was
+ * asked and answered.
+ */
+@Composable
+private fun ScopeEmptyState() {
+    Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Rounded.Search,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.outline,
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.modules_no_match),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
 
 /**
  * How a row came to be in the scope, which decides the ring around its icon.

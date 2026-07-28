@@ -174,7 +174,7 @@
     <string name="modules_update_ignored">Ignored</string>
     <string name="modules_update_selected">Update %1$d</string>
     <string name="modules_active_of">%1$d of %2$d active</string>
-    <string name="modules_no_match">No module matches that search.</string>
+    <string name="modules_no_match">No module matches that search or filter.</string>
     <string name="modules_api_scale_legacy" translatable="false">Xposed</string>
     <string name="modules_api_scale_modern" translatable="false">API</string>
     <string name="modules_backup">Back up modules</string>
@@ -198,6 +198,7 @@
     <string name="modules_filter_inactive">Inactive</string>
     <string name="modules_load_no_apk">Enabled, but the framework could not find its APK to load.</string>
     <string name="modules_load_unusable">Enabled, but the framework could not load it. It is not running.</string>
+    <string name="modules_load_unsupported_api">Enabled, but built for libxposed API 100, which this framework no longer loads.</string>
     <string name="modules_incompatible">Needs libxposed API %1$d, which this framework does not provide.</string>
     <string name="modules_incompatible_legacy">Needs Xposed API %1$d, which this framework does not provide.</string>
     <string name="modules_api_behind">Built for libxposed API %1$d. API %2$d changed the interface, so this module may not work fully.</string>
@@ -286,6 +287,7 @@
     <string name="action_no_launcher">This app has nothing to open.</string>
     <string name="action_opened_info">Opening app info…</string>
     <string name="action_force_stopped">Stopped %1$s.</string>
+    <string name="action_force_stop_failed">Could not stop %1$s.</string>
     <string name="action_optimizing">Re-optimizing %1$s. This can take a while.</string>
     <string name="action_optimized">Re-optimized %1$s. Hooks that were inlined away should work now.</string>
     <string name="action_optimize_failed">Could not re-optimize %1$s.</string>
@@ -393,6 +395,7 @@
     <string name="update_no_notes">This release published no notes.</string>
     <string name="update_no_root">No root implementation was found, so nothing can be flashed.</string>
     <string name="update_root_too_old">The root implementation on this device is too old to flash through.</string>
+    <string name="update_root_unknown">This framework build does not report which root implementation is installed.</string>
     <string name="update_root_multiple">Two root implementations were found. Vector will not guess which one owns the module.</string>
     <string name="update_failed_start">The installer could not be started.</string>
     <string name="update_failed_download">The update could not be downloaded.</string>

@@ -387,26 +387,26 @@ class HomeViewModel(
             // happens even when nothing was added, so that a walk which ended by finding no new
             // commits can clear the invitation to keep scrolling.
             _feed.value = github.load(GitHubRepository.Freshness.Cached)
-            if (added == 0) _exhausted.value = true
+            // Assigned, not raised. A walk that came back with commits is proof the network and the
+            // rate limit are fine, and it has to say so. This was `if (added == 0) … = true`, which
+            // could only ever latch: one refused walk left the rail insisting history had run out
+            // for the rest of the process, including over every later walk that succeeded.
+            _exhausted.value = added == 0
             _loadingHistory.value = false
         }
     }
 
     /**
-     * True once a walk came back empty-handed for a reason we cannot distinguish from failure.
+     * True when the last walk came back empty-handed for a reason we cannot distinguish from
+     * failure.
      *
      * A refused request and a finished history look the same from here, and retrying a refused one
      * on every scroll would hammer a rate limit that is already exhausted. This stops the automatic
-     * retries for the rest of the session; the foot of the feed stays tappable, so a reader who
-     * knows they are back online can ask again.
+     * retries until a walk brings something back; the foot of the feed stays tappable, so a reader
+     * who knows they are back online can ask again — and the walk they ask for is what clears it.
      */
     private val _exhausted = MutableStateFlow(false)
     val historyStalled: StateFlow<Boolean> = _exhausted.asStateFlow()
-
-    fun retryHistory() {
-        _exhausted.value = false
-        loadMoreHistory()
-    }
 
     companion object {
         /** How often opening Home actually goes and checks GitHub. */

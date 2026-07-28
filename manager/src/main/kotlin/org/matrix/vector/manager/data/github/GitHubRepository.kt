@@ -76,8 +76,9 @@ class GitHubRepository(
     /**
      * Names we have already tried to resolve to a GitHub account, and what came back.
      *
-     * A null value is a remembered *failure*: it is as worth keeping as a success, because the
-     * alternative is asking about the same unresolvable name on every load. Persisted so that
+     * A null value is a remembered *404*: it is as worth keeping as a success, because the
+     * alternative is asking about the same unresolvable name on every load. Only a 404 lands here;
+     * see [resolvePerson] for why every other kind of failure is left out. Persisted so that
      * survives the process, which parasitically is killed often.
      */
     private val resolvedPeople: MutableMap<String, ResolvedPerson?> by lazy {
@@ -169,14 +170,13 @@ class GitHubRepository(
                             commits = json.decodeFromString<List<GhCommit>>(snapshotFile.readText())
                         )
                     }
-                    .getOrNull()
-                    ?: return@withContext CommunityFeed(
-                        fromCache = true,
-                        // Nothing on disk and nothing from the network: whether that counts as
-                        // offline still depends on whether a request was even attempted.
-                        offline = freshness != Freshness.Cached,
-                        loaded = true,
-                    )
+                    // An empty snapshot rather than an empty *feed*. The snapshot is one window's
+                    // worth of commits; the archive is every commit ever walked, and it lives in a
+                    // different file. Returning early here because this one was missing or
+                    // unreadable threw the archive away with it, and the page came up blank on a
+                    // device holding thousands of commits. Falling through costs nothing when there
+                    // really is nothing: the merge below just has no fallback to merge.
+                    .getOrNull() ?: Snapshot()
             build(
                 timeline(cached.commits, windowStart),
                 // Its own file first: the feed snapshot's copy is a historical accident and may
@@ -456,7 +456,18 @@ class GitHubRepository(
         }
     }
 
-    private fun get(url: String, freshness: Freshness): String? {
+    /**
+     * A body, and the status that came with it.
+     *
+     * Almost every caller wants the payload and nothing else, which is what [get] is for.
+     * [resolvePerson] is the exception: it has to tell "GitHub says there is no such account" apart
+     * from "GitHub would not answer just now", and those two differ only in the code.
+     */
+    private class Answer(val code: Int, val body: String?)
+
+    private fun get(url: String, freshness: Freshness): String? = getWithStatus(url, freshness).body
+
+    private fun getWithStatus(url: String, freshness: Freshness): Answer {
         val request =
             Request.Builder()
                 .url(url)
@@ -480,8 +491,10 @@ class GitHubRepository(
                 .build()
 
         client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) return null
-            return response.body.string()
+            return Answer(
+                response.code,
+                if (response.isSuccessful) response.body.string() else null,
+            )
         }
     }
 
@@ -822,9 +835,10 @@ class GitHubRepository(
         // before the network was ever asked.
         if (freshness == Freshness.Cached) return null
 
+        val answer = runCatching { getWithStatus("$API_ROOT/users/$name", freshness) }.getOrNull()
         val found =
             runCatching {
-                    get("$API_ROOT/users/$name", freshness)?.let {
+                    answer?.body?.let {
                         val user = json.decodeFromString<GhUser>(it)
                         ResolvedPerson(
                             login = user.login,
@@ -835,6 +849,13 @@ class GitHubRepository(
                     }
                 }
                 .getOrNull()
+
+        // Only a 404 says anything about the person. A rate-limited 403, a 5xx or a dropped
+        // connection says something about the moment, and it used to be written down here as "no
+        // such account" — permanently, since this map is persisted, so one throttled hour left a
+        // contributor uncredited on every later launch. Anything that is not a plain "not found"
+        // leaves the key absent, and the next load asks again.
+        if (found == null && answer?.code != HTTP_NOT_FOUND) return null
 
         resolvedPeople[key] = found
         runCatching { peopleFile.writeText(json.encodeToString(resolvedPeople.toMap())) }
@@ -900,6 +921,9 @@ class GitHubRepository(
 
         private const val API = "https://api.github.com/repos"
         private const val API_ROOT = "https://api.github.com"
+
+        /** The only status that is an answer about a person rather than about the hour. */
+        private const val HTTP_NOT_FOUND = 404
 
         /**
          * A name shaped like a handle rather than a display name.

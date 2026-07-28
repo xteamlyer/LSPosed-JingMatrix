@@ -53,6 +53,14 @@ import org.matrix.vector.manager.ui.components.ambience.AmbienceKind
 import org.matrix.vector.manager.ui.components.ambience.AmbientSurface
 import org.matrix.vector.manager.ui.theme.VectorMono
 
+/** The three states the framework can be in, plus the moment before we know. */
+enum class FrameworkState {
+    Checking,
+    Active,
+    Degraded,
+    Inactive,
+}
+
 /**
  * The framework's state, as the top of the app.
  *

@@ -39,6 +39,30 @@ import org.matrix.vector.daemon.utils.ObfuscationManager
 
 private const val TAG = "VectorFileSystem"
 
+/**
+ * What came of trying to load a module APK.
+ *
+ * The loader used to answer every refusal with the same null, so a module built against libxposed
+ * API 100 — which this framework drops outright — reached the user as the same "the framework could
+ * not load it" as a zip that will not parse. That refusal is the one with somewhere to go: the
+ * module is not broken, it is old, and only a rebuild by its author moves it. The rest really are
+ * indistinguishable from here.
+ */
+sealed interface ModuleLoad {
+  /** Parsed, and ready to hand to a forking process. */
+  data class Loaded(val apk: PreLoadedApk) : ModuleLoad
+
+  /** Declares libxposed API 100, and carries nothing else this framework can load. */
+  data object UnsupportedApi : ModuleLoad
+
+  /** Will not parse, has no init files, or names no module classes. */
+  data object Unusable : ModuleLoad
+}
+
+/** The APK when it loaded and null when it did not, for callers with nothing to say about why. */
+val ModuleLoad.apkOrNull: PreLoadedApk?
+  get() = (this as? ModuleLoad.Loaded)?.apk
+
 object FileSystem {
   val basePath: Path = Paths.get("/data/adb/lspd")
   val logDirPath: Path = basePath.resolve("log")
@@ -190,9 +214,9 @@ object FileSystem {
           .getOrNull()
 
   /** Parses the module APK, extracts init lists, and loads DEXes into SharedMemory. */
-  fun loadModule(apkPath: String, obfuscate: Boolean): PreLoadedApk? {
+  fun loadModule(apkPath: String, obfuscate: Boolean): ModuleLoad {
     val file = File(apkPath)
-    if (!file.exists()) return null
+    if (!file.exists()) return ModuleLoad.Unusable
 
     val preLoadedApk = PreLoadedApk()
     val preLoadedDexes = mutableListOf<SharedMemory>()
@@ -261,12 +285,12 @@ object FileSystem {
               }
               "UNSUPPORTED" -> {
                 Log.w(TAG, "Module $apkPath uses API 100 which is no longer supported.")
-                return null
+                return ModuleLoad.UnsupportedApi
               }
-              else -> return null // No valid init files found
+              else -> return ModuleLoad.Unusable // No valid init files found
             }
 
-            if (moduleClassNames.isEmpty()) return null
+            if (moduleClassNames.isEmpty()) return ModuleLoad.Unusable
 
             // Read DEX files
             var secondary = 1
@@ -280,10 +304,10 @@ object FileSystem {
         }
         .onFailure {
           Log.e(TAG, "Failed to load module $apkPath", it)
-          return null
+          return ModuleLoad.Unusable
         }
 
-    if (preLoadedDexes.isEmpty()) return null
+    if (preLoadedDexes.isEmpty()) return ModuleLoad.Unusable
 
     // Apply obfuscation
     if (obfuscate) {
@@ -304,7 +328,7 @@ object FileSystem {
       this.exceptionPassthrough = exceptionPassthrough
     }
 
-    return preLoadedApk
+    return ModuleLoad.Loaded(preLoadedApk)
   }
 
   /** Safely creates the log directory. If a file exists with the same name, it deletes it first. */

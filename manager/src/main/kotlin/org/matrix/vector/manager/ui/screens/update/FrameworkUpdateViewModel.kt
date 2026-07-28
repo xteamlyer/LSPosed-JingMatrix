@@ -21,8 +21,10 @@ import org.matrix.vector.manager.data.repository.FrameworkUpdateState
 import org.matrix.vector.manager.di.ServiceLocator
 
 /** Which root implementation is in charge, and whether it can be flashed through. */
-data class RootState(val code: Int = ILSPManagerService.ROOT_NONE, val version: String? = null) {
+data class RootState(val code: Int = ILSPManagerService.ROOT_UNKNOWN, val version: String? = null) {
 
+    // Named implementations only, so that ROOT_UNKNOWN — the daemon never answered — refuses to
+    // flash rather than guessing at an installer to hand the zip to.
     val canFlash: Boolean
         get() =
             code == ILSPManagerService.ROOT_MAGISK ||
@@ -32,9 +34,10 @@ data class RootState(val code: Int = ILSPManagerService.ROOT_NONE, val version: 
     /**
      * The sentence to show when flashing is not possible.
      *
-     * Null when it is, and three different strings when it is not — "nothing installed", "too old"
-     * and "two of them" need three different actions from the reader, and collapsing them into one
-     * "unsupported" would tell someone with two root managers to go install a root manager.
+     * Null when it is, and four different strings when it is not — "nothing installed", "too old",
+     * "two of them" and "this daemon does not say" need four different actions from the reader, and
+     * collapsing them into one "unsupported" would tell someone with two root managers to go
+     * install a root manager.
      */
     @androidx.compose.runtime.Composable
     fun label(): String? =
@@ -50,6 +53,10 @@ data class RootState(val code: Int = ILSPManagerService.ROOT_NONE, val version: 
             ILSPManagerService.ROOT_NONE ->
                 androidx.compose.ui.res.stringResource(
                     org.matrix.vector.manager.R.string.update_no_root
+                )
+            ILSPManagerService.ROOT_UNKNOWN ->
+                androidx.compose.ui.res.stringResource(
+                    org.matrix.vector.manager.R.string.update_root_unknown
                 )
             else -> null
         }
@@ -136,10 +143,10 @@ class FrameworkUpdateViewModel : ViewModel() {
                 daemon.getRootImplementation().getOrElse { e ->
                     Log.w(
                         Constants.TAG,
-                        "update: root implementation unreadable, screen will claim no root",
+                        "update: root implementation unreadable, screen will say it is unknown",
                         e,
                     )
-                    ILSPManagerService.ROOT_NONE
+                    ILSPManagerService.ROOT_UNKNOWN
                 }
             val version = daemon.getRootImplementationVersion().getOrNull()
             _root.value = RootState(code, version)

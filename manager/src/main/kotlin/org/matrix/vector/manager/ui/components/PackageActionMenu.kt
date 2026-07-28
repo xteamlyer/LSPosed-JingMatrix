@@ -298,17 +298,23 @@ LocalizedOverlay {
                 title = stringResource(R.string.action_force_stop),
             ) {
                 finish {
-                    daemon.forceStopPackage(packageName, userId).onFailure { e ->
-                        Log.e(
-                            Constants.TAG,
-                            "actions: force stop of $packageName (user $userId) failed",
-                            e,
-                        )
-                    }
+                    val result =
+                        daemon.forceStopPackage(packageName, userId).onFailure { e ->
+                            Log.e(
+                                Constants.TAG,
+                                "actions: force stop of $packageName (user $userId) failed",
+                                e,
+                            )
+                        }
+                    // It said "Stopped" whatever came back — with the daemon gone, nothing
+                    // had been stopped at all. Unlike uninstall below there is no boolean to
+                    // weigh: this call answers with Unit, so the Result itself is the verdict.
+                    val ok = result.isSuccess
                     PackageActionResult(
-                        R.string.action_force_stopped,
+                        if (ok) R.string.action_force_stopped
+                        else R.string.action_force_stop_failed,
                         appName,
-                        tone = SnackbarTone.Success,
+                        tone = if (ok) SnackbarTone.Success else SnackbarTone.Failure,
                     )
                 }
             }

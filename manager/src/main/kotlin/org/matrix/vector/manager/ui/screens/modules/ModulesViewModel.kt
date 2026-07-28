@@ -172,13 +172,6 @@ class ModulesViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0 to 0)
 
     /**
-     * Set when the daemon rejects a toggle, so the UI can say so. Previously a rejected write just
-     * snapped the switch back with no explanation.
-     */
-    private val _toggleFailed = MutableStateFlow<String?>(null)
-    val toggleFailed: StateFlow<String?> = _toggleFailed.asStateFlow()
-
-    /**
      * The enabled set is owned by [ModuleRepository] and merged in here rather than baked into the
      * discovered list, so enabling a module updates one flow and every screen showing it agrees.
      */
@@ -270,17 +263,6 @@ class ModulesViewModel(
         _sort.value = value
     }
 
-    fun consumeToggleFailure() {
-        _toggleFailed.value = null
-    }
-
-    private val _backupMessage = MutableStateFlow<String?>(null)
-    val backupMessage: StateFlow<String?> = _backupMessage.asStateFlow()
-
-    fun consumeBackupMessage() {
-        _backupMessage.value = null
-    }
-
     fun backupTo(uri: android.net.Uri, onResult: (Int?) -> Unit) {
         viewModelScope.launch {
             val count = ServiceLocator.backup.backupTo(uri).getOrNull()
@@ -300,21 +282,6 @@ class ModulesViewModel(
             onResult(outcome)
         }
     }
-
-    /**
-     * Enable or disable a module.
-     *
-     * The single most important thing a manager for a hooking framework does, and it did not exist
-     * at all before this: the repository's toggle had no call sites anywhere, and every row
-     * rendered with a hardcoded `isEnabled = false`.
-     */
-    fun setEnabled(module: InstalledModule, enable: Boolean) {
-        viewModelScope.launch {
-            val ok = moduleRepository.toggleModule(module.packageName, enable)
-            if (!ok) _toggleFailed.value = module.appName
-        }
-    }
-
 
     // --- selection ------------------------------------------------------------------------------
 

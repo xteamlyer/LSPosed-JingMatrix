@@ -82,10 +82,11 @@ other call the manager is making meanwhile — including the log reads the insta
 show what is happening. If the manager goes away mid-flash the install continues, since stopping
 would leave the module tree half-written, and the daemon's own log becomes the only record.
 
-Two builds can share a version code — `git rev-list --count` is identical on a branch and on master
-at the same depth — so a release's `target_commitish` is carried through and compared as well. When
-the codes match and the hashes do not, the update screen says so instead of claiming the device is
-up to date.
+Two builds can share a version code: `git rev-list --count` is always taken on
+`refs/remotes/origin/master`, whatever is actually being built, so a branch build — or a local one —
+wears whatever number master's tip happens to have. A release's `target_commitish` is therefore
+carried through and compared as well, and when the codes match while the hashes do not, the update
+screen says so instead of claiming the device is up to date.
 
 Every release publishes a release zip and a debug zip of roughly three times the size. Which one is
 installed is the reader's choice, shown with its size, because the troubleshooting flow elsewhere in
@@ -147,8 +148,15 @@ scenario — including "no daemon at all", which came up reporting a healthy fra
 `DaemonClient` wraps `ILSPManagerService`. Every call suspends on `Dispatchers.IO` and returns a
 `Result`. The binder reference is read *once* per call rather than null-checked and then used,
 which was a time-of-check/time-of-use race, and failures are caught as `Exception` rather than
-`RemoteException` alone — a daemon built without a given method throws `NoSuchMethodError`, which is
-the expected outcome when a newer manager meets an older framework.
+`RemoteException` alone — a `SecurityException`, or a `RuntimeException` raised while unparcelling,
+is as reachable here as a dead binder.
+
+A method the daemon does not have is not one of those failures, which is the part that catches
+people out. The proxy sends a transaction code the older `onTransact` does not recognise, reads back
+an empty reply, and returns the type's default — `null`, an empty list, `0`. Nothing is thrown, so
+`getRootImplementation` against a daemon that predates it answers `0` and looks like an answer.
+That is why `0` is `ROOT_UNKNOWN` in the AIDL rather than a real state: whatever sits there is what
+an older daemon appears to say.
 
 Two calls were added to the AIDL for the log reader: `getLogParts(verbose)` lists the rotated parts
 the daemon still holds, and `getLogPart(verbose, name)` opens one. The name arrives from an
@@ -254,5 +262,6 @@ than presenting a control that cannot work.
   above the Compose BOM rather than resolved from it.
 * Kotlin is declared at the root with `apply false`. AGP 9 otherwise supplies its own, older
   version, against which Coil's metadata fails to load.
-* `githubClientId` is read from `local.properties` or `~/.gradle/gradle.properties` and defaults to
-  empty.
+* `githubClientId` is read as a Gradle property — `~/.gradle/gradle.properties`, or
+  `-PgithubClientId=...` on the command line — and defaults to empty. `local.properties` is not
+  consulted for it: nothing in the build reads that file beyond the SDK location AGP takes from it.

@@ -2,6 +2,7 @@ package org.matrix.vector.manager.data.repository
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,6 +68,12 @@ class ModuleUpdateQueue(
                 for (item in items) {
                     _state.update { it.copy(current = item) }
                     val ok = runCatching { installer.install(item.packageName, item.asset) }
+                    // runCatching swallows everything, and everything includes the
+                    // cancellation acknowledge() raises in here. Without this check a
+                    // dismissed run carried on behind the cleared state: every remaining
+                    // item was recorded as failed, and the update below the loop put the
+                    // finished-with-failures line back on a screen just cleared of it.
+                    ensureActive()
                     _state.update {
                         if (ok.getOrDefault(false)) it.copy(done = it.done + item.packageName)
                         else it.copy(failed = it.failed + item.packageName)
@@ -87,14 +94,18 @@ class ModuleUpdateQueue(
     }
 
     /**
-     * Clears a finished run.
+     * Clears the run, finished or not.
      *
-     * Only when it has finished — there is no cancel here on purpose. An install that has reached
-     * the platform cannot be recalled, and a stop button that could not stop the thing in front of
-     * you would be a lie about what the app controls.
+     * It used to refuse while `running` was set, on the reasoning that an install which has reached
+     * the platform cannot be recalled. True of that one install, and no help at all to the reader:
+     * a download stalled on a connection that never times out, or a system confirmation dialog that
+     * was dismissed, leaves `running` set for the life of the process — and with the guard in place
+     * the progress line reporting it could never be got rid of. So this is also the cancel. What
+     * the platform already accepted stays installed; what stops is the queue.
      */
     fun acknowledge() {
-        if (_state.value.running) return
+        job?.cancel()
+        job = null
         _state.value = State()
         installer.acknowledge()
     }

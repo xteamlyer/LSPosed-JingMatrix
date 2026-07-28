@@ -86,7 +86,9 @@ object ServiceLocator {
 
     val modules: ModuleRepository by lazy { ModuleRepository(daemon, appScope) }
 
-    val apps: AppRepository by lazy { AppRepository(daemon, context.packageManager) }
+    val apps: AppRepository by lazy {
+        AppRepository(daemon, context.packageManager, moduleDetection)
+    }
 
     /**
      * Which packages are modules, remembered across launches.
@@ -232,7 +234,10 @@ object ServiceLocator {
     fun prefetch() {
         appScope.launch { runCatching { apps.getInstalledApps() } }
         appScope.launch { runCatching { store.refresh() } }
-        appScope.launch { runCatching { github.load() } }
+        // From disk. Opening the manager is not a reason to talk to GitHub, and this asked for a
+        // revalidation on every single launch — which quietly overrode Home's own gate, the one
+        // that decides how rarely a launch is allowed to go and check.
+        appScope.launch { runCatching { github.load(GitHubRepository.Freshness.Cached) } }
     }
 
     /** Called from `Constants.setBinder`, possibly before [attach]. */

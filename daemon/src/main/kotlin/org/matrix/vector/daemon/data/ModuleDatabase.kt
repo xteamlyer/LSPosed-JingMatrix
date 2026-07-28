@@ -38,20 +38,6 @@ object ModuleDatabase {
   /** The one database handle. [ConfigCache], [PreferenceStore] and the CLI all borrow it. */
   val dbHelper = Database()
 
-
-  /**
-   * Which modules are enabled, straight from the database.
-   *
-   * Deliberately not from [ConfigCache]: that cache is rebuilt asynchronously — a write only
-   * *requests* an update through a conflated channel — so anyone asking immediately after enabling
-   * a module was told the state from before their own write. The manager does exactly that: it
-   * writes, then re-reads to confirm, and the stale answer overwrote what it had correctly recorded
-   * itself. The row stayed in the wrong section until the app was restarted, at which point the
-   * cache had long since caught up and everything looked fine.
-   *
-   * The cache is still what the injection path reads, which is what it is for — it carries the
-   * resolved apk paths and scopes that this query deliberately does not.
-   */
   fun getModuleScope(packageName: String): MutableList<Application>? {
     if (packageName == "lspd") return null
     val result = mutableListOf<Application>()
@@ -176,6 +162,19 @@ object ModuleDatabase {
     return rows
   }
 
+  /**
+   * Which modules are enabled, straight from the database.
+   *
+   * Deliberately not from [ConfigCache]: that cache is rebuilt asynchronously — a write only
+   * *requests* an update through a conflated channel — so anyone asking immediately after enabling
+   * a module was told the state from before their own write. The manager does exactly that: it
+   * writes, then re-reads to confirm, and the stale answer overwrote what it had correctly recorded
+   * itself. The row stayed in the wrong section until the app was restarted, at which point the
+   * cache had long since caught up and everything looked fine.
+   *
+   * The cache is still what the injection path reads, which is what it is for — it carries the
+   * resolved apk paths and scopes that this query deliberately does not.
+   */
   fun enabledModules(): Array<String> {
     val names = mutableListOf<String>()
     dbHelper.readableDatabase

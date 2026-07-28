@@ -16,18 +16,24 @@ interface ILSPManagerService {
     /**
      * Which root implementation is managing this device.
      *
-     * The three failure values are kept apart rather than collapsed into one "unsupported",
-     * because they need three different sentences from the manager: nothing is installed, what is
-     * installed is too old to flash through, or two implementations are fighting and flashing
-     * through either would be a guess. NeoZygisk draws exactly these distinctions, and the manager
-     * is reporting on the same device state.
+     * The failure values are kept apart rather than collapsed into one "unsupported", because they
+     * need different sentences from the manager: nothing is installed, what is installed is too
+     * old to flash through, or two implementations are fighting and flashing through either would
+     * be a guess. NeoZygisk draws exactly these distinctions, and the manager is reporting on the
+     * same device state.
+     *
+     * ROOT_UNKNOWN takes 0 because 0 is also what a binder proxy hands back for a transaction the
+     * daemon does not implement. ROOT_NONE used to sit there, so a daemon too old to answer was
+     * read as "no root installed", and the manager told a rooted user to go and install the root
+     * manager they were already running.
      */
-    const int ROOT_NONE = 0;
-    const int ROOT_TOO_OLD = 1;
-    const int ROOT_MULTIPLE = 2;
-    const int ROOT_MAGISK = 3;
-    const int ROOT_KERNELSU = 4;
-    const int ROOT_APATCH = 5;
+    const int ROOT_UNKNOWN = 0;
+    const int ROOT_NONE = 1;
+    const int ROOT_TOO_OLD = 2;
+    const int ROOT_MULTIPLE = 3;
+    const int ROOT_MAGISK = 4;
+    const int ROOT_KERNELSU = 5;
+    const int ROOT_APATCH = 6;
 
     /** Nothing was flashed: no usable root implementation. Distinct from any installer exit code. */
     const int INSTALL_NO_ROOT = -1;
@@ -158,12 +164,20 @@ interface ILSPManagerService {
     /**
      * Installed and enabled, and the framework still would not load it.
      *
-     * Deliberately not more specific. The loader returns the same nothing for a zip that will not
-     * parse, an APK with no init files, one with no module classes, and one built against
-     * libxposed API 100 — which this framework refuses outright. Naming any single cause would be
-     * a guess.
+     * Deliberately not more specific. The loader refuses a zip that will not parse, an APK with no
+     * init files and one with no module classes in the same breath, and naming any single one of
+     * those would be a guess.
      */
     const int MODULE_LOAD_UNUSABLE = 2;
+
+    /**
+     * Built against libxposed API 100, which this framework no longer loads.
+     *
+     * The one refusal the loader can name, and the one the reader can act on: the module is not
+     * broken, it is old, and only its author can move it forward. It used to arrive as
+     * MODULE_LOAD_UNUSABLE, which reads as "your module is broken".
+     */
+    const int MODULE_LOAD_UNSUPPORTED_API = 3;
 
     /**
      * Modules that are enabled and installed, and that the framework still cannot load.

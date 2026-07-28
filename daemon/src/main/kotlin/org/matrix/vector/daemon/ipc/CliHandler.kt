@@ -40,7 +40,7 @@ object CliHandler {
     return mapOf(
         "Framework Version" to BuildConfig.VERSION_NAME,
         "Version Code" to BuildConfig.VERSION_CODE,
-        "Enabled Modules" to ConfigCache.state.modules.size,
+        "Enabled Modules" to ModuleDatabase.enabledModules().size,
         "Status Notification" to PreferenceStore.isStatusNotificationEnabled())
   }
 
@@ -55,8 +55,10 @@ object CliHandler {
         val enabledOnly = request.options["enabled"] as? Boolean ?: false
         val disabledOnly = request.options["disabled"] as? Boolean ?: false
 
-        //  Get the current immutable snapshot of enabled modules
-        val enabledModuleKeys = ConfigCache.state.modules.keys
+        // Asked of the configuration, not of the cache. The cache holds what could be *loaded* and
+        // is rebuilt asynchronously, so the CLI used to report a module the user had just enabled
+        // as disabled, and disagree with both the manager and `ManagerService.enabledModules()`.
+        val enabledModuleKeys = ModuleDatabase.enabledModules().toSet()
         //  Get all installed modules from the system
         val installed = ConfigCache.getInstalledModules()
 

@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,7 +64,6 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -167,7 +167,6 @@ fun ModulesScreen(
     val sort by viewModel.sort.collectAsStateWithLifecycle()
     val facts by viewModel.facts.collectAsStateWithLifecycle()
     val counts by viewModel.counts.collectAsStateWithLifecycle()
-    val toggleFailed by viewModel.toggleFailed.collectAsStateWithLifecycle()
     val daemonAvailable by viewModel.daemonAvailable.collectAsStateWithLifecycle()
 
     val selection by viewModel.selection.collectAsStateWithLifecycle()
@@ -227,7 +226,6 @@ fun ModulesScreen(
                 ?: context.getString(result.messageRes)
         actionScope.launch { snackbars.show(text, result.tone) }
     }
-    val failureTemplate = stringResource(R.string.module_toggle_failed)
     val scope = rememberCoroutineScope()
     val backedUp = stringResource(R.string.modules_backup_done)
     val backupFailed = stringResource(R.string.modules_backup_failed)
@@ -276,13 +274,6 @@ fun ModulesScreen(
                 }
             }
         }
-
-    LaunchedEffect(toggleFailed) {
-        toggleFailed?.let {
-            snackbars.show(String.format(failureTemplate, it), SnackbarTone.Failure)
-            viewModel.consumeToggleFailure()
-        }
-    }
 
     Scaffold(snackbarHost = { VectorSnackbarHost(snackbars) }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
@@ -369,7 +360,13 @@ fun ModulesScreen(
             }
 
             if (tabs.isEmpty() || tabs.all { it.modules.isEmpty() }) {
-                EmptyState(daemonAvailable = daemonAvailable, filtered = query.isNotBlank())
+                // A filter empties the list exactly as a search does, and only the search counted
+                // here — so picking "Inactive" on a device where everything is on said "you have no
+                // modules installed" over a list of modules the filter had just hidden.
+                EmptyState(
+                    daemonAvailable = daemonAvailable,
+                    filtered = query.isNotBlank() || filter != ModuleFilter.All,
+                )
                 return@Column
             }
 
@@ -877,6 +874,11 @@ private fun ModuleRow(
                     text =
                         stringResource(
                             when (loadFailure) {
+                                // Named separately from "could not load it" because it is the one
+                                // refusal that is not brokenness: the module is old, and its
+                                // author is the only one who can move it forward.
+                                ILSPManagerService.MODULE_LOAD_UNSUPPORTED_API ->
+                                    R.string.modules_load_unsupported_api
                                 ILSPManagerService.MODULE_LOAD_UNUSABLE ->
                                     R.string.modules_load_unusable
                                 else -> R.string.modules_load_no_apk
@@ -1369,10 +1371,19 @@ private fun ModuleUpdatesSheet(
                         val name = row.entry.module.name
                         val selectable = row.asset != null
                         ListItem(
+                            // Toggleable rather than clickable, for the same reason the checkbox
+                            // takes no callback: the row *is* the tick. As a plain clickable a
+                            // screen reader called it a button and read the module's name, with
+                            // nothing said about whether it was going to be updated.
                             modifier =
-                                Modifier.clickable(enabled = selectable) {
-                                    chosen = if (name in chosen) chosen - name else chosen + name
-                                },
+                                Modifier.toggleable(
+                                    value = name in chosen,
+                                    enabled = selectable,
+                                    role = Role.Checkbox,
+                                    onValueChange = { checked ->
+                                        chosen = if (checked) chosen + name else chosen - name
+                                    },
+                                ),
                             headlineContent = { Text(row.entry.module.title) },
                             supportingContent = {
                                 Text(

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ListItem
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -77,6 +79,10 @@ fun ChoiceRow(content: @Composable () -> Unit) {
  *
  * The whole row is the target, not just the switch, and the switch itself takes no callback so a
  * tap cannot be counted twice.
+ *
+ * Toggleable rather than merely clickable, because a plain clickable carries no state: a screen
+ * reader called every one of these rows a button and read out the title, so there was no way to
+ * hear whether the setting was on or off — the one thing the row exists to say.
  */
 @Composable
 fun ToggleRow(
@@ -87,7 +93,12 @@ fun ToggleRow(
     subtitle: String? = null,
 ) {
     ListItem(
-        modifier = Modifier.clickable { onCheckedChange(!checked) },
+        modifier =
+            Modifier.toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            ),
         headlineContent = { Text(title) },
         supportingContent = subtitle?.let { { Text(it) } },
         leadingContent = { Icon(icon, contentDescription = null) },

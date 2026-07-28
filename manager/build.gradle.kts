@@ -60,9 +60,11 @@ android {
         buildConfigField("String", "MANAGER_PACKAGE_NAME", "\"$defaultManagerPackageName\"")
         buildConfigField("String", "INJECTED_PACKAGE_NAME", "\"$injectedPackageName\"")
 
-        // OAuth client id for the optional GitHub device-flow sign-in on Home. Set
-        // `githubClientId` in local.properties or ~/.gradle/gradle.properties to enable it;
-        // left empty the app hides sign-in entirely rather than offering something broken.
+        // OAuth client id for the optional GitHub device-flow sign-in on Home. It is a Gradle
+        // property, so set `githubClientId` in ~/.gradle/gradle.properties or pass
+        // -PgithubClientId=... — local.properties is read by AGP for the SDK location and never
+        // reaches `providers.gradleProperty`. Left empty the app hides sign-in entirely rather
+        // than offering something broken.
         val githubClientId = providers.gradleProperty("githubClientId").getOrElse("")
         buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
 
