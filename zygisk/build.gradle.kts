@@ -11,6 +11,7 @@ ktfmt { kotlinLangStyle() }
 
 val versionCodeProvider: Provider<String> by rootProject.extra
 val versionNameProvider: Provider<String> by rootProject.extra
+val versionHashProvider: Provider<String> by rootProject.extra
 val injectedPackageName: String by rootProject.extra
 val injectedPackageUid: Int by rootProject.extra
 val defaultManagerPackageName: String by rootProject.extra
@@ -93,6 +94,7 @@ androidComponents {
                     expand(
                         "versionName" to "v${versionNameProvider.get()}",
                         "versionCode" to versionCodeProvider.get(),
+                        "versionHash" to versionHashProvider.get(),
                     )
                 }
                 from("$projectDir/module") {

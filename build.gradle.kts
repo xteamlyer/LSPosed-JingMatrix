@@ -59,8 +59,46 @@ abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParamete
     }
 }
 
+/**
+ * The commit a build actually came from, short, with a marker for uncommitted changes.
+ *
+ * The version code is the commit count on origin/master, so every branch build carries master's
+ * number: a build flashed from a feature branch and one flashed from master both report
+ * "v2.0 (3052)" and cannot be told apart on the device. That is not hypothetical — it cost a real
+ * investigation to establish which of the two was installed.
+ *
+ * The hash goes in module.prop's human-readable version only. BuildConfig.VERSION_NAME, which is
+ * what the manager prints on Home, is deliberately left clean.
+ */
+abstract class GitCommitHashValueSource : ValueSource<String, ValueSourceParameters.None> {
+    @get:Inject abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        val hash = ByteArrayOutputStream()
+        val hashResult = execOperations.exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = hash
+            isIgnoreExitValue = true
+        }
+        if (hashResult.exitValue != 0 || hash.toString().isBlank()) return "unknown"
+
+        // A dirty tree is the case worth naming: that build corresponds to no commit at all, so
+        // "which commit is this" has no answer and the version should say so rather than name a
+        // commit the binary does not match.
+        val dirty = ByteArrayOutputStream()
+        val dirtyResult = execOperations.exec {
+            commandLine("git", "status", "--porcelain", "--untracked-files=no")
+            standardOutput = dirty
+            isIgnoreExitValue = true
+        }
+        val suffix = if (dirtyResult.exitValue == 0 && dirty.toString().isNotBlank()) "-dirty" else ""
+        return hash.toString().trim() + suffix
+    }
+}
+
 // This defers the execution of the git commands and allows Gradle to cache the results.
 val versionCodeProvider by extra(providers.of(GitCommitCountValueSource::class.java) {})
+val versionHashProvider by extra(providers.of(GitCommitHashValueSource::class.java) {})
 val versionNameProvider by extra(providers.of(GitLatestTagValueSource::class.java) {})
 
 val injectedPackageName by extra("com.android.shell")

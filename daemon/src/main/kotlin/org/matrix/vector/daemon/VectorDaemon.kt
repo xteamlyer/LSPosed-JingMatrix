@@ -62,7 +62,12 @@ object VectorDaemon {
     }
 
     Log.i(TAG, "Vector daemon started: lateInject=$isLateInject, proxy=$proxyServiceName")
-    Log.i(TAG, "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+    // The hash is here rather than in the version the manager prints: Home should stay readable,
+    // but every saved bug report should say exactly which commit produced the daemon that wrote it.
+    Log.i(
+        TAG,
+        "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) " +
+            "commit ${BuildConfig.VERSION_HASH}")
 
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
       Log.e(TAG, "Uncaught exception in Daemon", e)
