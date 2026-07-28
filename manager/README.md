@@ -29,8 +29,11 @@ src/main/kotlin/org/matrix/vector/manager/
 └── ui/
     ├── components/       # Shared surfaces: panel header, search field, snackbar, ambience
     ├── navigation/       # Navigation 3 route keys and back stack
-    ├── screens/          # home, modules, logs, repo (store), canary, report, web, splash
-    └── theme/            # Seeded colour scheme generation, typography
+    ├── screens/          # home, modules, logs, repo (store), canary, update, report, web, splash
+    └── theme/            # Seeded colour scheme generation, typography, in-composition locale
+
+src/debug/kotlin/org/matrix/vector/manager/demo/
+                          # Scripted device states; compiled into debug builds only
 ```
 
 ## Process Constraints
@@ -45,6 +48,64 @@ src/main/kotlin/org/matrix/vector/manager/
   `ViewModel`.
 * *No `FileProvider`.* Exports go through the Storage Access Framework; the document belongs to
   DocumentsUI, which is what makes it shareable at all.
+
+## Localisation
+
+The framework's language cannot come from the platform. Per-app language preferences are a manifest
+feature, and this manifest is never registered, so `AppCompatDelegate.setApplicationLocales` has
+nothing to attach to. The chosen language is instead applied inside the composition:
+`ui/theme/AppLocale.kt` provides `LocalConfiguration`, `LocalContext` and `LocalLayoutDirection`
+together, which is what makes a right-to-left language flip the whole app rather than only its text.
+
+Two details are easy to get wrong and were:
+
+* The overridden context must be a `ContextWrapper` around the activity, not the result of
+  `createConfigurationContext` alone. The latter is detached from the activity, so anything reached
+  through `LocalContext` — an activity result launcher, for one — fails to find its owner and the
+  screen crashes on open rather than on language change.
+* Every popup gets its own `AndroidComposeView`, which re-provides the Android composition locals
+  from the base context. Sheets, dialogs and dropdown menus therefore render in the *system*
+  language unless they re-apply the override themselves, which `LocalizedOverlay` exists to do.
+
+Dates and month names are formatted at draw time, never in a model: a name formatted in a repository
+is formatted with `Locale.getDefault()`, which in parasitic mode is the host application's.
+
+## Framework Updates
+
+The daemon gained an install path (`getRootImplementation`, `installFrameworkZip`) because the
+manager cannot run a privileged flash itself. Root is detected by locating the implementation's own binary
+and asking it — `magisk -V`, `ksud`, `apd` — rather than by looking for su, and the flash runs
+through `ProcessBuilder` with an argument list, never a shell string, so a path can never become a
+command. Progress arrives as log lines on an `IFrameworkInstallCallback`, delivered from a thread of the
+daemon's own: a flash takes seconds to minutes, and holding a binder thread for it starves every
+other call the manager is making meanwhile — including the log reads the install screen is doing to
+show what is happening. If the manager goes away mid-flash the install continues, since stopping
+would leave the module tree half-written, and the daemon's own log becomes the only record.
+
+Two builds can share a version code — `git rev-list --count` is identical on a branch and on master
+at the same depth — so a release's `target_commitish` is carried through and compared as well. When
+the codes match and the hashes do not, the update screen says so instead of claiming the device is
+up to date.
+
+Every release publishes a release zip and a debug zip of roughly three times the size. Which one is
+installed is the reader's choice, shown with its size, because the troubleshooting flow elsewhere in
+this app asks people for a debug build.
+
+## Demo Mode
+
+Several states worth designing against cannot be produced on a working phone: SELinux policy not
+loaded, the system server not injected, a framework below the API level installed modules need, no
+root implementation at all. `src/debug` contains a scenario list and an `ILSPManagerService` stub
+that scripts the answers it has an opinion about and delegates the rest to the real daemon.
+
+It is a source set rather than a flag. A demo mode that could be switched on in a release build
+would be a way to make the manager report a healthy framework when it is not, which is the one lie
+this app must never be able to tell; a reviewer can confirm by finding no `manager/demo` classes in
+a release APK.
+
+The scenario host renders `VectorApp()` itself rather than launching the manager activity. Launching
+it lets `ParasiticManagerHooker` hand over the real binder a moment later, which silently undid every
+scenario — including "no daemon at all", which came up reporting a healthy framework.
 
 ## Daemon IPC
 
@@ -103,16 +164,43 @@ conversion, once per tone, off the main thread and cached as an `ImageBitmap`.
   through to the system resolver on failure, latches that failure for the session, and disables
   itself entirely when a proxy is configured. The setting is read per lookup, because OkHttp cannot
   have its DNS swapped on a live client and rebuilding the shared client would orphan the cache.
-* *Activity feed.* Commit history is fetched once per window and cached on disk with the total
-  commit count and repository statistics, both of which come from response headers and a second
-  request that a cached read does not make. `versionCode` equals `git rev-list --count`, so a
-  commit's distance from HEAD is its version number, and the feed can name exactly which commits an
-  update would bring without an additional endpoint.
+* *Activity feed.* `versionCode` equals `git rev-list --count`, so a commit's distance from HEAD is
+  its version number, and the feed can name exactly which commits an update would bring without an
+  additional endpoint. The total count comes from the `Link: rel="last"` header and the repository
+  statistics from a second request, so both are cached in files of their own — they are answers a
+  cached read cannot reproduce, and writing a failed fetch straight through erased them.
+* *Commit archive.* `/commits` returns at most a hundred per request, so a full history has to be
+  walked backwards and kept. `data/github/CommitArchive.kt` is append-only NDJSON keyed by SHA:
+  everything below the tip is immutable, so a chunk costs its own length rather than a rewrite, and
+  the mutable head window is simply appended again with later lines winning on read.
+
+  The walk is cursored on *date*, not page number — page numbers are relative to the tip and shift
+  under any new commit — and on the **commit** date rather than the author date, because that is
+  what `until` filters on and the two differ on 39 of the newest hundred commits here.
+
+  A date cursor has one failure mode and this repository has it: 100+ commits share
+  `2023-02-26T08:48:49Z`, and asking for commits at or before that second returns the same hundred
+  forever. Inside such a plateau the walk pages by number, which is safe in exactly that position
+  because the window is anchored by an `until` in the past. Completion is an *empty* page and
+  nothing weaker; "nothing new" is what the plateau produces on every request.
+
+  Three pages are fetched per visit and the cursor is left on disk. Sixty requests an hour is the
+  anonymous budget, and a history that assembles over a few sessions is preferable to one that
+  spends all of it on arrival.
 * *Contributor resolution.* GitHub links commits to accounts by email and does not always succeed.
   A `@users.noreply.github.com` address encodes the account and needs only parsing. Otherwise the
   name is probed against `/users/{name}` *only if it is shaped like a handle* — containing a digit,
   hyphen or underscore — because `GET /users/Qing` returns a real and unrelated account, and
   crediting a contribution to a stranger is worse than leaving it uncredited.
+* *Co-authors.* A `Co-authored-by:` trailer carries an address and no account, and no endpoint turns
+  one into the other — the users search API refuses to index email, and answers `total_count: 0` for
+  a noreply address however it is phrased. But every commit GitHub *has* attributed is a verified
+  email-to-login pair, and the archive is full of them, so trailers are resolved against history
+  already in hand at no request cost. Names are indexed too, one tier weaker and first-wins.
+* *Module detection.* Deciding whether an installed package is a module means opening its APK and
+  its splits as zips: roughly 550 opens on a 363-package device, once paid on every visit to the
+  panel. `data/model/ModuleDetectionCache.kt` keys the answer by package, version code and install
+  time, which is the exact set of things whose change can change the answer.
 
 ## Canary Distribution
 
