@@ -234,7 +234,7 @@
     <string name="canary_none">Belum ada build canary yang diterbitkan.</string>
     <string name="home_contributors_by_commits">Commit terbanyak</string>
     <string name="home_contributors_by_recent">Paling baru</string>
-    <string name="scope_recommended_only">Hanya yang diminta modul</string>
+    <string name="scope_recommended_only">Yang diminta modul</string>
     <string name="home_resting">Sedang istirahat — aktivitas tersimpan. Tarik untuk menyegarkan.</string>
     <string name="report_title">Sebelum melapor</string>
     <string name="report_step_canary">Coba dulu canary terbaru</string>

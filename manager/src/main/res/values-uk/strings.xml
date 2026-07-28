@@ -263,7 +263,7 @@
     <string name="canary_none">Збірок canary ще не опубліковано.</string>
     <string name="home_contributors_by_commits">Найбільше комітів</string>
     <string name="home_contributors_by_recent">Найновіші</string>
-    <string name="scope_recommended_only">Лише те, що просить модуль</string>
+    <string name="scope_recommended_only">Те, що просить модуль</string>
     <string name="home_resting">Перепочинок — збережена активність. Потягніть, щоб оновити.</string>
     <string name="report_title">Перш ніж повідомляти</string>
     <string name="report_step_canary">Спершу спробуйте найновіший canary</string>

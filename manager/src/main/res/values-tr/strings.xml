@@ -241,7 +241,7 @@
     <string name="canary_none">Henüz yayımlanmış canary sürümü yok.</string>
     <string name="home_contributors_by_commits">En çok commit</string>
     <string name="home_contributors_by_recent">En yeni</string>
-    <string name="scope_recommended_only">Yalnızca modülün istedikleri</string>
+    <string name="scope_recommended_only">Modülün istedikleri</string>
     <string name="home_resting">Mola veriliyor — kayıtlı hareketler. Yenilemek için çekin.</string>
     <string name="report_title">Bildirmeden önce</string>
     <string name="report_step_canary">Önce en son canary\'yi deneyin</string>

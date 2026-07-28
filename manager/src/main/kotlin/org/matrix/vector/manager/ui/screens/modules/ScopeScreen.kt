@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -148,6 +149,7 @@ fun ScopeScreen(
     viewModel: ScopeViewModel = viewModel(factory = ScopeViewModelFactory(packageName, userId)),
 ) {
     val apps by viewModel.filteredApps.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pending by viewModel.pendingChanges.collectAsStateWithLifecycle()
     val applying by viewModel.applying.collectAsStateWithLifecycle()
@@ -402,7 +404,20 @@ fun ScopeScreen(
                 return@Column
             }
 
+            // Opens at the top, and has to be told to.
+            //
+            // The saved scope arrives after the app list does, and applying it re-sorts the list so
+            // that what is in the scope leads. `items` is keyed, so LazyColumn holds whatever row
+            // was under the viewport and lets the promoted ones appear *above* it — the screen
+            // opened part-way down a list of several hundred, with the module's own targets
+            // scrolled off the top, which reads exactly like they are not there.
+            //
+            // Keyed on the module, not on the list: re-running this whenever the order changed
+            // would yank the view back every time a row was ticked, since ticking is what moves a
+            // row to the top.
+            LaunchedEffect(packageName, userId, state.loading) { listState.scrollToItem(0) }
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 12.dp),
             ) {
@@ -625,19 +640,27 @@ private fun ScopeFilterMenu(
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
             }
+            // Off while the module's own request is what the list is answering. That question has
+            // one answer — what it asked for, and what it has been given — and these three can
+            // only subtract from it, which is how a module asking for Chrome showed an empty list
+            // to anyone who had not also turned system apps on. Greyed rather than hidden, so the
+            // reader can see the settings are still there and why they are not in play.
             ChoiceRow {
                 FilterChip(
                     selected = showSystem,
+                    enabled = !recommendedOnly,
                     onClick = { onToggleSystem() },
                     label = { Text(stringResource(R.string.scope_system_apps)) },
                 )
                 FilterChip(
                     selected = showGames,
+                    enabled = !recommendedOnly,
                     onClick = { onToggleGames() },
                     label = { Text(stringResource(R.string.scope_games)) },
                 )
                 FilterChip(
                     selected = showModules,
+                    enabled = !recommendedOnly,
                     onClick = { onToggleModules() },
                     label = { Text(stringResource(R.string.scope_modules)) },
                 )

@@ -241,7 +241,7 @@
     <string name="canary_none">هنوز هیچ ساخت canary منتشر نشده است.</string>
     <string name="home_contributors_by_commits">بیشترین کامیت</string>
     <string name="home_contributors_by_recent">تازه‌ترین</string>
-    <string name="scope_recommended_only">تنها آنچه ماژول می‌خواهد</string>
+    <string name="scope_recommended_only">آنچه ماژول می‌خواهد</string>
     <string name="home_resting">در حال استراحت — فعالیت ذخیره‌شده. برای نوسازی بکشید.</string>
     <string name="report_title">پیش از گزارش</string>
     <string name="report_step_canary">نخست تازه‌ترین canary را بیازمایید</string>

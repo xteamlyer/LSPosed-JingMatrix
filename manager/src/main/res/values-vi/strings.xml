@@ -230,7 +230,7 @@
     <string name="canary_none">Chưa có bản canary nào được phát hành.</string>
     <string name="home_contributors_by_commits">Nhiều commit nhất</string>
     <string name="home_contributors_by_recent">Gần đây nhất</string>
-    <string name="scope_recommended_only">Chỉ những gì mô-đun yêu cầu</string>
+    <string name="scope_recommended_only">Những gì mô-đun yêu cầu</string>
     <string name="home_resting">Đang nghỉ — hoạt động đã lưu. Kéo xuống để làm mới.</string>
     <string name="report_title">Trước khi báo lỗi</string>
     <string name="report_step_canary">Hãy thử bản canary mới nhất trước</string>

@@ -230,7 +230,7 @@
     <string name="canary_none">尚未發行任何 Canary 版本。</string>
     <string name="home_contributors_by_commits">提交最多</string>
     <string name="home_contributors_by_recent">最近提交</string>
-    <string name="scope_recommended_only">僅顯示模組要求的應用程式</string>
+    <string name="scope_recommended_only">模組要求的應用程式</string>
     <string name="home_resting">暫歇中——顯示已儲存的動態。下拉即可重新整理。</string>
     <string name="report_title">回報之前</string>
     <string name="report_step_canary">先試試最新的 Canary 版本</string>

@@ -267,7 +267,7 @@
     <string name="canary_none">עדיין לא פורסמו גרסאות canary.</string>
     <string name="home_contributors_by_commits">הכי הרבה קומיטים</string>
     <string name="home_contributors_by_recent">העדכניים ביותר</string>
-    <string name="scope_recommended_only">רק מה שהמודול מבקש</string>
+    <string name="scope_recommended_only">מה שהמודול מבקש</string>
     <string name="home_resting">בהפסקה — פעילות שמורה. משכו כדי לרענן.</string>
     <string name="report_title">לפני שמדווחים</string>
     <string name="report_step_canary">נסו קודם את ה-canary האחרון</string>

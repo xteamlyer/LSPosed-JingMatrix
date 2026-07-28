@@ -106,13 +106,19 @@ class ScopeViewModel(
     val showGames = MutableStateFlow(settings.scopeShowGames.value)
 
     /**
-     * Show only what the module asked for.
+     * Narrow the list to what the module asked for, plus whatever is already in the scope.
      *
-     * The same view a static scope gets, reachable on purpose. A module that declares a scope but
-     * does not fix it leaves the user to find those apps among several hundred, and the list already
-     * knows which they are — so this is the "just show me what it wants" the static case gets for
-     * free. It narrows to the module's own request, not to what is currently ticked, so it stays
-     * useful for adding the ones that are missing.
+     * Close to the view a static scope gets, reachable on purpose. A module that declares a scope
+     * but does not fix it leaves the user to find those apps among several hundred, and the list
+     * already knows which they are — so this is the "just show me what it wants" the static case
+     * gets for free.
+     *
+     * It is not exclusive, and the word "only" is gone from its label for that reason. It used to
+     * be: it dropped every app the module had not named, including the ones the user had ticked
+     * themselves, so a stray selection became invisible and therefore un-untickable, and a module
+     * declaring no scope at all narrowed the list to nothing. Every other filter on this screen
+     * already exempts what is in the draft; this one now does too, which is what makes it a way of
+     * finding the missing apps rather than a way of losing the found ones.
      */
     val showRecommendedOnly = MutableStateFlow(false)
 
@@ -242,8 +248,8 @@ class ScopeViewModel(
                 val recommended = view.state.recommended.packages.toSet()
                 // A static scope is the module's whole answer, so the list *is* that set. Showing
                 // the other few hundred apps beneath uncheckable checkboxes offered a choice that
-                // does not exist.
-                val locked = view.state.recommended.staticScope || filters.recommendedOnly
+                // does not exist. This one stays absolute: there is no choice to preserve.
+                val locked = view.state.recommended.staticScope
                 filters.apps
                     .asSequence()
                     .filter { app -> !locked || app.packageName in recommended }
@@ -256,6 +262,17 @@ class ScopeViewModel(
                         // filter can hide a target the user deliberately chose, and the list then
                         // disagrees with what the module is actually hooking.
                         val chosen = ScopeTarget(app.packageName, app.userId) in filters.draft
+                        if (filters.recommendedOnly) {
+                            // Answers one question — what does this module want, and what have I
+                            // given it — and the other filters have no say in it. They used to:
+                            // Chrome is a system app, so a module asking for Chrome showed nothing
+                            // at all unless the reader had also thought to turn system apps on,
+                            // which is the opposite of what asking this question is for. The
+                            // screen greys the other three out while this is on, and this is the
+                            // code that makes that honest rather than decorative.
+                            return@filter matchesQuery &&
+                                (chosen || app.packageName in recommended)
+                        }
                         // The framework is a system target and is filtered like one. It used to be
                         // exempt, on the reasoning that a module which needs it would otherwise be
                         // stranded — but the exemption above already covers that: once it is in the

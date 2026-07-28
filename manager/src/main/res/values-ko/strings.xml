@@ -230,7 +230,7 @@
     <string name="canary_none">아직 공개된 canary 빌드가 없습니다.</string>
     <string name="home_contributors_by_commits">커밋 많은 순</string>
     <string name="home_contributors_by_recent">최근 순</string>
-    <string name="scope_recommended_only">모듈이 요청한 것만</string>
+    <string name="scope_recommended_only">모듈이 요청한 것</string>
     <string name="home_resting">쉬는 중 — 저장된 활동입니다. 당겨서 새로 고치세요.</string>
     <string name="report_title">신고하기 전에</string>
     <string name="report_step_canary">먼저 최신 canary를 사용해 보세요</string>

@@ -241,7 +241,7 @@
     <string name="canary_none">Aucune version canary publiée pour l\'instant.</string>
     <string name="home_contributors_by_commits">Plus de commits</string>
     <string name="home_contributors_by_recent">Plus récents</string>
-    <string name="scope_recommended_only">Seulement ce que le module demande</string>
+    <string name="scope_recommended_only">Ce que le module demande</string>
     <string name="home_resting">En pause — activité enregistrée. Tirez pour actualiser.</string>
     <string name="report_title">Avant de signaler</string>
     <string name="report_step_canary">Essayez d\'abord la dernière canary</string>

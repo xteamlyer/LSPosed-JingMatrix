@@ -230,7 +230,7 @@
     <string name="canary_none">canary ビルドはまだ公開されていません。</string>
     <string name="home_contributors_by_commits">コミット数順</string>
     <string name="home_contributors_by_recent">最近の順</string>
-    <string name="scope_recommended_only">モジュールが要求したものだけ</string>
+    <string name="scope_recommended_only">モジュールが要求したもの</string>
     <string name="home_resting">お休み中 — 保存済みの記録です。引っ張ると更新します。</string>
     <string name="report_title">報告する前に</string>
     <string name="report_step_canary">まず最新の canary を試す</string>

@@ -243,7 +243,7 @@
     <string name="canary_none">Canary-сборки пока не публиковались.</string>
     <string name="home_contributors_by_commits">По числу коммитов</string>
     <string name="home_contributors_by_recent">По давности</string>
-    <string name="scope_recommended_only">Только то, что просит модуль</string>
+    <string name="scope_recommended_only">То, что просит модуль</string>
     <string name="home_resting">Передышка — показана сохранённая лента. Потяните, чтобы обновить.</string>
     <string name="report_title">Прежде чем сообщать</string>
     <string name="report_step_canary">Сначала попробуйте свежую canary-сборку</string>

@@ -285,7 +285,7 @@
     <string name="canary_none">لم يُنشر أي إصدار canary بعد.</string>
     <string name="home_contributors_by_commits">الأكثر إيداعًا</string>
     <string name="home_contributors_by_recent">الأحدث</string>
-    <string name="scope_recommended_only">ما تطلبه الوحدة فقط</string>
+    <string name="scope_recommended_only">ما تطلبه الوحدة</string>
     <string name="home_resting">استراحة — نشاط محفوظ. اسحب للتحديث.</string>
     <string name="report_title">قبل أن تُبلِغ</string>
     <string name="report_step_canary">جرّب أحدث canary أولًا</string>

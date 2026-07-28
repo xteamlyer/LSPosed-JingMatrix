@@ -230,7 +230,7 @@
     <string name="canary_none">尚未发布任何 Canary 版本。</string>
     <string name="home_contributors_by_commits">提交最多</string>
     <string name="home_contributors_by_recent">最近提交</string>
-    <string name="scope_recommended_only">仅显示模块请求的应用</string>
+    <string name="scope_recommended_only">模块请求的应用</string>
     <string name="home_resting">暂歇中——显示已保存的动态。下拉可刷新。</string>
     <string name="report_title">反馈之前</string>
     <string name="report_step_canary">先试试最新的 Canary 版本</string>

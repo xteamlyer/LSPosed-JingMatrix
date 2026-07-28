@@ -263,7 +263,7 @@
     <string name="canary_none">Nie opublikowano jeszcze żadnej kompilacji canary.</string>
     <string name="home_contributors_by_commits">Najwięcej commitów</string>
     <string name="home_contributors_by_recent">Najnowsi</string>
-    <string name="scope_recommended_only">Tylko to, o co prosi moduł</string>
+    <string name="scope_recommended_only">To, o co prosi moduł</string>
     <string name="home_resting">Przerwa — zapisana aktywność. Pociągnij, aby odświeżyć.</string>
     <string name="report_title">Zanim zgłosisz</string>
     <string name="report_step_canary">Najpierw wypróbuj najnowszą canary</string>
