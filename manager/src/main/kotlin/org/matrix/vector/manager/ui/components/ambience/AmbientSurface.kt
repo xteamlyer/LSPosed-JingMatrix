@@ -46,6 +46,7 @@ fun AmbientSurface(kind: AmbienceKind, tint: Color, modifier: Modifier = Modifie
             rendererFor(kind)?.apply {
                 scale = settings.ambienceScale(kind.key)
                 speed = settings.ambienceSpeed(kind.key)
+                variant = settings.ambienceVariant(kind.key)
             }
         } ?: return
     val haptics = LocalHapticFeedback.current
@@ -86,6 +87,17 @@ fun AmbientSurface(kind: AmbienceKind, tint: Color, modifier: Modifier = Modifie
                 .clearAndSetSemantics {}
                 .pointerInput(kind) {
                     detectTapGestures(
+                        // Only where it means something: passing a handler makes every single tap
+                        // wait for the double-tap timeout before it fires.
+                        onDoubleTap =
+                            if (!renderer.hasVariants) null
+                            else {
+                                {
+                                    renderer.onDoubleTap()
+                                    settings.setAmbienceVariant(kind.key, renderer.variant)
+                                    haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                }
+                            },
                         onTap = { offset ->
                             renderer.onTap(offset, size.toSize())
                             haptics.performHapticFeedback(HapticFeedbackType.ContextClick)

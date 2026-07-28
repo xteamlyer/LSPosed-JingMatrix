@@ -96,6 +96,34 @@ interface AmbienceRenderer {
         set(_) {}
 
     /**
+     * Which of the render's own variations it is drawing, cycled by a double tap.
+     *
+     * Only the code rain has any: its glyphs are half-width katakana, which is what makes the
+     * effect read as *code* rather than as prose — and is also a cultural reference not everyone
+     * wants on their home screen. Rather than argue about the default, the surface offers other
+     * alphabets and remembers which was chosen.
+     *
+     * An index rather than an enum because the surface persists it without knowing what any
+     * renderer's variations are, and a renderer is free to have none.
+     */
+    var variant: Int
+        get() = 0
+        set(_) {}
+
+    /** A double tap. Distinct from [onTap], which seeds rather than switches. */
+    fun onDoubleTap() {}
+
+    /**
+     * Whether a double tap means anything here.
+     *
+     * Asked because listening for one is not free: a detector that must wait to see whether a
+     * second tap follows delays *every* single tap by the double-tap timeout. Only the code rain
+     * has variations, so only the code rain pays for them.
+     */
+    val hasVariants: Boolean
+        get() = false
+
+    /**
      * False when nothing is moving, letting the header park the frame loop.
      *
      * A status header is on screen the whole time someone reads the activity feed, so an ambience

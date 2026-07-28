@@ -154,6 +154,12 @@ class SettingsRepository(context: Context) {
         prefs.edit().putFloat("ambience_scale_$kind", value).apply()
     }
 
+    fun ambienceVariant(kind: String): Int = prefs.getInt("ambience_variant_$kind", 0)
+
+    fun setAmbienceVariant(kind: String, value: Int) {
+        prefs.edit().putInt("ambience_variant_$kind", value).apply()
+    }
+
     fun ambienceSpeed(kind: String): Float = prefs.getFloat("ambience_speed_$kind", 1f)
 
     fun setAmbienceSpeed(kind: String, value: Float) {

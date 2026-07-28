@@ -93,19 +93,59 @@ class MatrixRenderer : AmbienceRenderer {
         get() = true
 
     /**
-     * Half-width katakana, digits and a few latin letters.
+     * The alphabets a double tap cycles through.
      *
-     * Half-width katakana is what the original used and it is why the effect reads as *code* and
-     * not as prose — the glyphs are dense, unfamiliar and uniform in width.
+     * Half-width katakana is what the original used, and it is why the effect reads as *code* and
+     * not as prose: the glyphs are dense, unfamiliar and uniform in width. Unfamiliarity is doing
+     * the work — which is exactly why the other sets are chosen for the same property rather than
+     * for being Latin. Hexadecimal and the punctuation of a source file are both alphabets a reader
+     * does not parse into words at a glance, so they keep the effect while dropping the reference.
+     *
+     * Katakana stays first, and so stays the default: this offers a way out for someone who does
+     * not want it, which is not the same as deciding nobody should have it.
      */
-    private val alphabet: List<Char> =
-        buildList {
-            for (c in 'ｱ'..'ﾝ') add(c)
-            for (c in '0'..'9') add(c)
-            addAll("VECTORXPOSED".toList())
+    private val alphabets: List<List<Char>> =
+        listOf(
+            buildList {
+                for (c in 'ｱ'..'ﾝ') add(c)
+                for (c in '0'..'9') add(c)
+                addAll("VECTORXPOSED".toList())
+            },
+            // Hexadecimal, which is what a hex dump of anything looks like.
+            buildList {
+                for (c in '0'..'9') add(c)
+                for (c in 'A'..'F') add(c)
+            },
+            // The punctuation that makes text look like source rather than like sentences.
+            "{}[]()<>/\\|;:=+-*&^%$#@!?~".toList(),
+            // Latin letters and digits, for a reader who wants none of the above.
+            buildList {
+                for (c in 'A'..'Z') add(c)
+                for (c in '0'..'9') add(c)
+            },
+        )
+
+    override var variant: Int = 0
+        set(value) {
+            val next = ((value % alphabets.size) + alphabets.size) % alphabets.size
+            if (next == field) return
+            field = next
+            // Re-rolled rather than left to cycle out on its own: a switch that takes twenty
+            // seconds to become visible does not read as an answer to the gesture.
+            columns.forEach { column ->
+                for (i in column.glyphs.indices) column.glyphs[i] = randomGlyph()
+            }
         }
 
-    private fun randomGlyph(): Char = alphabet[random.nextInt(alphabet.size)]
+    override val hasVariants: Boolean
+        get() = true
+
+    override fun onDoubleTap() {
+        variant += 1
+    }
+
+    private fun randomGlyph(): Char =
+        alphabets[variant].let { it[random.nextInt(it.size)] }
 
     private fun seed(size: Size) {
         if (sized == size && columns.isNotEmpty()) return
