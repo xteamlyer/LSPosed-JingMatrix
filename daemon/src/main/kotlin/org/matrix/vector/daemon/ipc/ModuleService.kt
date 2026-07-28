@@ -119,7 +119,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     ensureModule()
     // The scope table has one row per (app, user), so a module enabled for several users saw the
     // same package repeatedly. A scope is a set of package names.
-    return ConfigCache.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
+    return ModuleDatabase.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
         ?: emptyList()
   }
 

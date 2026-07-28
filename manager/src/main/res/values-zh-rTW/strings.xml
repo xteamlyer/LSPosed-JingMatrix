@@ -333,4 +333,6 @@
     <string name="home_window_changed">顯示新時間範圍的快取動態 — 下拉重新整理</string>
     <string name="home_history_window_end">這就是此時間範圍內的全部</string>
     <string name="update_same_number">編號相同，建置不同</string>
+    <string name="modules_load_no_apk">已啟用，但框架找不到可載入的 APK。</string>
+    <string name="modules_load_bad_dex">已啟用，但框架無法讀取其程式碼，未在執行。</string>
 </resources>

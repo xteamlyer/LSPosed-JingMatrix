@@ -26,6 +26,7 @@ import org.matrix.vector.manager.data.model.PER_USER_RANGE
 import org.matrix.vector.manager.data.repository.ModuleRepository
 import org.matrix.vector.manager.data.model.StoreEntry
 import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
+import org.lsposed.lspd.ILSPManagerService
 import org.matrix.vector.manager.data.model.XposedApi
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ipc.DaemonClient
@@ -61,6 +62,14 @@ data class ModuleFacts(
      * explanation.
      */
     val apiBrokenSince: Int? = null,
+    /**
+     * Why the framework could not load this module, though it is enabled and installed.
+     *
+     * Null when it loaded. This is the daemon's two notions of a module disagreeing, and it is the
+     * only case where a row can be enabled and doing nothing — worth a sentence, because from the
+     * outside it is indistinguishable from the switch having turned itself off.
+     */
+    val loadFailure: Int? = null,
     /**
      * The first few apps in the module's scope, for the row's preview.
      *
@@ -405,6 +414,17 @@ class ModulesViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val api = daemonClient.getXposedApiVersion().getOrDefault(0)
             _frameworkApi.value = api
+            // One call for the whole list. Asking per module would be one binder round trip per
+            // row for an answer that is empty on almost every device.
+            val unloadable =
+                daemonClient
+                    .getUnloadableModules()
+                    .getOrDefault(emptyList())
+                    .associateWith { ILSPManagerService.MODULE_LOAD_NO_APK }
+                    .toMutableMap()
+            unloadable.keys.toList().forEach { pkg ->
+                daemonClient.getModuleLoadState(pkg).getOrNull()?.let { unloadable[pkg] = it }
+            }
             // One lookup table for every scope preview, rather than a package-manager query per
             // scoped app per module.
             // Keyed by package *and* user. A device with a work profile or a private space holds
@@ -450,6 +470,7 @@ class ModulesViewModel(
                         apiBrokenSince =
                             if (api <= 0) null
                             else XposedApi.brokenSince(module.minVersion, api),
+                        loadFailure = unloadable[module.packageName],
                         scopeFramework = framework,
                         scopePreview =
                             apps

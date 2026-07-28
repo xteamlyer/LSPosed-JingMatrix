@@ -343,4 +343,6 @@
     <string name="home_window_changed">Mostrando atividade salva do novo intervalo — puxe para atualizar</string>
     <string name="home_history_window_end">Isso é tudo neste intervalo</string>
     <string name="update_same_number">Mesmo número, outra build</string>
+    <string name="modules_load_no_apk">Ativado, mas o framework não encontrou o APK para carregar.</string>
+    <string name="modules_load_bad_dex">Ativado, mas o framework não conseguiu ler seu código. Não está em execução.</string>
 </resources>

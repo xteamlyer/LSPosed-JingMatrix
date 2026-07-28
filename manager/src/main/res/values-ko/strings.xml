@@ -332,4 +332,6 @@
     <string name="home_window_changed">새 기간의 저장된 활동을 표시 중 — 당겨서 새로고침</string>
     <string name="home_history_window_end">이 기간은 여기까지입니다</string>
     <string name="update_same_number">같은 번호, 다른 빌드</string>
+    <string name="modules_load_no_apk">사용 중이지만 프레임워크가 불러올 APK를 찾지 못했습니다.</string>
+    <string name="modules_load_bad_dex">사용 중이지만 프레임워크가 코드를 읽지 못했습니다. 실행되지 않습니다.</string>
 </resources>

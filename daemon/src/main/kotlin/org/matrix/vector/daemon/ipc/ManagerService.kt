@@ -228,6 +228,11 @@ object ManagerService : ILSPManagerService.Stub() {
 
   override fun enabledModules() = ModuleDatabase.enabledModules()
 
+  override fun getUnloadableModules() = ConfigCache.state.unloadable.keys.toTypedArray()
+
+  override fun getModuleLoadState(packageName: String) =
+      ConfigCache.state.unloadable[packageName] ?: ILSPManagerService.MODULE_LOAD_OK
+
   override fun enableModule(packageName: String) = ModuleDatabase.enableModule(packageName)
 
   override fun disableModule(packageName: String) = ModuleDatabase.disableModule(packageName)
@@ -235,7 +240,7 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun setModuleScope(packageName: String, scope: MutableList<Application>) =
       ModuleDatabase.setModuleScope(packageName, scope)
 
-  override fun getModuleScope(packageName: String) = ConfigCache.getModuleScope(packageName)
+  override fun getModuleScope(packageName: String) = ModuleDatabase.getModuleScope(packageName)
 
   // Reports the setting, not the setting OR'd with the build type. It used to be
   // `|| BuildConfig.DEBUG`, which made the value unwritable on a debug daemon: the manager could
@@ -438,7 +443,7 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun setAutoInclude(packageName: String, enabled: Boolean) =
       ModuleDatabase.setAutoInclude(packageName, enabled)
 
-  override fun getAutoInclude(packageName: String) = ConfigCache.getAutoInclude(packageName)
+  override fun getAutoInclude(packageName: String) = ModuleDatabase.getAutoInclude(packageName)
 
   override fun getRootImplementation() = RootImplementation.implementation
 

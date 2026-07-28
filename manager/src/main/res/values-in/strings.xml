@@ -336,4 +336,6 @@
     <string name="home_window_changed">Menampilkan aktivitas tersimpan untuk rentang baru — tarik untuk menyegarkan</string>
     <string name="home_history_window_end">Itu semua dalam rentang ini</string>
     <string name="update_same_number">Nomor sama, build lain</string>
+    <string name="modules_load_no_apk">Aktif, tetapi framework tidak menemukan APK-nya untuk dimuat.</string>
+    <string name="modules_load_bad_dex">Aktif, tetapi framework tidak dapat membaca kodenya. Modul tidak berjalan.</string>
 </resources>

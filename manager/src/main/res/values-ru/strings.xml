@@ -346,4 +346,6 @@
     <string name="home_window_changed">Показана сохранённая активность за новый период — потяните, чтобы обновить</string>
     <string name="home_history_window_end">Это всё за этот период</string>
     <string name="update_same_number">Тот же номер, другая сборка</string>
+    <string name="modules_load_no_apk">Включён, но фреймворк не нашёл его APK для загрузки.</string>
+    <string name="modules_load_bad_dex">Включён, но фреймворк не смог прочитать его код. Он не работает.</string>
 </resources>

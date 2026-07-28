@@ -112,6 +112,7 @@ import org.matrix.vector.manager.ui.components.SheetHeading
 import org.matrix.vector.manager.ui.screens.repo.StoreChannel
 import org.matrix.vector.manager.ui.screens.repo.releasesOn
 import androidx.compose.foundation.layout.widthIn
+import org.lsposed.lspd.ILSPManagerService
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.InstalledModule
 import org.matrix.vector.manager.di.ServiceLocator
@@ -829,7 +830,25 @@ private fun ModuleRow(
                 )
             }
             val brokenSince = facts?.apiBrokenSince
-            if (incompatible) {
+            val loadFailure = facts?.loadFailure
+            if (loadFailure != null) {
+                // First, above every other note. A module that cannot be loaded is doing nothing
+                // at all, and from the outside that is indistinguishable from a switch that turned
+                // itself off — which is exactly what it used to look like.
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text =
+                        stringResource(
+                            when (loadFailure) {
+                                ILSPManagerService.MODULE_LOAD_BAD_DEX ->
+                                    R.string.modules_load_bad_dex
+                                else -> R.string.modules_load_no_apk
+                            }
+                        ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.error,
+                )
+            } else if (incompatible) {
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text =

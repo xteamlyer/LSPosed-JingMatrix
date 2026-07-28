@@ -287,8 +287,8 @@ object VectorService : IDaemonService.Stub() {
               !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false) &&
               moduleName != null) {
 
-            ConfigCache.getAutoIncludeModules().forEach { xposedModule ->
-              val scopeList = ConfigCache.getModuleScope(xposedModule) ?: mutableListOf()
+            ModuleDatabase.getAutoIncludeModules().forEach { xposedModule ->
+              val scopeList = ModuleDatabase.getModuleScope(xposedModule) ?: mutableListOf()
 
               val newScope =
                   Application().apply {
@@ -340,7 +340,7 @@ object VectorService : IDaemonService.Stub() {
 
     // If an actual Xposed module was updated (not removed), show a system notification.
     if (moduleName != null && isXposedModule && !isRemovedAction && !isRemovedForAllUsers) {
-      val scopes = ConfigCache.getModuleScope(moduleName) ?: emptyList()
+      val scopes = ModuleDatabase.getModuleScope(moduleName) ?: emptyList()
       val isSystemModule = scopes.any { it.packageName == "system" }
       val isEnabled = ManagerService.enabledModules().contains(moduleName)
 
@@ -373,7 +373,7 @@ object VectorService : IDaemonService.Stub() {
           }
           when (action) {
             "approve" -> {
-              val scopes = ConfigCache.getModuleScope(packageName) ?: mutableListOf()
+              val scopes = ModuleDatabase.getModuleScope(packageName) ?: mutableListOf()
               if (scopes.none { it.packageName == scopePackageName && it.userId == userId }) {
                 scopes.add(
                     Application().apply {

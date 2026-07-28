@@ -49,6 +49,22 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     suspend fun getEnabledModules(): Result<List<String>> = runIpc { it.enabledModules().toList()
     }
 
+    /**
+     * Modules the daemon could not load, though they are installed and enabled.
+     *
+     * The daemon keeps what the user asked for separately from what it can actually load, and the
+     * two can disagree — an APK whose path will not resolve, or whose DEX will not parse. Without
+     * this the module simply looked switched off, which is both wrong and unexplainable.
+     */
+    suspend fun getUnloadableModules(): Result<List<String>> = runIpc {
+        it.unloadableModules.toList()
+    }
+
+    /** Why a module in that list could not be loaded; `MODULE_LOAD_OK` when it is fine. */
+    suspend fun getModuleLoadState(packageName: String): Result<Int> = runIpc {
+        it.getModuleLoadState(packageName)
+    }
+
     suspend fun setModuleEnabled(packageName: String, enable: Boolean): Result<Boolean> = runIpc {
         if (enable) {
             it.enableModule(packageName)

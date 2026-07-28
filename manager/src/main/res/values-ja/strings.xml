@@ -332,4 +332,6 @@
     <string name="home_window_changed">新しい期間の保存済みアクティビティを表示中 — 引いて更新</string>
     <string name="home_history_window_end">この期間はこれで全部です</string>
     <string name="update_same_number">同じ番号、別のビルド</string>
+    <string name="modules_load_no_apk">有効ですが、読み込む APK が見つかりませんでした。</string>
+    <string name="modules_load_bad_dex">有効ですが、コードを読み込めませんでした。動作していません。</string>
 </resources>

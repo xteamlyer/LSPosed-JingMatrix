@@ -12,6 +12,7 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.util.UUID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.Module
 import org.matrix.vector.daemon.BuildConfig
@@ -32,7 +33,6 @@ object ConfigCache {
   var state = DaemonState()
     private set
 
-  val dbHelper = Database() // Kept public for PreferenceStore and ModuleDatabase
 
   // Module package -> the packages it claims, for modules whose module.prop fixes the scope.
   // Absent means the module places no restriction on its scope.
@@ -126,91 +126,91 @@ object ConfigCache {
     if (packageManager == null) return
 
     Log.d(TAG, "Executing Cache Update...")
-    val db = dbHelper.readableDatabase
     val oldState = state
 
     val newModules = mutableMapOf<String, Module>()
     val newStaticScopes = mutableMapOf<String, Set<String>>()
+    // Deleted from the configuration: the package is not installed for any user, so what it was
+    // configured to do cannot mean anything.
     val obsoleteModules = mutableSetOf<String>()
     val obsoletePaths = mutableMapOf<String, String>()
+    // Kept in the configuration and reported: enabled, installed, and not loadable. The two used to
+    // be one set, so a module whose APK would not parse was quietly un-enabled — the user had
+    // asked for it, the switch went off by itself, and nothing said why.
+    val unloadable = mutableMapOf<String, Int>()
 
-    db.query(
-            "modules",
-            arrayOf("module_pkg_name", "apk_path"),
-            "enabled = 1",
-            null,
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(0)
-            var apkPath = cursor.getString(1)
-            if (pkgName == "lspd") continue
+    ModuleDatabase.enabledModuleRows().forEach { row ->
+      val pkgName = row.packageName
+      var apkPath = row.apkPath
+      if (pkgName == "lspd") return@forEach
 
-            val oldModule = oldState.modules[pkgName]
+      val oldModule = oldState.modules[pkgName]
 
-            var pkgInfo: android.content.pm.PackageInfo? = null
-            val users = userManager?.getRealUsers() ?: emptyList()
-            for (user in users) {
-              pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
-              if (pkgInfo?.applicationInfo != null) break
+      var pkgInfo: android.content.pm.PackageInfo? = null
+      val users = userManager?.getRealUsers() ?: emptyList()
+      for (user in users) {
+        pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
+        if (pkgInfo?.applicationInfo != null) break
+      }
+
+      // Gone, not broken. No user has this package any more, so the configuration for it is
+      // meaningless and is cleaned up. This is the only case that deletes anything.
+      if (pkgInfo?.applicationInfo == null) {
+        Log.w(TAG, "Failed to find package info of $pkgName")
+        obsoleteModules.add(pkgName)
+        return@forEach
+      }
+
+      val appInfo = pkgInfo.applicationInfo
+
+      if (oldModule != null &&
+          appInfo?.sourceDir != null &&
+          apkPath != null &&
+          oldModule.apkPath != null &&
+          FileSystem.toGlobalNamespace(apkPath).exists() &&
+          apkPath == oldModule.apkPath &&
+          File(appInfo.sourceDir).parent == File(apkPath).parent) {
+
+        if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
+        // This path skips re-reading the APK, so what the module claims has to be carried
+        // over; the new map replaces the old one wholesale and would otherwise lose it.
+        staticScopes[pkgName]?.let { newStaticScopes[pkgName] = it }
+        newModules[pkgName] = oldModule
+        return@forEach
+      }
+
+      val realApkPath = getModuleApkPath(appInfo!!)
+      if (realApkPath == null) {
+        // Installed, enabled, and not loadable. Deleting the row here would silently un-enable a
+        // module the user did enable, and they would find the switch off with no reason given.
+        // The configuration stands; what could not be done is recorded and reported instead.
+        Log.w(TAG, "Failed to find path of $pkgName")
+        unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_NO_APK
+        return@forEach
+      }
+      apkPath = realApkPath
+      obsoletePaths[pkgName] = realApkPath
+
+      FileSystem.readStaticScope(apkPath)?.let { newStaticScopes[pkgName] = it }
+
+      val preLoadedApk = FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)
+      if (preLoadedApk != null) {
+        val module =
+            Module().apply {
+              packageName = pkgName
+              this.apkPath = apkPath
+              appId = appInfo.uid
+              applicationInfo = appInfo
+              service = oldModule?.service ?: InjectedModuleService(pkgName)
+              file = preLoadedApk
             }
-
-            if (pkgInfo?.applicationInfo == null) {
-              Log.w(TAG, "Failed to find package info of $pkgName")
-              obsoleteModules.add(pkgName)
-              continue
-            }
-
-            val appInfo = pkgInfo.applicationInfo
-
-            if (oldModule != null &&
-                appInfo?.sourceDir != null &&
-                apkPath != null &&
-                oldModule.apkPath != null &&
-                FileSystem.toGlobalNamespace(apkPath).exists() &&
-                apkPath == oldModule.apkPath &&
-                File(appInfo.sourceDir).parent == File(apkPath).parent) {
-
-              if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
-              // This path skips re-reading the APK, so what the module claims has to be carried
-              // over; the new map replaces the old one wholesale and would otherwise lose it.
-              staticScopes[pkgName]?.let { newStaticScopes[pkgName] = it }
-              newModules[pkgName] = oldModule
-              continue
-            }
-
-            val realApkPath = getModuleApkPath(appInfo!!)
-            if (realApkPath == null) {
-              Log.w(TAG, "Failed to find path of $pkgName")
-              obsoleteModules.add(pkgName)
-              continue
-            } else {
-              apkPath = realApkPath
-              obsoletePaths[pkgName] = realApkPath
-            }
-
-            FileSystem.readStaticScope(apkPath)?.let { newStaticScopes[pkgName] = it }
-
-            val preLoadedApk = FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)
-            if (preLoadedApk != null) {
-              val module =
-                  Module().apply {
-                    packageName = pkgName
-                    this.apkPath = apkPath
-                    appId = appInfo.uid
-                    applicationInfo = appInfo
-                    service = oldModule?.service ?: InjectedModuleService(pkgName)
-                    file = preLoadedApk
-                  }
-              newModules[pkgName] = module
-            } else {
-              Log.w(TAG, "Failed to parse DEX/ZIP for $pkgName, skipping.")
-              obsoleteModules.add(pkgName)
-            }
-          }
-        }
+        newModules[pkgName] = module
+      } else {
+        // As above: a module whose DEX will not parse is broken, not unwanted.
+        Log.w(TAG, "Failed to parse DEX/ZIP for $pkgName, skipping.")
+        unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_BAD_DEX
+      }
+    }
 
     if (packageManager?.asBinder()?.isBinderAlive == true) {
       obsoleteModules.forEach { ModuleDatabase.removeModule(it) }
@@ -229,58 +229,45 @@ object ConfigCache {
     }
 
     val newScopes = mutableMapOf<ProcessScope, MutableList<Module>>()
-    db.query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("app_pkg_name", "module_pkg_name", "user_id"),
-            "enabled = 1",
-            null,
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val appPkg = cursor.getString(0)
-            val modPkg = cursor.getString(1)
-            val userId = cursor.getInt(2)
+    ModuleDatabase.enabledScopeRows().forEach { scopeRow ->
+      val appPkg = scopeRow.appPackage
+      val modPkg = scopeRow.modulePackage
+      val userId = scopeRow.userId
 
-            val module = newModules[modPkg] ?: continue
+      val module = newModules[modPkg] ?: return@forEach
 
-            if (appPkg == "system") {
-              newScopes
-                  .getOrPut(ProcessScope("system_server", 1000)) { mutableListOf() }
-                  .add(module)
-              continue
-            }
+      if (appPkg == "system") {
+        newScopes.getOrPut(ProcessScope("system_server", 1000)) { mutableListOf() }.add(module)
+        return@forEach
+      }
 
-            val pkgInfo =
-                packageManager?.getPackageInfoWithComponents(appPkg, MATCH_ALL_FLAGS, userId)
-            if (pkgInfo?.applicationInfo == null) continue
+      val pkgInfo = packageManager?.getPackageInfoWithComponents(appPkg, MATCH_ALL_FLAGS, userId)
+      if (pkgInfo?.applicationInfo == null) return@forEach
 
-            val processNames = pkgInfo.fetchProcesses()
-            if (processNames.isEmpty()) continue
+      val processNames = pkgInfo.fetchProcesses()
+      if (processNames.isEmpty()) return@forEach
 
-            val appUid = pkgInfo.applicationInfo!!.uid
+      val appUid = pkgInfo.applicationInfo!!.uid
 
-            for (processName in processNames) {
-              val processScope = ProcessScope(processName, appUid)
-              newScopes.getOrPut(processScope) { mutableListOf() }.add(module)
+      for (processName in processNames) {
+        val processScope = ProcessScope(processName, appUid)
+        newScopes.getOrPut(processScope) { mutableListOf() }.add(module)
 
-              if (modPkg == appPkg) {
-                val appId = appUid % PER_USER_RANGE
-                userManager?.getRealUsers()?.forEach { user ->
-                  val moduleUid = user.id * PER_USER_RANGE + appId
-                  if (moduleUid != appUid) {
-                    val moduleSelf = ProcessScope(processName, moduleUid)
-                    newScopes.getOrPut(moduleSelf) { mutableListOf() }.add(module)
-                  }
-                }
-              }
+        if (modPkg == appPkg) {
+          val appId = appUid % PER_USER_RANGE
+          userManager?.getRealUsers()?.forEach { user ->
+            val moduleUid = user.id * PER_USER_RANGE + appId
+            if (moduleUid != appUid) {
+              val moduleSelf = ProcessScope(processName, moduleUid)
+              newScopes.getOrPut(moduleSelf) { mutableListOf() }.add(module)
             }
           }
         }
+      }
+    }
 
     // --- ATOMIC STATE SWAP ---
-    state = oldState.copy(modules = newModules, scopes = newScopes)
+    state = oldState.copy(modules = newModules, scopes = newScopes, unloadable = unloadable)
 
     Log.d(TAG, "Cache Update Complete. Map Swap successful.")
     // Log.d(TAG, "cached modules:")
@@ -291,65 +278,6 @@ object ConfigCache {
     //   Log.d(TAG, "${ps.processName}/${ps.uid}")
     //   modules.forEach { mod -> Log.d(TAG, "\t${mod.packageName}") }
     // }
-  }
-
-  fun getModuleScope(packageName: String): MutableList<Application>? {
-    if (packageName == "lspd") return null
-    val result = mutableListOf<Application>()
-    dbHelper.readableDatabase
-        .query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("app_pkg_name", "user_id"),
-            "modules.module_pkg_name = ?",
-            arrayOf(packageName),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            result.add(
-                Application().apply {
-                  this.packageName = cursor.getString(0)
-                  this.userId = cursor.getInt(1)
-                })
-          }
-        }
-    return result
-  }
-
-  fun getAutoInclude(packageName: String): Boolean {
-    if (packageName == "lspd") return false
-
-    var isAutoInclude = false
-    dbHelper.readableDatabase
-        .query(
-            "modules",
-            arrayOf("auto_include"),
-            "module_pkg_name = ?",
-            arrayOf(packageName),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          if (cursor.moveToFirst()) {
-            isAutoInclude = cursor.getInt(0) == 1
-          }
-        }
-    return isAutoInclude
-  }
-
-  fun getAutoIncludeModules(): List<String> {
-    val result = mutableListOf<String>()
-    ConfigCache.dbHelper.readableDatabase
-        .query("modules", arrayOf("module_pkg_name"), "auto_include = 1", null, null, null, null)
-        .use { cursor ->
-          val idx = cursor.getColumnIndexOrThrow("module_pkg_name")
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(idx)
-            if (pkgName != "lspd") result.add(pkgName)
-          }
-        }
-    return result
   }
 
   fun getModulesForProcess(processName: String, uid: Int): List<Module> {
@@ -374,24 +302,17 @@ object ConfigCache {
 
     val currentState = state
 
-    dbHelper.readableDatabase
-        .query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("module_pkg_name", "apk_path"),
-            "app_pkg_name=? AND enabled=1",
-            arrayOf("system"),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(0)
-            val apkPath = cursor.getString(1)
+    ModuleDatabase.systemServerModuleRows().forEach { row ->
+          run {
+            val pkgName = row.packageName
+            // A row with no recorded path has never been resolved; the rebuild will fill it in,
+            // and injecting from a null path is not something to attempt in the meantime.
+            val apkPath = row.apkPath ?: return@forEach
 
             val cached = currentState.modules[pkgName]
             if (cached != null) {
               modules.add(cached)
-              continue
+              return@forEach
             }
 
             val statPath = FileSystem.toGlobalNamespace("/data/user_de/0/$pkgName").absolutePath

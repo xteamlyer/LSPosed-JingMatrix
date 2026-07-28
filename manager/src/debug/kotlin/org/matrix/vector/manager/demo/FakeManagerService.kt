@@ -182,6 +182,12 @@ class FakeManagerService(
 
     override fun enabledModules(): Array<String> = real?.enabledModules() ?: emptyArray()
 
+    override fun getUnloadableModules(): Array<String> =
+        real?.unloadableModules ?: emptyArray()
+
+    override fun getModuleLoadState(packageName: String?): Int =
+        real?.getModuleLoadState(packageName) ?: ILSPManagerService.MODULE_LOAD_OK
+
     override fun enableModule(packageName: String?): Boolean =
         real?.enableModule(packageName) ?: false
 

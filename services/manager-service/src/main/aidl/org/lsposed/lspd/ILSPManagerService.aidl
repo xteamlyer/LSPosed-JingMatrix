@@ -140,4 +140,27 @@ interface ILSPManagerService {
      * build of the same count are indistinguishable by number alone. This is what tells them apart.
      */
     String getFrameworkCommit() = 58;
+
+    /** The module loads, as far as the framework is concerned. */
+    const int MODULE_LOAD_OK = 0;
+
+    /** Installed and enabled, but no APK path could be resolved for it. */
+    const int MODULE_LOAD_NO_APK = 1;
+
+    /** Installed and enabled, but its DEX or ZIP could not be parsed. */
+    const int MODULE_LOAD_BAD_DEX = 2;
+
+    /**
+     * Modules that are enabled and installed, and that the framework still cannot load.
+     *
+     * The daemon holds two notions of a module: the configuration, which is what the user asked
+     * for, and the realisation — the resolved APK and parsed DEX it hands to a forking process.
+     * They can legitimately disagree, and the difference used to be thrown away: such a module
+     * simply appeared to be off, having switched itself off for reasons nobody could see. This is
+     * that difference, so the manager can say what happened.
+     */
+    String[] getUnloadableModules() = 59;
+
+    /** Why [getUnloadableModules] lists this one; MODULE_LOAD_OK when it does not. */
+    int getModuleLoadState(String packageName) = 60;
 }

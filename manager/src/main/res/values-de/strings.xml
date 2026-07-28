@@ -343,4 +343,6 @@
     <string name="home_window_changed">Gespeicherte Aktivität für den neuen Zeitraum — zum Aktualisieren ziehen</string>
     <string name="home_history_window_end">Das ist alles in diesem Zeitraum</string>
     <string name="update_same_number">Gleiche Nummer, anderer Build</string>
+    <string name="modules_load_no_apk">Aktiviert, aber das Framework hat kein APK zum Laden gefunden.</string>
+    <string name="modules_load_bad_dex">Aktiviert, aber das Framework konnte den Code nicht lesen. Es läuft nicht.</string>
 </resources>

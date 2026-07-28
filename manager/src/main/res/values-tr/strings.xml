@@ -343,4 +343,6 @@
     <string name="home_window_changed">Yeni aralık için kayıtlı etkinlik gösteriliyor — yenilemek için çekin</string>
     <string name="home_history_window_end">Bu aralıktaki her şey bu kadar</string>
     <string name="update_same_number">Aynı numara, farklı yapı</string>
+    <string name="modules_load_no_apk">Etkin, ancak çerçeve yüklenecek APK’sını bulamadı.</string>
+    <string name="modules_load_bad_dex">Etkin, ancak çerçeve kodunu okuyamadı. Çalışmıyor.</string>
 </resources>

@@ -7,7 +7,37 @@ import org.lsposed.lspd.models.Application
 
 private const val TAG = "VectorModuleDatabase"
 
+/**
+ * The module configuration: what the user asked for.
+ *
+ * This is the source of truth, and the only thing here that talks to the database. It answers the
+ * questions a manager asks — is this module enabled, what is its scope, does it auto-include — and
+ * it performs every write.
+ *
+ * The distinction from [ConfigCache] is the whole point of splitting them, and getting it wrong has
+ * already cost one bug. There are two different notions of "module" in this daemon:
+ *
+ *  * **Configuration**, here: what was asked for. Cheap, transactional, and it must always answer a
+ *    reader with the reader's own writes already applied.
+ *  * **Realisation**, in [ConfigCache]: what can actually be loaded into a process right now — the
+ *    resolved APK path, the parsed DEX, the app id. Expensive to build (package manager calls, zip
+ *    reads and DEX parsing; measured at 39 ms for five modules) and therefore rebuilt off the
+ *    binder thread, coalesced, and *eventually* consistent.
+ *
+ * `enabledModules()` used to be answered from the realisation, which is a configuration question
+ * asked of a store that is allowed to lag. The manager enabled a module, read back immediately, and
+ * was told the state from before its own write. Every other configuration query already read the
+ * database; that one line was the outlier, which is why the symptom was so hard to place.
+ *
+ * The database handle lives here rather than in the cache so the dependency points the right way:
+ * the realisation is derived *from* the configuration, and a config query cannot be written inside
+ * the cache without deliberately reaching over here for a database to use.
+ */
 object ModuleDatabase {
+
+  /** The one database handle. [ConfigCache], [PreferenceStore] and the CLI all borrow it. */
+  val dbHelper = Database()
+
 
   /**
    * Which modules are enabled, straight from the database.
@@ -22,9 +52,133 @@ object ModuleDatabase {
    * The cache is still what the injection path reads, which is what it is for — it carries the
    * resolved apk paths and scopes that this query deliberately does not.
    */
+  fun getModuleScope(packageName: String): MutableList<Application>? {
+    if (packageName == "lspd") return null
+    val result = mutableListOf<Application>()
+    dbHelper.readableDatabase
+        .query(
+            "scope INNER JOIN modules ON scope.mid = modules.mid",
+            arrayOf("app_pkg_name", "user_id"),
+            "modules.module_pkg_name = ?",
+            arrayOf(packageName),
+            null,
+            null,
+            null)
+        .use { cursor ->
+          while (cursor.moveToNext()) {
+            result.add(
+                Application().apply {
+                  this.packageName = cursor.getString(0)
+                  this.userId = cursor.getInt(1)
+                })
+          }
+        }
+    return result
+  }
+
+  fun getAutoInclude(packageName: String): Boolean {
+    if (packageName == "lspd") return false
+
+    var isAutoInclude = false
+    dbHelper.readableDatabase
+        .query(
+            "modules",
+            arrayOf("auto_include"),
+            "module_pkg_name = ?",
+            arrayOf(packageName),
+            null,
+            null,
+            null)
+        .use { cursor ->
+          if (cursor.moveToFirst()) {
+            isAutoInclude = cursor.getInt(0) == 1
+          }
+        }
+    return isAutoInclude
+  }
+
+  fun getAutoIncludeModules(): List<String> {
+    val result = mutableListOf<String>()
+    dbHelper.readableDatabase
+        .query("modules", arrayOf("module_pkg_name"), "auto_include = 1", null, null, null, null)
+        .use { cursor ->
+          val idx = cursor.getColumnIndexOrThrow("module_pkg_name")
+          while (cursor.moveToNext()) {
+            val pkgName = cursor.getString(idx)
+            if (pkgName != "lspd") result.add(pkgName)
+          }
+        }
+    return result
+  }
+
+  /** One enabled module, as configured. The path is what was last resolved, and may be stale. */
+  data class EnabledModuleRow(val packageName: String, val apkPath: String?)
+
+  /** One line of a module's scope: which app, for which user. */
+  data class ScopeRow(val appPackage: String, val modulePackage: String, val userId: Int)
+
+  /**
+   * The rows [ConfigCache] rebuilds itself from.
+   *
+   * Returned as data rather than as a cursor so that the SQL stays on this side of the line. The
+   * cache turns these into loadable modules — resolving paths, parsing DEX — which is its job; it
+   * has no business also knowing the shape of the tables.
+   */
+  fun enabledModuleRows(): List<EnabledModuleRow> {
+    val rows = mutableListOf<EnabledModuleRow>()
+    dbHelper.readableDatabase
+        .query("modules", arrayOf("module_pkg_name", "apk_path"), "enabled = 1", null, null, null, null)
+        .use { cursor ->
+          while (cursor.moveToNext()) {
+            rows += EnabledModuleRow(cursor.getString(0), cursor.getString(1))
+          }
+        }
+    return rows
+  }
+
+  /** Every scope line belonging to an enabled module. */
+  fun enabledScopeRows(): List<ScopeRow> {
+    val rows = mutableListOf<ScopeRow>()
+    dbHelper.readableDatabase
+        .query(
+            "scope INNER JOIN modules ON scope.mid = modules.mid",
+            arrayOf("app_pkg_name", "module_pkg_name", "user_id"),
+            "enabled = 1",
+            null,
+            null,
+            null,
+            null)
+        .use { cursor ->
+          while (cursor.moveToNext()) {
+            rows += ScopeRow(cursor.getString(0), cursor.getString(1), cursor.getInt(2))
+          }
+        }
+    return rows
+  }
+
+  /** Enabled modules scoped to the system framework, with the path last resolved for each. */
+  fun systemServerModuleRows(): List<EnabledModuleRow> {
+    val rows = mutableListOf<EnabledModuleRow>()
+    dbHelper.readableDatabase
+        .query(
+            "scope INNER JOIN modules ON scope.mid = modules.mid",
+            arrayOf("module_pkg_name", "apk_path"),
+            "app_pkg_name=? AND enabled=1",
+            arrayOf("system"),
+            null,
+            null,
+            null)
+        .use { cursor ->
+          while (cursor.moveToNext()) {
+            rows += EnabledModuleRow(cursor.getString(0), cursor.getString(1))
+          }
+        }
+    return rows
+  }
+
   fun enabledModules(): Array<String> {
     val names = mutableListOf<String>()
-    ConfigCache.dbHelper.readableDatabase
+    dbHelper.readableDatabase
         .query("modules", arrayOf("module_pkg_name"), "enabled = 1", null, null, null, null)
         .use { cursor ->
           while (cursor.moveToNext()) names += cursor.getString(0)
@@ -34,7 +188,7 @@ object ModuleDatabase {
 
   fun enableModule(packageName: String): Boolean {
     if (packageName == "lspd") return false
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = dbHelper.writableDatabase
     var changed = false
 
     // First, check if it exists. If not, we need to "discover" it.
@@ -64,7 +218,7 @@ object ModuleDatabase {
     if (packageName == "lspd") return false
     val values = ContentValues().apply { put("enabled", 0) }
     val changed =
-        ConfigCache.dbHelper.writableDatabase.update(
+        dbHelper.writableDatabase.update(
             "modules", values, "module_pkg_name = ?", arrayOf(packageName)) > 0
     if (changed) ConfigCache.requestCacheUpdate()
     return changed
@@ -81,7 +235,7 @@ object ModuleDatabase {
       }
     }
     enableModule(packageName)
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = dbHelper.writableDatabase
     db.beginTransaction()
     try {
       val mid =
@@ -123,7 +277,7 @@ object ModuleDatabase {
    * @return how many rows went.
    */
   fun pruneScopeToClaimed(packageName: String, claimed: Set<String>): Int {
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = dbHelper.writableDatabase
     return runCatching {
           val mid =
               db.compileStatement("SELECT mid FROM modules WHERE module_pkg_name = ?")
@@ -145,7 +299,7 @@ object ModuleDatabase {
 
   fun removeModuleScope(packageName: String, scopePackageName: String, userId: Int): Boolean {
     if (packageName == "lspd" || (scopePackageName == "system" && userId != 0)) return false
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = dbHelper.writableDatabase
     val mid =
         db.compileStatement("SELECT mid FROM modules WHERE module_pkg_name = ?")
             .apply { bindString(1, packageName) }
@@ -165,7 +319,7 @@ object ModuleDatabase {
           put("module_pkg_name", packageName)
           put("apk_path", apkPath)
         }
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = dbHelper.writableDatabase
     var count =
         db.insertWithOnConflict("modules", null, values, SQLiteDatabase.CONFLICT_IGNORE).toInt()
 
@@ -188,7 +342,7 @@ object ModuleDatabase {
   fun removeModule(packageName: String): Boolean {
     if (packageName == "lspd") return false
     val res =
-        ConfigCache.dbHelper.writableDatabase.delete(
+        dbHelper.writableDatabase.delete(
             "modules", "module_pkg_name = ?", arrayOf(packageName)) > 0
     if (res) ConfigCache.requestCacheUpdate()
     return res
@@ -200,7 +354,7 @@ object ModuleDatabase {
     val values = ContentValues().apply { put("auto_include", if (enabled) 1 else 0) }
 
     val changed =
-        ConfigCache.dbHelper.writableDatabase.update(
+        dbHelper.writableDatabase.update(
             "modules", values, "module_pkg_name = ?", arrayOf(packageName)) > 0
 
     // If the auto_include flag changes, we should rebuild the scope cache

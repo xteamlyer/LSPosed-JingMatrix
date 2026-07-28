@@ -343,4 +343,6 @@
     <string name="home_window_changed">Activité enregistrée pour la nouvelle période — tirez pour actualiser</string>
     <string name="home_history_window_end">C’est tout pour cette période</string>
     <string name="update_same_number">Même numéro, autre version</string>
+    <string name="modules_load_no_apk">Activé, mais le framework n’a pas trouvé son APK à charger.</string>
+    <string name="modules_load_bad_dex">Activé, mais le framework n’a pas pu lire son code. Il ne tourne pas.</string>
 </resources>
