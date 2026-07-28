@@ -1,5 +1,7 @@
 package org.matrix.vector.manager.di
 
+import org.matrix.vector.manager.data.model.ModuleDetectionCache
+import java.io.File
 import org.matrix.vector.manager.ui.screens.repo.latestOn
 import org.matrix.vector.manager.ui.screens.repo.StoreChannel
 import org.matrix.vector.manager.data.model.StoreEntry
@@ -83,6 +85,16 @@ object ServiceLocator {
 
     val apps: AppRepository by lazy { AppRepository(daemon, context.packageManager) }
 
+    /**
+     * Which packages are modules, remembered across launches.
+     *
+     * Shared rather than per view model: the answer is a property of the installed APKs, and a
+     * second copy would mean a second 550-zip scan on a device with 363 packages.
+     */
+    val moduleDetection: ModuleDetectionCache by lazy {
+        ModuleDetectionCache(File(context.cacheDir, "module-detection.tsv"))
+    }
+
     val store: RepoRepository by lazy { RepoRepository(http, daemon, appScope) }
 
     val installer: ModuleInstaller by lazy { ModuleInstaller(context, http) }
@@ -158,8 +170,28 @@ object ServiceLocator {
             context.packageEventsFlow().collect {
                 apps.invalidate()
                 modules.refresh()
+                modules.notePackagesChanged()
             }
         }
+    }
+
+    /**
+     * Starts the expensive reads while the splash is still on screen.
+     *
+     * The three panels a user actually opens first each begin with work that has nothing to do
+     * with drawing: enumerating every installed package, reading the module catalogue, fetching
+     * the activity feed. Doing that on first visit means the panel appears and then fills in;
+     * doing it here means it is usually already there.
+     *
+     * Every one of these is idempotent and cached, so the view models that ask again on arrival
+     * get the finished answer rather than starting a second copy. Failures are ignored on purpose
+     * — this is a head start, not a load-bearing step, and a screen that cannot be reached because
+     * its prefetch failed would be strictly worse than one that is merely slow.
+     */
+    fun prefetch() {
+        appScope.launch { runCatching { apps.getInstalledApps() } }
+        appScope.launch { runCatching { store.refresh() } }
+        appScope.launch { runCatching { github.load() } }
     }
 
     /** Called from `Constants.setBinder`, possibly before [attach]. */

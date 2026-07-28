@@ -43,6 +43,23 @@ class ModuleRepository(
         _scopeRevision.update { it + 1 }
     }
 
+    private val _packageRevision = MutableStateFlow(0)
+
+    /**
+     * Bumped when a package is installed, updated or removed.
+     *
+     * The module list is now cached across visits, which is what made it fast — and what would
+     * have made it wrong, because a list that is never recomputed never notices a module being
+     * installed. The daemon already tells us when packages change; this is that signal reaching
+     * the list, so the rescan happens exactly when something changed rather than on every visit.
+     * The scan it triggers is cheap: only the package that actually changed is re-inspected.
+     */
+    val packageRevision: StateFlow<Int> = _packageRevision.asStateFlow()
+
+    fun notePackagesChanged() {
+        _packageRevision.update { it + 1 }
+    }
+
     init {
         scope.launch {
             // Re-reads whenever a binder arrives, including a reconnect.

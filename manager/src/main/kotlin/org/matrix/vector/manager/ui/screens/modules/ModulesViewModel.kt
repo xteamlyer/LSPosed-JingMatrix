@@ -1,5 +1,7 @@
 package org.matrix.vector.manager.ui.screens.modules
 
+import android.util.Log
+import android.os.SystemClock
 import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -72,6 +74,7 @@ const val SCOPE_PREVIEW_LIMIT = 3
 
 /** The framework itself, which the daemon names in a scope like any package but which is not one. */
 private const val SYSTEM_FRAMEWORK = "system"
+private const val TAG = "VectorModules"
 
 class ModulesViewModel(
     private val daemonClient: DaemonClient,
@@ -207,6 +210,12 @@ class ModulesViewModel(
         viewModelScope.launch {
             // drop(1): the current value is the state we just rendered, not a change.
             moduleRepository.scopeRevision.drop(1).collect { loadFacts(_discovered.value) }
+        }
+        viewModelScope.launch {
+            // A package appearing or going away is the only thing that can change *which* modules
+            // exist, so it is the only thing that needs a rediscovery. Everything else reuses the
+            // cached answer.
+            moduleRepository.packageRevision.drop(1).collect { loadModules() }
         }
     }
 
@@ -432,10 +441,22 @@ class ModulesViewModel(
             daemonClient.getInstalledPackagesFromAllUsers(flags, filterNoProcess = false).getOrNull()
                 ?: emptyList()
 
+        // Through the cache, not straight to ModuleDetection: inspecting a package means opening
+        // its APK and every split as a zip, and there are ~550 of those on a normal device. Keyed
+        // by version code and install time, so an unchanged package is a map lookup and only a
+        // newly installed or updated one is actually opened.
+        val detection = ServiceLocator.moduleDetection
+        val startedAt = SystemClock.elapsedRealtime()
         val allModules =
             packages.mapNotNull { pkg ->
                 val appInfo = pkg.applicationInfo ?: return@mapNotNull null
-                val manifest = ModuleDetection.inspect(appInfo, packageManager)
+                val manifest =
+                    detection.inspect(
+                        appInfo,
+                        packageManager,
+                        pkg.longVersionCode,
+                        pkg.lastUpdateTime,
+                    )
                 if (!manifest.isModule) return@mapNotNull null
 
                 InstalledModule(
@@ -454,6 +475,17 @@ class ModulesViewModel(
                     applicationInfo = appInfo,
                 )
             }
+
+        detection.flush(packages.mapNotNull { it.packageName }.toSet())
+        // The one number that explains a slow Modules panel: how many APKs this scan had to open.
+        // Everything else is a map lookup, so a large figure here after the first run means the
+        // cache key is wrong rather than that the device is slow.
+        Log.i(
+            TAG,
+            "Scanned ${packages.size} packages in " +
+                "${SystemClock.elapsedRealtime() - startedAt}ms, " +
+                "opened ${detection.inspectedThisRun}",
+        )
 
         val perUser =
             users.map { user ->

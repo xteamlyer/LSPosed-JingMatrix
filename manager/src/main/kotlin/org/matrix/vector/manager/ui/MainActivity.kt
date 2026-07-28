@@ -46,6 +46,11 @@ class MainActivity : ComponentActivity() {
                 .build()
         }
 
+        // Started here rather than from the panels that need it: the splash is dead time the app
+        // is spending anyway, and these reads are what makes a panel's first visit slower than its
+        // second. By the time the splash has played, most of them have already answered.
+        ServiceLocator.prefetch()
+
         // Keep the platform splash up only until the first frame is ready to draw; the Compose
         // splash then plays and decides for itself when the daemon has been given long enough.
         splash.setKeepOnScreenCondition { false }
