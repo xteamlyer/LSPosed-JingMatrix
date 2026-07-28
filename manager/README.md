@@ -91,17 +91,52 @@ Every release publishes a release zip and a debug zip of roughly three times the
 installed is the reader's choice, shown with its size, because the troubleshooting flow elsewhere in
 this app asks people for a debug build.
 
+## Module Updates
+
+Installing a module APK goes through `PackageInstaller` with the download streamed straight into the
+session — no temporary file, and no `FileProvider`, which parasitically does not exist.
+
+The consent story differs sharply between the two modes, which is why the app has a confirmation
+dialog of its own. Inside `com.android.shell` the manager inherits `INSTALL_PACKAGES`, so the commit
+installs a third-party APK with no system prompt whatsoever; standalone, the platform asks as usual.
+In the mode most people run, Vector's dialog is the only consent gate there is, so it names the
+module, the file and its size *before* anything is downloaded.
+
+Whether a module is out of date is one answer shared by three screens — `ServiceLocator.storeEntries`
+joins the catalogue to the installed versions once, and the list's mark, the module's sheet and the
+Store's count all read it. Muting is folded into that answer rather than applied at each reader,
+because a mute only some of them honoured would be worse than none. The two screens that show a
+module *by itself* deliberately ignore it: someone who opened one module's page is asking, not being
+nagged.
+
+Batch updates run one at a time on the application scope. Sequential because four concurrent sessions
+contend for the same disk and, without `INSTALL_PACKAGES`, stack four system dialogs in an order
+nobody chose; on the application scope because four modules take longer than anyone will hold a
+bottom sheet open.
+
+The panel is told when an install lands rather than waiting to overhear it. A replaced package does
+broadcast and the manager does listen, but delivery is the system's business and this process is a
+guest in someone else's; the one install path the app performs itself has no reason to learn about it
+second-hand.
+
 ## Demo Mode
 
 Several states worth designing against cannot be produced on a working phone: SELinux policy not
 loaded, the system server not injected, a framework below the API level installed modules need, no
-root implementation at all. `src/debug` contains a scenario list and an `ILSPManagerService` stub
+root implementation at all, every installed module a version behind. `src/debug` contains a scenario list and an `ILSPManagerService` stub
 that scripts the answers it has an opinion about and delegates the rest to the real daemon.
 
 It is a source set rather than a flag. A demo mode that could be switched on in a release build
 would be a way to make the manager report a healthy framework when it is not, which is the one lie
 this app must never be able to tell; a reviewer can confirm by finding no `manager/demo` classes in
 a release APK.
+
+The most useful ones lie about a *version*, because that is what every update decision is made
+against: the framework's own version code comes from the daemon, and so do the installed modules', so
+reporting an old one turns a real release into a real update with nothing else faked — the catalogue,
+the release list, the APK and the install are all genuine. The module scenario stops lying about a
+package the moment that package actually changes, which is what makes it a test of the refresh rather
+than a picture of one.
 
 The scenario host renders `VectorApp()` itself rather than launching the manager activity. Launching
 it lets `ParasiticManagerHooker` hand over the real binder a moment later, which silently undid every
