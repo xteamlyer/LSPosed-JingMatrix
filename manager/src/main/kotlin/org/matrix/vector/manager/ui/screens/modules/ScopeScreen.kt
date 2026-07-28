@@ -368,6 +368,8 @@ fun ScopeScreen(
                                 app.isRecommended -> ScopeOrigin.Requested
                                 else -> ScopeOrigin.Chosen
                             },
+                        sharedNote =
+                            app.packageName == SYSTEM_FRAMEWORK_PACKAGE && state.multipleUsers,
                         onToggle = { checked ->
                             haptics.performHapticFeedback(
                                 if (checked) HapticFeedbackType.ToggleOn
@@ -689,6 +691,7 @@ private fun AppRow(
     app: AppInfo,
     enabled: Boolean,
     origin: ScopeOrigin,
+    sharedNote: Boolean,
     onToggle: (Boolean) -> Unit,
     onAction: (PackageActionResult) -> Unit,
 ) {
@@ -735,11 +738,11 @@ private fun AppRow(
                         color = ring,
                     )
                 }
-                // The one row on this screen that is not an app, and now the one row that is
-                // offered identically to every user. Someone editing a work profile module's
-                // scope has no other way to know that this particular target is not scoped to
-                // their profile at all.
-                if (app.packageName == SYSTEM_FRAMEWORK_PACKAGE) {
+                // The one row on this screen that is not an app, and the one row offered
+                // identically to every user. Someone editing a work profile module's scope has no
+                // other way to know that this target is not scoped to their profile — but on a
+                // single-user device that is a sentence about a distinction that does not exist.
+                if (sharedNote) {
                     Text(
                         text = stringResource(R.string.scope_framework_shared),
                         style = MaterialTheme.typography.labelSmall,

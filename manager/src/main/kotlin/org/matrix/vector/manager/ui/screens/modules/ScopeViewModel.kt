@@ -46,6 +46,14 @@ data class ScopeUiState(
     val autoInclude: Boolean = false,
     val recommended: RecommendedScope = RecommendedScope.NONE,
     val loading: Boolean = true,
+    /**
+     * Whether this device has more than one user at all.
+     *
+     * The framework row explains that it is shared across users, which is only ever news on a
+     * device that has more than one. On a single-user phone — most of them — it is a sentence
+     * about a distinction that does not exist, so it is not shown.
+     */
+    val multipleUsers: Boolean = false,
 )
 
 class ScopeViewModel(
@@ -205,6 +213,16 @@ class ScopeViewModel(
                     .sortedWith(comparatorFor(order))
                     .toList()
                     .let { if (reverse) it.reversed() else it }
+                    // Pinned above the apps, and after the reverse so that reversing the order
+                    // cannot bury it at the bottom. It is not an app and does not belong in the
+                    // same ordering as one: sorted by name it landed under S, by install time it
+                    // landed wherever its borrowed timestamp put it, and either way the one target
+                    // that is not discoverable any other way was somewhere in a list of thousands.
+                    .let { list ->
+                        val framework = list.filter { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
+                        if (framework.isEmpty()) list
+                        else framework + list.filterNot { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
+                    }
             }
             // Filtering and sorting the full installed-app list is real work — often thousands of
             // entries — and stateIn(viewModelScope) alone would run it on Dispatchers.Main.immediate
@@ -281,6 +299,13 @@ class ScopeViewModel(
             val withFramework = listOf(systemFrameworkEntry(apps)) + apps
             allApps.value = withFramework
 
+            // Asked once per load rather than per row, and carried into the state built at the
+            // end of this function rather than copied into the state that exists now — that copy
+            // was silently discarded when the final ScopeUiState was constructed from scratch. A
+            // failure to ask means not explaining, never explaining wrongly.
+            val userCount =
+                withContext(Dispatchers.IO) { daemonClient.getUsers().getOrNull()?.size ?: 1 }
+
             val saved =
                 daemonClient
                     .getModuleScope(modulePackageName)
@@ -317,6 +342,7 @@ class ScopeViewModel(
                         daemonClient.getAutoInclude(modulePackageName).getOrDefault(false),
                     recommended = recommended,
                     loading = false,
+                    multipleUsers = userCount > 1,
                 )
         }
     }
