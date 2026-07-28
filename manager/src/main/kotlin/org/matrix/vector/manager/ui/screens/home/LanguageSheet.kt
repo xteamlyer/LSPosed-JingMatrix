@@ -110,6 +110,31 @@ LocalizedOverlay {
             )
         }
 
+        // Docked under the title rather than sitting at the end of the list. At the end it was
+        // only reachable by scrolling past nineteen languages, and a bottom dock is not available
+        // to us: the sheet rests at half height, so the foot of its content is off-screen exactly
+        // when the list is longest. Under the heading it is visible at every height the sheet has.
+        ListItem(
+            modifier = Modifier.clickable { onOpen(CROWDIN_URL) },
+            headlineContent = { Text(stringResource(R.string.language_help)) },
+            supportingContent = { Text(stringResource(R.string.language_help_summary)) },
+            leadingContent = {
+                Icon(
+                    Icons.Rounded.Translate,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            },
+            trailingContent = {
+                Icon(
+                    Icons.AutoMirrored.Rounded.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+        )
+        HorizontalDivider(Modifier.padding(horizontal = 24.dp, vertical = 4.dp))
+
         LazyColumn(Modifier.padding(bottom = 24.dp)) {
             item {
                 LanguageRow(
@@ -128,31 +153,6 @@ LocalizedOverlay {
                     onClick = { settings.setAppLocale(locale.toLanguageTag()) },
                     credits = translatorsFor(locale),
                     onOpen = onOpen,
-                )
-            }
-            item {
-                HorizontalDivider(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
-                // Last, not first: someone opening this sheet came to change the language, and an
-                // invitation above the list would be in the way of that. It is here for the reader
-                // who has just scrolled past their own language and not found it.
-                ListItem(
-                    modifier = Modifier.clickable { onOpen(CROWDIN_URL) },
-                    headlineContent = { Text(stringResource(R.string.language_help)) },
-                    supportingContent = { Text(stringResource(R.string.language_help_summary)) },
-                    leadingContent = {
-                        Icon(
-                            Icons.Rounded.Translate,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    },
-                    trailingContent = {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.OpenInNew,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
                 )
             }
         }
