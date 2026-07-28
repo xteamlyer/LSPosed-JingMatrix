@@ -35,6 +35,9 @@
     <string name="info_manager_version">Manager</string>
     <string name="info_api_version">Xposed API</string>
     <string name="info_api_version_libxposed" translatable="false">libxposed API</string>
+    <string name="info_section_build">What is running</string>
+    <string name="info_section_health">Whether it is working</string>
+    <string name="info_section_device">This device</string>
     <string name="info_framework_version">Framework</string>
     <string name="info_manager_package">Manager package</string>
     <string name="info_dex2oat">Dex optimizer wrapper</string>

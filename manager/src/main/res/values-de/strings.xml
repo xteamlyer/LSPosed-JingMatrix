@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">Soft-Reboot</string>
     <string name="action_soft_reboot_summary">Das Framework neu starten, ohne das Telefon neu zu starten</string>
     <string name="action_soft_reboot_confirm">Alle laufenden Apps werden beendet und der Bildschirm wird kurz schwarz. Das Telefon selbst bleibt an.</string>
+    <string name="info_section_build">Was läuft</string>
+    <string name="info_section_health">Ob es funktioniert</string>
+    <string name="info_section_device">Dieses Gerät</string>
 </resources>

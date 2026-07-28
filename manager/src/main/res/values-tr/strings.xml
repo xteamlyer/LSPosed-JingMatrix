@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">Yumuşak yeniden başlatma</string>
     <string name="action_soft_reboot_summary">Telefonu yeniden başlatmadan çerçeveyi yeniden başlat</string>
     <string name="action_soft_reboot_confirm">Çalışan tüm uygulamalar kapanır ve ekran bir anlığına kararır. Telefonun kendisi açık kalır.</string>
+    <string name="info_section_build">Ne çalışıyor</string>
+    <string name="info_section_health">Çalışıyor mu</string>
+    <string name="info_section_device">Bu cihaz</string>
 </resources>

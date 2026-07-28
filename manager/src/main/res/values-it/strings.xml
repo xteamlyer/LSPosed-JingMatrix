@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">Riavvio soft</string>
     <string name="action_soft_reboot_summary">Riavviare il framework senza riavviare il telefono</string>
     <string name="action_soft_reboot_confirm">Tutte le app in esecuzione si chiudono e lo schermo si spegne per un attimo. Il telefono resta acceso.</string>
+    <string name="info_section_build">Che cosa è in esecuzione</string>
+    <string name="info_section_health">Se funziona</string>
+    <string name="info_section_device">Questo dispositivo</string>
 </resources>

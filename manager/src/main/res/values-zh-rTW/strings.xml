@@ -366,4 +366,7 @@
     <string name="action_soft_reboot">軟重啟</string>
     <string name="action_soft_reboot_summary">重新啟動框架，而不重新啟動手機</string>
     <string name="action_soft_reboot_confirm">所有正在執行的應用程式都會關閉，螢幕會黑一下。手機本身保持開機。</string>
+    <string name="info_section_build">正在執行</string>
+    <string name="info_section_health">是否正常</string>
+    <string name="info_section_device">本裝置</string>
 </resources>

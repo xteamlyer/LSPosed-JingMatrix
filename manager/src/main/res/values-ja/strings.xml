@@ -365,4 +365,7 @@
     <string name="action_soft_reboot">ソフトリブート</string>
     <string name="action_soft_reboot_summary">端末を再起動せずにフレームワークを再起動します</string>
     <string name="action_soft_reboot_confirm">起動中のアプリはすべて終了し、画面が一瞬暗くなります。端末自体は起動したままです。</string>
+    <string name="info_section_build">動作中のもの</string>
+    <string name="info_section_health">正しく動いているか</string>
+    <string name="info_section_device">この端末</string>
 </resources>

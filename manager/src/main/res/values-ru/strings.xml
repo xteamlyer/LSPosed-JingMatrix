@@ -379,4 +379,7 @@
     <string name="action_soft_reboot">Мягкая перезагрузка</string>
     <string name="action_soft_reboot_summary">Перезапустить фреймворк, не перезагружая телефон</string>
     <string name="action_soft_reboot_confirm">Все запущенные приложения закроются, экран на мгновение погаснет. Сам телефон останется включённым.</string>
+    <string name="info_section_build">Что запущено</string>
+    <string name="info_section_health">Работает ли это</string>
+    <string name="info_section_device">Это устройство</string>
 </resources>

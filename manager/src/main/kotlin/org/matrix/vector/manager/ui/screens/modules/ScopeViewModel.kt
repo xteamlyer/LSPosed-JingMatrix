@@ -154,6 +154,7 @@ class ScopeViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
+        findCompanion()
         // Written back as they change rather than on the way out: this screen is left by a back
         // gesture, by the process being killed, and by the host application deciding it is done —
         // and only the first of those runs any teardown of ours.
@@ -483,6 +484,25 @@ class ScopeViewModel(
      * inside the module, so having to go back to the list to reach it was a detour through a place
      * you had just come from.
      */
+    /**
+     * Whether this module has a screen to open at all.
+     *
+     * Null until asked, so the control does not flicker into existence on arrival. Most modules
+     * have no companion and no launcher entry, and offering to open one is offering nothing —
+     * which is why this is worth a lookup rather than a snackbar after the fact.
+     */
+    private val _companion = MutableStateFlow<Boolean?>(null)
+    val hasCompanion: StateFlow<Boolean?> = _companion.asStateFlow()
+
+    private fun findCompanion() {
+        viewModelScope.launch {
+            _companion.value =
+                daemonClient
+                    .findAppUi(modulePackageName, userId, companionFirst = true)
+                    .getOrNull() != null
+        }
+    }
+
     fun openModule() {
         viewModelScope.launch {
             val opened = daemonClient.openAppUi(modulePackageName, userId).getOrDefault(false)

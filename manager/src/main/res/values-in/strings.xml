@@ -369,4 +369,7 @@
     <string name="action_soft_reboot">Boot ulang lunak</string>
     <string name="action_soft_reboot_summary">Mulai ulang framework tanpa me-reboot ponsel</string>
     <string name="action_soft_reboot_confirm">Semua aplikasi yang berjalan tertutup dan layar gelap sesaat. Ponselnya sendiri tetap menyala.</string>
+    <string name="info_section_build">Apa yang berjalan</string>
+    <string name="info_section_health">Apakah berfungsi</string>
+    <string name="info_section_device">Perangkat ini</string>
 </resources>

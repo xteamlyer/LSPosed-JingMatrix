@@ -44,7 +44,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.lsposed.lspd.ILSPManagerService
 import org.matrix.vector.manager.BuildConfig
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.alpha
+import android.content.res.Configuration
+import java.util.Locale
 import org.matrix.vector.manager.R
+import org.matrix.vector.manager.ui.components.FrameworkState
 import org.matrix.vector.manager.data.model.XposedApi
 import org.matrix.vector.manager.ui.components.SnackbarTone
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
@@ -71,7 +80,26 @@ fun SystemStatusScreen(
     val statusNotification by viewModel.statusNotification.collectAsStateWithLifecycle()
     val hiddenIcon by viewModel.hiddenIcon.collectAsStateWithLifecycle()
 
-    val rows = buildRows(status, device, context)
+    val sections = buildSections(status, device, context)
+    // The same page again, in English, for the clipboard.
+    //
+    // This text exists to be pasted into an issue, and the person reading it there is a maintainer
+    // who may not read the language the reporter's phone is set to. Copying what is on screen is
+    // the obvious behaviour and the wrong one: a status report in Vietnamese helps nobody triage
+    // it, and the reporter cannot be expected to switch languages first. The screen stays in the
+    // reader's language; the clipboard is for someone else.
+    val englishSections =
+        remember(status, device) {
+            val english =
+                context.createConfigurationContext(
+                    Configuration(context.resources.configuration).apply {
+                        setLocale(Locale.ENGLISH)
+                    }
+                )
+            buildSections(status, device, english)
+        }
+    // The two switches below belong to the framework, so they are only live while it is.
+    val daemonAlive = status.state != FrameworkState.Inactive
     val snackbars = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val copied = stringResource(R.string.copied)
@@ -92,7 +120,15 @@ fun SystemStatusScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            copy(context, rows.joinToString("\n") { "${it.first}: ${it.second}" })
+                            // Copied as it reads, headings and all — this text ends up pasted
+                            // into an issue, where the grouping is as useful as it is on screen.
+                            copy(
+                                context,
+                                englishSections.joinToString("\n\n") { (heading, items) ->
+                                    heading +
+                                        items.joinToString("") { "\n  ${it.label}: ${it.value}" }
+                                },
+                            )
                             scope.launch { snackbars.show(copied, SnackbarTone.Success) }
                         }
                     ) {
@@ -107,14 +143,17 @@ fun SystemStatusScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             if (status.issues.isNotEmpty()) {
                 items(status.issues, key = { it.name }) { issue -> IssueCard(issue) }
                 item { Spacer(Modifier.height(4.dp)) }
             }
-            items(rows, key = { it.first }) { (label, value) -> InfoRow(label, value) }
+            sections.forEach { (heading, items) ->
+                item(key = "h:$heading") { SectionHeading(heading) }
+                items(items, key = { it.label }) { row -> InfoRow(row) }
+            }
 
             // Framework behaviour, set from the screen that reports on the framework.
             item {
@@ -127,6 +166,7 @@ fun SystemStatusScreen(
                     title = stringResource(R.string.status_notification),
                     subtitle = stringResource(R.string.status_notification_summary),
                     checked = statusNotification,
+                    enabled = daemonAlive,
                     onCheckedChange = viewModel::setStatusNotification,
                 )
             }
@@ -135,6 +175,7 @@ fun SystemStatusScreen(
                     title = stringResource(R.string.hidden_icon),
                     subtitle = stringResource(R.string.hidden_icon_summary),
                     checked = hiddenIcon,
+                    enabled = daemonAlive,
                     onCheckedChange = viewModel::setForcedLauncherIcons,
                 )
             }
@@ -174,75 +215,184 @@ private fun IssueCard(issue: HealthIssue) {
     }
 }
 
+/**
+ * One fact, at a size meant to be read.
+ *
+ * Everything on this page used to be `labelMedium` over monospace at the same weight: ten
+ * near-identical grey lines that had to be read one at a time, including the ones that were fine.
+ * Three things changed. The value is the size of body text rather than of a caption, because the
+ * value is what the page is *for*. Monospace is kept for identifiers — versions, hashes, package
+ * names, ABIs, where character-by-character comparison is the point — and dropped for words like
+ * "Loaded", which are prose and read worse in it.
+ *
+ * And a fact that can be good or bad says which by its colour, so the page answers "is anything
+ * wrong" before it is read at all.
+ */
 @Composable
-private fun InfoRow(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(text = value, style = VectorMono, color = MaterialTheme.colorScheme.onSurface)
+private fun InfoRow(row: InfoItem) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = row.label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = row.value,
+                style =
+                    if (row.monospace) VectorMono.copy(fontSize = 15.sp)
+                    else MaterialTheme.typography.bodyLarge,
+                color =
+                    when (row.health) {
+                        Health.Good -> colors.primary
+                        Health.Bad -> colors.error
+                        Health.Neutral -> colors.onSurface
+                    },
+            )
+        }
+        if (row.health != Health.Neutral) {
+            Icon(
+                imageVector =
+                    if (row.health == Health.Good) Icons.Rounded.CheckCircle
+                    else Icons.Rounded.ErrorOutline,
+                contentDescription = null,
+                tint = if (row.health == Health.Good) colors.primary else colors.error,
+                modifier = Modifier.size(20.dp),
+            )
+        }
     }
 }
 
+/** Whether a fact is one that can be wrong, and whether it currently is. */
+private enum class Health {
+    Good,
+    Bad,
+    Neutral,
+}
+
+/** A row of the status page. */
+private data class InfoItem(
+    val label: String,
+    val value: String,
+    val health: Health = Health.Neutral,
+    /** True where the value is an identifier to be compared character by character. */
+    val monospace: Boolean = true,
+)
+
+/** A heading, so the page reads as three short lists rather than one long one. */
 @Composable
-private fun buildRows(
-    status: FrameworkStatus,
-    device: DeviceInfo,
-    context: Context,
-): List<Pair<String, String>> {
-    val unknown = "—"
-    return listOf(
-        stringResource(R.string.info_framework_version) to
-            buildString {
-                append(status.versionLabel ?: unknown)
-                // The exact build, not just its number. Two builds share a version code whenever
-                // they sit at the same depth on different branches, and a working tree with
-                // uncommitted changes says so — which is exactly what a bug report needs and what
-                // a screenshot of this page could not previously give.
-                status.commit?.takeIf { it.isNotBlank() }?.let { append("  ·  ").append(it) }
-            },
-        // Named separately from the framework, because they are flashed separately and are not
-        // always the same build. When these two lines disagree, that is the answer to a whole
-        // class of "it behaves oddly" reports.
-        stringResource(R.string.info_manager_version) to
-            "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})  ·  ${BuildConfig.VERSION_HASH}",
-        // Named by which scale the number is on. The two share a field and nothing else: 93 is a
-        // legacy Xposed API, 101 is a libxposed one, and calling both "Xposed API" is how a reader
-        // ends up comparing versions that were never comparable.
-        stringResource(
-            if (status.apiVersion?.let { XposedApi.isLibxposed(it) } == true)
-                R.string.info_api_version_libxposed
-            else R.string.info_api_version
-        ) to (status.apiVersion?.toString() ?: unknown),
-        stringResource(R.string.info_manager_package) to context.packageName,
-        stringResource(R.string.info_selinux) to
-            stringResource(
-                if (status.sepolicyLoaded) R.string.info_loaded else R.string.info_not_loaded
-            ),
-        stringResource(R.string.info_system_server) to
-            stringResource(
-                if (status.systemServerInjected) R.string.info_injected
-                else R.string.info_not_injected
-            ),
-        stringResource(R.string.info_dex2oat) to dex2oatLabel(status.dex2oatCompatibility),
-        stringResource(R.string.info_android) to
-            "${device.androidRelease} (API ${device.sdkInt})",
-        stringResource(R.string.info_device) to device.device,
-        stringResource(R.string.info_abi) to device.abi,
+private fun SectionHeading(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(top = 20.dp, bottom = 2.dp),
     )
 }
 
-@Composable
-private fun dex2oatLabel(compatibility: Int): String =
+/**
+ * The page's contents, in three groups.
+ *
+ * Grouped because they answer three different questions — what is running, is it working, and on
+ * what — and a reader looking for one of those had to scan all ten rows to find it.
+ */
+private fun buildSections(
+    status: FrameworkStatus,
+    device: DeviceInfo,
+    context: Context,
+): List<Pair<String, List<InfoItem>>> {
+    val unknown = "—"
+    fun str(id: Int) = context.getString(id)
+    return listOf(
+        str(R.string.info_section_build) to
+            listOf(
+                InfoItem(
+                    str(R.string.info_framework_version),
+                    buildString {
+                        append(status.versionLabel ?: unknown)
+                        // The exact build, not just its number. Two builds share a version code
+                        // whenever they sit at the same depth on different branches, and a working
+                        // tree with uncommitted changes says so — which is what a bug report needs
+                        // and what a screenshot of this page could not previously give.
+                        status.commit?.takeIf { it.isNotBlank() }?.let { append("  ·  ").append(it) }
+                    },
+                ),
+                // Named separately from the framework, because they are flashed separately and are
+                // not always the same build. When these two disagree, that is the answer to a whole
+                // class of "it behaves oddly" reports.
+                InfoItem(
+                    str(R.string.info_manager_version),
+                    "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})  ·  ${BuildConfig.VERSION_HASH}",
+                ),
+                // Named by which scale the number is on. The two share a field and nothing else: 93
+                // is a legacy Xposed API, 101 is a libxposed one, and calling both "Xposed API" is
+                // how a reader ends up comparing versions that were never comparable.
+                InfoItem(
+                    str(
+                        if (status.apiVersion?.let { XposedApi.isLibxposed(it) } == true)
+                            R.string.info_api_version_libxposed
+                        else R.string.info_api_version
+                    ),
+                    status.apiVersion?.toString() ?: unknown,
+                ),
+                InfoItem(str(R.string.info_manager_package), context.packageName),
+            ),
+        str(R.string.info_section_health) to
+            listOf(
+                InfoItem(
+                    str(R.string.info_selinux),
+                    str(
+                        if (status.sepolicyLoaded) R.string.info_loaded
+                        else R.string.info_not_loaded
+                    ),
+                    health = if (status.sepolicyLoaded) Health.Good else Health.Bad,
+                    monospace = false,
+                ),
+                InfoItem(
+                    str(R.string.info_system_server),
+                    str(
+                        if (status.systemServerInjected) R.string.info_injected
+                        else R.string.info_not_injected
+                    ),
+                    health = if (status.systemServerInjected) Health.Good else Health.Bad,
+                    monospace = false,
+                ),
+                InfoItem(
+                    str(R.string.info_dex2oat),
+                    dex2oatLabel(context, status.dex2oatCompatibility),
+                    health =
+                        if (status.dex2oatCompatibility == ILSPManagerService.DEX2OAT_OK)
+                            Health.Good
+                        else Health.Bad,
+                    monospace = false,
+                ),
+            ),
+        str(R.string.info_section_device) to
+            listOf(
+                InfoItem(
+                    str(R.string.info_android),
+                    "${device.androidRelease} (API ${device.sdkInt})",
+                ),
+                InfoItem(str(R.string.info_device), device.device, monospace = false),
+                InfoItem(str(R.string.info_abi), device.abi),
+            ),
+    )
+}
+
+private fun dex2oatLabel(context: Context, compatibility: Int): String =
     when (compatibility) {
-        ILSPManagerService.DEX2OAT_OK -> stringResource(R.string.info_supported)
+        ILSPManagerService.DEX2OAT_OK -> context.getString(R.string.info_supported)
         ILSPManagerService.DEX2OAT_CRASHED -> "crashed"
         ILSPManagerService.DEX2OAT_MOUNT_FAILED -> "mount failed"
         ILSPManagerService.DEX2OAT_SELINUX_PERMISSIVE -> "SELinux permissive"
         ILSPManagerService.DEX2OAT_SEPOLICY_INCORRECT -> "SEPolicy incorrect"
-        else -> stringResource(R.string.info_unsupported)
+        else -> context.getString(R.string.info_unsupported)
     }
 
 private fun copy(context: Context, text: String) {
@@ -255,13 +405,30 @@ private fun FrameworkToggle(
     title: String,
     subtitle: String,
     checked: Boolean,
+    /**
+     * False when there is no daemon to write to.
+     *
+     * These two are the framework's own settings, not the app's: the value lives in the daemon and
+     * the daemon applies it. With no daemon there is nothing to read the state from and nothing to
+     * write it to, so a live switch would show a value it invented and accept a change that went
+     * nowhere. Dimmed and inert says the truth — the setting exists, and the thing that owns it is
+     * not running.
+     */
+    enabled: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
-                .padding(vertical = 10.dp),
+                .toggleable(
+                    value = checked,
+                    enabled = enabled,
+                    role = Role.Switch,
+                    onValueChange = onCheckedChange,
+                )
+                .padding(vertical = 10.dp)
+                .alpha(if (enabled) 1f else 0.38f),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -269,10 +436,10 @@ private fun FrameworkToggle(
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = colors.onSurfaceVariant,
             )
         }
         Spacer(Modifier.width(12.dp))
-        Switch(checked = checked, onCheckedChange = null)
+        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
 }

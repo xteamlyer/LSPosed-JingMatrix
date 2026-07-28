@@ -366,4 +366,7 @@
     <string name="action_soft_reboot">软重启</string>
     <string name="action_soft_reboot_summary">重启框架，而不重启手机</string>
     <string name="action_soft_reboot_confirm">所有正在运行的应用都会关闭，屏幕会黑一下。手机本身保持开机。</string>
+    <string name="info_section_build">正在运行</string>
+    <string name="info_section_health">是否正常</string>
+    <string name="info_section_device">本设备</string>
 </resources>

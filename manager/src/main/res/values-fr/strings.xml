@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">Redémarrage à chaud</string>
     <string name="action_soft_reboot_summary">Redémarrer le framework sans redémarrer le téléphone</string>
     <string name="action_soft_reboot_confirm">Toutes les applications ouvertes se ferment et l’écran s’éteint un instant. Le téléphone, lui, reste allumé.</string>
+    <string name="info_section_build">Ce qui tourne</string>
+    <string name="info_section_health">Si cela fonctionne</string>
+    <string name="info_section_device">Cet appareil</string>
 </resources>

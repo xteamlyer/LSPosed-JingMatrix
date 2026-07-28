@@ -156,6 +156,7 @@ fun ScopeScreen(
     val sortOrder by viewModel.sort.collectAsStateWithLifecycle()
     val reversed by viewModel.reverseSort.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
+    val hasCompanion by viewModel.hasCompanion.collectAsStateWithLifecycle()
 
     val snackbars = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -302,11 +303,16 @@ fun ScopeScreen(
         // module and a control that comes and goes between modules is harder to learn than one
         // that answers.
         floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::openModule) {
-                Icon(
-                    Icons.AutoMirrored.Rounded.Launch,
-                    contentDescription = stringResource(R.string.action_open_companion),
-                )
+            // Only when there is something behind it. A module with no companion and no launcher
+            // entry — which is most of them — would otherwise carry a button whose whole function
+            // is to report that it has nothing to do.
+            if (hasCompanion == true) {
+                FloatingActionButton(onClick = viewModel::openModule) {
+                    Icon(
+                        Icons.AutoMirrored.Rounded.Launch,
+                        contentDescription = stringResource(R.string.action_open_companion),
+                    )
+                }
             }
         },
         bottomBar = {

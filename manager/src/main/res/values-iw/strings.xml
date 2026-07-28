@@ -402,4 +402,7 @@
     <string name="action_soft_reboot">אתחול רך</string>
     <string name="action_soft_reboot_summary">הפעלה מחדש של המסגרת בלי לאתחל את הטלפון</string>
     <string name="action_soft_reboot_confirm">כל האפליקציות הפעילות ייסגרו והמסך יחשיך לרגע. הטלפון עצמו נשאר דולק.</string>
+    <string name="info_section_build">מה פועל</string>
+    <string name="info_section_health">האם זה עובד</string>
+    <string name="info_section_device">המכשיר הזה</string>
 </resources>

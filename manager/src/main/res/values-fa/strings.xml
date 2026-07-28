@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">راه‌اندازی نرم</string>
     <string name="action_soft_reboot_summary">راه‌اندازی دوبارهٔ چارچوب بدون راه‌اندازی مجدد گوشی</string>
     <string name="action_soft_reboot_confirm">همهٔ برنامه‌های در حال اجرا بسته می‌شوند و صفحه لحظه‌ای سیاه می‌شود. خود گوشی روشن می‌ماند.</string>
+    <string name="info_section_build">چه چیزی در حال اجراست</string>
+    <string name="info_section_health">آیا کار می‌کند</string>
+    <string name="info_section_device">این دستگاه</string>
 </resources>

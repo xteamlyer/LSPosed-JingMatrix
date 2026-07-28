@@ -365,4 +365,7 @@
     <string name="action_soft_reboot">Khởi động mềm</string>
     <string name="action_soft_reboot_summary">Khởi động lại framework mà không khởi động lại điện thoại</string>
     <string name="action_soft_reboot_confirm">Mọi ứng dụng đang chạy sẽ đóng và màn hình tối đi một lát. Bản thân điện thoại vẫn bật.</string>
+    <string name="info_section_build">Đang chạy những gì</string>
+    <string name="info_section_health">Có hoạt động không</string>
+    <string name="info_section_device">Thiết bị này</string>
 </resources>

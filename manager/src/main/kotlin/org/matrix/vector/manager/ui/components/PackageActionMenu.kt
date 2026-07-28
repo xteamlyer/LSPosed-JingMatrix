@@ -30,6 +30,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -114,6 +115,16 @@ fun PackageActionSheet(
     // dead ends. What it does have is a way to be stopped and started, which for the framework
     // means taking every running app down with it — so that is what it says.
     val isSystemFramework = packageName == SYSTEM_FRAMEWORK_PACKAGE
+
+    // Asked once, when the sheet opens. Most modules have neither a companion nor a launcher entry,
+    // and a row that exists only to report that it has nothing to do is worse than no row.
+    var openable by remember(packageName, userId) { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(packageName, userId) {
+        openable =
+            ServiceLocator.daemon
+                .findAppUi(packageName, userId, companionFirst = isModule)
+                .getOrNull() != null
+    }
     var confirmSoftReboot by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -202,7 +213,7 @@ LocalizedOverlay {
         // companion: the screen its author wrote to configure it, which is what the Xposed settings
         // category marks. Naming it that way is the difference between a control that looks
         // pointless and one that says what it is for.
-        if (!isSystemFramework)
+        if (!isSystemFramework && openable == true)
         ActionRow(
             icon = Icons.AutoMirrored.Rounded.Launch,
             title =

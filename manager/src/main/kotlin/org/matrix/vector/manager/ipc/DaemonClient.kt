@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.lsposed.lspd.IFrameworkInstallCallback
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import org.lsposed.lspd.ILSPManagerService
 
 /**
@@ -58,54 +59,73 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
      * this the module simply looked switched off, which is both wrong and unexplainable.
      */
     /**
-     * Opens the app's own screen: its launcher entry, or failing that its Xposed settings activity.
+     * The activity that would open for this package, or null when it has none.
      *
-     * Two ways in, tried in that order, because a great many modules deliberately have no launcher
-     * icon — a module is not something anyone wants in their drawer — and expose their settings
-     * through the convention the original framework established instead. Looking only for a
-     * launcher told the owners of those modules there was "nothing to open", which was this app not
-     * knowing where to knock.
+     * Three categories, in the order the previous manager used and for the same reasons. A module
+     * that declares the Xposed settings category is naming its companion — the screen its author
+     * wrote to configure it — and for a module that wins. `CATEGORY_INFO` comes next: it is what an
+     * app declares when it has a screen worth opening but deliberately keeps out of the launcher,
+     * which is exactly the case here and which this manager had been missing. `CATEGORY_LAUNCHER`
+     * last.
      *
-     * Resolved as the module's own user throughout: the manager's package manager cannot see
+     * Resolved as the package's own user throughout: the manager's package manager cannot see
      * another profile's activities.
+     */
+    suspend fun findAppUi(
+        packageName: String,
+        userId: Int,
+        /** True for a module, where the companion screen is the point. */
+        companionFirst: Boolean = false,
+    ): Result<ActivityInfo?> = runIpc { service ->
+        val categories = buildList {
+            if (companionFirst) add(XPOSED_MODULE_SETTINGS_CATEGORY)
+            add(Intent.CATEGORY_INFO)
+            add(Intent.CATEGORY_LAUNCHER)
+        }
+        categories
+            .asSequence()
+            .mapNotNull { category ->
+                val intent =
+                    Intent(Intent.ACTION_MAIN).addCategory(category).setPackage(packageName)
+                service.queryIntentActivitiesAsUser(intent, 0, userId)?.list?.firstOrNull()
+            }
+            .firstOrNull()
+            ?.activityInfo
+    }
+
+    /**
+     * Opens that screen.
      *
-     * Returns false when neither exists, which is a real answer and not a failure.
+     * The `lsp_no_switch_to_user` extra is not decoration. Without it the daemon switches the
+     * device to the profile parent and locks the screen before starting the activity — right for an
+     * activity that exists in one profile only, and a startling thing to do to someone who pressed
+     * "open" on a module whose window shows for every user anyway. The flag on the resolved
+     * activity says which case this is; leaving it out, as this manager did, means always taking
+     * the disruptive path.
+     *
+     * Returns false when the package has no such screen, which is an answer rather than a failure.
      */
     suspend fun openAppUi(
         packageName: String,
         userId: Int,
-        /**
-         * True for a module, where the companion screen is the point.
-         *
-         * A module that declares both is declaring which is which: the Xposed category marks the
-         * screen written to configure the module, the launcher entry is whatever it puts in the
-         * drawer. For an ordinary app there is no such distinction and only the launcher applies.
-         */
         companionFirst: Boolean = false,
-    ): Result<Boolean> = runIpc { service ->
-        val order =
-            if (companionFirst) listOf(XPOSED_MODULE_SETTINGS_CATEGORY, Intent.CATEGORY_LAUNCHER)
-            else listOf(Intent.CATEGORY_LAUNCHER, XPOSED_MODULE_SETTINGS_CATEGORY)
+    ): Result<Boolean> {
         val target =
-            order.asSequence()
-                .mapNotNull { category ->
-                    val intent =
-                        Intent(Intent.ACTION_MAIN).addCategory(category).setPackage(packageName)
-                    service
-                        .queryIntentActivitiesAsUser(intent, 0, userId)
-                        ?.list
-                        ?.firstOrNull()
-                }
-                .firstOrNull()
-                ?: return@runIpc false
-
-        service.startActivityAsUserWithFeature(
-            Intent(Intent.ACTION_MAIN)
-                .setClassName(target.activityInfo.packageName, target.activityInfo.name)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            userId,
-        )
-        true
+            findAppUi(packageName, userId, companionFirst).getOrNull()
+                ?: return Result.success(false)
+        return runIpc { service ->
+            service.startActivityAsUserWithFeature(
+                Intent(Intent.ACTION_MAIN)
+                    .setClassName(target.packageName, target.name)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .putExtra(
+                        "lsp_no_switch_to_user",
+                        (target.flags and FLAG_SHOW_FOR_ALL_USERS) != 0,
+                    ),
+                userId,
+            )
+            true
+        }
     }
 
     suspend fun getUnloadableModules(): Result<List<String>> = runIpc {
@@ -291,4 +311,11 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
  * A module that hides its launcher icon still needs somewhere to be configured from, and this is
  * where it says so.
  */
+/**
+ * `ActivityInfo.FLAG_SHOW_FOR_ALL_USERS`, which is hidden.
+ *
+ * An activity carrying it is visible from every profile, so opening it needs no user switch.
+ */
+private const val FLAG_SHOW_FOR_ALL_USERS = 0x0400
+
 private const val XPOSED_MODULE_SETTINGS_CATEGORY = "de.robv.android.xposed.category.MODULE_SETTINGS"

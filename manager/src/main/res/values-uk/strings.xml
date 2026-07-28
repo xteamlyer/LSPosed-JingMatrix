@@ -398,4 +398,7 @@
     <string name="action_soft_reboot">М’яке перезавантаження</string>
     <string name="action_soft_reboot_summary">Перезапустити фреймворк, не перезавантажуючи телефон</string>
     <string name="action_soft_reboot_confirm">Усі запущені застосунки закриються, екран на мить згасне. Сам телефон лишиться увімкненим.</string>
+    <string name="info_section_build">Що запущено</string>
+    <string name="info_section_health">Чи це працює</string>
+    <string name="info_section_device">Цей пристрій</string>
 </resources>

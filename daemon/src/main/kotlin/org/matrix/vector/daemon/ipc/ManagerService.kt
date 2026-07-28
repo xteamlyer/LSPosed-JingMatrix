@@ -412,36 +412,48 @@ object ManagerService : ILSPManagerService.Stub() {
    * Android 10 and later synthesise a launcher entry for an installed app that declares none, and
    * `show_hidden_icon_apps_enabled` is the switch for that: 1 shows them, 0 leaves them hidden.
    *
-   * Written through the settings provider by hand until now, using the pre-Android-12 signature of
-   * `IContentProvider.call` — the one without an `AttributionSource`. Since Android 12 that method
-   * does not exist, so every call threw `NoSuchMethodError`, the daemon logged it at warning level
-   * and returned normally, and the manager moved its switch as though something had happened. On a
-   * Pixel 6 running Android 17 this failed on every attempt. The daemon has run
-   * `ActivityThread.systemMain()` since start-up, so it has a real system context and can simply
-   * use the public API, which has no signature to rot.
+   * Read and written by running `settings`, which is neither laziness nor a shortcut. Two in-process
+   * routes were tried on a Pixel 6 running Android 17 and both are closed to this process:
    *
-   * The boolean now means what the manager's label says — *force* the icons to appear — rather than
-   * the inverse it used to carry.
+   *  * The original code called `IContentProvider.call` with the pre-Android-12 signature, the one
+   *    without an `AttributionSource`. That method has not existed since Android 12, so every press
+   *    threw `NoSuchMethodError` — logged at warning level, swallowed, and the switch moved anyway.
+   *  * Going through `ActivityThread.getSystemContext().getContentResolver()` then fails at the
+   *    other end: `SecurityException: Unable to find app for caller … when getting content provider
+   *    settings`. The daemon has an ActivityThread but no application record, so the system will
+   *    not hand it a provider.
+   *
+   * The command is stable across versions in a way that the hidden binder interface demonstrably is
+   * not, and the daemon is root, so it is entitled to run it. This codebase already shells out for
+   * module installs and for dex2oat.
    */
   override fun setForcedLauncherIcons(force: Boolean) {
-    runCatching {
-          Settings.Global.putInt(
-              systemContentResolver(), SHOW_HIDDEN_ICON_APPS, if (force) 1 else 0)
-        }
+    runCatching { settingsCommand("put", if (force) "1" else "0") }
         .onFailure { Log.w(TAG, "setForcedLauncherIcons failed", it) }
   }
 
   override fun forcedLauncherIcons(): Boolean =
       runCatching {
-            // The platform default is 1, and an unset value must read as the default rather than
-            // as "off" — otherwise the switch shows the opposite of what the system is doing on
-            // every device where nobody has ever touched it.
-            Settings.Global.getInt(systemContentResolver(), SHOW_HIDDEN_ICON_APPS, 1) == 1
+            // Unset must read as the platform default of 1, not as "off" — otherwise the switch
+            // shows the opposite of what the system is doing on every device where nobody has
+            // touched it.
+            settingsCommand("get")?.trim().let { it.isNullOrEmpty() || it == "null" || it == "1" }
           }
           .getOrDefault(true)
 
-  private fun systemContentResolver() =
-      android.app.ActivityThread.currentActivityThread().systemContext.contentResolver
+  private fun settingsCommand(verb: String, value: String? = null): String? {
+    val command = buildList {
+      add("settings")
+      add(verb)
+      add("global")
+      add(SHOW_HIDDEN_ICON_APPS)
+      value?.let { add(it) }
+    }
+    val process = ProcessBuilder(command).redirectErrorStream(true).start()
+    val output = process.inputStream.bufferedReader().use { it.readText() }
+    process.waitFor()
+    return output.ifBlank { null }
+  }
 
   override fun getLogs(zipFd: ParcelFileDescriptor) {
     FileSystem.getLogs(zipFd)

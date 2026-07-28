@@ -376,4 +376,7 @@
     <string name="action_soft_reboot">Reinício suave</string>
     <string name="action_soft_reboot_summary">Reiniciar o framework sem reiniciar o telefone</string>
     <string name="action_soft_reboot_confirm">Todos os apps abertos fecham e a tela apaga por um instante. O telefone continua ligado.</string>
+    <string name="info_section_build">O que está em execução</string>
+    <string name="info_section_health">Se está funcionando</string>
+    <string name="info_section_device">Este dispositivo</string>
 </resources>

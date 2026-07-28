@@ -398,4 +398,7 @@
     <string name="action_soft_reboot">Miękki restart</string>
     <string name="action_soft_reboot_summary">Zrestartuj framework bez restartu telefonu</string>
     <string name="action_soft_reboot_confirm">Wszystkie uruchomione aplikacje zostaną zamknięte, a ekran na chwilę zgaśnie. Sam telefon pozostaje włączony.</string>
+    <string name="info_section_build">Co działa</string>
+    <string name="info_section_health">Czy działa poprawnie</string>
+    <string name="info_section_device">To urządzenie</string>
 </resources>

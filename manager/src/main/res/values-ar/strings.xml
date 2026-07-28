@@ -420,4 +420,7 @@
     <string name="action_soft_reboot">إعادة تشغيل ناعمة</string>
     <string name="action_soft_reboot_summary">إعادة تشغيل الإطار دون إعادة تشغيل الهاتف</string>
     <string name="action_soft_reboot_confirm">تُغلق كل التطبيقات العاملة وتُظلم الشاشة للحظة. الهاتف نفسه يبقى قيد التشغيل.</string>
+    <string name="info_section_build">ما الذي يعمل</string>
+    <string name="info_section_health">هل يعمل بشكل صحيح</string>
+    <string name="info_section_device">هذا الجهاز</string>
 </resources>
