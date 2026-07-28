@@ -347,8 +347,11 @@ class ModulesViewModel(
             targets.forEach { key ->
                 if (moduleRepository.toggleModule(key.packageName, enable)) changed++ else failed++
             }
-            moduleRepository.refresh()
-            loadModules()
+            // No re-read, and no rediscovery. Each toggle above already returned the daemon's own
+            // answer and the repository recorded it; asking again could only replace something
+            // confirmed with something less fresh, and a toggle changes nothing about which
+            // packages are installed. The single-module path never did either, which is why it
+            // moved the row and this one did not.
             _selection.value = emptySet()
             onResult(changed, failed)
         }

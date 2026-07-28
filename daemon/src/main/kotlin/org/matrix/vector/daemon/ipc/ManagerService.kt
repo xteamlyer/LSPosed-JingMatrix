@@ -226,7 +226,7 @@ object ManagerService : ILSPManagerService.Stub() {
         packageManager?.getInstalledPackagesFromAllUsers(flags, filterNoProcess) ?: emptyList())
   }
 
-  override fun enabledModules() = ConfigCache.state.modules.keys.toTypedArray()
+  override fun enabledModules() = ModuleDatabase.enabledModules()
 
   override fun enableModule(packageName: String) = ModuleDatabase.enableModule(packageName)
 
