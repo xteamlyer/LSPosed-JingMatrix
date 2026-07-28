@@ -17,11 +17,12 @@ import org.matrix.vector.manager.data.github.GitHubRepository
  * could reach for. This runs offline on a body already in hand.
  *
  * Deliberately a *subset*, matching what release notes actually contain: headings, lists including
- * GitHub's task lists, links, images, emphasis, inline and fenced code, block quotes, and rules.
- * Tables are the notable omission — they do not appear in this project's release notes, and a table
- * parser is a great deal of code to carry for the case that has never come up. Anything unrecognised
- * survives as its own text rather than vanishing, which is the property that matters: a reader must
- * never be shown a silently emptier release note than the one that was published.
+ * GitHub's task lists, links, images, emphasis, inline and fenced code, block quotes, rules, and
+ * GFM tables. Tables were the one omission and it showed immediately — this project's own notes use
+ * one to compare the debug and release zips, and it arrived as pipe-littered paragraphs.
+ *
+ * Anything unrecognised survives as its own text rather than vanishing, which is the property that
+ * matters: a reader must never be shown a silently emptier release note than the one published.
  */
 internal fun releaseMarkdownToHtml(markdown: String): String {
     val out = StringBuilder()
