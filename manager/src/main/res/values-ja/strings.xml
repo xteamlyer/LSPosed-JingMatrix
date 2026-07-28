@@ -366,4 +366,9 @@
     <string name="info_section_build">動作中のもの</string>
     <string name="info_section_health">正しく動いているか</string>
     <string name="info_section_device">この端末</string>
+    <string name="crash_recorded_title">マネージャーが予期せず終了しました</string>
+    <string name="crash_recorded_summary">完全なスタックトレースは、ログの書き出しの crash_manager に含まれます。</string>
+    <string name="crash_recorded_clear">破棄</string>
+    <string name="force_launcher_icons">アプリがランチャーアイコンを隠すのを防ぐ</string>
+    <string name="force_launcher_icons_summary">Android 10 以降、自分のランチャーアイコンを隠したアプリには、代わりにアプリ情報の画面を開くアイコンが与えられます。オフにすると隠れたままにできます — ランチャー側は再起動するまで古い一覧を表示し続けることがあります。もともとランチャーアイコンを持たないアプリ（ほとんどのモジュールがそうです）には影響しません。</string>
 </resources>

@@ -366,4 +366,9 @@
     <string name="info_section_build">Đang chạy những gì</string>
     <string name="info_section_health">Có hoạt động không</string>
     <string name="info_section_device">Thiết bị này</string>
+    <string name="crash_recorded_title">Trình quản lý đã đóng đột ngột</string>
+    <string name="crash_recorded_summary">Toàn bộ vết lỗi nằm trong bản xuất nhật ký, ở thư mục crash_manager.</string>
+    <string name="crash_recorded_clear">Xoá</string>
+    <string name="force_launcher_icons">Không cho ứng dụng ẩn biểu tượng trên trình khởi chạy</string>
+    <string name="force_launcher_icons_summary">Từ Android 10, ứng dụng tự ẩn biểu tượng của mình trên trình khởi chạy sẽ được cấp lại một biểu tượng mở trang thông tin ứng dụng. Tắt mục này để nó vẫn được ẩn — trình khởi chạy có thể chưa cập nhật cho tới khi nó khởi động lại. Những ứng dụng vốn không có biểu tượng khởi chạy, gồm hầu hết mô-đun, không bị ảnh hưởng.</string>
 </resources>

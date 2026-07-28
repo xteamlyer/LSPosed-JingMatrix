@@ -377,4 +377,9 @@
     <string name="info_section_build">Che cosa è in esecuzione</string>
     <string name="info_section_health">Se funziona</string>
     <string name="info_section_device">Questo dispositivo</string>
+    <string name="crash_recorded_title">Il gestore si è chiuso in modo imprevisto</string>
+    <string name="crash_recorded_summary">La traccia completa viaggia nello zip dei log, nella cartella crash_manager.</string>
+    <string name="crash_recorded_clear">Scarta</string>
+    <string name="force_launcher_icons">Impedisci alle app di nascondere la loro icona nel launcher</string>
+    <string name="force_launcher_icons_summary">Da Android 10, un\'app che nasconde la propria icona nel launcher ne riceve una che apre la sua pagina Info app. Disattiva questa opzione per lasciarla nascosta — il tuo launcher potrebbe non accorgersene finché non si riavvia. Le app che non hanno mai avuto un\'icona nel launcher, inclusa la maggior parte dei moduli, non sono interessate.</string>
 </resources>

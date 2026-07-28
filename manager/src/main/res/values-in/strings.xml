@@ -370,4 +370,9 @@
     <string name="info_section_build">Apa yang berjalan</string>
     <string name="info_section_health">Apakah berfungsi</string>
     <string name="info_section_device">Perangkat ini</string>
+    <string name="crash_recorded_title">Pengelola berhenti tak terduga</string>
+    <string name="crash_recorded_summary">Jejak lengkapnya ikut terbawa dalam ekspor log, di folder crash_manager.</string>
+    <string name="crash_recorded_clear">Buang</string>
+    <string name="force_launcher_icons">Cegah aplikasi menyembunyikan ikon launcher-nya</string>
+    <string name="force_launcher_icons_summary">Sejak Android 10, aplikasi yang menyembunyikan ikon launcher-nya sendiri diberi ikon pengganti yang membuka halaman info aplikasinya. Matikan ini agar aplikasi tersebut tetap tersembunyi — launcher Anda mungkin baru menyusul setelah dimulai ulang. Aplikasi yang memang tidak pernah punya ikon launcher, termasuk sebagian besar modul, tidak terpengaruh.</string>
 </resources>

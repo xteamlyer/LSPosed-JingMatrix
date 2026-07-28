@@ -377,4 +377,9 @@
     <string name="info_section_build">Ne çalışıyor</string>
     <string name="info_section_health">Çalışıyor mu</string>
     <string name="info_section_device">Bu cihaz</string>
+    <string name="crash_recorded_title">Yönetici beklenmedik biçimde kapandı</string>
+    <string name="crash_recorded_summary">Yığın izinin tamamı, günlük dışa aktarımında crash_manager altında yer alır.</string>
+    <string name="crash_recorded_clear">Sil</string>
+    <string name="force_launcher_icons">Uygulamaların başlatıcı simgesini gizlemesini engelle</string>
+    <string name="force_launcher_icons_summary">Android 10\'dan beri, kendi başlatıcı simgesini gizleyen bir uygulamaya, uygulama bilgisi sayfasını açan bir simge geri verilir. Gizli kalabilmesi için bunu kapatın — başlatıcınız yeniden başlatılana kadar durumu yansıtmayabilir. Hiçbir zaman başlatıcı simgesi olmamış uygulamalar, çoğu modül dahil, bundan etkilenmez.</string>
 </resources>

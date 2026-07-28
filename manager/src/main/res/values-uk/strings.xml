@@ -399,4 +399,9 @@
     <string name="info_section_build">Що запущено</string>
     <string name="info_section_health">Чи це працює</string>
     <string name="info_section_device">Цей пристрій</string>
+    <string name="crash_recorded_title">Менеджер несподівано завершив роботу</string>
+    <string name="crash_recorded_summary">Повне трасування стека потрапляє в експорт журналів, у теку crash_manager.</string>
+    <string name="crash_recorded_clear">Відкинути</string>
+    <string name="force_launcher_icons">Не дозволяти застосункам ховати свій значок у лаунчері</string>
+    <string name="force_launcher_icons_summary">Починаючи з Android 10, застосунок, який ховає свій значок у лаунчері, отримує його назад, і цей значок відкриває сторінку відомостей про застосунок. Вимкніть це, щоб значок лишався прихованим — лаунчер може оновити свій перелік лише після перезапуску. Застосунків, які ніколи не мали значка в лаунчері, зокрема більшість модулів, це не стосується.</string>
 </resources>

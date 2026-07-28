@@ -367,4 +367,9 @@
     <string name="info_section_build">正在執行</string>
     <string name="info_section_health">是否正常</string>
     <string name="info_section_device">本裝置</string>
+    <string name="crash_recorded_title">管理器意外結束</string>
+    <string name="crash_recorded_summary">完整的堆疊追蹤會隨日誌匯出一起保存，位於其中的 crash_manager 資料夾。</string>
+    <string name="crash_recorded_clear">捨棄</string>
+    <string name="force_launcher_icons">阻止應用程式隱藏自己的啟動器圖示</string>
+    <string name="force_launcher_icons_summary">自 Android 10 起，隱藏了自己啟動器圖示的應用程式會被補上一個圖示，點按它會開啟該應用程式的應用程式資訊頁面。關閉此項可讓它維持隱藏——你的啟動器可能要等重新啟動之後才會更新。本來就沒有啟動器圖示的應用程式不受影響，大多數模組都屬於此類。</string>
 </resources>

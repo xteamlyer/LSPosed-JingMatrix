@@ -399,4 +399,9 @@
     <string name="info_section_build">Co działa</string>
     <string name="info_section_health">Czy działa poprawnie</string>
     <string name="info_section_device">To urządzenie</string>
+    <string name="crash_recorded_title">Menedżer zamknął się nieoczekiwanie</string>
+    <string name="crash_recorded_summary">Pełny ślad stosu znajdziesz w pliku zip z dziennikami, w katalogu crash_manager.</string>
+    <string name="crash_recorded_clear">Odrzuć</string>
+    <string name="force_launcher_icons">Nie pozwalaj aplikacjom ukrywać ikon w launcherze</string>
+    <string name="force_launcher_icons_summary">Od wersji Android 10 aplikacja, która ukrywa własną ikonę w launcherze, dostaje z powrotem ikonę otwierającą jej stronę informacji o aplikacji. Wyłącz to, aby mogła pozostać ukryta — Twój launcher może pokazywać starą listę, dopóki się nie zrestartuje. Nie dotyczy to aplikacji, które nigdy nie miały ikony w launcherze, w tym większości modułów.</string>
 </resources>

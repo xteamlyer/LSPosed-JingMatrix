@@ -377,4 +377,9 @@
     <string name="info_section_build">چه چیزی در حال اجراست</string>
     <string name="info_section_health">آیا کار می‌کند</string>
     <string name="info_section_device">این دستگاه</string>
+    <string name="crash_recorded_title">مدیر به‌طور غیرمنتظره بسته شد</string>
+    <string name="crash_recorded_summary">رد کامل خطا در خروجی گزارش‌ها، درون پوشهٔ crash_manager، گنجانده می‌شود.</string>
+    <string name="crash_recorded_clear">دور انداختن</string>
+    <string name="force_launcher_icons">جلوگیری از پنهان کردن نماد برنامه‌ها در لانچر</string>
+    <string name="force_launcher_icons_summary">از Android 10 به بعد، برنامه‌ای که نماد خود را در لانچر پنهان می‌کند، نمادی جایگزین می‌گیرد که صفحهٔ اطلاعات برنامه را باز می‌کند. این را خاموش کنید تا پنهان بماند — شاید لانچر شما تا راه‌اندازی دوبارهٔ خودش به‌روز نشود. برنامه‌هایی که هرگز نماد لانچر نداشته‌اند، از جمله بیشتر ماژول‌ها، تحت تأثیر قرار نمی‌گیرند.</string>
 </resources>

@@ -367,4 +367,9 @@
     <string name="info_section_build">正在运行</string>
     <string name="info_section_health">是否正常</string>
     <string name="info_section_device">本设备</string>
+    <string name="crash_recorded_title">管理器意外退出</string>
+    <string name="crash_recorded_summary">完整的堆栈信息会随日志导出一起保存，位于其中的 crash_manager 文件夹。</string>
+    <string name="crash_recorded_clear">丢弃</string>
+    <string name="force_launcher_icons">阻止应用隐藏自己的桌面图标</string>
+    <string name="force_launcher_icons_summary">从 Android 10 起，隐藏了自己桌面图标的应用会被补上一个图标，点击它会打开该应用的应用信息页面。关闭此项可以让它继续保持隐藏——桌面可能要等重启之后才会更新。本来就没有桌面图标的应用不受影响，大多数模块都属于此类。</string>
 </resources>

@@ -421,4 +421,9 @@
     <string name="info_section_build">ما الذي يعمل</string>
     <string name="info_section_health">هل يعمل بشكل صحيح</string>
     <string name="info_section_device">هذا الجهاز</string>
+    <string name="crash_recorded_title">أُغلق المدير على نحو غير متوقع</string>
+    <string name="crash_recorded_summary">التتبّع الكامل يخرج ضمن ملف السجلات المُصدَّر، في مجلد crash_manager.</string>
+    <string name="crash_recorded_clear">تجاهل</string>
+    <string name="force_launcher_icons">منع التطبيقات من إخفاء أيقوناتها في المشغّل</string>
+    <string name="force_launcher_icons_summary">منذ Android 10، يستعيد التطبيق الذي يخفي أيقونته في المشغّل أيقونةً تفتح صفحة معلومات التطبيق. أوقف هذا الخيار ليبقى مخفيًا — وقد لا يلحق المشغّل بالتغيير حتى يُعاد تشغيله. أما التطبيقات التي لم تكن لها أيقونة أصلًا، ومنها معظم الوحدات، فلا يمسّها هذا.</string>
 </resources>

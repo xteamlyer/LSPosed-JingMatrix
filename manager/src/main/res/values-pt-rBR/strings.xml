@@ -377,4 +377,9 @@
     <string name="info_section_build">O que está em execução</string>
     <string name="info_section_health">Se está funcionando</string>
     <string name="info_section_device">Este dispositivo</string>
+    <string name="crash_recorded_title">O gerenciador fechou inesperadamente</string>
+    <string name="crash_recorded_summary">O rastreamento completo vai junto no zip dos registros, na pasta crash_manager.</string>
+    <string name="crash_recorded_clear">Descartar</string>
+    <string name="force_launcher_icons">Impedir que apps escondam o ícone do launcher</string>
+    <string name="force_launcher_icons_summary">Desde o Android 10, um app que esconde o próprio ícone do launcher recebe um de volta, que abre a página de informações do app. Desligue isto para deixá-lo continuar escondido — seu launcher pode seguir mostrando a lista antiga até reiniciar. Apps que nunca tiveram ícone no launcher, incluindo a maioria dos módulos, não são afetados.</string>
 </resources>

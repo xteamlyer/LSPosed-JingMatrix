@@ -377,4 +377,9 @@
     <string name="info_section_build">Was läuft</string>
     <string name="info_section_health">Ob es funktioniert</string>
     <string name="info_section_device">Dieses Gerät</string>
+    <string name="crash_recorded_title">Der Manager wurde unerwartet beendet</string>
+    <string name="crash_recorded_summary">Der vollständige Stacktrace geht im Protokoll-Export mit, unter crash_manager.</string>
+    <string name="crash_recorded_clear">Verwerfen</string>
+    <string name="force_launcher_icons">Apps daran hindern, ihr Launcher-Symbol zu verstecken</string>
+    <string name="force_launcher_icons_summary">Seit Android 10 bekommt eine App, die ihr eigenes Launcher-Symbol versteckt, eines zurück, das ihre App-Info-Seite öffnet. Schalte das aus, damit sie versteckt bleiben kann — dein Launcher merkt das womöglich erst nach einem Neustart. Apps, die nie ein Launcher-Symbol hatten, darunter die meisten Module, sind nicht betroffen.</string>
 </resources>

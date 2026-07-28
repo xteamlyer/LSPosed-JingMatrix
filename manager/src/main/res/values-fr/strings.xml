@@ -377,4 +377,9 @@
     <string name="info_section_build">Ce qui tourne</string>
     <string name="info_section_health">Si cela fonctionne</string>
     <string name="info_section_device">Cet appareil</string>
+    <string name="crash_recorded_title">Le gestionnaire s\'est arrêté de façon inattendue</string>
+    <string name="crash_recorded_summary">La trace complète est incluse dans l\'export des journaux, sous crash_manager.</string>
+    <string name="crash_recorded_clear">Effacer</string>
+    <string name="force_launcher_icons">Empêcher les applications de masquer leur icône de lancement</string>
+    <string name="force_launcher_icons_summary">Depuis Android 10, une application qui masque sa propre icône de lancement en récupère une, qui ouvre sa page d\'infos sur l\'application. Désactivez cette option pour la laisser masquée — votre lanceur ne s\'en apercevra peut-être qu\'après son redémarrage. Les applications qui n\'ont jamais eu d\'icône de lancement, dont la plupart des modules, ne sont pas concernées.</string>
 </resources>
