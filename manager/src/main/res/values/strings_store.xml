@@ -84,6 +84,7 @@
     <!-- Information tab -->
     <string name="store_info_summary">Summary</string>
     <string name="store_info_scope">Hooks</string>
+    <string name="store_info_scope_installed">Hooks, as the installed copy declares</string>
     <string name="store_info_scope_undeclared">Not declared. This module does not say which apps it hooks.</string>
     <string name="store_info_homepage">Homepage</string>
     <string name="store_info_source">Source code</string>

@@ -87,4 +87,5 @@
     <string name="store_group_channel">Канал</string>
     <string name="store_group_network">Мережа</string>
     <string name="store_doh_summary">Для мереж, які не визначають адреси дзеркал модулів.</string>
+    <string name="store_info_scope_installed">Перехоплення, за даними встановленої копії</string>
 </resources>

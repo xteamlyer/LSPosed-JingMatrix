@@ -81,4 +81,5 @@
     <string name="store_group_channel">Canal</string>
     <string name="store_group_network">Réseau</string>
     <string name="store_doh_summary">Pour les réseaux qui ne résolvent pas les miroirs de modules.</string>
+    <string name="store_info_scope_installed">Cibles, d’après la copie installée</string>
 </resources>

@@ -4,7 +4,10 @@ import kotlinx.coroutines.flow.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.matrix.vector.manager.di.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -59,6 +62,41 @@ class RepoDetailsViewModel(
     private val backgroundScope: CoroutineScope,
 ) : ViewModel() {
 
+    /**
+     * What the installed copy of this module says it hooks, read from its own APK.
+     *
+     * The catalogue's `scope` is optional metadata and most authors omit it — 510 of the 814
+     * entries served today carry none — so the information panel says "not declared" for the
+     * majority of modules. For a module that is *installed*, though, the authoritative list is
+     * right there in the APK, in `META-INF/xposed/scope.list` for a modern module or the
+     * `xposedscope` metadata for a legacy one, and this app already knows how to read it: that is
+     * how the scope editor knows what a module asked for.
+     *
+     * So the catalogue is preferred when it has an answer — it describes the *published* module
+     * rather than whichever build happens to be installed — and this fills the silence when it
+     * does not.
+     */
+    private val _installedScope = MutableStateFlow<List<String>>(emptyList())
+    val installedScope: StateFlow<List<String>> = _installedScope.asStateFlow()
+
+    private fun readInstalledScope() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val packageManager = ServiceLocator.context.packageManager
+            val info =
+                runCatching { packageManager.getPackageInfo(packageName, 0) }.getOrNull()
+                    ?: return@launch
+            val appInfo = info.applicationInfo ?: return@launch
+            val manifest =
+                ServiceLocator.moduleDetection.inspect(
+                    appInfo,
+                    packageManager,
+                    info.longVersionCode,
+                    info.lastUpdateTime,
+                )
+            _installedScope.value = manifest.scope
+        }
+    }
+
     private val _detail = MutableStateFlow<OnlineModule?>(null)
     private val _fetch = MutableStateFlow(DetailFetch.Loading)
 
@@ -96,6 +134,7 @@ class RepoDetailsViewModel(
 
     init {
         fetchDetails()
+        readInstalledScope()
     }
 
     fun fetchDetails() {

@@ -78,4 +78,5 @@
     <string name="store_group_channel">채널</string>
     <string name="store_group_network">네트워크</string>
     <string name="store_doh_summary">모듈 미러 주소를 해석하지 못하는 네트워크를 위한 설정입니다.</string>
+    <string name="store_info_scope_installed">후킹 대상, 설치된 사본 기준</string>
 </resources>

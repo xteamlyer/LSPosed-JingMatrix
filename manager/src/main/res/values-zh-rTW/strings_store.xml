@@ -78,4 +78,5 @@
     <string name="store_group_channel">通道</string>
     <string name="store_group_network">網路</string>
     <string name="store_doh_summary">適用於無法解析模組鏡像網域的網路。</string>
+    <string name="store_info_scope_installed">掛鉤目標（依已安裝的副本）</string>
 </resources>

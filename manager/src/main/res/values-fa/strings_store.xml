@@ -81,4 +81,5 @@
     <string name="store_group_channel">کانال</string>
     <string name="store_group_network">شبکه</string>
     <string name="store_doh_summary">برای شبکه‌هایی که نشانی آینه‌های ماژول را تحلیل نمی‌کنند.</string>
+    <string name="store_info_scope_installed">قلاب‌ها، بنا بر نسخهٔ نصب‌شده</string>
 </resources>

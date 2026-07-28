@@ -93,4 +93,5 @@
     <string name="store_group_channel">القناة</string>
     <string name="store_group_network">الشبكة</string>
     <string name="store_doh_summary">للشبكات التي لا تحلّ عناوين مرايا الوحدات.</string>
+    <string name="store_info_scope_installed">العناصر المُعترضة، بحسب النسخة المثبَّتة</string>
 </resources>

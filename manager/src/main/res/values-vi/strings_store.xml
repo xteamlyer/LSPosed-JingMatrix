@@ -78,4 +78,5 @@
     <string name="store_group_channel">Kênh</string>
     <string name="store_group_network">Mạng</string>
     <string name="store_doh_summary">Dành cho mạng không phân giải được máy chủ gương của mô-đun.</string>
+    <string name="store_info_scope_installed">Hook, theo bản đã cài</string>
 </resources>

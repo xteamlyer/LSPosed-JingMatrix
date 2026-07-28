@@ -81,4 +81,5 @@
     <string name="store_group_channel">Canale</string>
     <string name="store_group_network">Rete</string>
     <string name="store_doh_summary">Per le reti che non risolvono i mirror dei moduli.</string>
+    <string name="store_info_scope_installed">Hook, secondo la copia installata</string>
 </resources>

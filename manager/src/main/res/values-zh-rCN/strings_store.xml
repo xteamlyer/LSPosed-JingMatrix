@@ -78,4 +78,5 @@
     <string name="store_group_channel">通道</string>
     <string name="store_group_network">网络</string>
     <string name="store_doh_summary">适用于无法解析模块镜像域名的网络。</string>
+    <string name="store_info_scope_installed">挂钩目标（据已安装的副本）</string>
 </resources>

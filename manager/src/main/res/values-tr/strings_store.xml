@@ -81,4 +81,5 @@
     <string name="store_group_channel">Kanal</string>
     <string name="store_group_network">Ağ</string>
     <string name="store_doh_summary">Modül yansılarını çözemeyen ağlar için.</string>
+    <string name="store_info_scope_installed">Kancalar, kurulu kopyaya göre</string>
 </resources>

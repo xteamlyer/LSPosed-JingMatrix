@@ -87,4 +87,5 @@
     <string name="store_group_channel">ערוץ</string>
     <string name="store_group_network">רשת</string>
     <string name="store_doh_summary">לרשתות שלא מצליחות לפענח את כתובות מראות המודולים.</string>
+    <string name="store_info_scope_installed">ווים, לפי העותק המותקן</string>
 </resources>

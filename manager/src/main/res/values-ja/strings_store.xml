@@ -78,4 +78,5 @@
     <string name="store_group_channel">チャンネル</string>
     <string name="store_group_network">ネットワーク</string>
     <string name="store_doh_summary">モジュールのミラーを名前解決できないネットワーク向けです。</string>
+    <string name="store_info_scope_installed">フック対象（インストール済みの版による）</string>
 </resources>

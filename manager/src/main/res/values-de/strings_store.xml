@@ -81,4 +81,5 @@
     <string name="store_group_channel">Kanal</string>
     <string name="store_group_network">Netzwerk</string>
     <string name="store_doh_summary">Für Netzwerke, die die Modulspiegel nicht auflösen.</string>
+    <string name="store_info_scope_installed">Hooks, laut installierter Kopie</string>
 </resources>

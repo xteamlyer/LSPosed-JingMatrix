@@ -78,4 +78,5 @@
     <string name="store_group_channel">Kanal</string>
     <string name="store_group_network">Jaringan</string>
     <string name="store_doh_summary">Untuk jaringan yang tidak bisa me-resolve cermin modul.</string>
+    <string name="store_info_scope_installed">Hook, menurut salinan terpasang</string>
 </resources>

@@ -131,6 +131,7 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
     val viewModel: RepoDetailsViewModel =
         viewModel(factory = RepoDetailsViewModelFactory(packageName))
     val state by viewModel.state.collectAsState()
+    val installedScope by viewModel.installedScope.collectAsState()
     val install by viewModel.installState.collectAsState()
 
     val context = LocalContext.current
@@ -319,6 +320,7 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                         InformationTab(
                             module = module,
                             listState = informationScroll,
+                            installedScope = installedScope,
                             onOpenUrl = openUrl,
                         )
                 }
@@ -743,6 +745,8 @@ private fun ReleaseBadge(text: String, container: Color, content: Color) {
 private fun InformationTab(
     module: OnlineModule,
     listState: LazyListState,
+    /** What the copy on this device declares, when the catalogue declares nothing. */
+    installedScope: List<String>,
     onOpenUrl: (String) -> Unit,
 ) {
     // Hoisted: the rows below are emitted from a LazyListScope, which is not a composable.
@@ -760,11 +764,19 @@ private fun InformationTab(
         item {
             // The single most useful fact before installing anything: which apps this reaches
             // into. It is in the payload and no screen was showing it.
+            // The catalogue first, because it describes the published module. Failing that, what
+            // the installed copy declares in its own APK — accurate for the build actually on this
+            // device, and labelled as such so the two are not confused.
+            val published = module.scope?.takeIf { it.isNotEmpty() }
             InfoRow(
                 icon = Icons.Rounded.TrackChanges,
-                label = stringResource(R.string.store_info_scope),
+                label =
+                    if (published == null && installedScope.isNotEmpty())
+                        stringResource(R.string.store_info_scope_installed)
+                    else stringResource(R.string.store_info_scope),
                 value =
-                    module.scope?.takeIf { it.isNotEmpty() }?.joinToString("\n")
+                    published?.joinToString("\n")
+                        ?: installedScope.takeIf { it.isNotEmpty() }?.joinToString("\n")
                         ?: stringResource(R.string.store_info_scope_undeclared),
             )
         }
