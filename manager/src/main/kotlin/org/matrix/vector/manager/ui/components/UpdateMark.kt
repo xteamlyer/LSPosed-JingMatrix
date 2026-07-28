@@ -6,6 +6,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -58,7 +59,15 @@ fun UpdatableVersion(
 ) {
     if (text.isBlank()) return
 
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+    // Packed to the end. Callers that give this a fixed slot — the module row does, so that a long
+    // version cannot push the name — would otherwise leave it floating short of the edge every
+    // other element in the row is aligned to, which reads as a mistake rather than as a column.
+    // Where no width is imposed the row wraps its content and the arrangement costs nothing.
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         if (hasUpdate) {
             val transition = rememberInfiniteTransition(label = "update mark")
             val breath by

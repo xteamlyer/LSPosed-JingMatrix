@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Extension
-import androidx.compose.material.icons.rounded.Archive
+import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Check
@@ -35,7 +35,7 @@ import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Unarchive
+import androidx.compose.material.icons.rounded.SaveAlt
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.foundation.text.BasicTextField
@@ -503,7 +503,7 @@ private fun SelectionBar(
             )
             SelectionAction(Icons.Rounded.CheckCircle, R.string.modules_batch_enable, onEnable)
             SelectionAction(Icons.Rounded.Block, R.string.modules_batch_disable, onDisable)
-            SelectionAction(Icons.Rounded.Archive, R.string.modules_backup, onBackup)
+            SelectionAction(Icons.Rounded.SaveAlt, R.string.modules_backup, onBackup)
             SelectionAction(
                 Icons.Rounded.DeleteOutline,
                 R.string.action_uninstall,
@@ -633,21 +633,26 @@ private fun ModulesHeader(
             // Both shown rather than hidden behind an overflow. There are exactly two, they are
             // opposites, and a menu holding two items costs a tap to say what a glance could.
             //
-            // A box with an arrow going in, and one with an arrow coming out. The cloud-and-arrow
-            // that used to be here is the platform's *upload* glyph, and nothing about this
-            // uploads anywhere — the file goes wherever the document picker is pointed, usually
-            // this device. The pair also reads as a pair, which the previous one did not: a cloud
-            // and a clock are two unrelated pictures for two halves of one idea.
+            // Deliberately *not* a mirrored pair. The cloud-and-arrow that was here first is the
+            // platform's upload glyph, and nothing about this uploads anywhere — the file goes
+            // wherever the document picker is pointed, usually this device. A box with an arrow in
+            // and a box with an arrow out fixed the meaning and broke the reading: at 24dp two
+            // mirror images of the same shape are one shape, and telling them apart means stopping
+            // to work out which way the arrow points.
+            //
+            // Two different pictures instead, each naming what happens rather than its direction:
+            // save this to a file, open a file. Both are what the document picker is about to
+            // show, which is the next thing the reader will see either way.
             IconButton(onClick = onRestore) {
                 Icon(
-                    Icons.Rounded.Unarchive,
+                    Icons.Rounded.FolderOpen,
                     contentDescription = stringResource(R.string.modules_restore),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             IconButton(onClick = onBackup) {
                 Icon(
-                    Icons.Rounded.Archive,
+                    Icons.Rounded.SaveAlt,
                     contentDescription = stringResource(R.string.modules_backup),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -728,7 +733,10 @@ private fun ModuleRow(
         // brushed the list.
         Column(
             modifier = Modifier.combinedClickable(onClick = onIconClick, onLongClick = onLongClick),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            // Against the text, not centred over the badge. The badge below is wider than the icon
+            // — "Xposed 54" is — so centring left the icon a few pixels short of the edge the
+            // names and descriptions all start from, and every row in the list showed that gap.
+            horizontalAlignment = Alignment.End,
         ) {
             Box(contentAlignment = Alignment.Center) {
                 AppIcon(

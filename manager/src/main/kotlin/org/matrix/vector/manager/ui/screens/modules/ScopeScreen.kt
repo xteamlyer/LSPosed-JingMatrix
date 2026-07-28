@@ -7,8 +7,8 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.RemoveDone
-import androidx.compose.material.icons.rounded.Unarchive
-import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material.icons.rounded.FolderOpen
+import androidx.compose.material.icons.rounded.SaveAlt
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ModalBottomSheet
@@ -481,7 +481,7 @@ private fun ScopeSelectMenu(
             // screen — useful when moving one module's configuration between devices.
             SheetAction(
                 title = stringResource(R.string.scope_backup),
-                icon = Icons.Rounded.Save,
+                icon = Icons.Rounded.SaveAlt,
                 onClick = {
                     onBackup()
                     open = false
@@ -489,7 +489,7 @@ private fun ScopeSelectMenu(
             )
             SheetAction(
                 title = stringResource(R.string.scope_restore),
-                icon = Icons.Rounded.Unarchive,
+                icon = Icons.Rounded.FolderOpen,
                 onClick = {
                     onRestore()
                     open = false
