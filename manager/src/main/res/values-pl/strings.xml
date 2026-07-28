@@ -364,4 +364,5 @@
     </plurals>
     <string name="home_window_changed">Zapisana aktywność dla nowego zakresu — pociągnij, aby odświeżyć</string>
     <string name="home_history_window_end">To wszystko w tym zakresie</string>
+    <string name="update_same_number">Ten sam numer, inna kompilacja</string>
 </resources>

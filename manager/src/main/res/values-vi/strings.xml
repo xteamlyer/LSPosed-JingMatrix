@@ -331,4 +331,5 @@
     </plurals>
     <string name="home_window_changed">Đang hiện hoạt động đã lưu cho khoảng mới — kéo để làm mới</string>
     <string name="home_history_window_end">Đó là tất cả trong khoảng này</string>
+    <string name="update_same_number">Cùng số, bản dựng khác</string>
 </resources>

@@ -342,4 +342,5 @@
     </plurals>
     <string name="home_window_changed">Activité enregistrée pour la nouvelle période — tirez pour actualiser</string>
     <string name="home_history_window_end">C’est tout pour cette période</string>
+    <string name="update_same_number">Même numéro, autre version</string>
 </resources>

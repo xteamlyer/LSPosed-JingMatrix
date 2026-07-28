@@ -345,4 +345,5 @@
     </plurals>
     <string name="home_window_changed">Показана сохранённая активность за новый период — потяните, чтобы обновить</string>
     <string name="home_history_window_end">Это всё за этот период</string>
+    <string name="update_same_number">Тот же номер, другая сборка</string>
 </resources>

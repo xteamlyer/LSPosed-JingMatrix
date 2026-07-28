@@ -342,4 +342,5 @@
     </plurals>
     <string name="home_window_changed">Yeni aralık için kayıtlı etkinlik gösteriliyor — yenilemek için çekin</string>
     <string name="home_history_window_end">Bu aralıktaki her şey bu kadar</string>
+    <string name="update_same_number">Aynı numara, farklı yapı</string>
 </resources>

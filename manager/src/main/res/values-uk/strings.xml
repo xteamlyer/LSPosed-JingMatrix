@@ -364,4 +364,5 @@
     </plurals>
     <string name="home_window_changed">Показано збережену активність за новий період — потягніть, щоб оновити</string>
     <string name="home_history_window_end">Це все за цей період</string>
+    <string name="update_same_number">Той самий номер, інша збірка</string>
 </resources>

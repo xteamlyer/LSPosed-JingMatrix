@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import org.matrix.vector.manager.data.repository.FrameworkUpdateState
 import org.matrix.vector.manager.data.repository.divergesFrom
 import androidx.compose.foundation.clickable
 import org.matrix.vector.manager.ui.theme.currentLocale
@@ -113,7 +114,7 @@ fun FrameworkUpdateScreen(
     if (versionsOpen) {
         VersionsSheet(
             history = update.history,
-            installedVersionCode = update.installedVersionCode,
+            update = update,
             selected = selected,
             onSelect = viewModel::select,
             onDismiss = { versionsOpen = false },
@@ -550,12 +551,18 @@ private fun VariantPicker(
  * The installed build is marked rather than hidden: it is the reference point every other row is
  * read against, and removing it would leave the reader counting positions to work out where they
  * are.
+ *
+ * "Installed" is decided by the same rule the screen above uses, not by the version number alone.
+ * That number is `git rev-list --count`, so a build from a branch and a build from master at the
+ * same depth wear it identically, and a locally-built one may not come from any published commit at
+ * all. Marking on the number put a confident "Installed" against a row the panel two lines up was
+ * calling divergent — one screen contradicting itself, which is worse than either answer.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VersionsSheet(
     history: List<FrameworkRelease>,
-    installedVersionCode: Long,
+    update: FrameworkUpdateState,
     selected: FrameworkRelease?,
     onSelect: (FrameworkRelease) -> Unit,
     onDismiss: () -> Unit,
@@ -569,8 +576,12 @@ private fun VersionsSheet(
             Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
                 SheetHeading(stringResource(R.string.update_versions), Icons.Rounded.History)
                 history.forEach { release ->
-                    val installed = release.versionCode == installedVersionCode
-                    val older = release.versionCode < installedVersionCode
+                    val sameNumber = release.versionCode == update.installedVersionCode
+                    // A build that carries this number but was not made from this release: another
+                    // branch, or a working tree with changes in it.
+                    val diverged = sameNumber && update.divergesFrom(release)
+                    val installed = sameNumber && !diverged
+                    val older = release.versionCode < update.installedVersionCode
                     ListItem(
                         modifier =
                             Modifier.clickable {
@@ -602,6 +613,9 @@ private fun VersionsSheet(
                                 tint =
                                     when {
                                         installed -> colors.primary
+                                        // Not filled and not the accent: this row is where the
+                                        // reader *appears* to be and is not.
+                                        diverged -> colors.tertiary
                                         release.versionCode == selected?.versionCode ->
                                             colors.onSurface
                                         else -> colors.outline
@@ -612,6 +626,7 @@ private fun VersionsSheet(
                             val label =
                                 when {
                                     installed -> stringResource(R.string.update_installed)
+                                    diverged -> stringResource(R.string.update_same_number)
                                     older -> stringResource(R.string.update_older)
                                     else -> null
                                 }
@@ -620,7 +635,11 @@ private fun VersionsSheet(
                                     label,
                                     style = MaterialTheme.typography.labelSmall,
                                     color =
-                                        if (installed) colors.primary else colors.onSurfaceVariant,
+                                        when {
+                                            installed -> colors.primary
+                                            diverged -> colors.tertiary
+                                            else -> colors.onSurfaceVariant
+                                        },
                                 )
                             }
                         },

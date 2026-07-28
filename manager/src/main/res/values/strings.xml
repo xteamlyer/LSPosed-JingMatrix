@@ -370,6 +370,7 @@
     <string name="update_variant_debug_why">Verbose logging, for a bug report</string>
     <string name="update_versions">All versions</string>
     <string name="update_installed">Installed</string>
+    <string name="update_same_number">Same number, other build</string>
     <string name="update_older">Older</string>
     <string name="update_rollback">Roll back</string>
     <string name="update_reinstall">Reinstall</string>

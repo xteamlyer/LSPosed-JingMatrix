@@ -368,4 +368,5 @@
     </plurals>
     <string name="home_window_changed">מוצגת פעילות שמורה לטווח החדש — משכו לרענון</string>
     <string name="home_history_window_end">זה הכול בטווח הזה</string>
+    <string name="update_same_number">אותו מספר, גרסה אחרת</string>
 </resources>

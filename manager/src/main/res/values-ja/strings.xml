@@ -331,4 +331,5 @@
     </plurals>
     <string name="home_window_changed">新しい期間の保存済みアクティビティを表示中 — 引いて更新</string>
     <string name="home_history_window_end">この期間はこれで全部です</string>
+    <string name="update_same_number">同じ番号、別のビルド</string>
 </resources>
