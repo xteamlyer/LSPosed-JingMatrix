@@ -257,6 +257,6 @@
     <string name="language_system_summary">使用手机设置的语言</string>
 
     <string name="language_translated_by">翻译：%1$s</string>
+    <string name="language_help_short">翻译</string>
     <string name="language_help">帮助翻译 Vector</string>
-    <string name="language_help_summary">任何语言、任意数量——哪怕只译几条也有帮助</string>
 </resources>

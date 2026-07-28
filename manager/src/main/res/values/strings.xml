@@ -300,6 +300,6 @@
     <string name="language_system_summary">Follow the language your phone is set to</string>
 
     <string name="language_translated_by">Translated by %1$s</string>
+    <string name="language_help_short">Translate</string>
     <string name="language_help">Help translate Vector</string>
-    <string name="language_help_summary">Any language, any amount — even a few strings help</string>
 </resources>

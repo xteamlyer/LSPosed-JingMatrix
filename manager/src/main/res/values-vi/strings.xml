@@ -256,6 +256,6 @@
     <string name="language_system_summary">Dùng ngôn ngữ đã đặt trên điện thoại</string>
 
     <string name="language_translated_by">Dịch bởi %1$s</string>
+    <string name="language_help_short">Dịch</string>
     <string name="language_help">Giúp dịch Vector</string>
-    <string name="language_help_summary">Ngôn ngữ nào cũng được, dù chỉ vài dòng</string>
 </resources>

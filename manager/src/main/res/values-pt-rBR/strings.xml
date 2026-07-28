@@ -267,6 +267,6 @@
     <string name="language_system_summary">Seguir o idioma configurado no telefone</string>
 
     <string name="language_translated_by">Traduzido por %1$s</string>
+    <string name="language_help_short">Traduzir</string>
     <string name="language_help">Ajude a traduzir o Vector</string>
-    <string name="language_help_summary">Qualquer idioma, qualquer quantidade — algumas linhas já ajudam</string>
 </resources>

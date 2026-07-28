@@ -256,6 +256,6 @@
     <string name="language_system_summary">端末で設定されている言語に従います</string>
 
     <string name="language_translated_by">翻訳：%1$s</string>
+    <string name="language_help_short">翻訳</string>
     <string name="language_help">Vector の翻訳に参加する</string>
-    <string name="language_help_summary">どの言語でも、少しだけでも助かります</string>
 </resources>

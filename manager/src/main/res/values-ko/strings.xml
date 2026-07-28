@@ -256,6 +256,6 @@
     <string name="language_system_summary">휴대전화에 설정된 언어를 따릅니다</string>
 
     <string name="language_translated_by">번역: %1$s</string>
+    <string name="language_help_short">번역</string>
     <string name="language_help">Vector 번역에 참여하기</string>
-    <string name="language_help_summary">어떤 언어든, 몇 줄이라도 도움이 됩니다</string>
 </resources>

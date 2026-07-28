@@ -289,6 +289,6 @@
     <string name="language_system_summary">Використовувати мову, налаштовану на телефоні</string>
 
     <string name="language_translated_by">Переклад: %1$s</string>
+    <string name="language_help_short">Перекласти</string>
     <string name="language_help">Допомогти з перекладом Vector</string>
-    <string name="language_help_summary">Будь-яка мова, будь-який обсяг — навіть кілька рядків стануть у пригоді</string>
 </resources>

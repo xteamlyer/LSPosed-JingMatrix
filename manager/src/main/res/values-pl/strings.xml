@@ -289,6 +289,6 @@
     <string name="language_system_summary">Używaj języka ustawionego w telefonie</string>
 
     <string name="language_translated_by">Tłumaczenie: %1$s</string>
+    <string name="language_help_short">Tłumacz</string>
     <string name="language_help">Pomóż tłumaczyć Vectora</string>
-    <string name="language_help_summary">Dowolny język, nawet kilka tekstów pomaga</string>
 </resources>

@@ -267,6 +267,6 @@
     <string name="language_system_summary">هماهنگ با زبانی که روی گوشی تنظیم شده است</string>
 
     <string name="language_translated_by">ترجمه: %1$s</string>
+    <string name="language_help_short">ترجمه</string>
     <string name="language_help">در ترجمهٔ Vector کمک کنید</string>
-    <string name="language_help_summary">هر زبانی، به هر اندازه — حتی چند رشته هم کمک است</string>
 </resources>

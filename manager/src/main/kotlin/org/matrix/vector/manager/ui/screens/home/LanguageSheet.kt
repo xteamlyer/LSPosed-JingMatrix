@@ -1,5 +1,7 @@
 package org.matrix.vector.manager.ui.screens.home
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import org.matrix.vector.manager.ui.theme.translatorsFor
 import org.matrix.vector.manager.ui.theme.Translator
 import org.matrix.vector.manager.ui.theme.CROWDIN_URL
@@ -91,8 +93,13 @@ fun LanguageSheet(onOpen: (String) -> Unit, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
 LocalizedOverlay {
 
+        // Title and invitation on one line. They were two rows, each carrying the same Translate
+        // glyph forty dp apart, and the invitation — a two-line list item — outweighed the sheet's
+        // own title. Worse, at the half-height rest it spent two of the five visible rows before
+        // the reader reached a single language. One row keeps it permanently visible at any sheet
+        // height and gives the list its space back.
         Row(
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 16.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -107,32 +114,25 @@ LocalizedOverlay {
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
+            )
+            val invitation = stringResource(R.string.language_help)
+            AssistChip(
+                onClick = { onOpen(CROWDIN_URL) },
+                label = { Text(stringResource(R.string.language_help_short)) },
+                trailingIcon = {
+                    Icon(
+                        Icons.AutoMirrored.Rounded.OpenInNew,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+                // The chip is short so it fits beside the title in every language; the full
+                // sentence is what a screen reader should hear, because "Translate" on its own
+                // could as easily mean translating something *in* the app.
+                modifier = Modifier.semantics { contentDescription = invitation },
             )
         }
-
-        // Docked under the title rather than sitting at the end of the list. At the end it was
-        // only reachable by scrolling past nineteen languages, and a bottom dock is not available
-        // to us: the sheet rests at half height, so the foot of its content is off-screen exactly
-        // when the list is longest. Under the heading it is visible at every height the sheet has.
-        ListItem(
-            modifier = Modifier.clickable { onOpen(CROWDIN_URL) },
-            headlineContent = { Text(stringResource(R.string.language_help)) },
-            supportingContent = { Text(stringResource(R.string.language_help_summary)) },
-            leadingContent = {
-                Icon(
-                    Icons.Rounded.Translate,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            },
-            trailingContent = {
-                Icon(
-                    Icons.AutoMirrored.Rounded.OpenInNew,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-        )
         HorizontalDivider(Modifier.padding(horizontal = 24.dp, vertical = 4.dp))
 
         LazyColumn(Modifier.padding(bottom = 24.dp)) {
