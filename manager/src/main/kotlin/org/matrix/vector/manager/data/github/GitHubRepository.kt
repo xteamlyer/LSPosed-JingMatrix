@@ -33,6 +33,30 @@ class GitHubRepository(
     private val peopleFile = File(cacheDir, "github_people.json")
 
     /**
+     * The stars, forks and licence, in a file of their own.
+     *
+     * They used to live inside the feed snapshot, which is why they kept disappearing: the feed is
+     * rewritten on every successful commit fetch, and the repo comes from a *separate* request that
+     * fails independently — so one rate-limited hour replaced a perfectly good answer with nothing,
+     * and every later launch wrote the nothing back. Merging on write fixed that particular loss,
+     * but it left the answer hostage to a file that something else owns and rewrites constantly.
+     *
+     * Kept apart, they can only be replaced by an actual answer to the question they came from.
+     * Nothing else writes here, so nothing else can lose them. They are also the slowest-changing
+     * thing on the screen — a star count from yesterday is not wrong in any way a reader cares
+     * about — so serving a stale one indefinitely is the correct behaviour, not a fallback.
+     */
+    private val repoFile = File(cacheDir, "github_repo.json")
+
+    private fun readRepo(): GhRepo? =
+        runCatching { json.decodeFromString<GhRepo>(repoFile.readText()) }.getOrNull()
+
+    private fun writeRepo(repo: GhRepo?) {
+        if (repo == null) return
+        runCatching { repoFile.writeText(json.encodeToString(repo)) }
+    }
+
+    /**
      * Names we have already tried to resolve to a GitHub account, and what came back.
      *
      * A null value is a remembered *failure*: it is as worth keeping as a success, because the
@@ -87,7 +111,8 @@ class GitHubRepository(
                 // straight through erased a perfectly good cached answer — the footer disappeared
                 // and stayed disappeared, because every later launch overwrote it again. A field
                 // this fetch could not answer keeps the last answer that was.
-                val repo = fresh.repo ?: previous?.repo
+                writeRepo(fresh.repo)
+                val repo = fresh.repo ?: readRepo() ?: previous?.repo
                 val total = if (fresh.totalCommits > 0) fresh.totalCommits else previous?.totalCommits ?: 0L
                 runCatching {
                     snapshotFile.writeText(
@@ -123,7 +148,9 @@ class GitHubRepository(
                     )
             build(
                 cached.commits,
-                cached.repo,
+                // Its own file first: the feed snapshot's copy is a historical accident and may
+                // predate the split, or have been nulled by the bug that prompted it.
+                readRepo() ?: cached.repo,
                 windowStart,
                 fromCache = true,
                 offline = freshness != Freshness.Cached,
