@@ -231,11 +231,45 @@ class MatrixRenderer : AmbienceRenderer {
      * any screen, and multiplicative so it is as easy to slow a fast rain as to speed a slow one.
      */
     override fun onDrag(pan: Offset, at: Offset, size: Size) {
-        if (size.height <= 0f) return
+        if (size.height <= 0f || size.width <= 0f) return
+
+        // Sideways reshuffles, downwards changes the speed, and the two do not fight because each
+        // reads only its own axis. A drag is almost never purely one or the other, so the vertical
+        // component is ignored while the finger is clearly travelling sideways: without that, every
+        // reshuffle also shoved the speed somewhere the reader did not ask for.
+        val sideways = abs(pan.x) > abs(pan.y) * 1.5f
+        if (sideways) {
+            swipedX += pan.x / size.width
+            if (abs(swipedX) >= RESHUFFLE_FRACTION) {
+                swipedX = 0f
+                reshuffle(size)
+            }
+            return
+        }
+
         val delta = pan.y / size.height
         if (abs(delta) < 0.0005f) return
         speed *= 1f + delta * 1.6f
     }
+
+    /**
+     * A fresh fall: same alphabet, new arrangement.
+     *
+     * Not a reset — the speed, the zoom and the chosen alphabet are the reader's settings and
+     * survive. What changes is the thing that cannot be chosen: which lanes are busy, how long the
+     * streams are, where each one happens to be. A rain that has been watched for a while settles
+     * into a recognisable pattern, and this is the way to ask for another one.
+     *
+     * The heads start above the top rather than at their old positions, so the new fall arrives
+     * from off-screen instead of appearing mid-air.
+     */
+    private fun reshuffle(size: Size) {
+        columns.clear()
+        repeat(52) { columns += newColumn(size) }
+    }
+
+    /** How much of the width a sideways drag must cover before the rain is redrawn. */
+    private var swipedX = 0f
 
     /** Where a column lands on screen. Lanes are fixed; only the glyphs on them change size. */
     private fun screenX(column: Column, size: Size): Float = column.lane * size.width
@@ -305,6 +339,9 @@ class MatrixRenderer : AmbienceRenderer {
     private companion object {
         const val MIN_SCALE = 0.45f
         const val MAX_SCALE = 3.5f
+        /** A quarter of the width: past a flick, short of a deliberate sweep. */
+        const val RESHUFFLE_FRACTION = 0.25f
+
         const val MIN_SPEED = 0.15f
         const val MAX_SPEED = 6f
     }

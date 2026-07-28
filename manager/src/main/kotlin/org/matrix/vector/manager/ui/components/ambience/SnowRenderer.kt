@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -31,6 +32,10 @@ class SnowRenderer : AmbienceRenderer {
         const val BASE_FLAKES = 22
         const val MIN_SCALE = 0.4f
         const val MAX_SCALE = 3f
+
+        /** Slow enough to read as almost-still air; fast enough to read as a squall. */
+        const val MIN_SPEED = 0.2f
+        const val MAX_SPEED = 5f
     }
 
     private class Flake(
@@ -84,6 +89,29 @@ class SnowRenderer : AmbienceRenderer {
             field = value.coerceIn(MIN_SCALE, MAX_SCALE)
         }
 
+    /**
+     * How hard it is snowing, on the same vertical drag the code rain uses.
+     *
+     * The same gesture in the same place should mean the same thing whichever ambience is on, and
+     * "how fast is this moving" is the one question every moving render can answer. Snow reads it
+     * as weather: slowed right down it is the still air after a fall, pushed up it is a squall.
+     *
+     * The floor is above zero on purpose. A snowfall frozen mid-air reads as a rendering fault
+     * rather than as a setting, and there is already a way to have no motion at all — the ambience
+     * picker.
+     */
+    override var speed: Float = 1f
+        set(value) {
+            field = value.coerceIn(MIN_SPEED, MAX_SPEED)
+        }
+
+    override fun onDrag(pan: Offset, at: Offset, size: Size) {
+        if (size.height <= 0f) return
+        val delta = pan.y / size.height
+        if (abs(delta) < 0.0005f) return
+        speed *= 1f + delta * 1.6f
+    }
+
     private fun target(): Int = (BASE_FLAKES / scale).roundToInt().coerceIn(6, 90)
 
     private fun seed(size: Size) {
@@ -121,10 +149,12 @@ class SnowRenderer : AmbienceRenderer {
             if (flake.growth < 1f) {
                 flake.growth = (flake.growth + dt / growMs).coerceAtMost(1f)
             }
-            flake.angle += flake.spin * seconds
+            flake.angle += flake.spin * seconds * speed
             val sway = sin(clock / 1000f * flake.swayRate + flake.swayPhase) * size.width * 0.010f
-            flake.x += sway * seconds
-            flake.y += flake.fallSpeed * seconds * flake.growth
+            // Sway and spin scale with the fall as well: a crystal that drifts and turns at full
+            // rate while descending slowly does not read as slow snow, it reads as broken snow.
+            flake.x += sway * seconds * speed
+            flake.y += flake.fallSpeed * seconds * flake.growth * speed
 
             if (flake.y - flake.fullRadius > size.height) {
                 flake.y = -flake.fullRadius
@@ -135,10 +165,13 @@ class SnowRenderer : AmbienceRenderer {
         }
 
         shards.forEach { shard ->
+            // The debris of a burst crystal ages in real time whatever the speed — its lifetime is
+            // how long the reader gets to watch it come apart, which is not a property of the
+            // weather.
             shard.age += dt
-            shard.x += shard.vx * seconds
-            shard.y += shard.vy * seconds
-            shard.angle += shard.spin * seconds
+            shard.x += shard.vx * seconds * speed
+            shard.y += shard.vy * seconds * speed
+            shard.angle += shard.spin * seconds * speed
         }
         shards.removeAll { it.age > shardLifeMs }
     }
