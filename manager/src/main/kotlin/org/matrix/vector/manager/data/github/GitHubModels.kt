@@ -20,7 +20,21 @@ data class GhCommit(
     @SerialName("html_url") val htmlUrl: String? = null,
 )
 
-@Serializable data class GhCommitDetail(val message: String, val author: GhCommitAuthor)
+@Serializable
+data class GhCommitDetail(
+    val message: String,
+    val author: GhCommitAuthor,
+    /**
+     * When the commit landed, as opposed to when it was written.
+     *
+     * The two differ on 39 of the newest 100 commits here, by up to four days — anything rebased,
+     * cherry-picked or merged from a branch that sat for a while. It matters because `since` and
+     * `until` filter on *this* date, so it is the only correct cursor for walking history
+     * backwards. Walking on the author date would step past commits written before the boundary
+     * but landed after it, and lose them silently.
+     */
+    val committer: GhCommitAuthor? = null,
+)
 
 @Serializable
 data class GhCommitAuthor(
@@ -165,12 +179,41 @@ data class CommunityFeed(
      * from a genuinely empty result, and the page claims "no commits" before it has looked.
      */
     val loaded: Boolean = false,
+    /**
+     * True while the archive has not yet been walked back as far as this window reaches.
+     *
+     * The distinction the feed's foot depends on: more to fetch means an invitation to keep
+     * scrolling, nothing more to fetch means the rail has genuinely reached the first commit and
+     * says so.
+     */
+    val hasMoreHistory: Boolean = false,
 ) {
     val commitCount: Int
         get() = commits.size
 
     val isEmpty: Boolean
         get() = commits.isEmpty()
+
+    /**
+     * The same feed narrowed to the commits [logins] took part in.
+     *
+     * Co-authorship counts, which is the whole point of filtering here rather than linking out to
+     * GitHub's author filter: GitHub's own view is by *author*, so a contribution that landed under
+     * a maintainer's name with the contributor credited in a trailer does not appear under the
+     * contributor at all. Here it does, because the rail already knows every name on a commit.
+     *
+     * Only the commits are narrowed. The contributor row is the control — filtering it by its own
+     * selection would remove the people you would need to tap to change it.
+     */
+    fun filteredBy(logins: Set<String>): CommunityFeed =
+        if (logins.isEmpty()) this
+        else
+            copy(
+                commits =
+                    commits.filter { commit ->
+                        commit.authors.any { it.login.lowercase() in logins }
+                    }
+            )
 }
 
 // --- CI builds ------------------------------------------------------------------------------

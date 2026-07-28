@@ -48,6 +48,21 @@ class GitHubRepository(
      */
     private val repoFile = File(cacheDir, "github_repo.json")
 
+    /**
+     * The whole history, once it has been walked.
+     *
+     * Separate from the feed snapshot on purpose: the snapshot is one window's worth and is
+     * replaced wholesale, while this only ever grows. See [CommitArchive] for why it is
+     * append-only and keyed by SHA.
+     */
+    private val archive by lazy {
+        CommitArchive(
+            File(cacheDir, "github_history.ndjson"),
+            File(cacheDir, "github_history_state.json"),
+            json,
+        )
+    }
+
     private fun readRepo(): GhRepo? =
         runCatching { json.decodeFromString<GhRepo>(repoFile.readText()) }.getOrNull()
 
@@ -93,10 +108,10 @@ class GitHubRepository(
     suspend fun load(freshness: Freshness = Freshness.Revalidate): CommunityFeed =
         withContext(Dispatchers.IO) {
             // Zero means "as far back as there is", which is a different question from "how many
-            // months". The commit request is a single page of 100 — there is no pagination here —
-            // so an unbounded window does not mean thousands of requests; it means the newest
-            // hundred, however far back that reaches. The line under the feed says which date that
-            // turned out to be, rather than claiming the project began there.
+            // months". Either way this call fetches exactly one page — the newest hundred — and the
+            // rest of history comes from [archive], which [backfill] fills in a few pages at a time
+            // across sessions. The line under the feed says how far back the answer actually
+            // reaches, rather than claiming the project began there.
             val months = windowMonthsProvider().coerceIn(0, 60)
             val windowStart =
                 if (months == 0) 0L
@@ -112,6 +127,9 @@ class GitHubRepository(
                 // and stayed disappeared, because every later launch overwrote it again. A field
                 // this fetch could not answer keeps the last answer that was.
                 writeRepo(fresh.repo)
+                // The head window is the mutable part of history — it can be amended or rebased —
+                // so it is appended every time and the duplicates resolved on read.
+                archive.append(fresh.rawCommits)
                 val repo = fresh.repo ?: readRepo() ?: previous?.repo
                 val total = if (fresh.totalCommits > 0) fresh.totalCommits else previous?.totalCommits ?: 0L
                 runCatching {
@@ -120,7 +138,7 @@ class GitHubRepository(
                     )
                 }
                 return@withContext build(
-                    fresh.rawCommits,
+                    timeline(fresh.rawCommits, windowStart),
                     repo,
                     windowStart,
                     fromCache = false,
@@ -147,7 +165,7 @@ class GitHubRepository(
                         loaded = true,
                     )
             build(
-                cached.commits,
+                timeline(cached.commits, windowStart),
                 // Its own file first: the feed snapshot's copy is a historical accident and may
                 // predate the split, or have been nulled by the bug that prompted it.
                 readRepo() ?: cached.repo,
@@ -161,6 +179,182 @@ class GitHubRepository(
                 totalCommits = cached.totalCommits,
             )
         }
+
+    /**
+     * The commits the feed should render, from the archive where it reaches and [fallback] where it
+     * does not.
+     *
+     * Both sources are used rather than one: the archive is authoritative — it is the only thing
+     * that reaches past the newest hundred — but it lives in the cache directory and can be cleared
+     * out from under us at any moment, in which case the page must still show what it just fetched
+     * rather than nothing. Merging by SHA makes the overlap between them free.
+     *
+     * The window is applied here, at the end, so it is a view of the archive rather than a limit on
+     * what is kept. Narrowing the window is then instant and costs no request, and widening it
+     * later finds the history already on disk.
+     */
+    private fun timeline(fallback: List<GhCommit>, windowStart: Long): List<GhCommit> {
+        val merged = LinkedHashMap<String, GhCommit>()
+        fallback.forEach { merged[it.sha] = it }
+        archive.read().forEach { merged[it.sha] = it }
+        val all = merged.values.sortedByDescending { it.commit.author.date }
+        // Learned from the whole archive, not from the window, so a co-author trailer in a recent
+        // commit can be resolved by an attribution GitHub made three years ago.
+        identities = identityIndex(all)
+        return if (windowStart <= 0) all
+        else all.filter { parseIso8601(it.commit.author.date) >= windowStart }
+    }
+
+    /**
+     * Addresses and names that GitHub has already told us belong to an account.
+     *
+     * The problem this solves is co-author trailers. `Co-authored-by: Someone <someone@gmail.com>`
+     * carries no account, and there is no API that turns an address into one — the users search
+     * endpoint deliberately refuses to index email addresses, and answers `total_count: 0` for a
+     * `@users.noreply.github.com` one no matter how it is phrased. So the address either resolves
+     * from something already in hand or it does not resolve at all.
+     *
+     * Something already in hand is exactly what the archive is. Every commit carries both the git
+     * identity that wrote it — name and email — and, when GitHub could match that identity to an
+     * account, the account itself. Every such commit is therefore a verified email-to-login pair,
+     * published by the only party in a position to know. Someone who co-authored one commit has
+     * very often authored another; indexing the pairs makes the second commit answer the first.
+     *
+     * The cost is one pass over a list already in memory, and no request at all. Names are indexed
+     * too, one tier weaker: a display name is not unique and is claimed first-wins, which is the
+     * right trade for a credit line but would not be for anything that mattered more.
+     */
+    private fun identityIndex(commits: List<GhCommit>): Map<String, CommitPerson> {
+        val index = HashMap<String, CommitPerson>()
+        commits.forEach { c ->
+            val user = c.author ?: return@forEach
+            val person =
+                CommitPerson(
+                    login = user.login,
+                    avatarUrl = user.avatarUrl,
+                    profileUrl = user.htmlUrl,
+                    isBot = user.type == "Bot" || user.login.endsWith("[bot]"),
+                )
+            c.commit.author.email.lowercase().takeIf { it.isNotEmpty() }?.let {
+                index.putIfAbsent(it, person)
+            }
+            c.commit.author.name.lowercase().takeIf { it.isNotEmpty() }?.let {
+                index.putIfAbsent(it, person)
+            }
+        }
+        return index
+    }
+
+    /** Rebuilt on every load from the archive; empty until the first one. */
+    @Volatile private var identities: Map<String, CommitPerson> = emptyMap()
+
+    /**
+     * Walks the history backwards, a page at a time, and stops.
+     *
+     * ## The algorithm
+     *
+     * The cursor is the commit date of the oldest commit held, and each request asks for commits at
+     * or before it — `until=`, not `page=`. Page numbers are the obvious choice and the wrong one:
+     * they are relative to the tip, so a single new commit landing mid-walk shifts every boundary
+     * and silently skips or repeats a page. A date is absolute. The cost of that choice is that
+     * the boundary commit comes back again on the next request, which is harmless because the
+     * archive is keyed by SHA.
+     *
+     * The *commit* date, not the author date, because that is what `until` filters on and the two
+     * are not the same — 39 of the newest hundred commits here differ, by up to four days. A cursor
+     * on the author date would ask for commits before a moment that had already passed for some of
+     * them, and they would never be seen again.
+     *
+     * A date cursor has one failure mode, and this repository has it. Squashes and imports stamp
+     * many commits with the same second — 100+ of these share `2023-02-26T08:48:49Z` — and a plateau
+     * wider than one page is a wall the cursor cannot climb: every request returns the same hundred,
+     * and the walk stops a fifth of the way through history believing it is done. So when a page
+     * fails to move the cursor, the walk pages by number *within that timestamp* until it does.
+     * Numbered paging is safe in exactly this position and nowhere else: the window is anchored by
+     * an `until` in the past, so commits landing now fall outside it and cannot shift it.
+     *
+     * Completion is an *empty* page, and nothing weaker. "Nothing new in this page" is what the
+     * plateau produces on every request, and reading it as the end was precisely the bug; "fewer
+     * than a hundred" is what a shared boundary second produces legitimately.
+     *
+     * ## Why it stops early
+     *
+     * An anonymous client gets sixty requests an hour and a few thousand commits is thirty of them.
+     * So this fetches a handful of pages and returns, leaving the cursor on disk for the next call
+     * — from the next launch, or from the reader scrolling towards the end of the list. A history
+     * that assembles over a few sessions is fine; one that spends someone's entire rate limit in a
+     * single launch, and then leaves the store empty for an hour, is not.
+     *
+     * Returns the number of commits genuinely new to the archive.
+     */
+    suspend fun backfill(maxPages: Int = 3): Int =
+        withContext(Dispatchers.IO) {
+            var state = archive.state()
+            if (state.complete) return@withContext 0
+
+            val known = archive.read()
+            val seen = known.mapTo(mutableSetOf()) { it.sha }
+            var cursor =
+                state.oldestSeenEpochSeconds.takeIf { it > 0 }
+                    ?: known.minOfOrNull { cursorDateOf(it) }
+                    ?: return@withContext 0
+            var page = state.pageWithinCursor.coerceAtLeast(1)
+
+            var added = 0
+            repeat(maxPages) {
+                val batch =
+                    runCatching {
+                            get(
+                                "$API/$REPO/commits?until=${iso8601(cursor)}&per_page=100&page=$page",
+                                Freshness.Revalidate,
+                            )
+                                ?.let { json.decodeFromString<List<GhCommit>>(it) }
+                        }
+                        .getOrNull()
+                // A refused or failed request is not the end of history. Leaving `complete` false
+                // means the next call tries again rather than declaring the archive finished
+                // because GitHub was rate limiting at the time.
+                if (batch == null) return@repeat
+
+                if (batch.isEmpty()) {
+                    state = state.copy(complete = true)
+                    archive.writeState(state)
+                    archive.compactIfWasteful()
+                    return@withContext added
+                }
+
+                val fresh = batch.filterNot { it.sha in seen }
+                if (fresh.isNotEmpty()) {
+                    archive.append(fresh)
+                    fresh.forEach { seen += it.sha }
+                    added += fresh.size
+                }
+
+                // Whether the cursor can move is decided by the whole page, not by the new part of
+                // it: inside a plateau every commit is already known and the oldest date is
+                // unchanged, which is exactly the case the page number exists to get past.
+                val oldest = batch.minOf { cursorDateOf(it) }
+                if (oldest < cursor) {
+                    cursor = oldest
+                    page = 1
+                } else {
+                    page++
+                }
+                state =
+                    state.copy(
+                        oldestSeenEpochSeconds = cursor,
+                        pageWithinCursor = page,
+                        pagesFetched = state.pagesFetched + 1,
+                    )
+                archive.writeState(state)
+            }
+            archive.compactIfWasteful()
+            added
+        }
+
+    /** The date `until` understands: when the commit landed, falling back to when it was written. */
+    private fun cursorDateOf(commit: GhCommit): Long =
+        parseIso8601(commit.commit.committer?.date ?: commit.commit.author.date)
 
     /**
      * What the feed file holds.
@@ -352,6 +546,14 @@ class GitHubRepository(
             fromCache = fromCache,
             offline = offline,
             loaded = true,
+            // Two ways the window can be under-served, and both mean "keep walking": an unbounded
+            // window is never covered until history runs out, and a bounded one is uncovered while
+            // the oldest commit in hand is still newer than its start — which happens whenever the
+            // window holds more than the hundred commits a single request returns.
+            hasMoreHistory =
+                !archive.state().complete &&
+                    (windowStart <= 0 ||
+                        (commits.minOfOrNull { it.epochSeconds } ?: 0L) > windowStart),
         )
     }
 
@@ -360,8 +562,9 @@ class GitHubRepository(
      *
      * When the address is a GitHub noreply one the login is exactly the local part, and the
      * numeric prefix — `44231502+byemaxx@users.noreply.github.com` — is the user id, which yields
-     * the real avatar. Otherwise all that is known is the name the person signed with, and they
-     * are shown under it with a monogram rather than being dropped.
+     * the real avatar. Otherwise [identityIndex] is asked whether this project has seen the address
+     * attributed before, which resolves most of the rest for free. Only when all of that fails is
+     * the person shown under the name they signed with, with a monogram rather than being dropped.
      */
     private fun coAuthors(message: String, freshness: Freshness): List<CommitPerson> =
         CO_AUTHOR.findAll(message)
@@ -371,11 +574,18 @@ class GitHubRepository(
     /**
      * The best account we can make of a name and an email address.
      *
-     * Three tiers, cheapest and most certain first: a `@users.noreply.github.com` address *is* the
-     * account and needs nothing but parsing; otherwise a handle-shaped name is worth one lookup;
-     * otherwise the person is shown under the name they signed with, uncredited but not dropped.
+     * Four tiers, cheapest and most certain first: an address GitHub has already attributed
+     * somewhere in the archive is simply that account; a `@users.noreply.github.com` address *is*
+     * the account and needs nothing but parsing; a name seen attributed before costs nothing
+     * either; a handle-shaped name is worth one lookup. Failing all four, the person is shown under
+     * the name they signed with, uncredited but not dropped.
      */
     private fun person(name: String, email: String, freshness: Freshness): CommitPerson {
+        // Before anything else, and before any request: an address this project has seen attributed
+        // is settled, and no amount of guessing improves on GitHub's own answer.
+        identities[email.lowercase()]?.let {
+            return it
+        }
         val noreply = GITHUB_NOREPLY.find(email)
         if (noreply != null) {
             val id = noreply.groupValues[1].takeIf { it.isNotEmpty() }
@@ -388,6 +598,9 @@ class GitHubRepository(
                 profileUrl = "https://github.com/$login",
                 isBot = login.endsWith("[bot]"),
             )
+        }
+        identities[name.lowercase()]?.let {
+            return it
         }
         return resolvePerson(name, freshness)?.let {
             CommitPerson(
