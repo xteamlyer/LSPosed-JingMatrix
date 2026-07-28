@@ -525,10 +525,12 @@ private fun ReleasesTab(
     // per card would keep a renderer process alive for every release on the page. The newest one
     // starts open, because "what changed" is the question this tab is opened to answer and making
     // everyone tap once to reach it was the whole complaint.
-    var expanded by
-        remember(state.releases) {
-            mutableStateOf<String?>(state.releases.firstOrNull()?.key(0))
-        }
+    // Keyed by *which* release is newest, not by the list object. The list is rebuilt by the view
+    // model's combine on every emission — an installed-version refresh, a channel change, the
+    // detail fetch landing — so keying on the list itself re-applied the default and reopened the
+    // notes under a reader who had just closed them, for reasons that had nothing to do with them.
+    val newest = state.releases.firstOrNull()?.key(0)
+    var expanded by remember(newest) { mutableStateOf<String?>(newest) }
 
     LazyColumn(
         state = listState,
