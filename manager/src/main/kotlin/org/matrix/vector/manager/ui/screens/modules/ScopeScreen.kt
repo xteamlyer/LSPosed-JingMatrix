@@ -529,8 +529,17 @@ private fun ScopeFilterMenu(
     onToggleModules: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    // Anything other than the defaults is narrowing the list, and must not be silent.
-    val filtering = !locked && (showSystem || !showGames || !showModules || recommendedOnly)
+    // Anything other than the defaults must not be silent — and "other than the defaults" is the
+    // point. The old expression asked whether modules were hidden, which they are by default, so
+    // the mark was lit on a device nobody had touched and therefore said nothing. It matters now
+    // that these choices survive the visit: returning to a list filtered the way you left it a
+    // week ago is exactly when you need telling.
+    val filtering =
+        !locked &&
+            (showSystem != ScopeViewModel.DEFAULT_SHOW_SYSTEM ||
+                showGames != ScopeViewModel.DEFAULT_SHOW_GAMES ||
+                showModules != ScopeViewModel.DEFAULT_SHOW_MODULES ||
+                recommendedOnly)
 
     // Under a static scope the list is already exactly the module's own fixed set, so there is
     // nothing to filter. The control stays present but visibly dead, and says why when pressed —

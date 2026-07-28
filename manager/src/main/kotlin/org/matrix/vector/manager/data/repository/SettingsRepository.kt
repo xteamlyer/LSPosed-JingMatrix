@@ -72,6 +72,59 @@ class SettingsRepository(context: Context) {
      * which is accurate and unchanging; recency puts whoever last landed something at the front,
      * which is what makes a first contribution visible the day it happens.
      */
+    /**
+     * How the scope list is filtered and ordered, remembered across visits.
+     *
+     * A scope is edited one module at a time, so these are settled a dozen times over in a single
+     * sitting otherwise. They are ways of *reading* a list of several hundred apps rather than
+     * anything about a particular module, which is the test this app applies everywhere else —
+     * word wrap, header surface, activity window — and the reason it applies it is that the host
+     * process is killed constantly, so anything held in a ViewModel is gone by the next visit.
+     *
+     * "Recommended only" is deliberately absent. It narrows the list to what one module asked for,
+     * and a module that asks for nothing would then open to an empty screen — a filter that reads
+     * as breakage. It stays per visit.
+     */
+    private val _scopeShowSystemApps = MutableStateFlow(prefs.getBoolean("scope_system_apps", false))
+    val scopeShowSystemApps: StateFlow<Boolean> = _scopeShowSystemApps.asStateFlow()
+
+    fun setScopeShowSystemApps(show: Boolean) {
+        prefs.edit().putBoolean("scope_system_apps", show).apply()
+        _scopeShowSystemApps.value = show
+    }
+
+    private val _scopeShowGames = MutableStateFlow(prefs.getBoolean("scope_games", true))
+    val scopeShowGames: StateFlow<Boolean> = _scopeShowGames.asStateFlow()
+
+    fun setScopeShowGames(show: Boolean) {
+        prefs.edit().putBoolean("scope_games", show).apply()
+        _scopeShowGames.value = show
+    }
+
+    private val _scopeShowModules = MutableStateFlow(prefs.getBoolean("scope_modules", false))
+    val scopeShowModules: StateFlow<Boolean> = _scopeShowModules.asStateFlow()
+
+    fun setScopeShowModules(show: Boolean) {
+        prefs.edit().putBoolean("scope_modules", show).apply()
+        _scopeShowModules.value = show
+    }
+
+    private val _scopeSort = MutableStateFlow(prefs.getString("scope_sort", "relevance") ?: "relevance")
+    val scopeSort: StateFlow<String> = _scopeSort.asStateFlow()
+
+    fun setScopeSort(key: String) {
+        prefs.edit().putString("scope_sort", key).apply()
+        _scopeSort.value = key
+    }
+
+    private val _scopeSortReversed = MutableStateFlow(prefs.getBoolean("scope_sort_reversed", false))
+    val scopeSortReversed: StateFlow<Boolean> = _scopeSortReversed.asStateFlow()
+
+    fun setScopeSortReversed(reversed: Boolean) {
+        prefs.edit().putBoolean("scope_sort_reversed", reversed).apply()
+        _scopeSortReversed.value = reversed
+    }
+
     private val _contributorOrder =
         MutableStateFlow(prefs.getString("contributor_order", "commits") ?: "commits")
     val contributorOrder: StateFlow<String> = _contributorOrder.asStateFlow()

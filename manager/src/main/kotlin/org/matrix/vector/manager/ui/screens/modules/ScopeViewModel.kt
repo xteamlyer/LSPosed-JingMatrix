@@ -19,6 +19,7 @@ import org.matrix.vector.manager.data.model.RecommendedScope
 import org.matrix.vector.manager.data.repository.AppRepository
 import org.matrix.vector.manager.data.repository.ModuleRepository
 import org.matrix.vector.manager.di.ServiceLocator
+import org.matrix.vector.manager.data.repository.SettingsRepository
 import org.matrix.vector.manager.ipc.DaemonClient
 
 /** A package/user pair, as a value type so set arithmetic is correct. */
@@ -68,6 +69,7 @@ class ScopeViewModel(
     private val appRepository: AppRepository,
     private val moduleRepository: ModuleRepository,
     private val packageManager: android.content.pm.PackageManager,
+    private val settings: SettingsRepository = ServiceLocator.settings,
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppInfo>>(emptyList())
@@ -96,9 +98,9 @@ class ScopeViewModel(
      * both at once buries the second set. Anything already in the scope is exempt from every
      * filter, so turning this off can never hide a choice that has been made.
      */
-    val showSystemApps = MutableStateFlow(false)
+    val showSystemApps = MutableStateFlow(settings.scopeShowSystemApps.value)
 
-    val showGames = MutableStateFlow(true)
+    val showGames = MutableStateFlow(settings.scopeShowGames.value)
 
     /**
      * Show only what the module asked for.
@@ -118,10 +120,51 @@ class ScopeViewModel(
      * is rare enough that the default is off: on a device with two dozen modules, listing them
      * all among the hookable apps is two dozen rows of noise for one plausible use.
      */
-    val showModules = MutableStateFlow(false)
+    val showModules = MutableStateFlow(settings.scopeShowModules.value)
 
-    val sort = MutableStateFlow(ScopeSort.Relevance)
-    val reverseSort = MutableStateFlow(false)
+    val sort =
+        MutableStateFlow(
+            ScopeSort.entries.firstOrNull { it.name.equals(settings.scopeSort.value, true) }
+                ?: ScopeSort.Relevance
+        )
+    val reverseSort = MutableStateFlow(settings.scopeSortReversed.value)
+
+    /**
+     * Whether the list is filtered differently from how it ships.
+     *
+     * Compared against the defaults, not against "is anything hidden" — the defaults hide system
+     * apps and other modules on purpose, so the second reading is true on a device nobody has
+     * touched, and a mark that is always on is a mark that says nothing. It was: the old expression
+     * asked for `!showModules`, which is the default, so the dot was lit permanently.
+     *
+     * It earns its place now that these choices are remembered. Coming back to a list that is
+     * filtered the way you left it a week ago is exactly the moment you need telling.
+     */
+    val filtersChanged: StateFlow<Boolean> =
+        combine(showSystemApps, showGames, showModules, showRecommendedOnly) {
+                system,
+                games,
+                modules,
+                recommendedOnly ->
+                system != DEFAULT_SHOW_SYSTEM ||
+                    games != DEFAULT_SHOW_GAMES ||
+                    modules != DEFAULT_SHOW_MODULES ||
+                    recommendedOnly
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    init {
+        // Written back as they change rather than on the way out: this screen is left by a back
+        // gesture, by the process being killed, and by the host application deciding it is done —
+        // and only the first of those runs any teardown of ours.
+        viewModelScope.launch {
+            showSystemApps.collect { settings.setScopeShowSystemApps(it) }
+        }
+        viewModelScope.launch { showGames.collect { settings.setScopeShowGames(it) } }
+        viewModelScope.launch { showModules.collect { settings.setScopeShowModules(it) } }
+        viewModelScope.launch { sort.collect { settings.setScopeSort(it.name.lowercase()) } }
+        viewModelScope.launch { reverseSort.collect { settings.setScopeSortReversed(it) } }
+    }
 
     /**
      * Packages that are themselves modules.
@@ -543,6 +586,11 @@ class ScopeViewModel(
     // Not private: the scope list has to recognise the framework row to explain what it is, and
     // a second copy of the literal in the screen would be a second thing to keep in step.
     internal companion object {
+        /** What the list looks like before anyone touches it; see [filtersChanged]. */
+        const val DEFAULT_SHOW_SYSTEM = false
+        const val DEFAULT_SHOW_GAMES = true
+        const val DEFAULT_SHOW_MODULES = false
+
         /** How the daemon names the system server in a scope list. */
         const val SYSTEM_FRAMEWORK_PACKAGE = "system"
         const val FRAMEWORK_LABEL = "System Framework"
