@@ -313,4 +313,5 @@
     <string name="language_translated_by">ترجمة: %1$s</string>
     <string name="language_help_short">ترجمة</string>
     <string name="language_help">ساعِد في ترجمة Vector</string>
+    <string name="scope_framework_shared">عملية واحدة يتشاركها جميع المستخدمين، لذا يؤثر هذا في الجهاز كله</string>
 </resources>

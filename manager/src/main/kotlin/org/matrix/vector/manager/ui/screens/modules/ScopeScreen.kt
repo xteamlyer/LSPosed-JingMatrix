@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.modules
 
+import org.matrix.vector.manager.ui.screens.modules.ScopeViewModel.Companion.SYSTEM_FRAMEWORK_PACKAGE
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.rounded.AutoAwesome
@@ -732,6 +733,17 @@ private fun AppRow(
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = ring,
+                    )
+                }
+                // The one row on this screen that is not an app, and now the one row that is
+                // offered identically to every user. Someone editing a work profile module's
+                // scope has no other way to know that this particular target is not scoped to
+                // their profile at all.
+                if (app.packageName == SYSTEM_FRAMEWORK_PACKAGE) {
+                    Text(
+                        text = stringResource(R.string.scope_framework_shared),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

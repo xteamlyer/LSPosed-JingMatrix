@@ -258,4 +258,5 @@
     <string name="language_translated_by">번역: %1$s</string>
     <string name="language_help_short">번역</string>
     <string name="language_help">Vector 번역에 참여하기</string>
+    <string name="scope_framework_shared">모든 사용자가 함께 쓰는 하나의 프로세스라, 기기 전체에 영향을 줍니다</string>
 </resources>

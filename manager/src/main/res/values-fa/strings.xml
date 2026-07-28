@@ -269,4 +269,5 @@
     <string name="language_translated_by">ترجمه: %1$s</string>
     <string name="language_help_short">ترجمه</string>
     <string name="language_help">در ترجمهٔ Vector کمک کنید</string>
+    <string name="scope_framework_shared">یک فرایند که همهٔ کاربران در آن شریک‌اند، پس این کل دستگاه را تحت تأثیر می‌گذارد</string>
 </resources>

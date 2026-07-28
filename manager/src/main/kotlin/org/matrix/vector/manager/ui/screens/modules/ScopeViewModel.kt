@@ -271,8 +271,14 @@ class ScopeViewModel(
             // but it is not an installed package so it never appears in the package list. Without
             // this entry a module whose entire recommended scope is the framework — Core Patch,
             // for one — offers the user nothing to tick.
-            val withFramework =
-                if (userId == 0) listOf(systemFrameworkEntry(apps)) + apps else apps
+            //
+            // Offered to every user, not only the owner. There is exactly one system_server on the
+            // device, so it is not a per-user target that other users happen to lack — it is one
+            // process they all share. Restricting the row to user 0 left a module in a work profile
+            // or a private space with no way to ask for the only target it may need (issue #136);
+            // the daemon never had that restriction, mapping any `system` scope row straight to
+            // system_server without looking at whose module it was.
+            val withFramework = listOf(systemFrameworkEntry(apps)) + apps
             allApps.value = withFramework
 
             val saved =
@@ -508,7 +514,9 @@ class ScopeViewModel(
         _message.value = null
     }
 
-    private companion object {
+    // Not private: the scope list has to recognise the framework row to explain what it is, and
+    // a second copy of the literal in the screen would be a second thing to keep in step.
+    internal companion object {
         /** How the daemon names the system server in a scope list. */
         const val SYSTEM_FRAMEWORK_PACKAGE = "system"
         const val FRAMEWORK_LABEL = "System Framework"

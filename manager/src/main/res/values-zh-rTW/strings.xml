@@ -259,4 +259,5 @@
     <string name="language_translated_by">翻譯：%1$s</string>
     <string name="language_help_short">翻譯</string>
     <string name="language_help">協助翻譯 Vector</string>
+    <string name="scope_framework_shared">所有使用者共用的同一個行程，因此這會影響整台裝置</string>
 </resources>

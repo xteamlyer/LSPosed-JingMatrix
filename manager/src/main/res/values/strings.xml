@@ -302,4 +302,5 @@
     <string name="language_translated_by">Translated by %1$s</string>
     <string name="language_help_short">Translate</string>
     <string name="language_help">Help translate Vector</string>
+    <string name="scope_framework_shared">One process shared by every user, so this affects the whole device</string>
 </resources>

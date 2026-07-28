@@ -259,4 +259,5 @@
     <string name="language_translated_by">翻译：%1$s</string>
     <string name="language_help_short">翻译</string>
     <string name="language_help">帮助翻译 Vector</string>
+    <string name="scope_framework_shared">所有用户共用的同一个进程，因此这会影响整台设备</string>
 </resources>

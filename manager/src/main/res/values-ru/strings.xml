@@ -272,4 +272,5 @@
     <string name="language_translated_by">Перевод: %1$s</string>
     <string name="language_help_short">Перевести</string>
     <string name="language_help">Помочь с переводом Vector</string>
+    <string name="scope_framework_shared">Один процесс на всех пользователей — это затрагивает всё устройство</string>
 </resources>

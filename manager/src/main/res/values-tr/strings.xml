@@ -269,4 +269,5 @@
     <string name="language_translated_by">Çeviren: %1$s</string>
     <string name="language_help_short">Çevir</string>
     <string name="language_help">Vector\'ü çevirmeye yardım edin</string>
+    <string name="scope_framework_shared">Tüm kullanıcıların paylaştığı tek bir süreç, dolayısıyla bu cihazın tamamını etkiler</string>
 </resources>

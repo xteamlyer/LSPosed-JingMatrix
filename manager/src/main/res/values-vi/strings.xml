@@ -258,4 +258,5 @@
     <string name="language_translated_by">Dịch bởi %1$s</string>
     <string name="language_help_short">Dịch</string>
     <string name="language_help">Giúp dịch Vector</string>
+    <string name="scope_framework_shared">Một tiến trình dùng chung cho mọi người dùng, nên việc này ảnh hưởng toàn thiết bị</string>
 </resources>

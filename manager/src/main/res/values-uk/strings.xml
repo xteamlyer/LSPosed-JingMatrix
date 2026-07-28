@@ -291,4 +291,5 @@
     <string name="language_translated_by">Переклад: %1$s</string>
     <string name="language_help_short">Перекласти</string>
     <string name="language_help">Допомогти з перекладом Vector</string>
+    <string name="scope_framework_shared">Один процес, спільний для всіх користувачів, тож це стосується всього пристрою</string>
 </resources>

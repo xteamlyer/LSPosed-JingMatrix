@@ -262,4 +262,5 @@
     <string name="language_translated_by">Diterjemahkan oleh %1$s</string>
     <string name="language_help_short">Terjemahkan</string>
     <string name="language_help">Bantu menerjemahkan Vector</string>
+    <string name="scope_framework_shared">Satu proses yang dipakai bersama semua pengguna, jadi ini memengaruhi seluruh perangkat</string>
 </resources>

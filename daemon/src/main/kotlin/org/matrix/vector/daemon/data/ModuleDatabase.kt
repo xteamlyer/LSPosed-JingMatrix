@@ -69,9 +69,17 @@ object ModuleDatabase {
 
       val values = ContentValues().apply { put("mid", mid) }
       for (app in scope) {
-        if (app.packageName == "system" && app.userId != 0) continue
+        // The system server is one process for the whole device, so it is stored against user 0
+        // whoever asked for it — a module in a work profile hooking the framework is hooking the
+        // same system_server as everyone else.
+        //
+        // Normalised rather than dropped, which is what this used to do. Dropping meant restoring
+        // a backup written by an older manager, which recorded the framework under the module's
+        // own user, silently lost the one target the module may have cared about — and said
+        // nothing about it.
+        val userId = if (app.packageName == "system") 0 else app.userId
         values.put("app_pkg_name", app.packageName)
-        values.put("user_id", app.userId)
+        values.put("user_id", userId)
         db.insertWithOnConflict("scope", null, values, SQLiteDatabase.CONFLICT_IGNORE)
       }
       db.setTransactionSuccessful()

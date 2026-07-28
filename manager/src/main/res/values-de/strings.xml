@@ -269,4 +269,5 @@
     <string name="language_translated_by">Übersetzt von %1$s</string>
     <string name="language_help_short">Übersetzen</string>
     <string name="language_help">Vector übersetzen helfen</string>
+    <string name="scope_framework_shared">Ein Prozess, den sich alle Benutzer teilen — das betrifft das ganze Gerät</string>
 </resources>

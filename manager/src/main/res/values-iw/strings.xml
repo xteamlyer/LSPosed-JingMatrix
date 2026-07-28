@@ -295,4 +295,5 @@
     <string name="language_translated_by">תורגם על ידי %1$s</string>
     <string name="language_help_short">תרגום</string>
     <string name="language_help">עזרו לתרגם את Vector</string>
+    <string name="scope_framework_shared">תהליך אחד שכל המשתמשים חולקים, ולכן זה משפיע על כל המכשיר</string>
 </resources>

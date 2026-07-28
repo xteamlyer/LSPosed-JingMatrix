@@ -258,4 +258,5 @@
     <string name="language_translated_by">翻訳：%1$s</string>
     <string name="language_help_short">翻訳</string>
     <string name="language_help">Vector の翻訳に参加する</string>
+    <string name="scope_framework_shared">すべてのユーザーが共有する 1 つのプロセスなので、端末全体に影響します</string>
 </resources>
