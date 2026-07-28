@@ -41,29 +41,47 @@ fun PanelHeader(
     actions: (@Composable RowScope.() -> Unit)? = null,
     description: (@Composable () -> Unit)? = null,
     search: (@Composable () -> Unit)? = null,
+    /**
+     * Takes the place of the title and description rows while it is non-null.
+     *
+     * For modes that replace what the panel is *about* without replacing what it *does* — module
+     * selection is the one — so the search field below stays live and, more importantly, stays
+     * exactly where it was. The override gets the two rows' combined height and no more, which is
+     * what keeps a contextual bar from becoming a band of empty colour.
+     */
+    titleOverlay: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth().height(PANEL_HEADER_HEIGHT)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(TITLE_ROW).padding(start = 20.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            actions?.invoke(this)
-        }
+        if (titleOverlay != null) {
+            Box(modifier = Modifier.fillMaxWidth().height(TITLE_ROW + DESCRIPTION_ROW)) {
+                titleOverlay()
+            }
+        } else {
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth().height(TITLE_ROW).padding(start = 20.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                actions?.invoke(this)
+            }
 
-        // Always present, whether or not it has anything to say, so the field below never moves.
-        Box(
-            modifier = Modifier.fillMaxWidth().height(DESCRIPTION_ROW).padding(horizontal = 20.dp),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            description?.invoke()
+            // Always present, whether or not it has anything to say, so the field below never
+            // moves.
+            Box(
+                modifier =
+                    Modifier.fillMaxWidth().height(DESCRIPTION_ROW).padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                description?.invoke()
+            }
         }
 
         Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)) {

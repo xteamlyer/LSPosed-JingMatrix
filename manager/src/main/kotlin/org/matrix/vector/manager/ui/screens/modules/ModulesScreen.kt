@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterList
@@ -238,41 +239,52 @@ fun ModulesScreen(
             val pagerState = rememberPagerState(pageCount = { tabs.size })
             val visible = tabs.getOrNull(pagerState.currentPage)
 
-            // The header always composes, so this band's height never depends on the mode. A
-            // selection bar that measured itself would be shorter than the header, and everything
-            // below — search field, tabs, the list itself — would jump the moment a module was
-            // picked up. Here the bar is laid over a header that has only gone invisible.
-            Box {
-                ModulesHeader(
-                    active = visible?.modules?.count { it.isEnabled } ?: counts.first,
-                    total = visible?.modules?.size ?: counts.second,
-                    onBackup = { backupLauncher.launch("vector-modules.bak") },
-                    onRestore = { restoreLauncher.launch(arrayOf("*/*")) },
-                    modifier = Modifier.alpha(if (selection.isEmpty()) 1f else 0f),
-                    search = { ModulesSearch(query, viewModel, filter, sort) },
-                )
-                if (selection.isNotEmpty()) {
-                    SelectionBar(
-                        count = selection.size,
-                        modifier = Modifier.matchParentSize(),
-                        onClose = viewModel::clearSelection,
-                        onEnable = {
-                            viewModel.setSelectedEnabled(true) { changed, failed ->
-                                report(batchResult(R.string.modules_batch_enabled, changed, failed))
-                            }
-                        },
-                        onDisable = {
-                            viewModel.setSelectedEnabled(false) { changed, failed ->
-                                report(
-                                    batchResult(R.string.modules_batch_disabled, changed, failed)
-                                )
-                            }
-                        },
-                        onBackup = { selectionBackupLauncher.launch("vector-modules.bak") },
-                        onUninstall = { confirmUninstall = true },
-                    )
-                }
-            }
+            // The selection bar takes the title and description rows and nothing else, so the
+            // search field below stays exactly where the thumb left it and the list does not jump
+            // the moment a module is picked up. Filling the whole header instead — which is what
+            // it used to do — left one row of controls floating in a band of colour half the
+            // height of the header.
+            ModulesHeader(
+                active = visible?.modules?.count { it.isEnabled } ?: counts.first,
+                total = visible?.modules?.size ?: counts.second,
+                onBackup = { backupLauncher.launch("vector-modules.bak") },
+                onRestore = { restoreLauncher.launch(arrayOf("*/*")) },
+                titleOverlay =
+                    if (selection.isEmpty()) null
+                    else {
+                        {
+                            SelectionBar(
+                                count = selection.size,
+                                onClose = viewModel::clearSelection,
+                                onEnable = {
+                                    viewModel.setSelectedEnabled(true) { changed, failed ->
+                                        report(
+                                            batchResult(
+                                                R.string.modules_batch_enabled,
+                                                changed,
+                                                failed,
+                                            )
+                                        )
+                                    }
+                                },
+                                onDisable = {
+                                    viewModel.setSelectedEnabled(false) { changed, failed ->
+                                        report(
+                                            batchResult(
+                                                R.string.modules_batch_disabled,
+                                                changed,
+                                                failed,
+                                            )
+                                        )
+                                    }
+                                },
+                                onBackup = { selectionBackupLauncher.launch("vector-modules.bak") },
+                                onUninstall = { confirmUninstall = true },
+                            )
+                        }
+                    },
+                search = { ModulesSearch(query, viewModel, filter, sort) },
+            )
 
             // No blocking spinner: the pull-to-refresh indicator already reports the reload, and
             // a full-screen spinner on every route in made the list flash.
@@ -409,14 +421,14 @@ private fun SelectionBar(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-        shape = RoundedCornerShape(26.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         tonalElevation = 3.dp,
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(start = 6.dp, end = 6.dp),
+            modifier = Modifier.fillMaxSize().padding(start = 4.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onClose) {
@@ -433,7 +445,7 @@ private fun SelectionBar(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(start = 2.dp),
             )
-            SelectionAction(Icons.Rounded.PlayArrow, R.string.modules_batch_enable, onEnable)
+            SelectionAction(Icons.Rounded.CheckCircle, R.string.modules_batch_enable, onEnable)
             SelectionAction(Icons.Rounded.Block, R.string.modules_batch_disable, onDisable)
             SelectionAction(Icons.Rounded.Backup, R.string.modules_backup, onBackup)
             SelectionAction(
@@ -453,12 +465,12 @@ private fun SelectionAction(
     onClick: () -> Unit,
     tint: Color? = null,
 ) {
-    IconButton(onClick = onClick, modifier = Modifier.size(42.dp)) {
+    IconButton(onClick = onClick, modifier = Modifier.size(48.dp)) {
         Icon(
             icon,
             contentDescription = stringResource(descriptionRes),
             tint = tint ?: LocalContentColor.current,
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(26.dp),
         )
     }
 }
@@ -554,11 +566,13 @@ private fun ModulesHeader(
     onBackup: () -> Unit,
     onRestore: () -> Unit,
     modifier: Modifier = Modifier,
+    titleOverlay: (@Composable () -> Unit)? = null,
     search: @Composable () -> Unit,
 ) {
     PanelHeader(
         title = stringResource(R.string.nav_modules),
         modifier = modifier,
+        titleOverlay = titleOverlay,
         actions = {
             // Both shown rather than hidden behind an overflow. There are exactly two, they are
             // opposites, and a menu holding two items costs a tap to say what a glance could.
