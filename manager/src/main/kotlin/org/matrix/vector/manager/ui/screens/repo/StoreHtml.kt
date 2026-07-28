@@ -2,6 +2,10 @@ package org.matrix.vector.manager.ui.screens.repo
 
 import android.content.Context
 import android.content.res.Configuration
+import android.annotation.SuppressLint
+import android.view.MotionEvent
+import android.view.ViewConfiguration
+import kotlin.math.abs
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -100,6 +104,7 @@ private fun HtmlPane(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
                 setBackgroundColor(Color.Transparent.toArgb())
+                claimVerticalDrags()
                 settings.javaScriptEnabled = false
                 settings.domStorageEnabled = false
                 settings.textZoom = 90
@@ -297,4 +302,50 @@ private fun document(body: String, palette: Palette, rtl: Boolean): String {
         </html>
     """
         .trimIndent()
+}
+
+/**
+ * Keeps a vertical drag inside the page, and lets a sideways one through.
+ *
+ * A WebView does not stop the Compose hierarchy above it from claiming a gesture, which on a
+ * screen where this pane is one of three swipeable tabs meant that reading a long README slid the
+ * tab across: every real drag on a phone held in one hand has a sideways component, and the pager
+ * was taking it. The lists on the other tabs are protected by disabling the pager while they are
+ * scrolling, but a WebView has no scroll state Compose can see, so it says so itself.
+ *
+ * Decided once per gesture, at the moment the finger passes the touch slop, and by comparing the
+ * two axes rather than by a threshold on one — the question is not "how far" but "which way did
+ * they mean". A vertical answer disallows interception for the rest of the gesture; a sideways one
+ * leaves the pager free to take it, so deliberately swiping to the next tab still works from here.
+ *
+ * Returns false throughout: this listens, it never consumes, and the page scrolls exactly as it
+ * would have.
+ */
+@SuppressLint("ClickableViewAccessibility")
+private fun WebView.claimVerticalDrags() {
+    val slop = ViewConfiguration.get(context).scaledTouchSlop
+    var startX = 0f
+    var startY = 0f
+    var decided = false
+    setOnTouchListener { view, event ->
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                startX = event.x
+                startY = event.y
+                decided = false
+            }
+            MotionEvent.ACTION_MOVE ->
+                if (!decided) {
+                    val dx = abs(event.x - startX)
+                    val dy = abs(event.y - startY)
+                    if (dx > slop || dy > slop) {
+                        decided = true
+                        view.parent?.requestDisallowInterceptTouchEvent(dy >= dx)
+                    }
+                }
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
+        }
+        false
+    }
 }

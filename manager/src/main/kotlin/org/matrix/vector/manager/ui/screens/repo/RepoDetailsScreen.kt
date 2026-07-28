@@ -32,6 +32,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -234,6 +238,38 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                 )
             val pagerState = rememberPagerState(pageCount = { tabs.size })
             val scope = rememberCoroutineScope()
+            // Hoisted so the pager can ask whether the reader is in the middle of a scroll. Kept
+            // here rather than inside each tab also means a tab returned to is where it was left.
+            val releasesScroll = rememberLazyListState()
+            val informationScroll = rememberLazyListState()
+
+            /**
+             * Whether the page in front of the reader is moving under their finger.
+             *
+             * This is the whole of the fix. A vertical scroll and a horizontal page turn are
+             * siblings in Compose's gesture arbitration, not parent and child, so a drag that is
+             * mostly-but-not-entirely vertical — which is every real drag on a phone held in one
+             * hand — could be split between them: the list scrolled *and* the pager slid partway
+             * to the next tab. On a screen whose three tabs are all long documents, that happened
+             * constantly while simply reading.
+             *
+             * While a list is scrolling the pager stops accepting drags at all, so the gesture
+             * cannot be taken away mid-read. It becomes available again the moment the list
+             * settles, which is also the moment someone who wants the next tab would ask for it.
+             *
+             * The README tab is absent on purpose: it is a WebView, which consumes its own touches
+             * and tells the hierarchy not to intercept them, so it was never the one being stolen
+             * from.
+             */
+            val reading by remember {
+                derivedStateOf {
+                    when (pagerState.currentPage) {
+                        1 -> releasesScroll.isScrollInProgress
+                        2 -> informationScroll.isScrollInProgress
+                        else -> false
+                    }
+                }
+            }
 
             TabRow(selectedTabIndex = pagerState.currentPage) {
                 tabs.forEachIndexed { index, label ->
@@ -245,7 +281,20 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                 }
             }
 
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = !reading,
+                // And when a page turn *is* offered, it has to be meant. The default settles on
+                // whichever page is nearer once the finger leaves, so a drag of a third of the
+                // screen committed; asking for most of the width makes an accidental sideways
+                // component fall back to where it started, the way a navigation gesture does.
+                flingBehavior =
+                    PagerDefaults.flingBehavior(
+                        state = pagerState,
+                        snapPositionalThreshold = COMMIT_FRACTION,
+                    ),
+            ) { page ->
                 when (page) {
                     0 ->
                         ReadmeTab(
@@ -257,6 +306,7 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                     1 ->
                         ReleasesTab(
                             state = state,
+                            listState = releasesScroll,
                             onOpenUrl = openUrl,
                             onInstall = { release ->
                                 val assets = release.apks
@@ -264,7 +314,12 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                                 else choosing = release
                             },
                         )
-                    else -> InformationTab(module = module, onOpenUrl = openUrl)
+                    else ->
+                        InformationTab(
+                            module = module,
+                            listState = informationScroll,
+                            onOpenUrl = openUrl,
+                        )
                 }
             }
         }
@@ -451,6 +506,7 @@ private fun ReadmeTab(
 @Composable
 private fun ReleasesTab(
     state: RepoDetailsState,
+    listState: LazyListState,
     onOpenUrl: (String) -> Unit,
     onInstall: (Release) -> Unit,
 ) {
@@ -475,6 +531,7 @@ private fun ReleasesTab(
         }
 
     LazyColumn(
+        state = listState,
         contentPadding = PaddingValues(bottom = 16.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -661,10 +718,14 @@ private fun ReleaseBadge(text: String, container: Color, content: Color) {
 }
 
 @Composable
-private fun InformationTab(module: OnlineModule, onOpenUrl: (String) -> Unit) {
+private fun InformationTab(
+    module: OnlineModule,
+    listState: LazyListState,
+    onOpenUrl: (String) -> Unit,
+) {
     // Hoisted: the rows below are emitted from a LazyListScope, which is not a composable.
     val locale = currentLocale()
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
         if (!module.summary.isNullOrBlank()) {
             item {
                 InfoRow(
@@ -798,6 +859,15 @@ LocalizedOverlay {
     }
 }
 }
+
+/**
+ * How much of the width a drag must cover for the tab to change.
+ *
+ * Above the default half. The complaint this answers is not that the wrong tab arrives, it is that
+ * one arrives at all while someone is reading, so the bar for "yes, they meant this" is set where
+ * an accidental sideways component cannot reach it.
+ */
+private const val COMMIT_FRACTION = 0.65f
 
 @Composable
 private fun RetryMessage(message: String, onRetry: () -> Unit) {
