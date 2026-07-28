@@ -105,7 +105,15 @@ class HomeViewModel(
         // control — so status is re-derived whenever it changes rather than read once in init.
         // Reading it once is why the previous Home could get permanently stuck on "Not Activated".
         viewModelScope.launch {
-            ServiceLocator.service.collect { service -> refreshStatus(service) }
+            ServiceLocator.service.collect { service ->
+                refreshStatus(service)
+                // Both switches on the status page are the daemon's state, not ours, and this is
+                // the moment there is a daemon to ask. It was written and never called: they had
+                // always shown their initial values, so a notification the user had turned on
+                // months ago read as off on every launch, and turning it "on" again wrote a value
+                // that was already there. The database said true throughout.
+                if (service != null) refreshToggles()
+            }
         }
         // Opening Home is not a reason to talk to GitHub. The page renders from disk every time
         // and only occasionally goes and checks — the window it shows changes a few times a week
