@@ -46,7 +46,13 @@ object ConfigCache {
   init {
     VectorDaemon.scope.launch {
       for (request in cacheUpdateChannel) {
-        performCacheUpdate()
+        // Guarded, because the loop *is* the mechanism. A throw escaping here ends the `for`, the
+        // coroutine completes, and every later requestCacheUpdate() drops its request into a
+        // channel nobody is reading — the configuration silently stops taking effect for the life
+        // of the daemon, with one stack trace hours earlier as the only evidence. One bad APK
+        // reaching the parser is enough to cause it.
+        runCatching { performCacheUpdate() }
+            .onFailure { Log.e(TAG, "Cache update failed; the next request will try again", it) }
       }
     }
     applySqliteHelperWorkaround()
@@ -67,26 +73,31 @@ object ConfigCache {
   }
 
   fun updateManager(uninstalled: Boolean) {
-    if (uninstalled) {
-      state = state.copy(managerUid = -1)
-      return
-    }
-    runCatching {
-          val info =
-              packageManager?.getPackageInfoCompat(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME, 0, 0)
-          val uid = info?.applicationInfo?.uid
-          val installedApkPath = info?.applicationInfo?.sourceDir
-          if (uid == null || installedApkPath == null) {
-            Log.i(TAG, "Manager is not installed")
-            state = state.copy(managerUid = -1)
-            return
-          }
+    // Resolved and verified outside the lock, then written inside it. The verification opens the
+    // manager's APK and checks its signature, which is not work to do while a rebuild waits — but
+    // the assignment itself has to be atomic against that rebuild's swap, or whichever finishes
+    // last wins and this one silently loses.
+    val resolved =
+        if (uninstalled) null
+        else
+            runCatching {
+                  val info =
+                      packageManager?.getPackageInfoCompat(
+                          BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME, 0, 0)
+                  val uid = info?.applicationInfo?.uid
+                  val installedApkPath = info?.applicationInfo?.sourceDir
+                  if (uid == null || installedApkPath == null) {
+                    Log.i(TAG, "Manager is not installed")
+                    return@runCatching null
+                  }
 
-          InstallerVerifier.verifyInstallerSignature(installedApkPath)
-          Log.i(TAG, "Manager verified and found at UID: $uid")
-          state = state.copy(managerUid = uid)
-        }
-        .onFailure { state = state.copy(managerUid = -1) }
+                  InstallerVerifier.verifyInstallerSignature(installedApkPath)
+                  Log.i(TAG, "Manager verified and found at UID: $uid")
+                  uid
+                }
+                .getOrNull()
+
+    synchronized(this) { state = state.copy(managerUid = resolved ?: -1) }
   }
 
   private fun setupMiscPath() {
@@ -101,7 +112,7 @@ object ConfigCache {
         } else {
           Paths.get(pathStr)
         }
-    state = state.copy(miscPath = path)
+    synchronized(this) { state = state.copy(miscPath = path) }
 
     runCatching {
           val perms =
@@ -217,7 +228,6 @@ object ConfigCache {
       obsoletePaths.forEach { (pkg, path) -> ModuleDatabase.updateModuleApkPath(pkg, path, true) }
     }
 
-    staticScopes = newStaticScopes
     // Rows can predate the module declaring a fixed scope, or come from an older build that let
     // them in. Dropping them here is what makes the scope actually fixed rather than merely
     // unreachable through the manager, and it runs before the scope table is read below.
@@ -267,7 +277,23 @@ object ConfigCache {
     }
 
     // --- ATOMIC STATE SWAP ---
-    state = oldState.copy(modules = newModules, scopes = newScopes, unloadable = unloadable)
+    //
+    // Against the *current* state, not against the copy taken at the top of this function. A
+    // rebuild takes tens of milliseconds and makes binder calls throughout, and the other three
+    // writers — updateManager, setupMiscPath, the readiness latch — mutate the same field from
+    // other threads meanwhile. Writing `oldState.copy(...)` back would revert whichever of them
+    // landed during the rebuild: a manager reinstalled mid-rebuild would stop being recognised as
+    // the manager, having been recognised a moment earlier.
+    //
+    // `oldState` is still the right thing to *read* from above: reusing an already-parsed module
+    // is a decision about what was loaded when the rebuild started.
+    synchronized(this) {
+      state = state.copy(modules = newModules, scopes = newScopes, unloadable = unloadable)
+      // Swapped here rather than sixty lines earlier, so that the claims and the modules they
+      // belong to become visible together. Between the two assignments a reader could see the new
+      // static scopes against the old module set.
+      staticScopes = newStaticScopes
+    }
 
     Log.d(TAG, "Cache Update Complete. Map Swap successful.")
     // Log.d(TAG, "cached modules:")
