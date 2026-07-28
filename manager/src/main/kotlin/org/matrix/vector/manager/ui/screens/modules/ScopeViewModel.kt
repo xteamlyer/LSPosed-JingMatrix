@@ -433,6 +433,10 @@ class ScopeViewModel(
                 .onSuccess {
                     savedScope.value = draft
                     _message.value = ScopeMessage.Applied
+                    // The module list depicts this scope as a row of app icons. It is a different
+                    // screen with a different view model, so it is told rather than left to
+                    // discover the change on the next manual refresh.
+                    ServiceLocator.modules.noteScopeChanged()
                 }
                 .onFailure { _message.value = ScopeMessage.ApplyFailed }
             _applying.value = false

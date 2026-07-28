@@ -25,6 +25,24 @@ class ModuleRepository(
     private val _enabledModulesState = MutableStateFlow<Set<String>>(emptySet())
     val enabledModulesState: StateFlow<Set<String>> = _enabledModulesState.asStateFlow()
 
+    private val _scopeRevision = MutableStateFlow(0)
+
+    /**
+     * Bumped whenever a module's scope is known to have changed.
+     *
+     * The scope editor is a separate screen with its own view model, so the list behind it had no
+     * way to learn that the thing it was depicting had just been edited: applying a scope and
+     * pressing back left the row still showing the old set of app icons until a manual pull to
+     * refresh. This is a fact, not a guess — the daemon confirmed the change before it is
+     * announced — so the list can act on it without re-reading everything.
+     */
+    val scopeRevision: StateFlow<Int> = _scopeRevision.asStateFlow()
+
+    /** Called after the daemon has *accepted* a scope change, never on an attempt. */
+    fun noteScopeChanged() {
+        _scopeRevision.update { it + 1 }
+    }
+
     init {
         scope.launch {
             // Re-reads whenever a binder arrives, including a reconnect.

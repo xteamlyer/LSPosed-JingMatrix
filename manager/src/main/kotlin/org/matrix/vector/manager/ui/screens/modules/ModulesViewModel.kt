@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -115,6 +116,21 @@ class ModulesViewModel(
     private val _facts = MutableStateFlow<Map<ModuleKey, ModuleFacts>>(emptyMap())
     val facts: StateFlow<Map<ModuleKey, ModuleFacts>> = _facts.asStateFlow()
 
+    /**
+     * Which of the installed modules the catalogue has something newer for, minus the muted ones.
+     *
+     * The catalogue is the Store's, not a second fetch: this is the same set the Store counts in
+     * its header, so the mark on a row and the number on the tab cannot disagree.
+     */
+    val upgradable: StateFlow<Set<String>> =
+        combine(
+                ServiceLocator.store.upgradablePackages,
+                ServiceLocator.settings.mutedUpdates,
+            ) { upgradable, muted ->
+                upgradable - muted
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
     private val _frameworkApi = MutableStateFlow(0)
 
     /** "8 of 14 active", without needing the filtered list. */
@@ -195,6 +211,10 @@ class ModulesViewModel(
     init {
         loadModules()
         moduleRepository.refresh()
+        viewModelScope.launch {
+            // drop(1): the current value is the state we just rendered, not a change.
+            moduleRepository.scopeRevision.drop(1).collect { loadFacts(_discovered.value) }
+        }
     }
 
     fun setQuery(value: String) {
