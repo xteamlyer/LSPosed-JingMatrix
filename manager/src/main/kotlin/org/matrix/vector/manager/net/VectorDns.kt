@@ -1,4 +1,5 @@
 package org.matrix.vector.manager.net
+import org.matrix.vector.manager.Constants
 
 import android.util.Log
 import java.net.InetAddress
@@ -84,16 +85,13 @@ class VectorDns(private val settings: SettingsRepository, bootstrapClient: OkHtt
             } catch (e: UnknownHostException) {
                 dohUnavailable = true
                 Log.w(
-                    TAG,
-                    "DoH resolver unreachable; using the system resolver for the rest of this " +
-                        "session: ${e.message}",
+                    Constants.TAG,
+                    "dns: DoH lookup of $hostname failed, using the system resolver for this session",
+                    e,
                 )
             }
         }
         return Dns.SYSTEM.lookup(hostname)
     }
 
-    private companion object {
-        const val TAG = "VectorManager"
-    }
 }

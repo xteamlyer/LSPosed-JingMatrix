@@ -1,4 +1,7 @@
 package org.matrix.vector.manager.ui.screens.report
+import android.util.Log
+import org.matrix.vector.manager.Constants
+import kotlinx.coroutines.CancellationException
 
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -98,11 +101,18 @@ fun TroubleshootScreen(
                     withContext(Dispatchers.IO) {
                         runCatching {
                                 context.contentResolver.openFileDescriptor(uri, "wt").use { fd ->
-                                    fd != null &&
-                                        ServiceLocator.daemon.writeLogsTo(fd).isSuccess
+                                    // Thrown rather than returned, so one log covers all three
+                                    // ways this fails: no descriptor, a refused open, and a
+                                    // failed transaction.
+                                    checkNotNull(fd) { "no descriptor for the chosen file" }
+                                    ServiceLocator.daemon.writeLogsTo(fd).getOrThrow()
                                 }
                             }
-                            .getOrDefault(false)
+                            .onFailure { e ->
+                                if (e is CancellationException) throw e
+                                Log.e(Constants.TAG, "report: saving the log archive failed", e)
+                            }
+                            .isSuccess
                     }
                 if (ok) snackbars.show(savedLabel, SnackbarTone.Success)
                 else snackbars.show(failedLabel, SnackbarTone.Failure)

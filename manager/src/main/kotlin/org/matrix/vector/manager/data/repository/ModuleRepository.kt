@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.data.repository
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,6 +76,13 @@ class ModuleRepository(
             daemonClient
                 .getEnabledModules()
                 .onSuccess { enabled -> _enabledModulesState.update { enabled.toSet() } }
+                .onFailure { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "modules: enabled list unavailable, showing none enabled",
+                        e,
+                    )
+                }
         }
     }
 
@@ -85,8 +94,18 @@ class ModuleRepository(
      * control back leaves the user with no idea what happened.
      */
     suspend fun toggleModule(packageName: String, enable: Boolean): Boolean {
-        val accepted = daemonClient.setModuleEnabled(packageName, enable).getOrDefault(false)
-        if (!accepted) return false
+        val verb = if (enable) "enable" else "disable"
+        val result = daemonClient.setModuleEnabled(packageName, enable)
+        val accepted = result.getOrDefault(false)
+        if (!accepted) {
+            val cause = result.exceptionOrNull()
+            if (cause != null) {
+                Log.e(Constants.TAG, "modules: $verb of $packageName failed", cause)
+            } else {
+                Log.e(Constants.TAG, "modules: daemon refused to $verb $packageName")
+            }
+            return false
+        }
 
         _enabledModulesState.update { current ->
             if (enable) current + packageName else current - packageName

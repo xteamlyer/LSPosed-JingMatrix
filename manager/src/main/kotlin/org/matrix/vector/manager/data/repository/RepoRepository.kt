@@ -161,7 +161,13 @@ class RepoRepository(
     }
 
     private suspend fun loadInstalled() {
-        val packages = daemon.getInstalledPackagesFromAllUsers(0, false).getOrNull() ?: return
+        val packages =
+            daemon
+                .getInstalledPackagesFromAllUsers(0, false)
+                .onFailure { e ->
+                    Log.w(Constants.TAG, "store: installed versions unavailable", e)
+                }
+                .getOrNull() ?: return
         val versions = HashMap<String, RepoVersion>(packages.size)
         for (info in packages) {
             val version = RepoVersion(info.longVersionCodeCompat(), info.versionName.orEmpty())
@@ -181,7 +187,14 @@ class RepoRepository(
             // `use` rather than a close on the success branch. The failure path is the one that
             // runs whenever a mirror is down, and it was the path leaking the connection.
             client.newCall(request(url, cacheControl)).execute().use { response ->
-                if (!response.isSuccessful) return null
+                if (!response.isSuccessful) {
+                    // The FORCE_CACHE replay synthesises 504 without contacting the mirror, so
+                    // only report a status the network actually produced.
+                    if (response.networkResponse != null) {
+                        Log.w(Constants.TAG, "store: $url returned HTTP ${response.code}")
+                    }
+                    return null
+                }
                 val parsed = parseCatalog(response)
                 if (parsed.isEmpty()) return null
                 Log.i(Constants.TAG, "store: ${parsed.size} modules from $url")

@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.ui.screens.logs
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -263,6 +265,11 @@ class LogsViewModel(private val daemon: DaemonClient, private val settings: Sett
                         else daemon.getLogPart(verbose, chosen)
                     val pfd =
                         result.getOrElse {
+                            Log.w(
+                                Constants.TAG,
+                                "logs: ${tab.name.lowercase()} log (${chosen ?: "live"}) unavailable",
+                                it,
+                            )
                             pane.state.value =
                                 pane.state.value.copy(
                                     status = LogStatus.DaemonUnavailable,
@@ -549,7 +556,11 @@ class LogsViewModel(private val daemon: DaemonClient, private val settings: Sett
      */
     fun rotate(tab: LogTab, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val ok = daemon.clearLogs(tab == LogTab.VERBOSE).getOrDefault(false)
+            val result = daemon.clearLogs(tab == LogTab.VERBOSE)
+            result.onFailure {
+                Log.e(Constants.TAG, "logs: rotating the ${tab.name.lowercase()} log failed", it)
+            }
+            val ok = result.getOrDefault(false)
             if (ok) reload(tab, Jump.NEWEST)
             onResult(ok)
         }
@@ -595,7 +606,9 @@ class LogsViewModel(private val daemon: DaemonClient, private val settings: Sett
 
     fun setVerbose(enabled: Boolean) {
         viewModelScope.launch {
-            daemon.setVerboseLogEnabled(enabled)
+            daemon.setVerboseLogEnabled(enabled).onFailure {
+                Log.e(Constants.TAG, "logs: setting verbose logging to $enabled failed", it)
+            }
             val actual = daemon.isVerboseLogEnabled().getOrDefault(enabled)
             _verboseEnabled.value = actual
             _verboseEnforced.value = !enabled && actual

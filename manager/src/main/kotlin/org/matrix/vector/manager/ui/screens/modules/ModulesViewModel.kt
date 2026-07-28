@@ -1,4 +1,5 @@
 package org.matrix.vector.manager.ui.screens.modules
+import org.matrix.vector.manager.Constants
 
 import android.util.Log
 import android.os.SystemClock
@@ -95,7 +96,6 @@ const val SCOPE_PREVIEW_LIMIT = 3
 
 /** The framework itself, which the daemon names in a scope like any package but which is not one. */
 private const val SYSTEM_FRAMEWORK = "system"
-private const val TAG = "VectorModules"
 
 class ModulesViewModel(
     private val daemonClient: DaemonClient,
@@ -392,9 +392,19 @@ class ModulesViewModel(
             var removed = 0
             var failed = 0
             targets.forEach { key ->
-                val ok =
-                    daemonClient.uninstallPackage(key.packageName, key.userId).getOrDefault(false)
-                if (ok) removed++ else failed++
+                val result = daemonClient.uninstallPackage(key.packageName, key.userId)
+                val ok = result.getOrDefault(false)
+                // On `!ok`, not on onFailure: the daemon returns a bare `false` for a refusal, so
+                // onFailure would miss the case this line exists for.
+                if (ok) removed++
+                else {
+                    failed++
+                    Log.e(
+                        Constants.TAG,
+                        "modules: uninstall of ${key.packageName} for user ${key.userId} failed",
+                        result.exceptionOrNull(),
+                    )
+                }
             }
             moduleRepository.refresh()
             loadModules()
@@ -505,6 +515,13 @@ class ModulesViewModel(
 
     private suspend fun discover(): List<UserModulesState> {
         val usersResult = daemonClient.getUsers()
+        usersResult.onFailure { e ->
+            Log.w(
+                Constants.TAG,
+                "modules: user list unavailable, treating the daemon as unreachable",
+                e,
+            )
+        }
         _daemonAvailable.value = usersResult.isSuccess
         val users = usersResult.getOrNull() ?: emptyList()
 
@@ -514,8 +531,16 @@ class ModulesViewModel(
                 MATCH_ANY_USER
 
         val packages =
-            daemonClient.getInstalledPackagesFromAllUsers(flags, filterNoProcess = false).getOrNull()
-                ?: emptyList()
+            daemonClient
+                .getInstalledPackagesFromAllUsers(flags, filterNoProcess = false)
+                .getOrElse { e ->
+                    Log.e(
+                        Constants.TAG,
+                        "modules: installed package list unavailable, showing no modules",
+                        e,
+                    )
+                    emptyList()
+                }
 
         // Through the cache, not straight to ModuleDetection: inspecting a package means opening
         // its APK and every split as a zip, and there are ~550 of those on a normal device. Keyed
@@ -557,8 +582,8 @@ class ModulesViewModel(
         // Everything else is a map lookup, so a large figure here after the first run means the
         // cache key is wrong rather than that the device is slow.
         Log.i(
-            TAG,
-            "Scanned ${packages.size} packages in " +
+            Constants.TAG,
+            "modules: scanned ${packages.size} packages in " +
                 "${SystemClock.elapsedRealtime() - startedAt}ms, " +
                 "opened ${detection.inspectedThisRun}",
         )

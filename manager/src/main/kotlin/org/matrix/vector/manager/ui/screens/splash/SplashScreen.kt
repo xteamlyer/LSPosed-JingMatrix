@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.ui.screens.splash
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
@@ -53,7 +55,14 @@ fun SplashGate(content: @Composable () -> Unit) {
 
     LaunchedEffect(Unit) {
         // Race the two: the artwork's own duration, and the daemon handshake with a ceiling.
-        withTimeoutOrNull(DAEMON_TIMEOUT_MS) { ServiceLocator.service.first { it != null } }
+        val bound =
+            withTimeoutOrNull(DAEMON_TIMEOUT_MS) { ServiceLocator.service.first { it != null } }
+        if (bound == null) {
+            Log.w(
+                Constants.TAG,
+                "splash: no daemon binder after ${DAEMON_TIMEOUT_MS}ms, continuing unactivated",
+            )
+        }
         delay(ANIMATION_MS)
         ready = true
     }

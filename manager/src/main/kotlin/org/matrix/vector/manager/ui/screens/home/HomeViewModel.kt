@@ -1,4 +1,7 @@
 package org.matrix.vector.manager.ui.screens.home
+import android.util.Log
+import org.matrix.vector.manager.Constants
+import kotlinx.coroutines.CancellationException
 
 import org.matrix.vector.manager.data.repository.FrameworkUpdateState
 import android.os.Build
@@ -144,11 +147,34 @@ class HomeViewModel(
 
         val versionName = daemon.getXposedVersionName().getOrNull()
         val commit = daemon.getFrameworkCommit().getOrNull()
-        val versionCode = daemon.getXposedVersionCode().getOrDefault(0L)
+        val versionCode =
+            daemon
+                .getXposedVersionCode()
+                .onFailure { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "status: framework version code unavailable, update check skipped",
+                        e,
+                    )
+                }
+                .getOrDefault(0L)
         val api = daemon.getXposedApiVersion().getOrNull()
 
-        val sepolicy = daemon.isSepolicyLoaded().getOrDefault(false)
-        val systemServer = daemon.systemServerRequested().getOrDefault(false)
+        // One line for both, because they fail together on a wedged binder and only these two
+        // defaults synthesise a red HealthIssue card.
+        val sepolicyResult = daemon.isSepolicyLoaded()
+        val systemServerResult = daemon.systemServerRequested()
+        val healthFailure = sepolicyResult.exceptionOrNull() ?: systemServerResult.exceptionOrNull()
+        if (healthFailure != null && healthFailure !is CancellationException) {
+            Log.w(
+                Constants.TAG,
+                "status: framework health read failed, defaulting to sepolicy/system_server " +
+                    "not loaded",
+                healthFailure,
+            )
+        }
+        val sepolicy = sepolicyResult.getOrDefault(false)
+        val systemServer = systemServerResult.getOrDefault(false)
         val dex2oat =
             daemon.getDex2OatWrapperCompatibility().getOrDefault(ILSPManagerService.DEX2OAT_OK)
         val dex2oatFlags = daemon.dex2oatFlagsLoaded().getOrDefault(true)
@@ -256,18 +282,37 @@ class HomeViewModel(
     val hiddenIcon: StateFlow<Boolean> = _hiddenIcon.asStateFlow()
 
     private suspend fun refreshToggles() {
-        _statusNotification.value = daemon.enableStatusNotification().getOrDefault(false)
+        _statusNotification.value =
+            daemon
+                .enableStatusNotification()
+                .onFailure { e ->
+                    Log.w(Constants.TAG, "status: notification toggle unreadable, showing off", e)
+                }
+                .getOrDefault(false)
         // Read, not assumed. This one had no getter at all, so the switch started at a hardcoded
         // value on every launch and told the reader whatever that value was — which on a device
         // where the setting had been changed was simply wrong.
-        _hiddenIcon.value = daemon.forcedLauncherIcons().getOrDefault(true)
+        _hiddenIcon.value =
+            daemon
+                .forcedLauncherIcons()
+                .onFailure { e ->
+                    Log.w(Constants.TAG, "status: launcher-icon toggle unreadable, showing on", e)
+                }
+                .getOrDefault(true)
     }
 
     fun setStatusNotification(enabled: Boolean) {
         viewModelScope.launch {
-            daemon.setEnableStatusNotification(enabled).onSuccess {
-                _statusNotification.value = enabled
-            }
+            daemon
+                .setEnableStatusNotification(enabled)
+                .onSuccess { _statusNotification.value = enabled }
+                .onFailure { e ->
+                    Log.e(
+                        Constants.TAG,
+                        "framework: setting the status notification to $enabled failed",
+                        e,
+                    )
+                }
         }
     }
 

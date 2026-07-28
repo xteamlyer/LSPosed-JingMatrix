@@ -109,6 +109,13 @@ class ModuleInstaller(private val context: Context, private val client: OkHttpCl
                     _state.value = InstallStep.Installing(packageName)
                     val result = commit(session, sessionId, packageName)
                     succeeded = result.first == PackageInstaller.STATUS_SUCCESS
+                    if (!succeeded) {
+                        Log.w(
+                            Constants.TAG,
+                            "store: install of $packageName failed, status ${result.first}: " +
+                                "${result.second}",
+                        )
+                    }
                     _state.value =
                         if (succeeded) InstallStep.Done(packageName)
                         else InstallStep.Failed(packageName, result.second)
@@ -194,10 +201,17 @@ class ModuleInstaller(private val context: Context, private val client: OkHttpCl
                         IntentCompat.getParcelableExtra(intent, Intent.EXTRA_INTENT, Intent::class.java)
                             ?.let { confirm ->
                                 runCatching {
-                                    context.startActivity(
-                                        confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    )
-                                }
+                                        context.startActivity(
+                                            confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        )
+                                    }
+                                    .onFailure { e ->
+                                        Log.e(
+                                            Constants.TAG,
+                                            "store: install prompt for $packageName could not be started",
+                                            e,
+                                        )
+                                    }
                             }
                         return
                     }

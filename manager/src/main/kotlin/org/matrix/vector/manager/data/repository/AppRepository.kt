@@ -1,4 +1,7 @@
 package org.matrix.vector.manager.data.repository
+import android.util.Log
+import org.matrix.vector.manager.Constants
+import kotlinx.coroutines.CancellationException
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -38,7 +41,17 @@ class AppRepository(
 
             val result =
                 daemonClient.getInstalledPackagesFromAllUsers(flags, filterNoProcess = true)
-            if (result.isFailure) return@withContext emptyList()
+            val failure = result.exceptionOrNull()
+            if (failure != null) {
+                if (failure !is CancellationException) {
+                    Log.w(
+                        Constants.TAG,
+                        "apps: installed package list unavailable from daemon",
+                        failure,
+                    )
+                }
+                return@withContext emptyList()
+            }
 
             val packages = result.getOrNull() ?: emptyList()
             val PER_USER_RANGE = 100000

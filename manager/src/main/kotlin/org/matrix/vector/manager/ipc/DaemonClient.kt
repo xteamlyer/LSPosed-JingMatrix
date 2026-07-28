@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.ipc
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +42,7 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
                 // RuntimeException thrown while unparcelling a large ParcelableListSlice are all
                 // reachable here, and any of them escaping cancels the caller's scope — which in
                 // a viewModelScope means the process dies.
+                Log.w(Constants.TAG, "ipc: daemon transaction failed", e)
                 Result.failure(e)
             }
         }
@@ -117,9 +120,17 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
         /** As in [findAppUi], and for the same reason it has no default there. */
         companionFirst: Boolean,
     ): Result<Boolean> {
-        val target =
-            findAppUi(packageName, userId, companionFirst).getOrNull()
-                ?: return Result.success(false)
+        val resolved = findAppUi(packageName, userId, companionFirst)
+        val target = resolved.getOrNull()
+        if (target == null) {
+            Log.e(
+                Constants.TAG,
+                "ipc: open resolved no activity for $packageName in user $userId " +
+                    "(companionFirst=$companionFirst)",
+                resolved.exceptionOrNull(),
+            )
+            return Result.success(false)
+        }
         return runIpc { service ->
             service.startActivityAsUserWithFeature(
                 Intent(Intent.ACTION_MAIN)

@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.data.github
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +71,7 @@ class GitHubAuth(context: Context, private val client: OkHttpClient) {
                     .getOrElse {
                         // Unreachable is the expected case for a lot of users, not an error worth
                         // shouting about.
+                        Log.w(Constants.TAG, "auth: github device code request failed", it)
                         _state.value = SignInState.Unavailable(it.message ?: "unreachable")
                         return@withContext
                     }
@@ -103,6 +106,10 @@ class GitHubAuth(context: Context, private val client: OkHttpClient) {
                         return@withContext
                     }
                     else -> {
+                        Log.w(
+                            Constants.TAG,
+                            "auth: github device flow refused: ${poll.error ?: "unknown"}",
+                        )
                         _state.value = SignInState.Unavailable(poll.error ?: "unknown")
                         return@withContext
                     }

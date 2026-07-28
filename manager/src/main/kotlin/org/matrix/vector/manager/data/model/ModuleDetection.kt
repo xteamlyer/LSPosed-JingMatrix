@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.data.model
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -70,12 +72,21 @@ object ModuleDetection {
                                 // A malformed module.prop must cost these fields, not the whole
                                 // module — Properties.load throws on a bad unicode escape.
                                 runCatching {
-                                    val props =
-                                        Properties().apply { load(zip.getInputStream(entry)) }
-                                    minApi = props.getProperty("minApiVersion").toIntOrZero()
-                                    targetApi = props.getProperty("targetApiVersion").toIntOrZero()
-                                    static = props.getProperty("staticScope") == "true"
-                                }
+                                        val props =
+                                            Properties().apply { load(zip.getInputStream(entry)) }
+                                        minApi = props.getProperty("minApiVersion").toIntOrZero()
+                                        targetApi =
+                                            props.getProperty("targetApiVersion").toIntOrZero()
+                                        static = props.getProperty("staticScope") == "true"
+                                    }
+                                    .onFailure { e ->
+                                        Log.w(
+                                            Constants.TAG,
+                                            "modules: ${info.packageName} module.prop unparsable, " +
+                                                "api version and static scope unknown",
+                                            e,
+                                        )
+                                    }
                             }
 
                             val scope =
@@ -98,6 +109,14 @@ object ModuleDetection {
                                 description = info.loadDescription(packageManager)?.toString()?.trim().orEmpty(),
                             )
                         }
+                    }
+                    .onFailure { e ->
+                        Log.w(
+                            Constants.TAG,
+                            "modules: reading ${info.packageName} " +
+                                "${apk.substringAfterLast('/')} failed",
+                            e,
+                        )
                     }
                     .getOrNull()
             if (modern != null) return modern
@@ -161,6 +180,13 @@ object ModuleDetection {
                     } else {
                         meta.getString(LEGACY_SCOPE)?.split(';')?.map { it.trim() }
                     }
+                }
+                .onFailure { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "modules: ${info.packageName} legacy xposedscope unreadable",
+                        e,
+                    )
                 }
                 .getOrNull()
                 ?.filter { it.isNotEmpty() } ?: return emptyList()

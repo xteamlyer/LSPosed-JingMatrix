@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.ui.screens.update
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import org.matrix.vector.manager.data.repository.ReleaseDirection
 import org.matrix.vector.manager.data.github.FrameworkRelease
@@ -128,23 +130,58 @@ class FrameworkUpdateViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val code = daemon.getRootImplementation().getOrNull() ?: ILSPManagerService.ROOT_NONE
+            // The only log in these two init blocks: lines 132, 136 and 137 fail from the same
+            // unreachable binder and would otherwise print four lines for one dead daemon.
+            val code =
+                daemon.getRootImplementation().getOrElse { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "update: root implementation unreadable, screen will claim no root",
+                        e,
+                    )
+                    ILSPManagerService.ROOT_NONE
+                }
             val version = daemon.getRootImplementationVersion().getOrNull()
             _root.value = RootState(code, version)
         }
         viewModelScope.launch {
-            val installed = daemon.getXposedVersionCode().getOrNull() ?: 0L
+            val installed =
+                daemon.getXposedVersionCode().getOrElse { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "update: installed framework version unavailable, update check skipped",
+                        e,
+                    )
+                    0L
+                }
             updates.refresh(installed, daemon.getFrameworkCommit().getOrNull())
         }
     }
 
     fun flash() {
-        val zip = chosenZip.value ?: return
-        val url = zip.downloadUrl ?: return
+        val zip =
+            chosenZip.value
+                ?: run {
+                    Log.e(
+                        Constants.TAG,
+                        "update: flash pressed with no zip selected, " +
+                            "release=${selected.value?.tag}",
+                    )
+                    return
+                }
+        val url =
+            zip.downloadUrl
+                ?: run {
+                    Log.e(
+                        Constants.TAG,
+                        "update: flash pressed but zip ${zip.name} has no download url",
+                    )
+                    return
+                }
         viewModelScope.launch { installer.flash(url, zip.sizeInBytes, zip.name) }
     }
 
     suspend fun reboot() {
-        daemon.reboot()
+        daemon.reboot().onFailure { Log.e(Constants.TAG, "update: reboot request failed", it) }
     }
 }

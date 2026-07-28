@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.data.github
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -118,7 +120,17 @@ class GitHubRepository(
                 else System.currentTimeMillis() / 1000 - months * DAYS_PER_MONTH * 24L * 60 * 60
             val previous =
                 runCatching { json.decodeFromString<Snapshot>(snapshotFile.readText()) }.getOrNull()
-            val fresh = runCatching { fetch(windowStart, freshness) }.getOrNull()
+            val fetched = runCatching { fetch(windowStart, freshness) }
+            val fresh = fetched.getOrNull()
+            // Not on the Cached path: a cold OkHttp cache answers FORCE_CACHE with an
+            // unsatisfiable 504, and every scroll to the foot of the feed would log.
+            if (fresh == null && freshness != Freshness.Cached) {
+                Log.w(
+                    Constants.TAG,
+                    "feed: github commit fetch failed ($freshness), falling back to disk",
+                    fetched.exceptionOrNull(),
+                )
+            }
             if (fresh != null) {
                 // Merged with what was already on disk rather than replacing it. The stars, forks
                 // and licence come from a *second* request, and the two do not fail together: on a
@@ -133,10 +145,11 @@ class GitHubRepository(
                 val repo = fresh.repo ?: readRepo() ?: previous?.repo
                 val total = if (fresh.totalCommits > 0) fresh.totalCommits else previous?.totalCommits ?: 0L
                 runCatching {
-                    snapshotFile.writeText(
-                        json.encodeToString(Snapshot(total, fresh.rawCommits, repo))
-                    )
-                }
+                        snapshotFile.writeText(
+                            json.encodeToString(Snapshot(total, fresh.rawCommits, repo))
+                        )
+                    }
+                    .onFailure { e -> Log.w(Constants.TAG, "feed: snapshot write failed", e) }
                 return@withContext build(
                     timeline(fresh.rawCommits, windowStart),
                     repo,
@@ -321,19 +334,25 @@ class GitHubRepository(
 
             var added = 0
             repeat(maxPages) {
-                val batch =
+                val url = "$API/$REPO/commits?until=${iso8601(cursor)}&per_page=100&page=$page"
+                val result =
                     runCatching {
-                            get(
-                                "$API/$REPO/commits?until=${iso8601(cursor)}&per_page=100&page=$page",
-                                Freshness.Revalidate,
-                            )
-                                ?.let { json.decodeFromString<List<GhCommit>>(it) }
+                        get(url, Freshness.Revalidate)?.let {
+                            json.decodeFromString<List<GhCommit>>(it)
                         }
-                        .getOrNull()
+                    }
+                val batch = result.getOrNull()
                 // A refused or failed request is not the end of history. Leaving `complete` false
                 // means the next call tries again rather than declaring the archive finished
                 // because GitHub was rate limiting at the time.
-                if (batch == null) return@repeat
+                if (batch == null) {
+                    Log.w(
+                        Constants.TAG,
+                        "feed: history backfill $url unavailable",
+                        result.exceptionOrNull(),
+                    )
+                    return@repeat
+                }
 
                 if (batch.isEmpty()) {
                     state = state.copy(complete = true)
@@ -664,6 +683,7 @@ class GitHubRepository(
                     ?: return@withContext emptyList()
 
             runCatching { json.decodeFromString<List<GhRelease>>(body) }
+                .onFailure { e -> Log.e(Constants.TAG, "update: canary release list unreadable", e) }
                 .getOrDefault(emptyList())
                 .filter { it.prerelease && it.tagName.startsWith(CANARY_TAG_PREFIX) }
                 .take(CANARY_KEEP)
@@ -705,6 +725,7 @@ class GitHubRepository(
                     ?: return@withContext emptyList()
 
             runCatching { json.decodeFromString<List<GhRelease>>(body) }
+                .onFailure { e -> Log.e(Constants.TAG, "update: release list unreadable", e) }
                 .getOrDefault(emptyList())
                 .mapNotNull { release ->
                     val canary = release.prerelease && release.tagName.startsWith(CANARY_TAG_PREFIX)

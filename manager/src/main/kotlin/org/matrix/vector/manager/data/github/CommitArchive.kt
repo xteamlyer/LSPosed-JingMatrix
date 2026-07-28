@@ -1,4 +1,6 @@
 package org.matrix.vector.manager.data.github
+import android.util.Log
+import org.matrix.vector.manager.Constants
 
 import java.io.File
 import kotlinx.serialization.Serializable
@@ -113,26 +115,71 @@ class CommitArchive(private val file: File, private val stateFile: File, private
     private fun parse(): List<GhCommit> {
         if (!file.isFile) return emptyList()
         val byShaLatestWins = LinkedHashMap<String, GhCommit>()
+        var total = 0
+        var skipped = 0
+        var firstFailure: Throwable? = null
         runCatching {
             file.forEachLine { line ->
                 if (line.isBlank()) return@forEachLine
+                total++
                 runCatching { json.decodeFromString<GhCommit>(line) }
+                    .onFailure { e ->
+                        skipped++
+                        if (firstFailure == null) firstFailure = e
+                    }
                     .getOrNull()
                     // A truncated final line — a process killed mid-append — costs that one commit
                     // and nothing else. It is why this is a line format and not one JSON document.
                     ?.let { byShaLatestWins[it.sha] = it }
             }
         }
-        return byShaLatestWins.values.sortedByDescending { it.commit.author.date }
+        // Exactly one bad line is that documented tear at the tail and is not worth a line; more
+        // than one is systematic — a renamed field, and the whole archive reads as empty.
+        corruptLines = skipped
+        lineCount = total
+        val unique = byShaLatestWins.values.sortedByDescending { it.commit.author.date }
+        if (skipped > 1) {
+            Log.w(Constants.TAG, "feed: skipped $skipped of $total archive lines", firstFailure)
+            // Repaired here, where it is found, and not left to [compactIfWasteful]: that runs
+            // only during a backfill, which happens only if someone scrolls to the foot of
+            // history. A reader that silently drops the same lines on every launch forever is how
+            // this went unnoticed in the first place. Rewriting what parsed is the whole repair —
+            // the damage is unreadable text between two records, and there is nothing in it to
+            // recover — and it happens once, because the next parse finds nothing to skip.
+            rewrite(unique)
+        }
+        return unique
     }
 
-    /** Appends a chunk. Duplicates are expected and are resolved on read, not here. */
+    /**
+     * Appends a chunk. Duplicates are expected and are resolved on read, not here.
+     *
+     * Serialised against every other writer, and it has to be. `appendText` opens its own stream
+     * per call and a hundred commits is far more than one buffer, so two overlapping appends
+     * interleave at a buffer boundary rather than one following the other. This is not
+     * theoretical: `ServiceLocator.prefetch` launches `load()` while the home screen can be
+     * running `backfill()`, and a device's archive was found with **11 spliced lines out of
+     * 6304** — a commit message cut mid-word with the next record's `{"sha":` welded onto it.
+     * Each tear costs two commits and is permanent, and nothing said so until this file started
+     * logging what it skipped.
+     */
     fun append(commits: List<GhCommit>) {
         if (commits.isEmpty()) return
-        parsed = null
-        runCatching {
-            file.parentFile?.mkdirs()
-            file.appendText(commits.joinToString("\n", postfix = "\n") { json.encodeToString(it) })
+        synchronized(writeLock) {
+            parsed = null
+            runCatching {
+                    file.parentFile?.mkdirs()
+                    file.appendText(
+                        commits.joinToString("\n", postfix = "\n") { json.encodeToString(it) }
+                    )
+                }
+                .onFailure { e ->
+                    Log.w(
+                        Constants.TAG,
+                        "feed: appending ${commits.size} commits to the archive failed",
+                        e,
+                    )
+                }
         }
     }
 
@@ -144,14 +191,59 @@ class CommitArchive(private val file: File, private val stateFile: File, private
      */
     fun compactIfWasteful() {
         if (!file.isFile) return
-        val lines = runCatching { file.readLines().count { it.isNotBlank() } }.getOrDefault(0)
-        val unique = read()
-        if (lines <= unique.size * 2) return
-        runCatching {
-            val tmp = File(file.parentFile, file.name + ".tmp")
-            tmp.writeText(unique.joinToString("\n", postfix = "\n") { json.encodeToString(it) })
-            tmp.renameTo(file)
-            parsed = unique
+        synchronized(writeLock) {
+            // read() first: it is memoised, and parsing is what counts the lines. The previous
+            // version read the whole file a second time purely to count them, which on this
+            // repository is six megabytes of JSON per call to answer a question the parse had
+            // already answered.
+            val unique = read()
+            if (lineCount <= unique.size * 2) return
+            rewrite(unique)
         }
     }
+
+    /**
+     * Replaces the file with exactly [unique], one record per line.
+     *
+     * Through a temporary and a rename, so a reader either sees the whole old file or the whole
+     * new one and never a half-written replacement. Shared by compaction and by repair because
+     * they are the same operation: both write back only what could be read.
+     */
+    private fun rewrite(unique: List<GhCommit>) {
+        synchronized(writeLock) {
+            runCatching {
+                    val tmp = File(file.parentFile, file.name + ".tmp")
+                    tmp.writeText(
+                        unique.joinToString("\n", postfix = "\n") { json.encodeToString(it) }
+                    )
+                    tmp.renameTo(file)
+                    parsed = unique
+                    corruptLines = 0
+                    lineCount = unique.size
+                }
+                .onFailure { e ->
+                    Log.w(Constants.TAG, "feed: rewriting the archive failed", e)
+                }
+        }
+    }
+
+    /**
+     * Held so [compactIfWasteful] can repair what [parse] could not read.
+     *
+     * Counted rather than flagged because one is the documented tail — a process killed
+     * mid-append, costing that commit and nothing else — and more than one means something tore.
+     */
+    @Volatile private var corruptLines = 0
+
+    /** Lines the last parse walked, so compaction need not read the file again to count them. */
+    @Volatile private var lineCount = 0
+
+    /**
+     * Taken by everything that writes the file.
+     *
+     * Readers do not take it. A reader that catches a half-written final line loses that one
+     * record and says so, which is the behaviour a line format is chosen for; a *writer* that
+     * catches another writer loses records in the middle of the file, permanently.
+     */
+    private val writeLock = Any()
 }

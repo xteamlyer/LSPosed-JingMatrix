@@ -1,4 +1,7 @@
 package org.matrix.vector.manager.data.repository
+import android.util.Log
+import org.matrix.vector.manager.Constants
+import kotlinx.coroutines.CancellationException
 
 import android.content.Context
 import android.net.Uri
@@ -62,9 +65,17 @@ class BackupRepository(private val context: Context, private val daemon: DaemonC
                 val modules =
                     enabled.map { packageName ->
                         val scope =
-                            daemon.getModuleScope(packageName).getOrDefault(emptyList()).map {
-                                BackupTarget(it.packageName, it.userId)
-                            }
+                            daemon
+                                .getModuleScope(packageName)
+                                .onFailure { e ->
+                                    Log.w(
+                                        Constants.TAG,
+                                        "backup: scope of $packageName unreadable, saved as empty",
+                                        e,
+                                    )
+                                }
+                                .getOrDefault(emptyList())
+                                .map { BackupTarget(it.packageName, it.userId) }
                         BackupModule(packageName, enabled = true, scope = scope)
                     }
 
@@ -81,6 +92,16 @@ class BackupRepository(private val context: Context, private val daemon: DaemonC
 
                 modules.size
             }
+                .onFailure { e ->
+                    if (e is CancellationException) throw e
+                    Log.e(
+                        Constants.TAG,
+                        "backup: writing a backup of " +
+                            (if (only.isEmpty()) "all enabled" else "${only.size} selected") +
+                            " modules failed",
+                        e,
+                    )
+                }
         }
 
     suspend fun restoreFrom(uri: Uri): Result<RestoreOutcome> =
@@ -99,7 +120,16 @@ class BackupRepository(private val context: Context, private val daemon: DaemonC
                     // A module that is not installed here is skipped rather than failing the
                     // restore — a backup is routinely carried between devices.
                     val enabledOk =
-                        daemon.setModuleEnabled(module.packageName, module.enabled).getOrDefault(false)
+                        daemon
+                            .setModuleEnabled(module.packageName, module.enabled)
+                            .onFailure { e ->
+                                Log.w(
+                                    Constants.TAG,
+                                    "restore: enabling ${module.packageName} failed, skipping",
+                                    e,
+                                )
+                            }
+                            .getOrDefault(false)
                     if (!enabledOk) {
                         skipped++
                         return@forEach
@@ -112,12 +142,28 @@ class BackupRepository(private val context: Context, private val daemon: DaemonC
                                     userId = target.userId
                                 }
                             }
-                        daemon.setModuleScope(module.packageName, scope)
+                        val scopeResult = daemon.setModuleScope(module.packageName, scope)
+                        if (!scopeResult.getOrDefault(false)) {
+                            Log.e(
+                                Constants.TAG,
+                                "restore: scope of ${module.packageName} not applied " +
+                                    "(${scope.size} targets)",
+                                scopeResult.exceptionOrNull(),
+                            )
+                        }
                     }
                     restored++
                 }
                 RestoreOutcome(restored, skipped)
             }
+                .onFailure { e ->
+                    if (e is CancellationException) throw e
+                    Log.e(
+                        Constants.TAG,
+                        "restore: reading or parsing the backup file from ${uri.authority} failed",
+                        e,
+                    )
+                }
         }
 
     private companion object {

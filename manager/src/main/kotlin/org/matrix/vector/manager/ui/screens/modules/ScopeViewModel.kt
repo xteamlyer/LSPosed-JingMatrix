@@ -1,4 +1,7 @@
 package org.matrix.vector.manager.ui.screens.modules
+import android.util.Log
+import org.matrix.vector.manager.Constants
+import kotlinx.coroutines.CancellationException
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -366,9 +369,18 @@ class ScopeViewModel(
             val userCount =
                 withContext(Dispatchers.IO) { daemonClient.getUsers().getOrNull()?.size ?: 1 }
 
+            val savedResult = daemonClient.getModuleScope(modulePackageName)
+            // Keyed on the exception, not on a null: a fresh module with nothing ticked is a
+            // success carrying an empty list and must stay silent.
+            savedResult.exceptionOrNull()?.let { e ->
+                Log.e(
+                    Constants.TAG,
+                    "scope: reading the saved scope of $modulePackageName failed, showing none",
+                    e,
+                )
+            }
             val saved =
-                daemonClient
-                    .getModuleScope(modulePackageName)
+                savedResult
                     .getOrNull()
                     ?.map { ScopeTarget(it.packageName, it.userId) }
                     ?.toSet() ?: emptySet()
@@ -381,6 +393,14 @@ class ScopeViewModel(
                             packageManager.getApplicationInfo(
                                 modulePackageName,
                                 android.content.pm.PackageManager.GET_META_DATA,
+                            )
+                        }
+                        .onFailure { e ->
+                            Log.w(
+                                Constants.TAG,
+                                "scope: package info for $modulePackageName (user $userId) " +
+                                    "unavailable, no recommended scope",
+                                e,
                             )
                         }
                         .getOrNull()
@@ -488,7 +508,14 @@ class ScopeViewModel(
             daemonClient
                 .setIncludeNewApps(modulePackageName, enabled)
                 .onSuccess { _uiState.value = _uiState.value.copy(includeNewApps = enabled) }
-                .onFailure { _message.value = ScopeMessage.IncludeNewAppsFailed }
+                .onFailure { e ->
+                    Log.e(
+                        Constants.TAG,
+                        "scope: setting include-new-apps=$enabled for $modulePackageName failed",
+                        e,
+                    )
+                    _message.value = ScopeMessage.IncludeNewAppsFailed
+                }
         }
     }
 
@@ -498,6 +525,13 @@ class ScopeViewModel(
             _companion.value =
                 daemonClient
                     .findAppUi(modulePackageName, userId, companionFirst = true)
+                    .onFailure { e ->
+                        Log.w(
+                            Constants.TAG,
+                            "scope: companion lookup for $modulePackageName user $userId failed",
+                            e,
+                        )
+                    }
                     .getOrNull() != null
         }
     }
@@ -519,6 +553,13 @@ class ScopeViewModel(
             val opened =
                 daemonClient
                     .openAppUi(modulePackageName, userId, companionFirst = true)
+                    .onFailure { e ->
+                        Log.e(
+                            Constants.TAG,
+                            "scope: companion open of $modulePackageName for user $userId failed",
+                            e,
+                        )
+                    }
                     .getOrDefault(false)
             if (!opened) _message.value = ScopeMessage.NothingToOpen
         }
@@ -562,7 +603,14 @@ class ScopeViewModel(
                     // discover the change on the next manual refresh.
                     ServiceLocator.modules.noteScopeChanged()
                 }
-                .onFailure { _message.value = ScopeMessage.ApplyFailed }
+                .onFailure { e ->
+                    Log.e(
+                        Constants.TAG,
+                        "scope: apply of ${draft.size} targets to $modulePackageName failed",
+                        e,
+                    )
+                    _message.value = ScopeMessage.ApplyFailed
+                }
             _applying.value = false
         }
     }
@@ -595,6 +643,9 @@ class ScopeViewModel(
                                 it.write("[\n  $payload\n]".toByteArray())
                             } ?: error("could not open the file")
                         }
+                        .onFailure { e ->
+                            Log.e(Constants.TAG, "scope: backup of $modulePackageName failed", e)
+                        }
                         .isSuccess
                 }
             onDone(ok)
@@ -614,6 +665,10 @@ class ScopeViewModel(
                                 .findAll(text)
                                 .map { ScopeTarget(it.groupValues[1], it.groupValues[2].toInt()) }
                                 .toSet()
+                        }
+                        .onFailure { e ->
+                            if (e is CancellationException) throw e
+                            Log.e(Constants.TAG, "scope: restore for $modulePackageName failed", e)
                         }
                         .getOrNull()
                 }

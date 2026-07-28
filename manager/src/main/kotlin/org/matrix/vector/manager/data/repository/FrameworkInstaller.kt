@@ -146,7 +146,9 @@ class FrameworkInstaller(
 
         val started = daemon.installFrameworkZip(path, callback)
         if (started.isFailure) {
-            append("The daemon refused the install: ${started.exceptionOrNull()?.message}")
+            val cause = started.exceptionOrNull()
+            Log.e(Constants.TAG, "update: daemon did not start the install of $path", cause)
+            append("The daemon refused the install: ${cause?.message}")
             _state.value = FlashStep.Failed(ILSPManagerService.INSTALL_NOT_EXECUTED)
             return
         }
