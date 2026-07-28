@@ -7,7 +7,7 @@
     <string name="nav_logs">Dzienniki</string>
 
     <string name="status_active">Aktywny</string>
-    <string name="status_degraded">Wymaga uwagi</string>
+    <string name="status_degraded">Problemy</string>
     <string name="status_inactive">Nieaktywowany</string>
     <string name="status_checking">Sprawdzanie…</string>
     <string name="status_open_details">Otwórz stan systemu</string>

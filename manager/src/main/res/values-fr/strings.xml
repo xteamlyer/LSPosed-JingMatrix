@@ -7,7 +7,7 @@
     <string name="nav_logs">Journaux</string>
 
     <string name="status_active">Actif</string>
-    <string name="status_degraded">Demande attention</string>
+    <string name="status_degraded">À vérifier</string>
     <string name="status_inactive">Non activé</string>
     <string name="status_checking">Vérification…</string>
     <string name="status_open_details">Ouvrir l\'état du système</string>

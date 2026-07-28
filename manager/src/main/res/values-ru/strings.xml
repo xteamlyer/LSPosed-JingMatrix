@@ -5,7 +5,7 @@
     <string name="nav_store">Репозиторий</string>
     <string name="nav_logs">Журнал</string>
     <string name="status_active">Активен</string>
-    <string name="status_degraded">Требует внимания</string>
+    <string name="status_degraded">Проблемы</string>
     <string name="status_inactive">Не активирован</string>
     <string name="status_checking">Проверка…</string>
     <string name="status_open_details">Открыть состояние системы</string>

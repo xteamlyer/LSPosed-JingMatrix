@@ -7,7 +7,7 @@
     <string name="nav_logs">Günlükler</string>
 
     <string name="status_active">Etkin</string>
-    <string name="status_degraded">İlgi gerekiyor</string>
+    <string name="status_degraded">Sorun var</string>
     <string name="status_inactive">Etkinleştirilmedi</string>
     <string name="status_checking">Denetleniyor…</string>
     <string name="status_open_details">Sistem durumunu aç</string>
