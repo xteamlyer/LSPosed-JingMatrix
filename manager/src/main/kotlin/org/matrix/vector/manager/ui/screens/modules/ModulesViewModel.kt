@@ -348,12 +348,23 @@ class ModulesViewModel(
      * the same config, and firing twenty at once at a single-threaded service buys nothing but a
      * harder failure to explain.
      */
-    fun setSelectedEnabled(enable: Boolean, onResult: (changed: Int, failed: Int) -> Unit) {
+    fun setSelectedEnabled(enable: Boolean, onResult: (BatchOutcome) -> Unit) {
         val targets = _selection.value.toList()
         viewModelScope.launch {
+            // What the daemon already thinks, so a module that is in the asked-for state is neither
+            // toggled nor counted as a change. It used to be both: the write went out, the daemon
+            // reported the row as written, and five modules of which two were already on were
+            // announced as five enabled. The report is the only evidence the user has of what
+            // happened, so it has to distinguish "done" from "was already so".
+            val current = moduleRepository.enabledModulesState.value
             var changed = 0
             var failed = 0
+            var already = 0
             targets.forEach { key ->
+                if ((key.packageName in current) == enable) {
+                    already++
+                    return@forEach
+                }
                 if (moduleRepository.toggleModule(key.packageName, enable)) changed++ else failed++
             }
             // No re-read, and no rediscovery. Each toggle above already returned the daemon's own
@@ -362,12 +373,20 @@ class ModulesViewModel(
             // packages are installed. The single-module path never did either, which is why it
             // moved the row and this one did not.
             _selection.value = emptySet()
-            onResult(changed, failed)
+            onResult(BatchOutcome(changed = changed, already = already, failed = failed))
         }
     }
 
+    /**
+     * What a batch actually did.
+     *
+     * Three numbers rather than two, because "it was already like that" is not a success and not a
+     * failure — reporting it as either is how a count comes to mean nothing.
+     */
+    data class BatchOutcome(val changed: Int, val already: Int, val failed: Int)
+
     /** Uninstalls everything selected. The screen confirms first; this does not. */
-    fun uninstallSelected(onResult: (removed: Int, failed: Int) -> Unit) {
+    fun uninstallSelected(onResult: (BatchOutcome) -> Unit) {
         val targets = _selection.value.toList()
         viewModelScope.launch {
             var removed = 0
@@ -380,7 +399,7 @@ class ModulesViewModel(
             moduleRepository.refresh()
             loadModules()
             _selection.value = emptySet()
-            onResult(removed, failed)
+            onResult(BatchOutcome(changed = removed, already = 0, failed = failed))
         }
     }
 

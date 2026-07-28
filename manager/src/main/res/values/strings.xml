@@ -301,9 +301,34 @@
     </plurals>
     <string name="modules_batch_enable">Enable all selected</string>
     <string name="modules_batch_disable">Disable all selected</string>
-    <string name="modules_batch_enabled">Enabled %1$s modules</string>
-    <string name="modules_batch_disabled">Disabled %1$s modules</string>
-    <string name="modules_batch_uninstalled">Uninstalled %1$s modules</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Enabled %1$d module</item>
+        <item quantity="other">Enabled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Disabled %1$d module</item>
+        <item quantity="other">Disabled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Uninstalled %1$d module</item>
+        <item quantity="other">Uninstalled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d was already on</item>
+        <item quantity="other">%1$d were already on</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d was already off</item>
+        <item quantity="other">%1$d were already off</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">It was already on</item>
+        <item quantity="other">All %1$d were already on</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">It was already off</item>
+        <item quantity="other">All %1$d were already off</item>
+    </plurals>
     <string name="modules_batch_partial">Only %1$s of them worked</string>
     <string name="modules_uninstall_title">Uninstall these modules?</string>
     <plurals name="modules_uninstall_body">

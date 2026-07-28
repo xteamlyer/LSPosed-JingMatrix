@@ -220,9 +220,6 @@
     </plurals>
     <string name="modules_batch_enable">선택한 항목 모두 켜기</string>
     <string name="modules_batch_disable">선택한 항목 모두 끄기</string>
-    <string name="modules_batch_enabled">모듈 %1$s개를 켰습니다</string>
-    <string name="modules_batch_disabled">모듈 %1$s개를 껐습니다</string>
-    <string name="modules_batch_uninstalled">모듈 %1$s개를 제거했습니다</string>
     <string name="modules_batch_partial">그중 %1$s개만 성공했습니다</string>
     <string name="modules_uninstall_title">이 모듈들을 제거할까요?</string>
     <plurals name="modules_uninstall_body">
@@ -334,4 +331,32 @@
     <string name="update_same_number">같은 번호, 다른 빌드</string>
     <string name="modules_load_no_apk">사용 중이지만 프레임워크가 불러올 APK를 찾지 못했습니다.</string>
     <string name="modules_load_bad_dex">사용 중이지만 프레임워크가 코드를 읽지 못했습니다. 실행되지 않습니다.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">모듈 %1$d개 사용 설정</item>
+        <item quantity="other">모듈 %1$d개 사용 설정</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">모듈 %1$d개 사용 중지</item>
+        <item quantity="other">모듈 %1$d개 사용 중지</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">모듈 %1$d개 제거</item>
+        <item quantity="other">모듈 %1$d개 제거</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d개는 이미 켜져 있었습니다</item>
+        <item quantity="other">%1$d개는 이미 켜져 있었습니다</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d개는 이미 꺼져 있었습니다</item>
+        <item quantity="other">%1$d개는 이미 꺼져 있었습니다</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">이미 켜져 있었습니다</item>
+        <item quantity="other">%1$d개 모두 이미 켜져 있었습니다</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">이미 꺼져 있었습니다</item>
+        <item quantity="other">%1$d개 모두 이미 꺼져 있었습니다</item>
+    </plurals>
 </resources>

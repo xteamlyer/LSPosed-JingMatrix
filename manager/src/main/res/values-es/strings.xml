@@ -230,9 +230,6 @@
     </plurals>
     <string name="modules_batch_enable">Activar todos los seleccionados</string>
     <string name="modules_batch_disable">Desactivar todos los seleccionados</string>
-    <string name="modules_batch_enabled">%1$s módulos activados</string>
-    <string name="modules_batch_disabled">%1$s módulos desactivados</string>
-    <string name="modules_batch_uninstalled">%1$s módulos desinstalados</string>
     <string name="modules_batch_partial">Solo funcionaron %1$s de ellos</string>
     <string name="modules_uninstall_title">¿Desinstalar estos módulos?</string>
     <plurals name="modules_uninstall_body">
@@ -345,4 +342,32 @@
     <string name="update_same_number">Mismo número, otra compilación</string>
     <string name="modules_load_no_apk">Activado, pero el framework no encontró su APK para cargarlo.</string>
     <string name="modules_load_bad_dex">Activado, pero el framework no pudo leer su código. No se está ejecutando.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d módulo activado</item>
+        <item quantity="other">%1$d módulos activados</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d módulo desactivado</item>
+        <item quantity="other">%1$d módulos desactivados</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d módulo desinstalado</item>
+        <item quantity="other">%1$d módulos desinstalados</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d ya estaba activo</item>
+        <item quantity="other">%1$d ya estaban activos</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d ya estaba inactivo</item>
+        <item quantity="other">%1$d ya estaban inactivos</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Ya estaba activo</item>
+        <item quantity="other">Los %1$d ya estaban activos</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Ya estaba inactivo</item>
+        <item quantity="other">Los %1$d ya estaban inactivos</item>
+    </plurals>
 </resources>

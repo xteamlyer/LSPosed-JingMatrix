@@ -220,9 +220,6 @@
     </plurals>
     <string name="modules_batch_enable">Bật tất cả mục đã chọn</string>
     <string name="modules_batch_disable">Tắt tất cả mục đã chọn</string>
-    <string name="modules_batch_enabled">Đã bật %1$s mô-đun</string>
-    <string name="modules_batch_disabled">Đã tắt %1$s mô-đun</string>
-    <string name="modules_batch_uninstalled">Đã gỡ %1$s mô-đun</string>
     <string name="modules_batch_partial">Chỉ %1$s trong số đó thành công</string>
     <string name="modules_uninstall_title">Gỡ những mô-đun này?</string>
     <plurals name="modules_uninstall_body">
@@ -334,4 +331,32 @@
     <string name="update_same_number">Cùng số, bản dựng khác</string>
     <string name="modules_load_no_apk">Đã bật, nhưng framework không tìm thấy APK để nạp.</string>
     <string name="modules_load_bad_dex">Đã bật, nhưng framework không đọc được mã của nó. Mô-đun không chạy.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Đã bật %1$d mô-đun</item>
+        <item quantity="other">Đã bật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Đã tắt %1$d mô-đun</item>
+        <item quantity="other">Đã tắt %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Đã gỡ %1$d mô-đun</item>
+        <item quantity="other">Đã gỡ %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d đã bật sẵn</item>
+        <item quantity="other">%1$d đã bật sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d đã tắt sẵn</item>
+        <item quantity="other">%1$d đã tắt sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Vốn đã bật</item>
+        <item quantity="other">Cả %1$d đều đã bật sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Vốn đã tắt</item>
+        <item quantity="other">Cả %1$d đều đã tắt sẵn</item>
+    </plurals>
 </resources>

@@ -230,9 +230,6 @@
     </plurals>
     <string name="modules_batch_enable">Seçilenlerin tümünü etkinleştir</string>
     <string name="modules_batch_disable">Seçilenlerin tümünü devre dışı bırak</string>
-    <string name="modules_batch_enabled">%1$s modül etkinleştirildi</string>
-    <string name="modules_batch_disabled">%1$s modül devre dışı bırakıldı</string>
-    <string name="modules_batch_uninstalled">%1$s modül kaldırıldı</string>
     <string name="modules_batch_partial">Bunlardan yalnızca %1$s tanesi işe yaradı</string>
     <string name="modules_uninstall_title">Bu modüller kaldırılsın mı?</string>
     <plurals name="modules_uninstall_body">
@@ -345,4 +342,32 @@
     <string name="update_same_number">Aynı numara, farklı yapı</string>
     <string name="modules_load_no_apk">Etkin, ancak çerçeve yüklenecek APK’sını bulamadı.</string>
     <string name="modules_load_bad_dex">Etkin, ancak çerçeve kodunu okuyamadı. Çalışmıyor.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d modül etkinleştirildi</item>
+        <item quantity="other">%1$d modül etkinleştirildi</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d modül devre dışı bırakıldı</item>
+        <item quantity="other">%1$d modül devre dışı bırakıldı</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d modül kaldırıldı</item>
+        <item quantity="other">%1$d modül kaldırıldı</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d zaten açıktı</item>
+        <item quantity="other">%1$d tanesi zaten açıktı</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d zaten kapalıydı</item>
+        <item quantity="other">%1$d tanesi zaten kapalıydı</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Zaten açıktı</item>
+        <item quantity="other">%1$d tanesinin hepsi zaten açıktı</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Zaten kapalıydı</item>
+        <item quantity="other">%1$d tanesinin hepsi zaten kapalıydı</item>
+    </plurals>
 </resources>

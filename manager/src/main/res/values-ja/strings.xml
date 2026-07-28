@@ -220,9 +220,6 @@
     </plurals>
     <string name="modules_batch_enable">選択中をすべて有効にする</string>
     <string name="modules_batch_disable">選択中をすべて無効にする</string>
-    <string name="modules_batch_enabled">%1$s 個のモジュールを有効にしました</string>
-    <string name="modules_batch_disabled">%1$s 個のモジュールを無効にしました</string>
-    <string name="modules_batch_uninstalled">%1$s 個のモジュールをアンインストールしました</string>
     <string name="modules_batch_partial">うち %1$s 個だけ成功しました</string>
     <string name="modules_uninstall_title">これらのモジュールをアンインストールしますか？</string>
     <plurals name="modules_uninstall_body">
@@ -334,4 +331,32 @@
     <string name="update_same_number">同じ番号、別のビルド</string>
     <string name="modules_load_no_apk">有効ですが、読み込む APK が見つかりませんでした。</string>
     <string name="modules_load_bad_dex">有効ですが、コードを読み込めませんでした。動作していません。</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d 個のモジュールを有効化</item>
+        <item quantity="other">%1$d 個のモジュールを有効化</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d 個のモジュールを無効化</item>
+        <item quantity="other">%1$d 個のモジュールを無効化</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d 個のモジュールをアンインストール</item>
+        <item quantity="other">%1$d 個のモジュールをアンインストール</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d 個はすでに有効</item>
+        <item quantity="other">%1$d 個はすでに有効</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d 個はすでに無効</item>
+        <item quantity="other">%1$d 個はすでに無効</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">すでに有効でした</item>
+        <item quantity="other">%1$d 個すべてすでに有効でした</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">すでに無効でした</item>
+        <item quantity="other">%1$d 個すべてすでに無効でした</item>
+    </plurals>
 </resources>

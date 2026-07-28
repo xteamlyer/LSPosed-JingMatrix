@@ -254,9 +254,6 @@
     </plurals>
     <string name="modules_batch_enable">הפעלת כל הנבחרים</string>
     <string name="modules_batch_disable">כיבוי כל הנבחרים</string>
-    <string name="modules_batch_enabled">הופעלו %1$s מודולים</string>
-    <string name="modules_batch_disabled">כובו %1$s מודולים</string>
-    <string name="modules_batch_uninstalled">הוסרו %1$s מודולים</string>
     <string name="modules_batch_partial">רק %1$s מהם הצליחו</string>
     <string name="modules_uninstall_title">להסיר את המודולים האלה?</string>
     <plurals name="modules_uninstall_body">
@@ -371,4 +368,32 @@
     <string name="update_same_number">אותו מספר, גרסה אחרת</string>
     <string name="modules_load_no_apk">מופעל, אבל המסגרת לא מצאה את קובץ ה-APK שלו לטעינה.</string>
     <string name="modules_load_bad_dex">מופעל, אבל המסגרת לא הצליחה לקרוא את הקוד שלו. הוא לא רץ.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">הופעל מודול %1$d</item>
+        <item quantity="other">הופעלו %1$d מודולים</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">הושבת מודול %1$d</item>
+        <item quantity="other">הושבתו %1$d מודולים</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">הוסר מודול %1$d</item>
+        <item quantity="other">הוסרו %1$d מודולים</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d כבר היה פעיל</item>
+        <item quantity="other">%1$d כבר היו פעילים</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d כבר היה מושבת</item>
+        <item quantity="other">%1$d כבר היו מושבתים</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">כבר היה פעיל</item>
+        <item quantity="other">כל %1$d כבר היו פעילים</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">כבר היה מושבת</item>
+        <item quantity="other">כל %1$d כבר היו מושבתים</item>
+    </plurals>
 </resources>

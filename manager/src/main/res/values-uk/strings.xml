@@ -250,9 +250,6 @@
     </plurals>
     <string name="modules_batch_enable">Увімкнути всі вибрані</string>
     <string name="modules_batch_disable">Вимкнути всі вибрані</string>
-    <string name="modules_batch_enabled">Увімкнено модулів: %1$s</string>
-    <string name="modules_batch_disabled">Вимкнено модулів: %1$s</string>
-    <string name="modules_batch_uninstalled">Видалено модулів: %1$s</string>
     <string name="modules_batch_partial">Спрацювало лише %1$s із них</string>
     <string name="modules_uninstall_title">Видалити ці модулі?</string>
     <plurals name="modules_uninstall_body">
@@ -367,4 +364,32 @@
     <string name="update_same_number">Той самий номер, інша збірка</string>
     <string name="modules_load_no_apk">Увімкнено, але фреймворк не знайшов його APK для завантаження.</string>
     <string name="modules_load_bad_dex">Увімкнено, але фреймворк не зміг прочитати його код. Він не працює.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Увімкнено %1$d модуль</item>
+        <item quantity="other">Увімкнено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Вимкнено %1$d модуль</item>
+        <item quantity="other">Вимкнено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Видалено %1$d модуль</item>
+        <item quantity="other">Видалено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d уже був увімкнений</item>
+        <item quantity="other">Уже були увімкнені: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d уже був вимкнений</item>
+        <item quantity="other">Уже були вимкнені: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Він уже був увімкнений</item>
+        <item quantity="other">Усі %1$d уже були увімкнені</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Він уже був вимкнений</item>
+        <item quantity="other">Усі %1$d уже були вимкнені</item>
+    </plurals>
 </resources>

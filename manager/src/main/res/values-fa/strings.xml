@@ -230,9 +230,6 @@
     </plurals>
     <string name="modules_batch_enable">فعال‌سازی همهٔ گزیده‌ها</string>
     <string name="modules_batch_disable">غیرفعال‌سازی همهٔ گزیده‌ها</string>
-    <string name="modules_batch_enabled">‏%1$s ماژول فعال شد</string>
-    <string name="modules_batch_disabled">‏%1$s ماژول غیرفعال شد</string>
-    <string name="modules_batch_uninstalled">‏%1$s ماژول حذف شد</string>
     <string name="modules_batch_partial">تنها %1$s مورد از آن‌ها کارساز بود</string>
     <string name="modules_uninstall_title">این ماژول‌ها حذف شوند؟</string>
     <plurals name="modules_uninstall_body">
@@ -345,4 +342,32 @@
     <string name="update_same_number">همان شماره، ساخت دیگر</string>
     <string name="modules_load_no_apk">فعال است، اما چارچوب APK آن را برای بارگذاری نیافت.</string>
     <string name="modules_load_bad_dex">فعال است، اما چارچوب نتوانست کد آن را بخواند. اجرا نمی‌شود.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d ماژول فعال شد</item>
+        <item quantity="other">%1$d ماژول فعال شد</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d ماژول غیرفعال شد</item>
+        <item quantity="other">%1$d ماژول غیرفعال شد</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d ماژول حذف شد</item>
+        <item quantity="other">%1$d ماژول حذف شد</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d از قبل فعال بود</item>
+        <item quantity="other">%1$d از قبل فعال بودند</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d از قبل غیرفعال بود</item>
+        <item quantity="other">%1$d از قبل غیرفعال بودند</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">از قبل فعال بود</item>
+        <item quantity="other">هر %1$d از قبل فعال بودند</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">از قبل غیرفعال بود</item>
+        <item quantity="other">هر %1$d از قبل غیرفعال بودند</item>
+    </plurals>
 </resources>

@@ -230,9 +230,6 @@
     </plurals>
     <string name="modules_batch_enable">Alle ausgewählten aktivieren</string>
     <string name="modules_batch_disable">Alle ausgewählten deaktivieren</string>
-    <string name="modules_batch_enabled">%1$s Module aktiviert</string>
-    <string name="modules_batch_disabled">%1$s Module deaktiviert</string>
-    <string name="modules_batch_uninstalled">%1$s Module deinstalliert</string>
     <string name="modules_batch_partial">Nur %1$s davon haben funktioniert</string>
     <string name="modules_uninstall_title">Diese Module deinstallieren?</string>
     <plurals name="modules_uninstall_body">
@@ -345,4 +342,32 @@
     <string name="update_same_number">Gleiche Nummer, anderer Build</string>
     <string name="modules_load_no_apk">Aktiviert, aber das Framework hat kein APK zum Laden gefunden.</string>
     <string name="modules_load_bad_dex">Aktiviert, aber das Framework konnte den Code nicht lesen. Es läuft nicht.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d Modul aktiviert</item>
+        <item quantity="other">%1$d Module aktiviert</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d Modul deaktiviert</item>
+        <item quantity="other">%1$d Module deaktiviert</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d Modul deinstalliert</item>
+        <item quantity="other">%1$d Module deinstalliert</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d war schon an</item>
+        <item quantity="other">%1$d waren schon an</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d war schon aus</item>
+        <item quantity="other">%1$d waren schon aus</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">War schon an</item>
+        <item quantity="other">Alle %1$d waren schon an</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">War schon aus</item>
+        <item quantity="other">Alle %1$d waren schon aus</item>
+    </plurals>
 </resources>

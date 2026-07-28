@@ -220,9 +220,6 @@
     </plurals>
     <string name="modules_batch_enable">启用所选全部</string>
     <string name="modules_batch_disable">停用所选全部</string>
-    <string name="modules_batch_enabled">已启用 %1$s 个模块</string>
-    <string name="modules_batch_disabled">已停用 %1$s 个模块</string>
-    <string name="modules_batch_uninstalled">已卸载 %1$s 个模块</string>
     <string name="modules_batch_partial">其中只有 %1$s 个成功</string>
     <string name="modules_uninstall_title">卸载这些模块？</string>
     <plurals name="modules_uninstall_body">
@@ -335,4 +332,32 @@
     <string name="update_same_number">编号相同，构建不同</string>
     <string name="modules_load_no_apk">已启用，但框架找不到可加载的 APK。</string>
     <string name="modules_load_bad_dex">已启用，但框架无法读取其代码，未在运行。</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">已启用 %1$d 个模块</item>
+        <item quantity="other">已启用 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">已停用 %1$d 个模块</item>
+        <item quantity="other">已停用 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">已卸载 %1$d 个模块</item>
+        <item quantity="other">已卸载 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d 个原本就已启用</item>
+        <item quantity="other">%1$d 个原本就已启用</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d 个原本就已停用</item>
+        <item quantity="other">%1$d 个原本就已停用</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">原本就已启用</item>
+        <item quantity="other">%1$d 个全部原本就已启用</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">原本就已停用</item>
+        <item quantity="other">%1$d 个全部原本就已停用</item>
+    </plurals>
 </resources>

@@ -270,9 +270,6 @@
     </plurals>
     <string name="modules_batch_enable">تفعيل كل ما هو محدَّد</string>
     <string name="modules_batch_disable">تعطيل كل ما هو محدَّد</string>
-    <string name="modules_batch_enabled">فُعِّلت %1$s وحدة</string>
-    <string name="modules_batch_disabled">عُطِّلت %1$s وحدة</string>
-    <string name="modules_batch_uninstalled">أُلغي تثبيت %1$s وحدة</string>
     <string name="modules_batch_partial">نجحت %1$s منها فقط</string>
     <string name="modules_uninstall_title">إلغاء تثبيت هذه الوحدات؟</string>
     <plurals name="modules_uninstall_body">
@@ -389,4 +386,32 @@
     <string name="update_same_number">الرقم نفسه، إصدار آخر</string>
     <string name="modules_load_no_apk">مفعّلة، لكن لم يعثر الإطار على حزمة APK لتحميلها.</string>
     <string name="modules_load_bad_dex">مفعّلة، لكن تعذّر على الإطار قراءة شفرتها. إنها لا تعمل.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">تم تفعيل وحدة واحدة</item>
+        <item quantity="other">تم تفعيل %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">تم تعطيل وحدة واحدة</item>
+        <item quantity="other">تم تعطيل %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">تمت إزالة وحدة واحدة</item>
+        <item quantity="other">تمت إزالة %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d كانت مفعّلة أصلًا</item>
+        <item quantity="other">%1$d كانت مفعّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d كانت معطّلة أصلًا</item>
+        <item quantity="other">%1$d كانت معطّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">كانت مفعّلة أصلًا</item>
+        <item quantity="other">كل الـ %1$d كانت مفعّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">كانت معطّلة أصلًا</item>
+        <item quantity="other">كل الـ %1$d كانت معطّلة أصلًا</item>
+    </plurals>
 </resources>

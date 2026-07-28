@@ -184,14 +184,40 @@ fun ModulesScreen(
     val actionScope = rememberCoroutineScope()
 
     /** One sentence for a batch: how many worked, and how many did not if any did not. */
-    fun batchResult(messageRes: Int, changed: Int, failed: Int): PackageActionResult =
-        if (failed == 0) PackageActionResult(messageRes, changed.toString(), SnackbarTone.Success)
-        else
-            PackageActionResult(
+    /**
+     * What to say after a batch, which is whatever actually happened.
+     *
+     * "Enabled 5 modules" was said whether five changed or none did, because a module already in
+     * the asked-for state was counted as a success. The three outcomes are separated now: what
+     * changed, what was already so, and what refused. A run where nothing needed doing says so
+     * rather than claiming work it did not do.
+     */
+    fun batchResult(
+        doneRes: Int,
+        alreadyRes: Int,
+        allAlreadyRes: Int,
+        outcome: ModulesViewModel.BatchOutcome,
+    ): Pair<String, SnackbarTone> {
+        val (changed, already, failed) = outcome
+        if (failed > 0) {
+            return context.getString(
                 R.string.modules_batch_partial,
                 "$changed/${changed + failed}",
-                SnackbarTone.Failure,
-            )
+            ) to SnackbarTone.Failure
+        }
+        if (changed == 0 && already > 0) {
+            return context.resources.getQuantityString(allAlreadyRes, already, already) to
+                SnackbarTone.Neutral
+        }
+        val done = context.resources.getQuantityString(doneRes, changed, changed)
+        if (already == 0) return done to SnackbarTone.Success
+        val alreadySaid = context.resources.getQuantityString(alreadyRes, already, already)
+        return "$done  ·  $alreadySaid" to SnackbarTone.Success
+    }
+
+    fun reportBatch(result: Pair<String, SnackbarTone>) {
+        actionScope.launch { snackbars.show(result.first, result.second) }
+    }
 
     // Long-press actions all speak through one snackbar, so a slow one (re-optimize) can report
     // twice — that it started, and how it ended.
@@ -302,23 +328,25 @@ fun ModulesScreen(
                                 count = selection.size,
                                 onClose = viewModel::clearSelection,
                                 onEnable = {
-                                    viewModel.setSelectedEnabled(true) { changed, failed ->
-                                        report(
+                                    viewModel.setSelectedEnabled(true) { outcome ->
+                                        reportBatch(
                                             batchResult(
-                                                R.string.modules_batch_enabled,
-                                                changed,
-                                                failed,
+                                                R.plurals.modules_batch_enabled,
+                                                R.plurals.modules_batch_already_on,
+                                                R.plurals.modules_batch_all_already_on,
+                                                outcome,
                                             )
                                         )
                                     }
                                 },
                                 onDisable = {
-                                    viewModel.setSelectedEnabled(false) { changed, failed ->
-                                        report(
+                                    viewModel.setSelectedEnabled(false) { outcome ->
+                                        reportBatch(
                                             batchResult(
-                                                R.string.modules_batch_disabled,
-                                                changed,
-                                                failed,
+                                                R.plurals.modules_batch_disabled,
+                                                R.plurals.modules_batch_already_off,
+                                                R.plurals.modules_batch_all_already_off,
+                                                outcome,
                                             )
                                         )
                                     }
@@ -416,7 +444,6 @@ fun ModulesScreen(
     }
 
     if (confirmUninstall) {
-        val removed = stringResource(R.string.modules_batch_uninstalled)
         VectorAlertDialog(
             onDismissRequest = { confirmUninstall = false },
             icon = { Icon(Icons.Rounded.DeleteOutline, contentDescription = null) },
@@ -436,8 +463,18 @@ fun ModulesScreen(
                 TextButton(
                     onClick = {
                         confirmUninstall = false
-                        viewModel.uninstallSelected { gone, failed ->
-                            report(batchResult(R.string.modules_batch_uninstalled, gone, failed))
+                        viewModel.uninstallSelected { outcome ->
+                            reportBatch(
+                                batchResult(
+                                    R.plurals.modules_batch_uninstalled,
+                                    // Nothing is ever "already uninstalled" here: the list only
+                                    // holds what is installed, so these two are unreachable and
+                                    // are the same string rather than an invented sentence.
+                                    R.plurals.modules_batch_uninstalled,
+                                    R.plurals.modules_batch_uninstalled,
+                                    outcome,
+                                )
+                            )
                         }
                     }
                 ) {

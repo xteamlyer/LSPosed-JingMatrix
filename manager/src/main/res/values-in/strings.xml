@@ -224,9 +224,6 @@
     </plurals>
     <string name="modules_batch_enable">Aktifkan semua yang dipilih</string>
     <string name="modules_batch_disable">Nonaktifkan semua yang dipilih</string>
-    <string name="modules_batch_enabled">%1$s modul diaktifkan</string>
-    <string name="modules_batch_disabled">%1$s modul dinonaktifkan</string>
-    <string name="modules_batch_uninstalled">%1$s modul dicopot</string>
     <string name="modules_batch_partial">Hanya %1$s di antaranya yang berhasil</string>
     <string name="modules_uninstall_title">Copot modul-modul ini?</string>
     <plurals name="modules_uninstall_body">
@@ -338,4 +335,32 @@
     <string name="update_same_number">Nomor sama, build lain</string>
     <string name="modules_load_no_apk">Aktif, tetapi framework tidak menemukan APK-nya untuk dimuat.</string>
     <string name="modules_load_bad_dex">Aktif, tetapi framework tidak dapat membaca kodenya. Modul tidak berjalan.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d modul diaktifkan</item>
+        <item quantity="other">%1$d modul diaktifkan</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d modul dinonaktifkan</item>
+        <item quantity="other">%1$d modul dinonaktifkan</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d modul dicopot</item>
+        <item quantity="other">%1$d modul dicopot</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d sudah aktif</item>
+        <item quantity="other">%1$d sudah aktif</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d sudah nonaktif</item>
+        <item quantity="other">%1$d sudah nonaktif</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Sudah aktif</item>
+        <item quantity="other">Semua %1$d sudah aktif</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Sudah nonaktif</item>
+        <item quantity="other">Semua %1$d sudah nonaktif</item>
+    </plurals>
 </resources>

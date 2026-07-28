@@ -232,9 +232,6 @@
     </plurals>
     <string name="modules_batch_enable">Включить все выбранные</string>
     <string name="modules_batch_disable">Отключить все выбранные</string>
-    <string name="modules_batch_enabled">Включено модулей: %1$s</string>
-    <string name="modules_batch_disabled">Отключено модулей: %1$s</string>
-    <string name="modules_batch_uninstalled">Удалено модулей: %1$s</string>
     <string name="modules_batch_partial">Удалось только %1$s</string>
     <string name="modules_uninstall_title">Удалить эти модули?</string>
     <plurals name="modules_uninstall_body">
@@ -348,4 +345,32 @@
     <string name="update_same_number">Тот же номер, другая сборка</string>
     <string name="modules_load_no_apk">Включён, но фреймворк не нашёл его APK для загрузки.</string>
     <string name="modules_load_bad_dex">Включён, но фреймворк не смог прочитать его код. Он не работает.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Включён %1$d модуль</item>
+        <item quantity="other">Включено модулей: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Выключен %1$d модуль</item>
+        <item quantity="other">Выключено модулей: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Удалён %1$d модуль</item>
+        <item quantity="other">Удалено модулей: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d уже был включён</item>
+        <item quantity="other">Уже были включены: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d уже был выключен</item>
+        <item quantity="other">Уже были выключены: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Он уже был включён</item>
+        <item quantity="other">Все %1$d уже были включены</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Он уже был выключен</item>
+        <item quantity="other">Все %1$d уже были выключены</item>
+    </plurals>
 </resources>
