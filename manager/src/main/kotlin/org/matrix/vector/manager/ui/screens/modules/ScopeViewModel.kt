@@ -153,6 +153,22 @@ class ScopeViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
+    /**
+     * Whether this module has a screen to open at all.
+     *
+     * Null until asked, so the control does not flicker into existence on arrival. Most modules
+     * have no companion and no launcher entry, and offering to open one is offering nothing —
+     * which is why this is worth a lookup rather than a snackbar after the fact.
+     *
+     * Declared above [init] and not beside the function that fills it, because it has to be. The
+     * lookup runs on `Main.immediate`, which starts the coroutine inline on the constructing
+     * thread: the body reaches this field while the constructor is still running, and every
+     * property below the `init` block is still null at that point. It was — a `null` field read,
+     * parked across the suspension, and a crash on the way back.
+     */
+    private val _companion = MutableStateFlow<Boolean?>(null)
+    val hasCompanion: StateFlow<Boolean?> = _companion.asStateFlow()
+
     init {
         findCompanion()
         // Written back as they change rather than on the way out: this screen is left by a back
@@ -476,24 +492,7 @@ class ScopeViewModel(
         }
     }
 
-    /**
-     * Opens the module's own screen — its launcher entry, or its Xposed settings activity.
-     *
-     * Here as well as in the long-press sheet because this is the screen you are on when you are
-     * thinking about that module: a scope is half of its configuration and the other half lives
-     * inside the module, so having to go back to the list to reach it was a detour through a place
-     * you had just come from.
-     */
-    /**
-     * Whether this module has a screen to open at all.
-     *
-     * Null until asked, so the control does not flicker into existence on arrival. Most modules
-     * have no companion and no launcher entry, and offering to open one is offering nothing —
-     * which is why this is worth a lookup rather than a snackbar after the fact.
-     */
-    private val _companion = MutableStateFlow<Boolean?>(null)
-    val hasCompanion: StateFlow<Boolean?> = _companion.asStateFlow()
-
+    /** Fills [hasCompanion], which is declared next to [init] for the reason given there. */
     private fun findCompanion() {
         viewModelScope.launch {
             _companion.value =
@@ -503,6 +502,14 @@ class ScopeViewModel(
         }
     }
 
+    /**
+     * Opens the module's own screen — its companion activity, or its launcher entry.
+     *
+     * Here as well as in the long-press sheet because this is the screen you are on when you are
+     * thinking about that module: a scope is half of its configuration and the other half lives
+     * inside the module, so having to go back to the list to reach it was a detour through a place
+     * you had just come from.
+     */
     fun openModule() {
         viewModelScope.launch {
             val opened = daemonClient.openAppUi(modulePackageName, userId).getOrDefault(false)
