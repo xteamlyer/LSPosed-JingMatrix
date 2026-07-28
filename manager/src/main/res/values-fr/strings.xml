@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">Plus ancienne que la vôtre. Si sa base est antérieure, revenir réinitialise les modules activés et leurs portées — sauvegardez-les d\'abord.</string>
     <string name="settings_window_all">Depuis le début</string>
     <string name="update_diverged">Même numéro de version, build différent — ce qui tourne ne vient pas de cette version</string>
+    <string name="home_filter_clear">Tout afficher</string>
+    <string name="home_filter_remove">Ne plus afficher uniquement %1$s</string>
+    <string name="home_history_loading">Remontée dans le temps…</string>
+    <string name="home_history_more">Charger les commits plus anciens</string>
+    <string name="home_history_beginning">Tout a commencé le %1$s</string>
+    <string name="home_scroll_top">Revenir en haut</string>
+    <string name="home_scroll_down">Écran suivant</string>
 </resources>

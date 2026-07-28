@@ -327,4 +327,11 @@
     <string name="update_rollback_warning">Starsza niż zainstalowana. Jeśli ma starszą bazę, cofnięcie zresetuje włączone moduły i ich zakresy — zrób najpierw kopię.</string>
     <string name="settings_window_all">Od początku</string>
     <string name="update_diverged">Ten sam numer wersji, inna kompilacja — to, co działa, nie powstało z tego wydania</string>
+    <string name="home_filter_clear">Pokaż wszystko</string>
+    <string name="home_filter_remove">Przestań pokazywać tylko %1$s</string>
+    <string name="home_history_loading">Sięgamy dalej wstecz…</string>
+    <string name="home_history_more">Wczytaj wcześniejsze commity</string>
+    <string name="home_history_beginning">Tu się zaczęło, %1$s</string>
+    <string name="home_scroll_top">Wróć na górę</string>
+    <string name="home_scroll_down">Następny ekran</string>
 </resources>

@@ -298,4 +298,11 @@
     <string name="update_rollback_warning">Lebih lama dari yang terpasang. Jika basis datanya lebih lama, kembali akan mereset modul mana yang aktif dan apa yang di-hook — cadangkan dulu.</string>
     <string name="settings_window_all">Sejak awal</string>
     <string name="update_diverged">Nomor versi sama, build berbeda — yang berjalan tidak dibangun dari rilis ini</string>
+    <string name="home_filter_clear">Tampilkan semua</string>
+    <string name="home_filter_remove">Berhenti menampilkan hanya %1$s</string>
+    <string name="home_history_loading">Menelusuri lebih jauh ke belakang…</string>
+    <string name="home_history_more">Muat commit sebelumnya</string>
+    <string name="home_history_beginning">Awal mulanya, %1$s</string>
+    <string name="home_scroll_top">Kembali ke atas</string>
+    <string name="home_scroll_down">Layar berikutnya</string>
 </resources>

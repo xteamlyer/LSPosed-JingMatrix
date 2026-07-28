@@ -308,4 +308,11 @@
     <string name="update_rollback_warning">Старее установленной. Если у неё более старая база, откат сбросит, какие модули включены и что они перехватывают — сначала сделайте резервную копию.</string>
     <string name="settings_window_all">С самого начала</string>
     <string name="update_diverged">Тот же номер версии, но другая сборка — запущенное собрано не из этого выпуска</string>
+    <string name="home_filter_clear">Показать все</string>
+    <string name="home_filter_remove">Больше не показывать только %1$s</string>
+    <string name="home_history_loading">Идём дальше в прошлое…</string>
+    <string name="home_history_more">Загрузить более ранние коммиты</string>
+    <string name="home_history_beginning">Здесь всё началось, %1$s</string>
+    <string name="home_scroll_top">Наверх</string>
+    <string name="home_scroll_down">Следующий экран</string>
 </resources>

@@ -66,6 +66,13 @@
         <item quantity="other">by %1$d people</item>
     </plurals>
     <string name="home_since">since %1$s</string>
+    <string name="home_filter_clear">Show all</string>
+    <string name="home_filter_remove">Stop showing only %1$s</string>
+    <string name="home_scroll_top">Back to top</string>
+    <string name="home_scroll_down">Next screen</string>
+    <string name="home_history_loading">Reaching further back…</string>
+    <string name="home_history_more">Load earlier commits</string>
+    <string name="home_history_beginning">Where it began, %1$s</string>
     <string name="home_no_activity">No commits in the last six months.</string>
     <string name="home_loading_activity">Loading recent activity…</string>
     <string name="home_offline">Showing saved activity — could not reach GitHub.</string>

@@ -294,4 +294,11 @@
     <string name="update_rollback_warning">Cũ hơn bản đang dùng. Nếu cơ sở dữ liệu cũ hơn, quay lại sẽ đặt lại mô-đun nào đang bật và chúng hook gì — hãy sao lưu trước.</string>
     <string name="settings_window_all">Từ đầu</string>
     <string name="update_diverged">Cùng số phiên bản nhưng khác bản dựng — thứ đang chạy không dựng từ bản phát hành này</string>
+    <string name="home_filter_clear">Hiện tất cả</string>
+    <string name="home_filter_remove">Ngừng chỉ hiện %1$s</string>
+    <string name="home_history_loading">Đang lần về quá khứ…</string>
+    <string name="home_history_more">Tải các commit cũ hơn</string>
+    <string name="home_history_beginning">Nơi mọi thứ bắt đầu, %1$s</string>
+    <string name="home_scroll_top">Về đầu trang</string>
+    <string name="home_scroll_down">Màn hình tiếp theo</string>
 </resources>

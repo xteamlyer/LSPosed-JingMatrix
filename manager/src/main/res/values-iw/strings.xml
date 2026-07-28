@@ -331,4 +331,11 @@
     <string name="update_rollback_warning">ישנה מזו שמותקנת. אם מסד הנתונים שלה ישן יותר, חזרה תאפס אילו מודולים פעילים ולמה הם מתחברים — גבו אותם קודם.</string>
     <string name="settings_window_all">מההתחלה</string>
     <string name="update_diverged">אותו מספר גרסה, בנייה אחרת — מה שרץ לא נבנה מהמהדורה הזאת</string>
+    <string name="home_filter_clear">הצג הכול</string>
+    <string name="home_filter_remove">להפסיק להציג רק את %1$s</string>
+    <string name="home_history_loading">מגיעים אחורה בזמן…</string>
+    <string name="home_history_more">טעינת קומיטים ישנים יותר</string>
+    <string name="home_history_beginning">כאן זה התחיל, %1$s</string>
+    <string name="home_scroll_top">חזרה למעלה</string>
+    <string name="home_scroll_down">המסך הבא</string>
 </resources>

@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">Älter als das Installierte. Bei älterer Datenbank setzt das Zurückgehen zurück, welche Module an sind und was sie hooken — sichere sie vorher.</string>
     <string name="settings_window_all">Von Anfang an</string>
     <string name="update_diverged">Gleiche Versionsnummer, anderer Build — das Laufende stammt nicht aus dieser Veröffentlichung</string>
+    <string name="home_filter_clear">Alle anzeigen</string>
+    <string name="home_filter_remove">Nicht mehr nur %1$s anzeigen</string>
+    <string name="home_history_loading">Weiter zurück…</string>
+    <string name="home_history_more">Ältere Commits laden</string>
+    <string name="home_history_beginning">Hier begann es, %1$s</string>
+    <string name="home_scroll_top">Nach oben</string>
+    <string name="home_scroll_down">Nächster Bildschirm</string>
 </resources>

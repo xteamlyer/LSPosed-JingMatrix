@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">Anterior a la instalada. Si su base de datos es más antigua, volver reinicia qué módulos están activos y qué hookean: haz una copia antes.</string>
     <string name="settings_window_all">Desde el principio</string>
     <string name="update_diverged">Mismo número de versión, compilación distinta: lo que se ejecuta no salió de esta versión</string>
+    <string name="home_filter_clear">Mostrar todo</string>
+    <string name="home_filter_remove">Dejar de mostrar solo a %1$s</string>
+    <string name="home_history_loading">Retrocediendo más…</string>
+    <string name="home_history_more">Cargar commits anteriores</string>
+    <string name="home_history_beginning">Aquí empezó todo, %1$s</string>
+    <string name="home_scroll_top">Volver arriba</string>
+    <string name="home_scroll_down">Pantalla siguiente</string>
 </resources>

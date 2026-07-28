@@ -295,4 +295,11 @@
     <string name="update_rollback_warning">比目前版本更舊。若其資料庫版本較低，回退會重設模組的啟用狀態與作用範圍——請先備份模組。</string>
     <string name="settings_window_all">從專案之初</string>
     <string name="update_diverged">版本號相同，但並非同一組建——目前執行的並非由此發行版編譯</string>
+    <string name="home_filter_clear">顯示全部</string>
+    <string name="home_filter_remove">不再僅顯示 %1$s</string>
+    <string name="home_history_loading">正在追溯更早的紀錄…</string>
+    <string name="home_history_more">載入更早的提交</string>
+    <string name="home_history_beginning">一切始於 %1$s</string>
+    <string name="home_scroll_top">回到頂部</string>
+    <string name="home_scroll_down">下一畫面</string>
 </resources>

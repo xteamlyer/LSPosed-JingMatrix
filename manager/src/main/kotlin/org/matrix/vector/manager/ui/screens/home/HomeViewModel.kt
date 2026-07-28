@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random
@@ -154,12 +156,34 @@ class HomeViewModel(
         }
     }
 
+    // --- filtering the rail by author ---------------------------------------------------------
+
+    /**
+     * The logins whose commits are being shown, lower-cased; empty means everyone.
+     *
+     * A set rather than a single login because collaboration is the thing this screen is about:
+     * two people's rails side by side answers "what did we do together", which one person's rail
+     * cannot. Emptying it is the only way out of filter mode, so there is exactly one way back to
+     * the whole history and it is the same gesture that got you here.
+     */
+    private val _authorFilter = MutableStateFlow<Set<String>>(emptySet())
+    val authorFilter: StateFlow<Set<String>> = _authorFilter.asStateFlow()
+
+    fun toggleAuthorFilter(login: String) {
+        val key = login.lowercase()
+        _authorFilter.update { if (key in it) it - key else it + key }
+    }
+
+    fun clearAuthorFilter() {
+        _authorFilter.value = emptySet()
+    }
+
     /**
      * The rail, laid out: commits with their elapsed-time gaps, month boundaries, named silences,
      * and the marker showing where the reader's own build sits in the history.
      */
     val feedItems: StateFlow<List<org.matrix.vector.manager.data.github.FeedItem>> =
-        combine(_feed, _status) { feed, status ->
+        combine(_feed, _status, _authorFilter) { feed, status, filter ->
                 // The framework's version when the daemon is up, otherwise this manager's own.
                 // Both are `git rev-list --count` on the same repository, so either locates a
                 // build on the timeline correctly — and without the fallback the marker would
@@ -167,8 +191,17 @@ class HomeViewModel(
                 val installed =
                     if (status.versionCode > 0) status.versionCode
                     else org.matrix.vector.manager.BuildConfig.VERSION_CODE.toLong()
-                org.matrix.vector.manager.data.github.FeedLayout.build(feed, installed)
+                org.matrix.vector.manager.data.github.FeedLayout.build(
+                    feed.filteredBy(filter),
+                    installed,
+                )
             }
+            // Off the main thread, and this is not a precaution. `stateIn(viewModelScope, …)`
+            // collects on the main dispatcher, so laying the rail out — filtering, grouping by
+            // month, measuring every gap — happened there. At a hundred commits that was invisible.
+            // At the two thousand the archive now holds, every filter toggle froze the very frame
+            // that was meant to acknowledge the touch.
+            .flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     // --- framework toggles ------------------------------------------------------------------
@@ -218,6 +251,54 @@ class HomeViewModel(
             _feed.update { github.load(freshness) }
             _refreshing.value = false
         }
+    }
+
+    private val _loadingHistory = MutableStateFlow(false)
+    val loadingHistory: StateFlow<Boolean> = _loadingHistory.asStateFlow()
+
+    /**
+     * Reaches further back, when the reader has scrolled far enough to mean it.
+     *
+     * Deliberately driven by scrolling rather than by opening Home. Most people never reach the
+     * bottom of the feed, and walking the whole history for them would spend their share of an
+     * anonymous rate limit on commits they will not look at — and spend it before the part they
+     * will look at can be refreshed. Someone at the end of the list has asked, as plainly as
+     * scrolling can ask.
+     *
+     * Each call fetches a few pages and returns, so the rail grows in steps while the reader keeps
+     * scrolling rather than freezing until the whole history has landed. The count and the
+     * contributor scoreboard are recomputed from the same reload, which is what makes the stats
+     * settle as chunks arrive instead of all at the end.
+     */
+    fun loadMoreHistory() {
+        if (_loadingHistory.value || !_feed.value.hasMoreHistory) return
+        _loadingHistory.value = true
+        viewModelScope.launch {
+            val added = runCatching { github.backfill() }.getOrDefault(0)
+            // Reads from disk: the pages just walked are already in the archive, and going back to
+            // GitHub here would spend a request to be told what we have just been told. The reload
+            // happens even when nothing was added, so that a walk which ended by finding no new
+            // commits can clear the invitation to keep scrolling.
+            _feed.update { github.load(GitHubRepository.Freshness.Cached) }
+            if (added == 0) _exhausted.value = true
+            _loadingHistory.value = false
+        }
+    }
+
+    /**
+     * True once a walk came back empty-handed for a reason we cannot distinguish from failure.
+     *
+     * A refused request and a finished history look the same from here, and retrying a refused one
+     * on every scroll would hammer a rate limit that is already exhausted. This stops the automatic
+     * retries for the rest of the session; the foot of the feed stays tappable, so a reader who
+     * knows they are back online can ask again.
+     */
+    private val _exhausted = MutableStateFlow(false)
+    val historyStalled: StateFlow<Boolean> = _exhausted.asStateFlow()
+
+    fun retryHistory() {
+        _exhausted.value = false
+        loadMoreHistory()
     }
 
     companion object {

@@ -295,4 +295,11 @@
     <string name="update_rollback_warning">比当前版本更旧。若其数据库版本较低，回退会重置模块的启用状态与作用域——请先备份模块。</string>
     <string name="settings_window_all">从项目之初</string>
     <string name="update_diverged">版本号相同，但并非同一构建——当前运行的并非由此发行版编译</string>
+    <string name="home_filter_clear">显示全部</string>
+    <string name="home_filter_remove">不再仅显示 %1$s</string>
+    <string name="home_history_loading">正在追溯更早的记录…</string>
+    <string name="home_history_more">加载更早的提交</string>
+    <string name="home_history_beginning">一切始于 %1$s</string>
+    <string name="home_scroll_top">回到顶部</string>
+    <string name="home_scroll_down">下一屏</string>
 </resources>

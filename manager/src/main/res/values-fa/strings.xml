@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">قدیمی‌تر از نصب‌شده است. اگر پایگاه دادهٔ آن قدیمی‌تر باشد، بازگشت تنظیم ماژول‌های فعال و دامنه‌هایشان را بازنشانی می‌کند — نخست پشتیبان بگیرید.</string>
     <string name="settings_window_all">از آغاز</string>
     <string name="update_diverged">شمارهٔ نسخه یکی است اما ساخت متفاوت است — آنچه اجرا می‌شود از این انتشار ساخته نشده</string>
+    <string name="home_filter_clear">نمایش همه</string>
+    <string name="home_filter_remove">توقف نمایش فقط %1$s</string>
+    <string name="home_history_loading">در حال رفتن به عقب‌تر…</string>
+    <string name="home_history_more">بارگیری کامیت‌های قدیمی‌تر</string>
+    <string name="home_history_beginning">آغاز کار، %1$s</string>
+    <string name="home_scroll_top">بازگشت به بالا</string>
+    <string name="home_scroll_down">صفحهٔ بعدی</string>
 </resources>

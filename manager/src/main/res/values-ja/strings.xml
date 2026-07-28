@@ -294,4 +294,11 @@
     <string name="update_rollback_warning">使用中より古いビルドです。データベースが古い場合、戻すと有効なモジュールと適用範囲がリセットされます。先にバックアップしてください。</string>
     <string name="settings_window_all">最初から</string>
     <string name="update_diverged">バージョン番号は同じですが別のビルドです。動作中のものはこのリリースから作られていません</string>
+    <string name="home_filter_clear">すべて表示</string>
+    <string name="home_filter_remove">%1$s のみの表示をやめる</string>
+    <string name="home_history_loading">さらに過去へ…</string>
+    <string name="home_history_more">以前のコミットを読み込む</string>
+    <string name="home_history_beginning">ここから始まりました（%1$s）</string>
+    <string name="home_scroll_top">先頭に戻る</string>
+    <string name="home_scroll_down">次の画面へ</string>
 </resources>

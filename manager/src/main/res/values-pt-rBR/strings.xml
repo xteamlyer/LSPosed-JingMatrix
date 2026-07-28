@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">Mais antiga que a instalada. Se o banco for anterior, voltar reinicia quais módulos estão ligados e o que eles hookeiam — faça um backup antes.</string>
     <string name="settings_window_all">Desde o início</string>
     <string name="update_diverged">Mesmo número de versão, build diferente — o que está rodando não veio desta versão</string>
+    <string name="home_filter_clear">Mostrar tudo</string>
+    <string name="home_filter_remove">Parar de mostrar apenas %1$s</string>
+    <string name="home_history_loading">Voltando mais no tempo…</string>
+    <string name="home_history_more">Carregar commits anteriores</string>
+    <string name="home_history_beginning">Onde tudo começou, %1$s</string>
+    <string name="home_scroll_top">Voltar ao topo</string>
+    <string name="home_scroll_down">Próxima tela</string>
 </resources>

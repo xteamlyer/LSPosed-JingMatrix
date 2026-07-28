@@ -3,7 +3,9 @@ package org.matrix.vector.manager.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +20,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +62,7 @@ import org.matrix.vector.manager.ui.theme.VectorMono
  * a thank-you — the contribution simply stands out on the rail. This is the design's answer to
  * "encourage participation": the recognition is visible in the screen every user opens.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommitRow(
     commit: TimelineCommit,
@@ -64,6 +71,7 @@ fun CommitRow(
     onOpenCommit: (TimelineCommit) -> Unit,
     onOpenPullRequest: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onFilterAuthor: (String) -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     val nodeColor = commit.railColor()
@@ -187,12 +195,25 @@ fun CommitRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                val haptics = LocalHapticFeedback.current
                 Text(
                     text = credit,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight =
                         if (commit.isCommunity) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (commit.isCommunity) colors.primary else colors.onSurfaceVariant,
+                    // Holding the name narrows the rail to that person's work. The gesture is put
+                    // on the name itself rather than on the whole row because the row already
+                    // means "open this commit", and a long press on a subject line has no obvious
+                    // subject; a long press on a name plainly means *that name*.
+                    modifier =
+                        Modifier.combinedClickable(
+                            onClick = { onOpenCommit(commit) },
+                            onLongClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onFilterAuthor(commit.authorLogin)
+                            },
+                        )
                 )
                 Text(
                     text = exactTime(commit.epochSeconds),
@@ -423,3 +444,87 @@ private const val BADGE_SLOT = "badges"
 /** Horizontal padding inside a chip, and the gap between the two, in raw pixels. */
 private const val CHIP_PAD_PX = 26
 private const val GAP_PX = 12
+
+/**
+ * The foot of the rail: where the history runs out, or where it is still being fetched.
+ *
+ * The timeline has to end somehow, and a list that simply stops is ambiguous — it reads equally as
+ * "that is everything" and as "something failed". So the rail always terminates in a statement.
+ * While there is more to fetch it says so and fetches it; when the project's first commit is on
+ * screen it says that instead, and the line stops in a ring rather than being cut off mid-stroke.
+ *
+ * It is also the trigger. Being composed means the reader has scrolled to the end of what is held,
+ * which is the clearest signal available that they want more — clearer than a scroll-offset
+ * threshold, and it costs no per-frame observation to detect. [onReachEnd] fires once per time this
+ * row enters composition, so the walk resumes each time the reader arrives here and not while they
+ * are somewhere further up.
+ */
+@Composable
+fun HistoryFootRow(
+    loading: Boolean,
+    hasMore: Boolean,
+    stalled: Boolean,
+    beginningDate: String?,
+    onReachEnd: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+    /**
+     * Whether arriving here should fetch on its own.
+     *
+     * False while the rail is filtered to a few people. One person's commits are a short list, so
+     * the foot is on screen the moment the filter is applied — and firing there would spend three
+     * requests on every experiment with the chips, out of the sixty an hour an anonymous client
+     * gets. The row stays tappable, so the reader can still ask; they are simply not asked for.
+     */
+    autoFetch: Boolean = true,
+) {
+    val colors = MaterialTheme.colorScheme
+    val tappable = hasMore && !loading
+
+    if (hasMore && !stalled && autoFetch) {
+        LaunchedEffect(Unit) { onReachEnd() }
+    }
+
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .then(if (tappable) Modifier.clickable(onClick = onRetry) else Modifier)
+                .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.width(22.dp), contentAlignment = Alignment.Center) {
+            when {
+                loading ->
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        strokeWidth = 1.5.dp,
+                        color = colors.outline,
+                    )
+                // An open ring, drawn the way the oldest commit's node is drawn. The history does
+                // not stop here because we stopped looking; it stops because there is nothing
+                // before it.
+                !hasMore ->
+                    Box(
+                        Modifier.size(9.dp)
+                            .clip(CircleShape)
+                            .border(1.5.dp, colors.outlineVariant, CircleShape)
+                    )
+                else -> Box(Modifier.size(5.dp).clip(CircleShape).background(colors.outlineVariant))
+            }
+        }
+        Spacer(Modifier.width(14.dp))
+        Text(
+            text =
+                when {
+                    loading -> stringResource(R.string.home_history_loading)
+                    hasMore -> stringResource(R.string.home_history_more)
+                    beginningDate != null ->
+                        stringResource(R.string.home_history_beginning, beginningDate)
+                    else -> ""
+                },
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.outline,
+        )
+    }
+}

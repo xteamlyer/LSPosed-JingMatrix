@@ -327,4 +327,11 @@
     <string name="update_rollback_warning">Старіша за встановлену. Якщо база даних старіша, відкат скине, які модулі увімкнені та що вони перехоплюють — спершу зробіть копію.</string>
     <string name="settings_window_all">Від початку</string>
     <string name="update_diverged">Той самий номер версії, але інша збірка — запущене зібрано не з цього випуску</string>
+    <string name="home_filter_clear">Показати всі</string>
+    <string name="home_filter_remove">Більше не показувати лише %1$s</string>
+    <string name="home_history_loading">Сягаємо далі в минуле…</string>
+    <string name="home_history_more">Завантажити давніші коміти</string>
+    <string name="home_history_beginning">Тут усе почалося, %1$s</string>
+    <string name="home_scroll_top">Догори</string>
+    <string name="home_scroll_down">Наступний екран</string>
 </resources>

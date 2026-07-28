@@ -349,4 +349,11 @@
     <string name="update_rollback_warning">أقدم من المثبَّت. إن كانت قاعدة بياناته أقدم، فالرجوع يعيد ضبط الوحدات المفعّلة ونطاقاتها — انسخ وحداتك احتياطيًا أولًا.</string>
     <string name="settings_window_all">منذ البداية</string>
     <string name="update_diverged">رقم الإصدار نفسه لكن البناء مختلف — ما يعمل الآن لم يُبنَ من هذا الإصدار</string>
+    <string name="home_filter_clear">عرض الكل</string>
+    <string name="home_filter_remove">إيقاف العرض المقتصر على %1$s</string>
+    <string name="home_history_loading">الرجوع إلى ما هو أقدم…</string>
+    <string name="home_history_more">تحميل الإيداعات الأقدم</string>
+    <string name="home_history_beginning">حيث بدأ كل شيء، %1$s</string>
+    <string name="home_scroll_top">العودة إلى الأعلى</string>
+    <string name="home_scroll_down">الشاشة التالية</string>
 </resources>

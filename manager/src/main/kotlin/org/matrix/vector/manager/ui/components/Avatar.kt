@@ -1,6 +1,7 @@
 package org.matrix.vector.manager.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +39,8 @@ fun ContributorAvatar(
     size: Dp,
     modifier: Modifier = Modifier,
     laurelled: Boolean = false,
+    /** Ringed while this person is one of the authors the rail is filtered to. */
+    selected: Boolean = false,
 ) {
     // The wreath's space is reserved whether or not it is drawn, so one laurelled avatar does
     // not make its column taller than the rest of the row.
@@ -56,7 +59,14 @@ fun ContributorAvatar(
             modifier =
                 Modifier.size(size)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .then(
+                        // Drawn over the image rather than around the whole column, so the ring
+                        // reads as belonging to the face and not to the row.
+                        if (selected)
+                            Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        else Modifier
+                    ),
             contentAlignment = Alignment.Center,
         ) {
             Text(

@@ -9,7 +9,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +31,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.CallSplit
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Star
@@ -61,6 +67,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.rounded.KeyboardDoubleArrowUp
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -88,6 +107,7 @@ import org.matrix.vector.manager.ui.components.CommitRow
 import org.matrix.vector.manager.ui.components.InstalledMarkerRow
 import org.matrix.vector.manager.ui.components.MonthMarkerRow
 import org.matrix.vector.manager.ui.components.GapRow
+import org.matrix.vector.manager.ui.components.HistoryFootRow
 import org.matrix.vector.manager.ui.components.ContributorAvatar
 import org.matrix.vector.manager.ui.components.GitHubSignInCard
 import org.matrix.vector.manager.ui.components.TakePartSection
@@ -125,6 +145,9 @@ fun HomeScreen(
     val signIn by viewModel.signInState.collectAsStateWithLifecycle()
     val openExternally by viewModel.openLinksExternally.collectAsStateWithLifecycle()
     val feedItems by viewModel.feedItems.collectAsStateWithLifecycle()
+    val loadingHistory by viewModel.loadingHistory.collectAsStateWithLifecycle()
+    val historyStalled by viewModel.historyStalled.collectAsStateWithLifecycle()
+    val authorFilter by viewModel.authorFilter.collectAsStateWithLifecycle()
     val frameworkUpdate by viewModel.frameworkUpdate.collectAsStateWithLifecycle()
     val ambienceKey by viewModel.headerAmbience.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -206,6 +229,16 @@ fun HomeScreen(
             }
         }
 
+        // Changing the filter changes the whole rail underneath the reader, and a long press on a
+        // name three hundred commits down would otherwise leave them stranded in a list that no
+        // longer contains what they were looking at. Riding up to the headline puts the answer —
+        // the count, the faces, the chips — on screen at the moment it changes.
+        LaunchedEffect(authorFilter) {
+            if (authorFilter.isNotEmpty() && listState.firstVisibleItemIndex > 1) {
+                listState.animateScrollToItem(1)
+            }
+        }
+
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             PullToRefreshBox(
                 isRefreshing = refreshing,
@@ -250,6 +283,12 @@ fun HomeScreen(
                     communitySection(
                         feed = feed,
                         items = feedItems,
+                        loadingHistory = loadingHistory,
+                        historyStalled = historyStalled,
+                        authorFilter = authorFilter,
+                        onLoadMoreHistory = viewModel::loadMoreHistory,
+                        onToggleAuthor = viewModel::toggleAuthorFilter,
+                        onClearAuthors = viewModel::clearAuthorFilter,
                         onOpenCommit = { c -> open(c.htmlUrl ?: GitHubRepository.REPO_URL) },
                         onOpenPullRequest = { pr -> open("${GitHubRepository.REPO_URL}/pull/$pr") },
                         onOpenProfile = { c -> open(c.profileUrl ?: GitHubRepository.REPO_URL) },
@@ -258,6 +297,11 @@ fun HomeScreen(
                     item { Spacer(Modifier.height(24.dp)) }
                 }
             }
+
+            ScrollControls(
+                listState = listState,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 12.dp),
+            )
 
             StatusHeader(
                 state = status.state,
@@ -331,6 +375,12 @@ LocalizedOverlay {
 private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
     feed: CommunityFeed,
     items: List<FeedItem>,
+    loadingHistory: Boolean,
+    historyStalled: Boolean,
+    authorFilter: Set<String>,
+    onLoadMoreHistory: () -> Unit,
+    onToggleAuthor: (String) -> Unit,
+    onClearAuthors: () -> Unit,
     onOpenCommit: (TimelineCommit) -> Unit,
     onOpenPullRequest: (Int) -> Unit,
     onOpenProfile: (Contributor) -> Unit,
@@ -339,8 +389,41 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
 
     if (feed.contributors.isNotEmpty()) {
         item {
-            ContributorRow(contributors = feed.contributors, onClick = onOpenProfile)
-            Spacer(Modifier.height(20.dp))
+            ContributorRow(
+                contributors = feed.contributors,
+                selected = authorFilter,
+                onClick = onOpenProfile,
+                onLongClick = { onToggleAuthor(it.login) },
+            )
+            Spacer(Modifier.height(if (authorFilter.isEmpty()) 20.dp else 10.dp))
+        }
+    }
+
+    if (authorFilter.isNotEmpty()) {
+        item(key = "author-filter") {
+            AuthorFilterBar(
+                // Driven by the filter set rather than by the contributor row: a name held from a
+                // commit row may belong to someone with no place in the row at all — a bot, or
+                // somebody whose only commit is outside the current window — and a filter you
+                // cannot see is a filter you cannot lift.
+                logins =
+                    authorFilter.map { key ->
+                        feed.contributors.firstOrNull { it.login.lowercase() == key }?.login ?: key
+                    },
+                // Counted through the bot bundles, not around them: a bundle stands for several
+                // commits, and a number that disagreed with the same person's tally in the row
+                // above it would look like one of the two being wrong.
+                commits =
+                    items.sumOf { item ->
+                        when (item) {
+                            is FeedItem.Commit -> 1
+                            is FeedItem.Bots -> item.count
+                            else -> 0
+                        }
+                    },
+                onRemove = onToggleAuthor,
+                onClear = onClearAuthors,
+            )
         }
     }
 
@@ -353,6 +436,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
                     isLast = entry.isLast,
                     onOpenCommit = onOpenCommit,
                     onOpenPullRequest = onOpenPullRequest,
+                    onFilterAuthor = onToggleAuthor,
                 )
             is FeedItem.Gap ->
                 GapRow(
@@ -369,6 +453,30 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
             is FeedItem.MonthMarker ->
                 MonthMarkerRow(entry.month, entry.year, entry.commits, entry.people)
             is FeedItem.Bots -> BotBundle(count = entry.count, commits = entry.commits)
+        }
+    }
+
+    if (items.isNotEmpty()) {
+        item(key = "history-foot") {
+            val locale = currentLocale()
+            // Only claimed when the whole project is in hand — the count from the `Link` header is
+            // every commit on the default branch, ever, so holding that many means the row below is
+            // genuinely the first one. A window that merely reached its own start says nothing,
+            // because history continues past it.
+            val wholeProject = feed.totalCommits > 0 && feed.commitCount >= feed.totalCommits
+            HistoryFootRow(
+                loading = loadingHistory,
+                hasMore = feed.hasMoreHistory,
+                stalled = historyStalled,
+                beginningDate =
+                    if (!wholeProject) null
+                    else
+                        DateFormat.getDateInstance(DateFormat.LONG, locale)
+                            .format(Date(feed.windowStartEpochSeconds * 1000)),
+                onReachEnd = onLoadMoreHistory,
+                onRetry = onLoadMoreHistory,
+                autoFetch = authorFilter.isEmpty(),
+            )
         }
     }
 }
@@ -472,6 +580,136 @@ private fun QuarterHeadline(feed: CommunityFeed) {
 }
 
 /**
+ * Two ways back through a feed that can be thousands of commits long.
+ *
+ * Hidden until they are needed, which is the only way a persistent control earns its place on a
+ * screen whose subject is the content behind it. "Needed" is defined as having scrolled past the
+ * header — before that, the top is already on screen and a button to reach it is furniture.
+ *
+ * The page-down button is the answer to a rail that keeps growing as it is read: with history
+ * arriving in chunks, a flick lands somewhere arbitrary and the reader has to flick again. One
+ * viewport at a time is a predictable unit, and it stops existing at the end of the list rather
+ * than sitting there doing nothing.
+ *
+ * Deliberately small and tonal rather than a floating action button: nothing here is *the* action
+ * of the screen, and a full FAB would claim to be.
+ */
+@Composable
+private fun ScrollControls(listState: LazyListState, modifier: Modifier = Modifier) {
+    val scope = rememberCoroutineScope()
+    // Past the header, so the pair appears at the moment the top stops being reachable by eye.
+    val visible by remember { derivedStateOf { listState.firstVisibleItemIndex >= 2 } }
+    val atEnd by remember {
+        derivedStateOf {
+            val info = listState.layoutInfo
+            val last = info.visibleItemsInfo.lastOrNull()
+            last != null && last.index >= info.totalItemsCount - 1
+        }
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInVertically { it / 2 },
+        exit = fadeOut() + slideOutVertically { it / 2 },
+        modifier = modifier,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AnimatedVisibility(visible = !atEnd, enter = fadeIn(), exit = fadeOut()) {
+                FilledTonalIconButton(
+                    onClick = {
+                        scope.launch {
+                            // A shade under a full screen, so the line the reader stopped on stays
+                            // visible at the top and the two screens are stitched rather than cut.
+                            listState.animateScrollBy(
+                                listState.layoutInfo.viewportSize.height * 0.9f
+                            )
+                        }
+                    },
+                    modifier = Modifier.size(40.dp),
+                ) {
+                    Icon(
+                        Icons.Rounded.KeyboardDoubleArrowDown,
+                        contentDescription = stringResource(R.string.home_scroll_down),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            FilledTonalIconButton(
+                onClick = { scope.launch { listState.animateScrollToItem(0) } },
+                modifier = Modifier.size(40.dp),
+            ) {
+                Icon(
+                    Icons.Rounded.KeyboardDoubleArrowUp,
+                    contentDescription = stringResource(R.string.home_scroll_top),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * What filter mode looks like: who is being shown, how much of the history that is, and the way out.
+ *
+ * It is a bar rather than a badge on the header because it has to carry the exit. A filtered list
+ * that gives no visible way back is the sort of state people escape by force-quitting the app, and
+ * the gesture that entered it — a long press, somewhere up the row — is not one anyone should have
+ * to rediscover.
+ *
+ * Each name is its own chip with its own dismiss, so removing the second of two people is one tap
+ * rather than clearing and starting again. Removing the last one leaves the set empty, which *is*
+ * the unfiltered state — there is no separate "off" to get out of step with.
+ */
+@Composable
+private fun AuthorFilterBar(
+    logins: List<String>,
+    commits: Int,
+    onRemove: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth().padding(bottom = 14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Rounded.FilterAlt,
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = pluralStringResource(R.plurals.home_commit_count, commits, commits),
+                style = MaterialTheme.typography.labelMedium,
+                color = colors.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onClear, contentPadding = PaddingValues(horizontal = 10.dp)) {
+                Text(stringResource(R.string.home_filter_clear))
+            }
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            logins.forEach { login ->
+                InputChip(
+                    selected = true,
+                    onClick = { onRemove(login) },
+                    label = { Text(login, maxLines = 1) },
+                    trailingIcon = {
+                        Icon(
+                            Icons.Rounded.Close,
+                            contentDescription = stringResource(R.string.home_filter_remove, login),
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+/**
  * How the contributor row is ordered.
  *
  * Recency is not a lesser ordering, it is a different kind of credit: by volume the maintainer is
@@ -511,8 +749,14 @@ enum class ContributorOrder(val key: String, val labelRes: Int) {
  * never changes, so nobody reads it twice. A quarterly one moves, and a first-time contributor
  * appears on it immediately.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ContributorRow(contributors: List<Contributor>, onClick: (Contributor) -> Unit) {
+private fun ContributorRow(
+    contributors: List<Contributor>,
+    selected: Set<String>,
+    onClick: (Contributor) -> Unit,
+    onLongClick: (Contributor) -> Unit,
+) {
     // The preference is read here rather than threaded down from the screen: the row is emitted
     // from a LazyListScope extension, which is not a composable and has no state to hand over.
     // Sorting here also means changing the setting reorders the row immediately, with no re-fetch
@@ -529,13 +773,30 @@ private fun ContributorRow(contributors: List<Contributor>, onClick: (Contributo
             // the row is dimmed and inert rather than offering a tap that goes nowhere. They are
             // still shown and still counted — the credit is theirs either way.
             val hasProfile = !person.profileUrl.isNullOrBlank()
+            val picked = person.login.lowercase() in selected
+            val haptics = LocalHapticFeedback.current
+            // Someone with no GitHub identity still has commits, so they can still be filtered to
+            // even though there is no profile to open. The long press is therefore offered to
+            // everyone in the row; only the tap is withheld.
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
-                    Modifier.then(
-                            if (hasProfile) Modifier.clickable { onClick(person) } else Modifier
+                    Modifier.combinedClickable(
+                            onClick = { if (hasProfile) onClick(person) },
+                            onLongClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onLongClick(person)
+                            },
                         )
-                        .alpha(if (hasProfile) 1f else 0.45f)
+                        .alpha(
+                            when {
+                                // In filter mode the people not being shown step back, so the row
+                                // says at a glance whose rail is on screen.
+                                selected.isNotEmpty() && !picked -> 0.35f
+                                hasProfile -> 1f
+                                else -> 0.45f
+                            }
+                        )
                         .width(72.dp),
             ) {
                 ContributorAvatar(
@@ -543,6 +804,7 @@ private fun ContributorRow(contributors: List<Contributor>, onClick: (Contributo
                     avatarUrl = person.avatarUrl,
                     size = 44.dp,
                     laurelled = leader,
+                    selected = picked,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(

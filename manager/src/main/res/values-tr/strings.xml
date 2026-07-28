@@ -305,4 +305,11 @@
     <string name="update_rollback_warning">Kurulu olandan eski. Veritabanı daha eskiyse geri dönmek hangi modüllerin açık olduğunu ve neye bağlandıklarını sıfırlar — önce yedekleyin.</string>
     <string name="settings_window_all">En baştan</string>
     <string name="update_diverged">Sürüm numarası aynı, derleme farklı — çalışan şey bu sürümden derlenmedi</string>
+    <string name="home_filter_clear">Tümünü göster</string>
+    <string name="home_filter_remove">Yalnızca %1$s gösterimini bırak</string>
+    <string name="home_history_loading">Daha geriye gidiliyor…</string>
+    <string name="home_history_more">Daha eski işlemeleri yükle</string>
+    <string name="home_history_beginning">Her şeyin başladığı gün, %1$s</string>
+    <string name="home_scroll_top">Başa dön</string>
+    <string name="home_scroll_down">Sonraki ekran</string>
 </resources>
