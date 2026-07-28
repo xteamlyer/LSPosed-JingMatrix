@@ -236,6 +236,23 @@ data class CanaryBuild(
     val artifacts: List<CanaryArtifact>,
 )
 
+/**
+ * A published build of the framework, canary or stable, with the zip to flash.
+ *
+ * One type for both channels because the install path is identical — the difference is only which
+ * of them a given reader is allowed to be offered.
+ */
+data class FrameworkRelease(
+    val tag: String,
+    val title: String,
+    val versionCode: Long,
+    val isCanary: Boolean,
+    val notesMarkdown: String?,
+    val htmlUrl: String?,
+    val epochSeconds: Long,
+    val zip: CanaryArtifact?,
+)
+
 data class CanaryArtifact(
     val id: Long,
     val name: String,

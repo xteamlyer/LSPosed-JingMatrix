@@ -295,5 +295,28 @@
     <string name="language_translated_by">תורגם על ידי %1$s</string>
     <string name="language_help_short">תרגום</string>
     <string name="language_help">עזרו לתרגם את Vector</string>
+
+    <string name="update_title">עדכון המסגרת</string>
+    <string name="update_channel_canary">גרסת canary</string>
+    <string name="update_channel_release">גרסה יציבה</string>
+    <string name="update_install">התקנה</string>
+    <string name="update_downloading">הורדו %1$s מתוך %2$s</string>
+    <string name="update_flashing">מתקין…</string>
+    <string name="update_done">הותקן</string>
+    <string name="update_reboot">הפעלה מחדש</string>
+    <string name="update_reboot_why">נכנס לתוקף אחרי הפעלה מחדש</string>
+    <string name="update_none">אין עדכון זמין.</string>
+    <string name="update_no_notes">הגרסה הזאת לא פרסמה הערות.</string>
+    <string name="update_no_root">לא נמצא שום מימוש הרשאות root, ולכן אין דרך להתקין.</string>
+    <string name="update_root_too_old">מימוש ה-root במכשיר הזה ישן מכדי להתקין דרכו.</string>
+    <string name="update_root_multiple">נמצאו שני מימושי root. ‏Vector לא ינחש איזה מהם מנהל את המודול.</string>
+    <string name="update_failed_start">לא ניתן היה להפעיל את תוכנית ההתקנה.</string>
+    <string name="update_failed_download">לא ניתן היה להוריד את העדכון.</string>
+    <string name="update_failed_exit">תוכנית ההתקנה נכשלה (קוד %1$d).</string>
+    <string name="update_available">יש עדכון</string>
+    <string name="store_mute_updates">התעלמות מעדכונים של המודול הזה</string>
+    <string name="store_mute_updates_summary">הוא יפסיק להיחשב מיושן, כאן וברשימת המודולים</string>
+    <string name="store_options">אפשרויות</string>
     <string name="scope_framework_shared">תהליך אחד שכל המשתמשים חולקים, ולכן זה משפיע על כל המכשיר</string>
+    <string name="update_no_output">תוכנית ההתקנה לא הדפיסה דבר.</string>
 </resources>

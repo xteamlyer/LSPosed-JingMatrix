@@ -122,14 +122,7 @@ class ModulesViewModel(
      * The catalogue is the Store's, not a second fetch: this is the same set the Store counts in
      * its header, so the mark on a row and the number on the tab cannot disagree.
      */
-    val upgradable: StateFlow<Set<String>> =
-        combine(
-                ServiceLocator.store.upgradablePackages,
-                ServiceLocator.settings.mutedUpdates,
-            ) { upgradable, muted ->
-                upgradable - muted
-            }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+    val upgradable: StateFlow<Set<String>> = ServiceLocator.upgradablePackages
 
     private val _frameworkApi = MutableStateFlow(0)
 

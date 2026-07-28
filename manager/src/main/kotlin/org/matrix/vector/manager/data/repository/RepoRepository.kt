@@ -9,6 +9,10 @@ import com.google.gson.stream.JsonReader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,6 +75,7 @@ class RepoRepository(
      * discovery the Modules screen runs, which opens every APK to find out.
      */
     val installedVersions: StateFlow<Map<String, RepoVersion>> = _installed.asStateFlow()
+
 
     /** Guards a refresh without the check-then-set race the previous boolean flag had. */
     private val refreshing = Mutex()

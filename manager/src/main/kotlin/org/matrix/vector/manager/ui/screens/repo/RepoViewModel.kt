@@ -150,11 +150,12 @@ class RepoViewModel(
      * and it walks 809 entries.
      */
     private val allEntries: StateFlow<List<StoreEntry>> =
-        combine(repository.catalog, repository.installedVersions, channel) {
+        combine(repository.catalog, repository.installedVersions, channel, settings.mutedUpdates) {
                 catalog,
                 installed,
-                channel ->
-                catalog.modules.map { entryFor(it, installed, channel) }
+                channel,
+                muted ->
+                catalog.modules.map { entryFor(it, installed, channel, muted) }
             }
             .flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -233,11 +234,13 @@ class RepoViewModel(
         module: OnlineModule,
         installed: Map<String, RepoVersion>,
         channel: StoreChannel,
+        muted: Set<String>,
     ): StoreEntry =
         StoreEntry(
             module = module,
             latest = module.latestOn(channel),
             installed = installed[module.name],
+            updatesMuted = module.name in muted,
         )
 
     private fun StoreEntry.matches(query: String): Boolean {

@@ -313,5 +313,28 @@
     <string name="language_translated_by">ترجمة: %1$s</string>
     <string name="language_help_short">ترجمة</string>
     <string name="language_help">ساعِد في ترجمة Vector</string>
+
+    <string name="update_title">تحديث الإطار</string>
+    <string name="update_channel_canary">إصدار canary</string>
+    <string name="update_channel_release">إصدار مستقر</string>
+    <string name="update_install">تثبيت</string>
+    <string name="update_downloading">تم تنزيل %1$s من %2$s</string>
+    <string name="update_flashing">جارٍ التثبيت…</string>
+    <string name="update_done">تم التثبيت</string>
+    <string name="update_reboot">إعادة التشغيل</string>
+    <string name="update_reboot_why">يسري بعد إعادة التشغيل</string>
+    <string name="update_none">لا يوجد تحديث متاح.</string>
+    <string name="update_no_notes">لم يَنشر هذا الإصدار أي ملاحظات.</string>
+    <string name="update_no_root">لم يُعثر على أي تطبيق للروت، فلا شيء يمكن التثبيت من خلاله.</string>
+    <string name="update_root_too_old">تطبيق الروت على هذا الجهاز أقدم من أن يُثبَّت من خلاله.</string>
+    <string name="update_root_multiple">عُثر على تطبيقَي روت. لن يخمّن Vector أيهما يدير الوحدة.</string>
+    <string name="update_failed_start">تعذّر بدء برنامج التثبيت.</string>
+    <string name="update_failed_download">تعذّر تنزيل التحديث.</string>
+    <string name="update_failed_exit">أخفق برنامج التثبيت (رمز الخروج %1$d).</string>
+    <string name="update_available">يتوفر تحديث</string>
+    <string name="store_mute_updates">تجاهل تحديثات هذه الوحدة</string>
+    <string name="store_mute_updates_summary">لن تُحتسب قديمة بعد الآن، لا هنا ولا في قائمة الوحدات</string>
+    <string name="store_options">خيارات</string>
     <string name="scope_framework_shared">عملية واحدة يتشاركها جميع المستخدمين، لذا يؤثر هذا في الجهاز كله</string>
+    <string name="update_no_output">لم يُخرج برنامج التثبيت أي شيء.</string>
 </resources>

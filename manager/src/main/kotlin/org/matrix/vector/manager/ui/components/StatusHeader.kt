@@ -74,6 +74,8 @@ fun StatusHeader(
     state: FrameworkState,
     version: String?,
     apiVersion: Int?,
+    hasUpdate: Boolean,
+    onOpenUpdate: () -> Unit,
     ambience: AmbienceKind,
     onOpenStatus: () -> Unit,
     onOpenAppearance: () -> Unit,
@@ -238,10 +240,24 @@ fun StatusHeader(
                             .joinToString("  ·  ")
                     if (detail.isNotEmpty()) {
                         Spacer(Modifier.height(2.dp))
-                        Text(
+                        // The version line becomes the way in to the update, because it is the
+                        // thing the mark is attached to: a reader who has noticed that their
+                        // version is marked has already looked at exactly the right words.
+                        UpdatableVersion(
                             text = detail,
-                            style = VectorMono,
+                            hasUpdate = hasUpdate,
                             color = onContainer.copy(alpha = 0.75f),
+                            markColor = onContainer,
+                            // Tappable whether or not there is an update. Checking on demand is
+                            // a thing people do, and a control that only exists once there is news
+                            // cannot be found before there is any — so the answer "you are up to
+                            // date" would have been the one answer unreachable from here.
+                            modifier =
+                                Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = onOpenUpdate,
+                                ),
                         )
                     }
                 }

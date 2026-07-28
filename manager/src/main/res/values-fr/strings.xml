@@ -269,5 +269,28 @@
     <string name="language_translated_by">Traduit par %1$s</string>
     <string name="language_help_short">Traduire</string>
     <string name="language_help">Aider à traduire Vector</string>
+
+    <string name="update_title">Mise à jour du framework</string>
+    <string name="update_channel_canary">Version canary</string>
+    <string name="update_channel_release">Version stable</string>
+    <string name="update_install">Installer</string>
+    <string name="update_downloading">%1$s téléchargés sur %2$s</string>
+    <string name="update_flashing">Installation…</string>
+    <string name="update_done">Installé</string>
+    <string name="update_reboot">Redémarrer</string>
+    <string name="update_reboot_why">Prend effet après un redémarrage</string>
+    <string name="update_none">Aucune mise à jour disponible.</string>
+    <string name="update_no_notes">Cette version n\'a pas publié de notes.</string>
+    <string name="update_no_root">Aucune implémentation root trouvée : rien ne peut être flashé.</string>
+    <string name="update_root_too_old">L\'implémentation root de cet appareil est trop ancienne pour flasher.</string>
+    <string name="update_root_multiple">Deux implémentations root trouvées. Vector ne devinera pas laquelle gère le module.</string>
+    <string name="update_failed_start">Impossible de lancer l\'installateur.</string>
+    <string name="update_failed_download">Impossible de télécharger la mise à jour.</string>
+    <string name="update_failed_exit">L\'installateur a échoué (code %1$d).</string>
+    <string name="update_available">Mise à jour disponible</string>
+    <string name="store_mute_updates">Ignorer les mises à jour de ce module</string>
+    <string name="store_mute_updates_summary">Il ne comptera plus comme obsolète, ici comme dans la liste des modules</string>
+    <string name="store_options">Options</string>
     <string name="scope_framework_shared">Un seul processus partagé par tous les utilisateurs : cela concerne tout l\'appareil</string>
+    <string name="update_no_output">L\'installateur n\'a rien affiché.</string>
 </resources>

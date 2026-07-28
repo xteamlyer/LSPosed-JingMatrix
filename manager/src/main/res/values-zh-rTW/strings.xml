@@ -259,5 +259,28 @@
     <string name="language_translated_by">翻譯：%1$s</string>
     <string name="language_help_short">翻譯</string>
     <string name="language_help">協助翻譯 Vector</string>
+
+    <string name="update_title">框架更新</string>
+    <string name="update_channel_canary">Canary 版本</string>
+    <string name="update_channel_release">正式版</string>
+    <string name="update_install">安裝</string>
+    <string name="update_downloading">正在下載 %1$s / %2$s</string>
+    <string name="update_flashing">正在安裝…</string>
+    <string name="update_done">已安裝</string>
+    <string name="update_reboot">重新啟動</string>
+    <string name="update_reboot_why">重新啟動後生效</string>
+    <string name="update_none">沒有可用更新。</string>
+    <string name="update_no_notes">此版本未發布說明。</string>
+    <string name="update_no_root">找不到 root 實作，無法刷入。</string>
+    <string name="update_root_too_old">此裝置上的 root 實作過舊，無法用於刷入。</string>
+    <string name="update_root_multiple">偵測到兩種 root 實作。Vector 不會猜測由哪一個管理模組。</string>
+    <string name="update_failed_start">無法啟動安裝程式。</string>
+    <string name="update_failed_download">無法下載此更新。</string>
+    <string name="update_failed_exit">安裝程式失敗（結束碼 %1$d）。</string>
+    <string name="update_available">有可用更新</string>
+    <string name="store_mute_updates">忽略此模組的更新</string>
+    <string name="store_mute_updates_summary">在此處與模組列表中都不再計為過期</string>
+    <string name="store_options">選項</string>
     <string name="scope_framework_shared">所有使用者共用的同一個行程，因此這會影響整台裝置</string>
+    <string name="update_no_output">安裝程式沒有任何輸出。</string>
 </resources>

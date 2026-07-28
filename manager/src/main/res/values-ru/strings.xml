@@ -272,5 +272,28 @@
     <string name="language_translated_by">Перевод: %1$s</string>
     <string name="language_help_short">Перевести</string>
     <string name="language_help">Помочь с переводом Vector</string>
+
+    <string name="update_title">Обновление фреймворка</string>
+    <string name="update_channel_canary">Сборка canary</string>
+    <string name="update_channel_release">Релиз</string>
+    <string name="update_install">Установить</string>
+    <string name="update_downloading">Загружено %1$s из %2$s</string>
+    <string name="update_flashing">Установка…</string>
+    <string name="update_done">Установлено</string>
+    <string name="update_reboot">Перезагрузить</string>
+    <string name="update_reboot_why">Вступит в силу после перезагрузки</string>
+    <string name="update_none">Обновлений нет.</string>
+    <string name="update_no_notes">К этому выпуску нет описания.</string>
+    <string name="update_no_root">Не найдено ни одной реализации root — прошить нечем.</string>
+    <string name="update_root_too_old">Реализация root на этом устройстве слишком старая для прошивки.</string>
+    <string name="update_root_multiple">Найдены две реализации root. Vector не станет гадать, какая из них управляет модулем.</string>
+    <string name="update_failed_start">Не удалось запустить установщик.</string>
+    <string name="update_failed_download">Не удалось загрузить обновление.</string>
+    <string name="update_failed_exit">Установщик завершился с ошибкой (код %1$d).</string>
+    <string name="update_available">Есть обновление</string>
+    <string name="store_mute_updates">Не сообщать об обновлениях этого модуля</string>
+    <string name="store_mute_updates_summary">Он перестанет считаться устаревшим и здесь, и в списке модулей</string>
+    <string name="store_options">Параметры</string>
     <string name="scope_framework_shared">Один процесс на всех пользователей — это затрагивает всё устройство</string>
+    <string name="update_no_output">Установщик ничего не вывел.</string>
 </resources>

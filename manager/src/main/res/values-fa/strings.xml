@@ -269,5 +269,28 @@
     <string name="language_translated_by">ترجمه: %1$s</string>
     <string name="language_help_short">ترجمه</string>
     <string name="language_help">در ترجمهٔ Vector کمک کنید</string>
+
+    <string name="update_title">به‌روزرسانی چارچوب</string>
+    <string name="update_channel_canary">ساخت canary</string>
+    <string name="update_channel_release">نسخهٔ پایدار</string>
+    <string name="update_install">نصب</string>
+    <string name="update_downloading">‏%1$s از %2$s بارگیری شد</string>
+    <string name="update_flashing">در حال نصب…</string>
+    <string name="update_done">نصب شد</string>
+    <string name="update_reboot">راه‌اندازی دوباره</string>
+    <string name="update_reboot_why">پس از راه‌اندازی دوباره اثر می‌کند</string>
+    <string name="update_none">به‌روزرسانی‌ای در دسترس نیست.</string>
+    <string name="update_no_notes">این انتشار یادداشتی منتشر نکرده است.</string>
+    <string name="update_no_root">هیچ پیاده‌سازی روتی یافت نشد، پس چیزی نمی‌توان نصب کرد.</string>
+    <string name="update_root_too_old">پیاده‌سازی روت روی این دستگاه برای نصب بسیار قدیمی است.</string>
+    <string name="update_root_multiple">دو پیاده‌سازی روت یافت شد. Vector حدس نمی‌زند کدام‌یک ماژول را مدیریت می‌کند.</string>
+    <string name="update_failed_start">نصب‌کننده اجرا نشد.</string>
+    <string name="update_failed_download">به‌روزرسانی بارگیری نشد.</string>
+    <string name="update_failed_exit">نصب‌کننده شکست خورد (کد %1$d).</string>
+    <string name="update_available">به‌روزرسانی موجود است</string>
+    <string name="store_mute_updates">نادیده گرفتن به‌روزرسانی‌های این ماژول</string>
+    <string name="store_mute_updates_summary">دیگر نه اینجا و نه در فهرست ماژول‌ها قدیمی شمرده نمی‌شود</string>
+    <string name="store_options">گزینه‌ها</string>
     <string name="scope_framework_shared">یک فرایند که همهٔ کاربران در آن شریک‌اند، پس این کل دستگاه را تحت تأثیر می‌گذارد</string>
+    <string name="update_no_output">نصب‌کننده چیزی چاپ نکرد.</string>
 </resources>

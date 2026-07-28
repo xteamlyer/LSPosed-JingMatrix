@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.modules
 
+import org.matrix.vector.manager.ui.components.UpdatableVersion
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -150,6 +151,7 @@ fun ModulesScreen(
     val daemonAvailable by viewModel.daemonAvailable.collectAsStateWithLifecycle()
 
     val selection by viewModel.selection.collectAsStateWithLifecycle()
+    val upgradable by viewModel.upgradable.collectAsStateWithLifecycle()
     var confirmUninstall by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -338,7 +340,7 @@ fun ModulesScreen(
                             stickyHeader(key = "h:active") {
                                 SectionHeader(stringResource(R.string.modules_section_active), active.size)
                             }
-                            moduleRows(active, facts, selection, onModuleClick, viewModel::toggleSelected, ::report)
+                            moduleRows(active, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
                         }
                         if (inactive.isNotEmpty()) {
                             stickyHeader(key = "h:inactive") {
@@ -347,10 +349,10 @@ fun ModulesScreen(
                                     inactive.size,
                                 )
                             }
-                            moduleRows(inactive, facts, selection, onModuleClick, viewModel::toggleSelected, ::report)
+                            moduleRows(inactive, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
                         }
                     } else {
-                        moduleRows(modules, facts, selection, onModuleClick, viewModel::toggleSelected, ::report)
+                        moduleRows(modules, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
                     }
                 }
               }
@@ -625,6 +627,7 @@ private fun ModulesHeader(
 private fun ModuleRow(
     module: InstalledModule,
     facts: ModuleFacts?,
+    hasUpdate: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
     onIconClick: () -> Unit,
@@ -765,11 +768,10 @@ private fun ModuleRow(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
+            UpdatableVersion(
                 text = module.versionName.ifBlank { "" },
-                style = VectorMono,
+                hasUpdate = hasUpdate,
                 color = colors.onSurfaceVariant,
-                maxLines = 1,
             )
             ScopePreview(module = module, facts = facts)
         }
@@ -906,6 +908,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.moduleRows(
     modules: List<InstalledModule>,
     facts: Map<ModuleKey, ModuleFacts>,
     selection: Set<ModuleKey>,
+    upgradable: Set<String>,
     onModuleClick: (String, Int) -> Unit,
     onSelect: (InstalledModule) -> Unit,
     onAction: (PackageActionResult) -> Unit,
@@ -914,6 +917,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.moduleRows(
         ModuleListItem(
             module = module,
             facts = facts[ModuleKey(module.packageName, module.userId)],
+            hasUpdate = module.packageName in upgradable,
             selected = ModuleKey(module.packageName, module.userId) in selection,
             selectionActive = selection.isNotEmpty(),
             onClick = { onModuleClick(module.packageName, module.userId) },
@@ -944,6 +948,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.moduleRows(
 private fun ModuleListItem(
     module: InstalledModule,
     facts: ModuleFacts?,
+    hasUpdate: Boolean,
     selected: Boolean,
     selectionActive: Boolean,
     onClick: () -> Unit,
@@ -956,6 +961,7 @@ private fun ModuleListItem(
     ModuleRow(
         module = module,
         facts = facts,
+        hasUpdate = hasUpdate,
         selected = selected,
         // Once anything is selected the whole row joins the selection, because that is what every
         // other list on the platform does and reaching for a 56dp icon to add the ninth module

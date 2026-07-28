@@ -269,5 +269,28 @@
     <string name="language_translated_by">Traducido por %1$s</string>
     <string name="language_help_short">Traducir</string>
     <string name="language_help">Ayuda a traducir Vector</string>
+
+    <string name="update_title">Actualización del framework</string>
+    <string name="update_channel_canary">Compilación canary</string>
+    <string name="update_channel_release">Versión estable</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_downloading">Descargados %1$s de %2$s</string>
+    <string name="update_flashing">Instalando…</string>
+    <string name="update_done">Instalado</string>
+    <string name="update_reboot">Reiniciar</string>
+    <string name="update_reboot_why">Surte efecto tras reiniciar</string>
+    <string name="update_none">No hay ninguna actualización.</string>
+    <string name="update_no_notes">Esta versión no publicó notas.</string>
+    <string name="update_no_root">No se encontró ninguna implementación de root, así que no se puede flashear nada.</string>
+    <string name="update_root_too_old">La implementación de root de este dispositivo es demasiado antigua para flashear.</string>
+    <string name="update_root_multiple">Se encontraron dos implementaciones de root. Vector no va a adivinar cuál gestiona el módulo.</string>
+    <string name="update_failed_start">No se pudo iniciar el instalador.</string>
+    <string name="update_failed_download">No se pudo descargar la actualización.</string>
+    <string name="update_failed_exit">El instalador falló (código %1$d).</string>
+    <string name="update_available">Actualización disponible</string>
+    <string name="store_mute_updates">Ignorar las actualizaciones de este módulo</string>
+    <string name="store_mute_updates_summary">Deja de contar como desactualizado, aquí y en la lista de módulos</string>
+    <string name="store_options">Opciones</string>
     <string name="scope_framework_shared">Un único proceso compartido por todos los usuarios: afecta a todo el dispositivo</string>
+    <string name="update_no_output">El instalador no produjo ninguna salida.</string>
 </resources>

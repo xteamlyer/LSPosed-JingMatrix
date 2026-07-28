@@ -162,10 +162,21 @@ data class StoreEntry(
     val module: OnlineModule,
     val latest: RepoVersion?,
     val installed: RepoVersion?,
+    /** The reader asked not to be told about this one again. */
+    val updatesMuted: Boolean = false,
 ) {
+    /**
+     * There is a newer version *and* the reader wants to hear about it.
+     *
+     * Muting is folded in here rather than at each place that reads this, because there are four
+     * of them — the header count, the updates-first priority, the row badge and the detail
+     * screen's install button — and a mute that only some of them honoured would be worse than
+     * none at all.
+     */
     val upgradable: Boolean
         get() =
-            installed != null &&
+            !updatesMuted &&
+                installed != null &&
                 latest != null &&
                 latest.upgradableOver(installed.versionCode, installed.versionName)
 }

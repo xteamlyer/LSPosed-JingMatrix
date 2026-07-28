@@ -43,6 +43,9 @@ sealed interface TopLevelRoute : Route {
 /** What to try, and what to bring, before opening an issue. */
 @Serializable data object Troubleshoot : Route
 
+/** What is in the newest build, and the installer's output while it is flashed. */
+@Serializable data object FrameworkUpdate : Route
+
 /** GitHub, shown in the built-in viewer rather than handed to a browser. */
 @Serializable data class Web(val url: String) : Route
 

@@ -259,5 +259,28 @@
     <string name="language_translated_by">翻译：%1$s</string>
     <string name="language_help_short">翻译</string>
     <string name="language_help">帮助翻译 Vector</string>
+
+    <string name="update_title">框架更新</string>
+    <string name="update_channel_canary">Canary 版本</string>
+    <string name="update_channel_release">正式版</string>
+    <string name="update_install">安装</string>
+    <string name="update_downloading">正在下载 %1$s / %2$s</string>
+    <string name="update_flashing">正在安装…</string>
+    <string name="update_done">已安装</string>
+    <string name="update_reboot">重启</string>
+    <string name="update_reboot_why">重启后生效</string>
+    <string name="update_none">没有可用更新。</string>
+    <string name="update_no_notes">此版本未发布说明。</string>
+    <string name="update_no_root">未找到 root 实现，无法刷入。</string>
+    <string name="update_root_too_old">此设备上的 root 实现过旧，无法用于刷入。</string>
+    <string name="update_root_multiple">检测到两种 root 实现。Vector 不会猜测由哪一个管理模块。</string>
+    <string name="update_failed_start">无法启动安装程序。</string>
+    <string name="update_failed_download">无法下载此更新。</string>
+    <string name="update_failed_exit">安装程序失败（退出码 %1$d）。</string>
+    <string name="update_available">有可用更新</string>
+    <string name="store_mute_updates">忽略此模块的更新</string>
+    <string name="store_mute_updates_summary">在此处与模块列表中都不再计为过期</string>
+    <string name="store_options">选项</string>
     <string name="scope_framework_shared">所有用户共用的同一个进程，因此这会影响整台设备</string>
+    <string name="update_no_output">安装程序没有任何输出。</string>
 </resources>

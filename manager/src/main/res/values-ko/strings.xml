@@ -258,5 +258,28 @@
     <string name="language_translated_by">번역: %1$s</string>
     <string name="language_help_short">번역</string>
     <string name="language_help">Vector 번역에 참여하기</string>
+
+    <string name="update_title">프레임워크 업데이트</string>
+    <string name="update_channel_canary">canary 빌드</string>
+    <string name="update_channel_release">정식 버전</string>
+    <string name="update_install">설치</string>
+    <string name="update_downloading">%2$s 중 %1$s 내려받는 중</string>
+    <string name="update_flashing">설치하는 중…</string>
+    <string name="update_done">설치했습니다</string>
+    <string name="update_reboot">다시 시작</string>
+    <string name="update_reboot_why">다시 시작해야 적용됩니다</string>
+    <string name="update_none">사용할 수 있는 업데이트가 없습니다.</string>
+    <string name="update_no_notes">이 릴리스에는 설명이 없습니다.</string>
+    <string name="update_no_root">root 구현을 찾지 못해 설치할 수 없습니다.</string>
+    <string name="update_root_too_old">이 기기의 root 구현이 너무 오래되어 설치에 쓸 수 없습니다.</string>
+    <string name="update_root_multiple">root 구현이 두 개 발견되었습니다. 어느 쪽이 모듈을 관리하는지 Vector가 짐작하지 않습니다.</string>
+    <string name="update_failed_start">설치 프로그램을 시작하지 못했습니다.</string>
+    <string name="update_failed_download">업데이트를 내려받지 못했습니다.</string>
+    <string name="update_failed_exit">설치 프로그램이 실패했습니다(종료 코드 %1$d).</string>
+    <string name="update_available">업데이트 있음</string>
+    <string name="store_mute_updates">이 모듈의 업데이트 무시</string>
+    <string name="store_mute_updates_summary">여기서도 모듈 목록에서도 더 이상 오래된 것으로 세지 않습니다</string>
+    <string name="store_options">옵션</string>
     <string name="scope_framework_shared">모든 사용자가 함께 쓰는 하나의 프로세스라, 기기 전체에 영향을 줍니다</string>
+    <string name="update_no_output">설치 프로그램이 아무것도 출력하지 않았습니다.</string>
 </resources>

@@ -269,5 +269,28 @@
     <string name="language_translated_by">Tradotto da %1$s</string>
     <string name="language_help_short">Traduci</string>
     <string name="language_help">Aiuta a tradurre Vector</string>
+
+    <string name="update_title">Aggiornamento del framework</string>
+    <string name="update_channel_canary">Build canary</string>
+    <string name="update_channel_release">Versione stabile</string>
+    <string name="update_install">Installa</string>
+    <string name="update_downloading">Scaricati %1$s di %2$s</string>
+    <string name="update_flashing">Installazione…</string>
+    <string name="update_done">Installato</string>
+    <string name="update_reboot">Riavvia</string>
+    <string name="update_reboot_why">Ha effetto dopo un riavvio</string>
+    <string name="update_none">Nessun aggiornamento disponibile.</string>
+    <string name="update_no_notes">Questa versione non ha pubblicato note.</string>
+    <string name="update_no_root">Non è stata trovata nessuna implementazione di root, quindi non c\'è niente su cui installare.</string>
+    <string name="update_root_too_old">L\'implementazione di root su questo dispositivo è troppo vecchia per installarci sopra.</string>
+    <string name="update_root_multiple">Sono state trovate due implementazioni di root. Vector non tira a indovinare quale gestisca il modulo.</string>
+    <string name="update_failed_start">Non è stato possibile avviare il programma di installazione.</string>
+    <string name="update_failed_download">Non è stato possibile scaricare l\'aggiornamento.</string>
+    <string name="update_failed_exit">Il programma di installazione è fallito (codice %1$d).</string>
+    <string name="update_available">Aggiornamento disponibile</string>
+    <string name="store_mute_updates">Ignora gli aggiornamenti di questo modulo</string>
+    <string name="store_mute_updates_summary">Smette di contare come non aggiornato, qui e nell\'elenco dei moduli</string>
+    <string name="store_options">Opzioni</string>
     <string name="scope_framework_shared">Un solo processo condiviso da tutti gli utenti: riguarda l\'intero dispositivo</string>
+    <string name="update_no_output">Il programma di installazione non ha prodotto output.</string>
 </resources>

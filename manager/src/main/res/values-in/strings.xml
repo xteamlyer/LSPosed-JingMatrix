@@ -262,5 +262,28 @@
     <string name="language_translated_by">Diterjemahkan oleh %1$s</string>
     <string name="language_help_short">Terjemahkan</string>
     <string name="language_help">Bantu menerjemahkan Vector</string>
+
+    <string name="update_title">Pembaruan framework</string>
+    <string name="update_channel_canary">Build canary</string>
+    <string name="update_channel_release">Rilis stabil</string>
+    <string name="update_install">Pasang</string>
+    <string name="update_downloading">Mengunduh %1$s dari %2$s</string>
+    <string name="update_flashing">Memasang…</string>
+    <string name="update_done">Terpasang</string>
+    <string name="update_reboot">Mulai ulang</string>
+    <string name="update_reboot_why">Berlaku setelah dimulai ulang</string>
+    <string name="update_none">Tidak ada pembaruan.</string>
+    <string name="update_no_notes">Rilis ini tidak menerbitkan catatan.</string>
+    <string name="update_no_root">Tidak ditemukan implementasi root, jadi tidak ada yang bisa dipasang.</string>
+    <string name="update_root_too_old">Implementasi root di perangkat ini terlalu lama untuk dipakai memasang.</string>
+    <string name="update_root_multiple">Ditemukan dua implementasi root. Vector tidak akan menebak yang mana yang mengurus modulnya.</string>
+    <string name="update_failed_start">Pemasang tidak bisa dijalankan.</string>
+    <string name="update_failed_download">Pembaruan tidak bisa diunduh.</string>
+    <string name="update_failed_exit">Pemasang gagal (kode %1$d).</string>
+    <string name="update_available">Pembaruan tersedia</string>
+    <string name="store_mute_updates">Abaikan pembaruan untuk modul ini</string>
+    <string name="store_mute_updates_summary">Ia berhenti dihitung usang, di sini maupun di daftar modul</string>
+    <string name="store_options">Opsi</string>
     <string name="scope_framework_shared">Satu proses yang dipakai bersama semua pengguna, jadi ini memengaruhi seluruh perangkat</string>
+    <string name="update_no_output">Pemasang tidak mengeluarkan apa pun.</string>
 </resources>

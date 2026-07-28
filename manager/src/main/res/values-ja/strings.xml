@@ -258,5 +258,28 @@
     <string name="language_translated_by">翻訳：%1$s</string>
     <string name="language_help_short">翻訳</string>
     <string name="language_help">Vector の翻訳に参加する</string>
+
+    <string name="update_title">フレームワークの更新</string>
+    <string name="update_channel_canary">canary ビルド</string>
+    <string name="update_channel_release">正式版</string>
+    <string name="update_install">インストール</string>
+    <string name="update_downloading">%2$s 中 %1$s をダウンロード中</string>
+    <string name="update_flashing">インストール中…</string>
+    <string name="update_done">インストールしました</string>
+    <string name="update_reboot">再起動</string>
+    <string name="update_reboot_why">再起動後に反映されます</string>
+    <string name="update_none">利用できる更新はありません。</string>
+    <string name="update_no_notes">このリリースには説明がありません。</string>
+    <string name="update_no_root">root 実装が見つからないため、書き込めません。</string>
+    <string name="update_root_too_old">この端末の root 実装は古すぎて書き込みに使えません。</string>
+    <string name="update_root_multiple">root 実装が 2 つ見つかりました。どちらがモジュールを管理しているか、Vector は推測しません。</string>
+    <string name="update_failed_start">インストーラーを起動できませんでした。</string>
+    <string name="update_failed_download">更新をダウンロードできませんでした。</string>
+    <string name="update_failed_exit">インストーラーが失敗しました（終了コード %1$d）。</string>
+    <string name="update_available">更新があります</string>
+    <string name="store_mute_updates">このモジュールの更新を無視する</string>
+    <string name="store_mute_updates_summary">ここでもモジュール一覧でも、古いものとして数えられなくなります</string>
+    <string name="store_options">オプション</string>
     <string name="scope_framework_shared">すべてのユーザーが共有する 1 つのプロセスなので、端末全体に影響します</string>
+    <string name="update_no_output">インストーラーは何も出力しませんでした。</string>
 </resources>

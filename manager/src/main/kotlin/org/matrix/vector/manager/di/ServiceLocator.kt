@@ -1,5 +1,12 @@
 package org.matrix.vector.manager.di
 
+import org.matrix.vector.manager.ui.screens.repo.latestOn
+import org.matrix.vector.manager.ui.screens.repo.StoreChannel
+import org.matrix.vector.manager.data.model.StoreEntry
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
 import android.annotation.SuppressLint
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +22,8 @@ import org.matrix.vector.manager.data.github.GitHubAuth
 import org.matrix.vector.manager.data.github.GitHubRepository
 import org.matrix.vector.manager.data.repository.AppRepository
 import org.matrix.vector.manager.data.repository.BackupRepository
+import org.matrix.vector.manager.data.repository.FrameworkInstaller
+import org.matrix.vector.manager.data.repository.FrameworkUpdateRepository
 import org.matrix.vector.manager.data.repository.ModuleInstaller
 import org.matrix.vector.manager.data.repository.ModuleRepository
 import org.matrix.vector.manager.data.repository.RepoRepository
@@ -77,6 +86,46 @@ object ServiceLocator {
     val store: RepoRepository by lazy { RepoRepository(http, daemon, appScope) }
 
     val installer: ModuleInstaller by lazy { ModuleInstaller(context, http) }
+
+    val frameworkUpdates: FrameworkUpdateRepository by lazy { FrameworkUpdateRepository(github) }
+
+    /**
+     * Installed modules the catalogue has something newer for, muting already applied.
+     *
+     * Here rather than in either view model because both need it and they must agree: the Modules
+     * list marks a version as out of date, and the Store counts the same modules in its header.
+     * Two independent answers to "is this out of date" is precisely how those two numbers end up
+     * contradicting each other on one device.
+     *
+     * It is expressed through `StoreEntry.upgradable`, the same property the Store's own list and
+     * count use, so there is one definition of the word and not a second one that merely agrees
+     * today.
+     */
+    val upgradablePackages: StateFlow<Set<String>> by lazy {
+        combine(store.catalog, store.installedVersions, settings.updateChannel, settings.mutedUpdates) {
+                catalog,
+                installed,
+                channelPreference,
+                muted ->
+                val channel = StoreChannel.of(channelPreference)
+                catalog.modules
+                    .map {
+                        StoreEntry(
+                            module = it,
+                            latest = it.latestOn(channel),
+                            installed = installed[it.name],
+                            updatesMuted = it.name in muted,
+                        )
+                    }
+                    .filter { it.upgradable }
+                    .map { it.module.name }
+                    .toSet()
+            }
+            .flowOn(Dispatchers.Default)
+            .stateIn(appScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+    }
+
+    val frameworkInstaller: FrameworkInstaller by lazy { FrameworkInstaller(context, http, daemon) }
 
     val backup: BackupRepository by lazy { BackupRepository(context, daemon) }
 

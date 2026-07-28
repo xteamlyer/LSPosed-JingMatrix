@@ -1,5 +1,12 @@
 package org.matrix.vector.manager.ui.screens.repo
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.matrix.vector.manager.ui.components.ToggleRow
+import org.matrix.vector.manager.ui.components.SheetHeading
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.NotificationsOff
+import androidx.compose.material.icons.rounded.MoreVert
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -142,6 +149,7 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
     }
 
     var choosing by remember { mutableStateOf<Release?>(null) }
+    var optionsOpen by remember { mutableStateOf(false) }
     var confirming by remember { mutableStateOf<ReleaseAsset?>(null) }
 
     Scaffold(
@@ -178,6 +186,12 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                                 contentDescription = stringResource(R.string.store_open_module),
                             )
                         }
+                    }
+                    IconButton(onClick = { optionsOpen = true }) {
+                        Icon(
+                            Icons.Rounded.MoreVert,
+                            contentDescription = stringResource(R.string.store_options),
+                        )
                     }
                 },
             )
@@ -250,6 +264,25 @@ fun RepoDetailsScreen(packageName: String, onNavigateBack: () -> Unit) {
                             },
                         )
                     else -> InformationTab(module = module, onOpenUrl = openUrl)
+                }
+            }
+        }
+    }
+
+    if (optionsOpen) {
+        val muted by viewModel.updatesMuted.collectAsStateWithLifecycle()
+        val sheetState = rememberModalBottomSheetState()
+        ModalBottomSheet(onDismissRequest = { optionsOpen = false }, sheetState = sheetState) {
+            LocalizedOverlay {
+                Column(Modifier.padding(bottom = 24.dp)) {
+                    SheetHeading(stringResource(R.string.store_options), Icons.Rounded.Tune)
+                    ToggleRow(
+                        title = stringResource(R.string.store_mute_updates),
+                        icon = Icons.Rounded.NotificationsOff,
+                        checked = muted,
+                        onCheckedChange = viewModel::setUpdatesMuted,
+                        subtitle = stringResource(R.string.store_mute_updates_summary),
+                    )
                 }
             }
         }

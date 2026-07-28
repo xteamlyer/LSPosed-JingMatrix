@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.repo
 
+import kotlinx.coroutines.flow.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +63,14 @@ class RepoDetailsViewModel(
     private val _fetch = MutableStateFlow(DetailFetch.Loading)
 
     val installState: StateFlow<InstallStep> = installer.state
+
+    /** Whether this module has been told to stop reporting updates. */
+    val updatesMuted: StateFlow<Boolean> =
+        settings.mutedUpdates
+            .map { packageName in it }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun setUpdatesMuted(muted: Boolean) = settings.setUpdatesMuted(packageName, muted)
 
     val state: StateFlow<RepoDetailsState> =
         combine(

@@ -302,5 +302,28 @@
     <string name="language_translated_by">Translated by %1$s</string>
     <string name="language_help_short">Translate</string>
     <string name="language_help">Help translate Vector</string>
+
+    <string name="update_title">Framework update</string>
+    <string name="update_channel_canary">Canary build</string>
+    <string name="update_channel_release">Release</string>
+    <string name="update_install">Install</string>
+    <string name="update_downloading">Downloading %1$s of %2$s</string>
+    <string name="update_flashing">Installing…</string>
+    <string name="update_done">Installed</string>
+    <string name="update_reboot">Restart</string>
+    <string name="update_reboot_why">It takes effect after a restart</string>
+    <string name="update_none">No update available.</string>
+    <string name="update_no_notes">This release published no notes.</string>
+    <string name="update_no_root">No root implementation was found, so nothing can be flashed.</string>
+    <string name="update_root_too_old">The root implementation on this device is too old to flash through.</string>
+    <string name="update_root_multiple">Two root implementations were found. Vector will not guess which one owns the module.</string>
+    <string name="update_failed_start">The installer could not be started.</string>
+    <string name="update_failed_download">The update could not be downloaded.</string>
+    <string name="update_failed_exit">The installer failed (exit %1$d).</string>
+    <string name="update_available">Update available</string>
+    <string name="store_mute_updates">Ignore updates for this module</string>
+    <string name="store_mute_updates_summary">It stops counting as out of date, here and on the modules list</string>
+    <string name="store_options">Options</string>
     <string name="scope_framework_shared">One process shared by every user, so this affects the whole device</string>
+    <string name="update_no_output">The installer produced no output.</string>
 </resources>

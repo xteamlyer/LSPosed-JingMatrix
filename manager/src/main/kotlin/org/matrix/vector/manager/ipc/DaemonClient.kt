@@ -3,6 +3,7 @@ package org.matrix.vector.manager.ipc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import org.lsposed.lspd.IFrameworkInstallCallback
 import org.lsposed.lspd.ILSPManagerService
 
 /**
@@ -187,4 +188,22 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
 
     suspend fun setAutoInclude(packageName: String, enable: Boolean): Result<Unit> = runIpc { it.setAutoInclude(packageName, enable)
     }
+
+    suspend fun getRootImplementation(): Result<Int> = runIpc { it.rootImplementation }
+
+    suspend fun getRootImplementationVersion(): Result<String?> = runIpc {
+        it.rootImplementationVersion
+    }
+
+    /**
+     * Starts a flash and returns as soon as the daemon has accepted it.
+     *
+     * Deliberately not wrapped into a suspend-until-finished call: the result arrives on [callback]
+     * over minutes, and a coroutine suspended across a reboot-inducing operation is a coroutine
+     * that never resumes. The caller keeps the callback alive for as long as it wants the output.
+     */
+    suspend fun installFrameworkZip(
+        zipPath: String,
+        callback: IFrameworkInstallCallback,
+    ): Result<Unit> = runIpc { it.installFrameworkZip(zipPath, callback) }
 }

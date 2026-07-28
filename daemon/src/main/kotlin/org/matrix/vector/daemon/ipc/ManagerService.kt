@@ -23,6 +23,7 @@ import hidden.HiddenApiBridge
 import io.github.libxposed.service.IXposedService
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import org.lsposed.lspd.IFrameworkInstallCallback
 import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.UserInfo
@@ -35,6 +36,7 @@ import org.matrix.vector.daemon.env.Dex2OatServer
 import org.matrix.vector.daemon.env.LogcatMonitor
 import org.matrix.vector.daemon.system.*
 import org.matrix.vector.daemon.utils.PackageOptimizer
+import org.matrix.vector.daemon.utils.RootImplementation
 import org.matrix.vector.daemon.utils.applyXspaceWorkaround
 import org.matrix.vector.daemon.utils.getRealUsers
 import rikka.parcelablelist.ParcelableListSlice
@@ -435,4 +437,32 @@ object ManagerService : ILSPManagerService.Stub() {
       ModuleDatabase.setAutoInclude(packageName, enabled)
 
   override fun getAutoInclude(packageName: String) = ConfigCache.getAutoInclude(packageName)
+
+  override fun getRootImplementation() = RootImplementation.implementation
+
+  override fun getRootImplementationVersion() = RootImplementation.version
+
+  override fun installFrameworkZip(zipPath: String, callback: IFrameworkInstallCallback) {
+    // Off the binder thread: a flash takes seconds to minutes, and holding a binder thread for its
+    // duration starves everything else the manager asks of the daemon meanwhile — including the
+    // log reads the install screen is doing to show what is happening.
+    Thread {
+          val exit =
+              RootImplementation.install(zipPath) { line ->
+                runCatching { callback.onLine(line) }
+                    .onFailure {
+                      // The manager went away mid-flash. Keep installing — stopping now would
+                      // leave the module tree half-written — and keep logging, which is the only
+                      // record left.
+                      Log.w(TAG, "Install callback is gone; continuing", it)
+                    }
+              }
+          runCatching { callback.onFinished(exit) }
+              .onFailure { Log.w(TAG, "Could not report install result", it) }
+        }
+        .apply {
+          name = "vector-framework-install"
+          start()
+        }
+  }
 }

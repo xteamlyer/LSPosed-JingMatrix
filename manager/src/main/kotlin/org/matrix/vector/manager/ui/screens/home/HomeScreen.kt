@@ -116,6 +116,7 @@ fun HomeScreen(
     onOpenUrl: (String) -> Unit,
     onOpenCanary: () -> Unit,
     onOpenReport: () -> Unit,
+    onOpenUpdate: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val status by viewModel.status.collectAsStateWithLifecycle()
@@ -124,6 +125,7 @@ fun HomeScreen(
     val signIn by viewModel.signInState.collectAsStateWithLifecycle()
     val openExternally by viewModel.openLinksExternally.collectAsStateWithLifecycle()
     val feedItems by viewModel.feedItems.collectAsStateWithLifecycle()
+    val frameworkUpdate by viewModel.frameworkUpdate.collectAsStateWithLifecycle()
     val ambienceKey by viewModel.headerAmbience.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showSplash by rememberSaveable { mutableStateOf(false) }
@@ -261,6 +263,8 @@ fun HomeScreen(
                 state = status.state,
                 version = status.versionLabel,
                 apiVersion = status.apiVersion,
+                hasUpdate = frameworkUpdate.hasUpdate,
+                onOpenUpdate = onOpenUpdate,
                 ambience = AmbienceKind.from(ambienceKey),
                 onOpenStatus = onOpenStatus,
                 onOpenAppearance = { showAppearance = true },

@@ -283,6 +283,10 @@ private fun document(body: String, palette: Palette, rtl: Boolean): String {
             border-inline-start: 3px solid $rule;
           }
           img { max-width: 100%; height: auto; }
+          /* GitHub task lists, which release notes use and module READMEs do not. Without this
+             the checkbox sits beside a bullet, which reads as two markers for one item. */
+          li.task { list-style: none; margin-inline-start: -1.1em; }
+          li.task input { margin-inline-end: .45em; vertical-align: middle; }
           hr { border: none; border-top: 1px solid $rule; }
           table { border-collapse: collapse; display: block; overflow-x: auto; }
           th, td { border: 1px solid $rule; padding: 6px 12px; }

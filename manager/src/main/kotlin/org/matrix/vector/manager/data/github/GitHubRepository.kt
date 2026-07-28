@@ -398,6 +398,76 @@ class GitHubRepository(
                 }
         }
 
+    /**
+     * Every published build, both channels, newest first.
+     *
+     * One fetch for both because they come from the same endpoint, and because deciding which
+     * channel a reader is on needs to see both: a canary that has aged out of the rolling five is
+     * still recognisable as a canary by being *newer than the newest stable release*, and that
+     * comparison is impossible with only one of the two lists in hand.
+     */
+    suspend fun frameworkReleases(freshness: Freshness = Freshness.Revalidate):
+        List<FrameworkRelease> =
+        withContext(Dispatchers.IO) {
+            val body =
+                get("$API/$REPO/releases?per_page=$CANARY_FETCH", freshness)
+                    ?: return@withContext emptyList()
+
+            runCatching { json.decodeFromString<List<GhRelease>>(body) }
+                .getOrDefault(emptyList())
+                .mapNotNull { release ->
+                    val canary = release.prerelease && release.tagName.startsWith(CANARY_TAG_PREFIX)
+                    FrameworkRelease(
+                        tag = release.tagName,
+                        title = release.name ?: release.tagName,
+                        versionCode = release.versionCode() ?: return@mapNotNull null,
+                        isCanary = canary,
+                        notesMarkdown = release.body,
+                        htmlUrl = release.htmlUrl,
+                        epochSeconds = parseIso8601(release.publishedAt.orEmpty()),
+                        zip =
+                            release.assets
+                                .firstOrNull { it.name.endsWith(".zip", ignoreCase = true) }
+                                ?.let {
+                                    CanaryArtifact(
+                                        id = it.id,
+                                        name = it.name,
+                                        sizeInBytes = it.size,
+                                        expired = false,
+                                        downloadUrl = it.downloadUrl,
+                                    )
+                                },
+                    )
+                }
+                .sortedByDescending { it.versionCode }
+        }
+
+    /**
+     * The build number a release represents, or null when it is not comparable with ours.
+     *
+     * `canary-3049` states it outright. A stable tag does not, so it is read out of the zip's file
+     * name — the CI names them with the same version code — and a release whose number cannot be
+     * established at all is dropped rather than compared as zero, which would have made every
+     * stable release look older than every canary.
+     *
+     * **Only releases of this product count, and that is not pedantry.** The version code restarted
+     * when LSPosed became Vector: this repository's own release list holds `LSPosed-v1.11.0-7209`
+     * beside `Vector-v2.0-3021`, so a plain numeric comparison makes the *older* project look four
+     * thousand builds newer. Without this filter the manager offered LSPosed 1.11.0 to a Vector
+     * 3049 device and called it an update — a cross-product downgrade, flashed with root. Matching
+     * the asset prefix is what keeps the comparison inside one numbering scheme.
+     */
+    private fun GhRelease.versionCode(): Long? {
+        val ours = assets.filter { it.name.startsWith(ZIP_PREFIX, ignoreCase = true) }
+        if (ours.isEmpty()) return null
+        if (tagName.startsWith(CANARY_TAG_PREFIX)) {
+            return tagName.removePrefix(CANARY_TAG_PREFIX).toLongOrNull()
+        }
+        return ours.firstNotNullOfOrNull { asset ->
+            Regex("(\\d{3,})").findAll(asset.name).map { it.value }.lastOrNull()?.toLongOrNull()
+        }
+    }
+
     @Serializable
     private data class ResolvedPerson(
         val login: String,
@@ -498,6 +568,14 @@ class GitHubRepository(
          */
         const val CANARY_URL = "$REPO_URL/actions/workflows/core.yml?query=branch%3Amaster"
         private const val CANARY_TAG_PREFIX = "canary-"
+
+        /**
+         * What this product's own release zips are called.
+         *
+         * The release list still carries the pre-rename LSPosed builds, whose version codes are
+         * from a different and higher numbering; see `versionCode()`.
+         */
+        private const val ZIP_PREFIX = "Vector-"
 
         /** CI keeps five; a few extra are fetched so a stable release among them costs nothing. */
         private const val CANARY_FETCH = 12

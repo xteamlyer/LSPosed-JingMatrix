@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.home
 
+import org.matrix.vector.manager.data.repository.FrameworkUpdateState
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -142,6 +143,10 @@ class HomeViewModel(
                 sepolicyLoaded = sepolicy,
                 systemServerInjected = systemServer,
             )
+
+        if (versionCode > 0) {
+            viewModelScope.launch { ServiceLocator.frameworkUpdates.refresh(versionCode) }
+        }
     }
 
     /**
@@ -167,6 +172,15 @@ class HomeViewModel(
 
     private val _statusNotification = MutableStateFlow(false)
     val statusNotification: StateFlow<Boolean> = _statusNotification.asStateFlow()
+
+    /**
+     * Whether a newer framework build exists, on the channel this device is actually on.
+     *
+     * Refreshed off the back of the status read rather than on its own timer: the version code it
+     * compares against comes from the same daemon call, and asking GitHub before we know what we
+     * are running would compare against zero.
+     */
+    val frameworkUpdate: StateFlow<FrameworkUpdateState> = ServiceLocator.frameworkUpdates.state
 
     private val _hiddenIcon = MutableStateFlow(false)
     val hiddenIcon: StateFlow<Boolean> = _hiddenIcon.asStateFlow()

@@ -258,5 +258,28 @@
     <string name="language_translated_by">Dịch bởi %1$s</string>
     <string name="language_help_short">Dịch</string>
     <string name="language_help">Giúp dịch Vector</string>
+
+    <string name="update_title">Cập nhật framework</string>
+    <string name="update_channel_canary">Bản canary</string>
+    <string name="update_channel_release">Bản chính thức</string>
+    <string name="update_install">Cài đặt</string>
+    <string name="update_downloading">Đã tải %1$s trên %2$s</string>
+    <string name="update_flashing">Đang cài…</string>
+    <string name="update_done">Đã cài</string>
+    <string name="update_reboot">Khởi động lại</string>
+    <string name="update_reboot_why">Có hiệu lực sau khi khởi động lại</string>
+    <string name="update_none">Không có bản cập nhật nào.</string>
+    <string name="update_no_notes">Bản phát hành này không có ghi chú.</string>
+    <string name="update_no_root">Không tìm thấy bản cài root nào nên không nạp được gì.</string>
+    <string name="update_root_too_old">Bản cài root trên thiết bị này quá cũ để nạp.</string>
+    <string name="update_root_multiple">Tìm thấy hai bản cài root. Vector sẽ không đoán bản nào đang quản lý mô-đun.</string>
+    <string name="update_failed_start">Không khởi chạy được trình cài đặt.</string>
+    <string name="update_failed_download">Không tải được bản cập nhật.</string>
+    <string name="update_failed_exit">Trình cài đặt thất bại (mã %1$d).</string>
+    <string name="update_available">Có bản cập nhật</string>
+    <string name="store_mute_updates">Bỏ qua cập nhật của mô-đun này</string>
+    <string name="store_mute_updates_summary">Nó thôi bị tính là cũ, ở đây và trong danh sách mô-đun</string>
+    <string name="store_options">Tuỳ chọn</string>
     <string name="scope_framework_shared">Một tiến trình dùng chung cho mọi người dùng, nên việc này ảnh hưởng toàn thiết bị</string>
+    <string name="update_no_output">Trình cài đặt không xuất ra gì cả.</string>
 </resources>

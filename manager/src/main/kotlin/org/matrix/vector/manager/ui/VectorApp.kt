@@ -14,6 +14,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import org.matrix.vector.manager.ui.navigation.FrameworkUpdate
+import org.matrix.vector.manager.ui.screens.update.FrameworkUpdateScreen
 import org.matrix.vector.manager.ui.navigation.Canary
 import org.matrix.vector.manager.ui.screens.canary.CanaryScreen
 import org.matrix.vector.manager.ui.navigation.Troubleshoot
@@ -105,6 +107,7 @@ private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
             onOpenUrl = { url -> navigator.go(Web(url)) },
             onOpenCanary = { navigator.go(Canary) },
             onOpenReport = { navigator.go(Troubleshoot) },
+            onOpenUpdate = { navigator.go(FrameworkUpdate) },
         )
     }
     entry<TopLevelRoute.Modules> {
@@ -137,6 +140,12 @@ private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
     }
     entry<Canary> {
         CanaryScreen(
+            onNavigateBack = { navigator.back() },
+            onOpenUrl = { url -> navigator.go(Web(url)) },
+        )
+    }
+    entry<FrameworkUpdate> {
+        FrameworkUpdateScreen(
             onNavigateBack = { navigator.back() },
             onOpenUrl = { url -> navigator.go(Web(url)) },
         )

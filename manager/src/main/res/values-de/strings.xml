@@ -269,5 +269,28 @@
     <string name="language_translated_by">Übersetzt von %1$s</string>
     <string name="language_help_short">Übersetzen</string>
     <string name="language_help">Vector übersetzen helfen</string>
+
+    <string name="update_title">Framework-Update</string>
+    <string name="update_channel_canary">Canary-Build</string>
+    <string name="update_channel_release">Release</string>
+    <string name="update_install">Installieren</string>
+    <string name="update_downloading">%1$s von %2$s geladen</string>
+    <string name="update_flashing">Wird installiert…</string>
+    <string name="update_done">Installiert</string>
+    <string name="update_reboot">Neu starten</string>
+    <string name="update_reboot_why">Wirkt nach einem Neustart</string>
+    <string name="update_none">Kein Update verfügbar.</string>
+    <string name="update_no_notes">Zu dieser Version wurden keine Notizen veröffentlicht.</string>
+    <string name="update_no_root">Keine Root-Implementierung gefunden — es lässt sich nichts flashen.</string>
+    <string name="update_root_too_old">Die Root-Implementierung auf diesem Gerät ist zu alt zum Flashen.</string>
+    <string name="update_root_multiple">Zwei Root-Implementierungen gefunden. Vector rät nicht, welche das Modul verwaltet.</string>
+    <string name="update_failed_start">Das Installationsprogramm ließ sich nicht starten.</string>
+    <string name="update_failed_download">Das Update konnte nicht geladen werden.</string>
+    <string name="update_failed_exit">Das Installationsprogramm ist fehlgeschlagen (Exit %1$d).</string>
+    <string name="update_available">Update verfügbar</string>
+    <string name="store_mute_updates">Updates für dieses Modul ignorieren</string>
+    <string name="store_mute_updates_summary">Es gilt hier und in der Modulliste nicht mehr als veraltet</string>
+    <string name="store_options">Optionen</string>
     <string name="scope_framework_shared">Ein Prozess, den sich alle Benutzer teilen — das betrifft das ganze Gerät</string>
+    <string name="update_no_output">Das Installationsprogramm hat nichts ausgegeben.</string>
 </resources>

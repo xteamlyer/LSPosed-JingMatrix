@@ -269,5 +269,28 @@
     <string name="language_translated_by">Traduzido por %1$s</string>
     <string name="language_help_short">Traduzir</string>
     <string name="language_help">Ajude a traduzir o Vector</string>
+
+    <string name="update_title">Atualização do framework</string>
+    <string name="update_channel_canary">Versão canary</string>
+    <string name="update_channel_release">Versão estável</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_downloading">Baixados %1$s de %2$s</string>
+    <string name="update_flashing">Instalando…</string>
+    <string name="update_done">Instalado</string>
+    <string name="update_reboot">Reiniciar</string>
+    <string name="update_reboot_why">Passa a valer depois de reiniciar</string>
+    <string name="update_none">Nenhuma atualização disponível.</string>
+    <string name="update_no_notes">Esta versão não publicou notas.</string>
+    <string name="update_no_root">Nenhuma implementação de root foi encontrada, então não há como gravar nada.</string>
+    <string name="update_root_too_old">A implementação de root deste dispositivo é antiga demais para gravar.</string>
+    <string name="update_root_multiple">Foram encontradas duas implementações de root. O Vector não vai adivinhar qual delas cuida do módulo.</string>
+    <string name="update_failed_start">Não foi possível iniciar o instalador.</string>
+    <string name="update_failed_download">Não foi possível baixar a atualização.</string>
+    <string name="update_failed_exit">O instalador falhou (código %1$d).</string>
+    <string name="update_available">Atualização disponível</string>
+    <string name="store_mute_updates">Ignorar atualizações deste módulo</string>
+    <string name="store_mute_updates_summary">Ele deixa de contar como desatualizado, aqui e na lista de módulos</string>
+    <string name="store_options">Opções</string>
     <string name="scope_framework_shared">Um único processo compartilhado por todos os usuários: isso afeta o aparelho inteiro</string>
+    <string name="update_no_output">O instalador não produziu nenhuma saída.</string>
 </resources>

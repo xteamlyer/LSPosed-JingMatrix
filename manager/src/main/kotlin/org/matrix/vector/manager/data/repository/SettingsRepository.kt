@@ -96,6 +96,28 @@ class SettingsRepository(context: Context) {
         _appLocale.value = tag
     }
 
+    /**
+     * Modules the reader has told us to stop nagging about.
+     *
+     * In the manager's own preferences rather than in the daemon's module database, because this is
+     * a fact about *this reader's opinion of the catalogue*, not about the module: the daemon has
+     * never heard of the catalogue, does not know a remote version exists, and would have to be
+     * taught the whole notion to store one boolean. Muting also has to survive a module being
+     * uninstalled and reinstalled, which a daemon-side per-module row would not.
+     */
+    private val _mutedUpdates =
+        MutableStateFlow(prefs.getStringSet("muted_updates", emptySet())?.toSet() ?: emptySet())
+    val mutedUpdates: StateFlow<Set<String>> = _mutedUpdates.asStateFlow()
+
+    fun setUpdatesMuted(packageName: String, muted: Boolean) {
+        val next =
+            if (muted) _mutedUpdates.value + packageName else _mutedUpdates.value - packageName
+        // A fresh set, not the one handed out: SharedPreferences keeps the instance it is given and
+        // documents that mutating it afterwards is undefined.
+        prefs.edit().putStringSet("muted_updates", HashSet(next)).apply()
+        _mutedUpdates.value = next
+    }
+
     /** Which living surface the status header draws. See AmbienceKind. */
     private val _headerAmbience =
         MutableStateFlow(prefs.getString("header_ambience", DEFAULT_AMBIENCE) ?: DEFAULT_AMBIENCE)

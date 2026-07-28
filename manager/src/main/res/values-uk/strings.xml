@@ -291,5 +291,28 @@
     <string name="language_translated_by">Переклад: %1$s</string>
     <string name="language_help_short">Перекласти</string>
     <string name="language_help">Допомогти з перекладом Vector</string>
+
+    <string name="update_title">Оновлення фреймворку</string>
+    <string name="update_channel_canary">Збірка canary</string>
+    <string name="update_channel_release">Стабільний випуск</string>
+    <string name="update_install">Встановити</string>
+    <string name="update_downloading">Завантажено %1$s з %2$s</string>
+    <string name="update_flashing">Встановлення…</string>
+    <string name="update_done">Встановлено</string>
+    <string name="update_reboot">Перезавантажити</string>
+    <string name="update_reboot_why">Набуде чинності після перезавантаження</string>
+    <string name="update_none">Оновлень немає.</string>
+    <string name="update_no_notes">До цього випуску немає опису.</string>
+    <string name="update_no_root">Не знайдено жодної реалізації root, тож немає чим прошивати.</string>
+    <string name="update_root_too_old">Реалізація root на цьому пристрої застара для прошивання.</string>
+    <string name="update_root_multiple">Знайдено дві реалізації root. Vector не гадатиме, яка з них керує модулем.</string>
+    <string name="update_failed_start">Не вдалося запустити встановлювач.</string>
+    <string name="update_failed_download">Не вдалося завантажити оновлення.</string>
+    <string name="update_failed_exit">Встановлювач завершився помилкою (код %1$d).</string>
+    <string name="update_available">Є оновлення</string>
+    <string name="store_mute_updates">Ігнорувати оновлення цього модуля</string>
+    <string name="store_mute_updates_summary">Він перестане рахуватися застарілим — і тут, і в переліку модулів</string>
+    <string name="store_options">Параметри</string>
     <string name="scope_framework_shared">Один процес, спільний для всіх користувачів, тож це стосується всього пристрою</string>
+    <string name="update_no_output">Встановлювач нічого не вивів.</string>
 </resources>
