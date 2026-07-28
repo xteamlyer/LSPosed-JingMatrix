@@ -93,6 +93,24 @@ class CommitArchive(private val file: File, private val stateFile: File, private
      * corrupting: the newest copy of a commit is the one that ends up furthest down the file.
      */
     fun read(): List<GhCommit> {
+        parsed?.let {
+            return it
+        }
+        return parse().also { parsed = it }
+    }
+
+    /**
+     * The parsed file, held for as long as it is unchanged.
+     *
+     * One load reads this twice — once to lay out the feed, once to know what the backfill already
+     * has — and a backfill reads it again after appending. At three thousand commits that is three
+     * passes over four megabytes of JSON per visit to the foot of the list, all of it to reproduce
+     * a list that has not changed. Every writer here invalidates it, so there is no way to hold a
+     * stale copy.
+     */
+    @Volatile private var parsed: List<GhCommit>? = null
+
+    private fun parse(): List<GhCommit> {
         if (!file.isFile) return emptyList()
         val byShaLatestWins = LinkedHashMap<String, GhCommit>()
         runCatching {
@@ -111,6 +129,7 @@ class CommitArchive(private val file: File, private val stateFile: File, private
     /** Appends a chunk. Duplicates are expected and are resolved on read, not here. */
     fun append(commits: List<GhCommit>) {
         if (commits.isEmpty()) return
+        parsed = null
         runCatching {
             file.parentFile?.mkdirs()
             file.appendText(commits.joinToString("\n", postfix = "\n") { json.encodeToString(it) })
@@ -132,6 +151,7 @@ class CommitArchive(private val file: File, private val stateFile: File, private
             val tmp = File(file.parentFile, file.name + ".tmp")
             tmp.writeText(unique.joinToString("\n", postfix = "\n") { json.encodeToString(it) })
             tmp.renameTo(file)
+            parsed = unique
         }
     }
 }
