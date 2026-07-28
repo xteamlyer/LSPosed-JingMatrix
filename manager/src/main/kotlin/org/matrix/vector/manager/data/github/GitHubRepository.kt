@@ -249,6 +249,16 @@ class GitHubRepository(
     @Volatile private var identities: Map<String, CommitPerson> = emptyMap()
 
     /**
+     * Every commit on the default branch, ever, as GitHub last reported it.
+     *
+     * From the `Link: rel="last"` header of a one-per-page request — a number the walk can be
+     * checked against. Holding that many unique commits *is* holding the history, which is a
+     * better answer than "a page came back empty": it is known before the request that would have
+     * proved it, so a finished archive stops asking rather than asking once more to be told no.
+     */
+    @Volatile private var knownTotalCommits: Long = 0
+
+    /**
      * Walks the history backwards, a page at a time, and stops.
      *
      * ## The algorithm
@@ -293,6 +303,15 @@ class GitHubRepository(
             if (state.complete) return@withContext 0
 
             val known = archive.read()
+            // The cheapest completion test there is, and the only one that does not cost a
+            // request: the project has a known number of commits and this holds that many. It also
+            // covers the case the page-walk cannot — an archive assembled across several sessions
+            // whose last page happened to end exactly on the first commit, which otherwise stays
+            // "incomplete" forever and re-asks on every visit to the foot of the feed.
+            if (knownTotalCommits > 0 && known.size >= knownTotalCommits) {
+                archive.writeState(state.copy(complete = true))
+                return@withContext 0
+            }
             val seen = known.mapTo(mutableSetOf()) { it.sha }
             var cursor =
                 state.oldestSeenEpochSeconds.takeIf { it > 0 }
@@ -456,6 +475,7 @@ class GitHubRepository(
         totalCommits: Long,
         freshness: Freshness = Freshness.Cached,
     ): CommunityFeed {
+        if (totalCommits > 0) knownTotalCommits = totalCommits
         val commits =
             raw.map { c ->
                     val subject = c.commit.message.lineSequence().first().trim()
@@ -552,6 +572,7 @@ class GitHubRepository(
             // window holds more than the hundred commits a single request returns.
             hasMoreHistory =
                 !archive.state().complete &&
+                    !(totalCommits > 0 && archive.read().size >= totalCommits) &&
                     (windowStart <= 0 ||
                         (commits.minOfOrNull { it.epochSeconds } ?: 0L) > windowStart),
         )

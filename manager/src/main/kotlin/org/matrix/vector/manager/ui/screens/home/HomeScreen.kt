@@ -34,6 +34,7 @@ import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.VolunteerActivism
@@ -148,6 +149,7 @@ fun HomeScreen(
     val loadingHistory by viewModel.loadingHistory.collectAsStateWithLifecycle()
     val historyStalled by viewModel.historyStalled.collectAsStateWithLifecycle()
     val authorFilter by viewModel.authorFilter.collectAsStateWithLifecycle()
+    val windowChanged by viewModel.windowChanged.collectAsStateWithLifecycle()
     val frameworkUpdate by viewModel.frameworkUpdate.collectAsStateWithLifecycle()
     val ambienceKey by viewModel.headerAmbience.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -285,6 +287,7 @@ fun HomeScreen(
                         items = feedItems,
                         loadingHistory = loadingHistory,
                         historyStalled = historyStalled,
+                        windowChanged = windowChanged,
                         authorFilter = authorFilter,
                         onLoadMoreHistory = viewModel::loadMoreHistory,
                         onToggleAuthor = viewModel::toggleAuthorFilter,
@@ -377,6 +380,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
     items: List<FeedItem>,
     loadingHistory: Boolean,
     historyStalled: Boolean,
+    windowChanged: Boolean,
     authorFilter: Set<String>,
     onLoadMoreHistory: () -> Unit,
     onToggleAuthor: (String) -> Unit,
@@ -385,7 +389,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
     onOpenPullRequest: (Int) -> Unit,
     onOpenProfile: (Contributor) -> Unit,
 ) {
-    item { QuarterHeadline(feed) }
+    item { QuarterHeadline(feed, windowChanged) }
 
     if (feed.contributors.isNotEmpty()) {
         item {
@@ -513,7 +517,7 @@ private fun BotBundle(count: Int, commits: List<TimelineCommit>) {
 }
 
 @Composable
-private fun QuarterHeadline(feed: CommunityFeed) {
+private fun QuarterHeadline(feed: CommunityFeed, windowChanged: Boolean) {
     val people = feed.contributors.size
     val context = LocalContext.current
     Column(Modifier.padding(bottom = 16.dp)) {
@@ -556,23 +560,39 @@ private fun QuarterHeadline(feed: CommunityFeed) {
         // disk on most launches *on purpose* — the window moves a few times a week, and revalidating
         // every time spends battery and rate limit to redraw identical rows — so reporting that as
         // "could not reach GitHub" accused the network of something the app chose not to do.
-        if (feed.offline || feed.fromCache) {
+        // A fourth situation, and the only one that asks for something: the window was just
+        // changed, so what is on screen was re-cut from disk and may not reach as far as the new
+        // window does. It takes precedence over the other three because it is the newest fact and
+        // the only actionable one.
+        if (windowChanged || feed.offline || feed.fromCache) {
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    if (feed.offline) Icons.Rounded.CloudOff else Icons.Rounded.Bedtime,
+                    when {
+                        windowChanged -> Icons.Rounded.Refresh
+                        feed.offline -> Icons.Rounded.CloudOff
+                        else -> Icons.Rounded.Bedtime
+                    },
                     contentDescription = null,
                     modifier = Modifier.height(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint =
+                        if (windowChanged) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text =
                         stringResource(
-                            if (feed.offline) R.string.home_offline else R.string.home_resting
+                            when {
+                                windowChanged -> R.string.home_window_changed
+                                feed.offline -> R.string.home_offline
+                                else -> R.string.home_resting
+                            }
                         ),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color =
+                        if (windowChanged) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

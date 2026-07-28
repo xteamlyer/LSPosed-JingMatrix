@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -106,6 +107,16 @@ class HomeViewModel(
             if (checkNow) GitHubRepository.Freshness.Revalidate
             else GitHubRepository.Freshness.Cached
         )
+        viewModelScope.launch {
+            // drop(1): the value on subscription is the window already rendered.
+            ServiceLocator.settings.activityWindowMonths.drop(1).collect {
+                _windowChanged.value = true
+                // From disk, not from GitHub. The archive already holds the commits; the window is
+                // only a view of it, so re-cutting it costs nothing and the feed answers on the
+                // frame after the sheet closes.
+                _feed.update { github.load(GitHubRepository.Freshness.Cached) }
+            }
+        }
     }
 
     private suspend fun refreshStatus(service: ILSPManagerService?) {
@@ -250,8 +261,23 @@ class HomeViewModel(
             _refreshing.value = true
             _feed.update { github.load(freshness) }
             _refreshing.value = false
+            // Anything that actually went to the network settles the debt below.
+            if (freshness != GitHubRepository.Freshness.Cached) _windowChanged.value = false
         }
     }
+
+    /**
+     * True when the window was changed and nothing has been fetched since.
+     *
+     * Changing "the last six months" to "since the beginning" used to do nothing visible until the
+     * next launch: the window is read inside the repository at load time, and nothing reloaded. It
+     * now redraws immediately from what is already on disk — which for a *narrower* window is the
+     * whole answer, and for a wider one is as much of it as has been walked so far. The difference
+     * is what this flag is for: the page says a fetch would help and leaves the choice to the
+     * reader, rather than spending their rate limit the moment they touch a setting.
+     */
+    private val _windowChanged = MutableStateFlow(false)
+    val windowChanged: StateFlow<Boolean> = _windowChanged.asStateFlow()
 
     private val _loadingHistory = MutableStateFlow(false)
     val loadingHistory: StateFlow<Boolean> = _loadingHistory.asStateFlow()
