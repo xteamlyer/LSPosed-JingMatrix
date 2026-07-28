@@ -62,6 +62,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.components.ColorWheel
@@ -104,6 +105,8 @@ fun HomeAppearanceSheet(onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+LocalizedOverlay {
+
         Column(modifier = Modifier.padding(bottom = 24.dp)) {
             SheetHeading(stringResource(R.string.appearance_theme), Icons.Rounded.Palette)
             BrightnessSelector(
@@ -181,6 +184,7 @@ fun HomeAppearanceSheet(onDismiss: () -> Unit) {
 
         }
     }
+}
 }
 
 /**

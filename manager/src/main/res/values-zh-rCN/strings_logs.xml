@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">日志</string>
+
+    <string name="logs_word_wrap">自动换行</string>
+    <string name="logs_save">保存问题报告…</string>
+    <string name="logs_rotate">开始新的日志…</string>
+
+    <string name="logs_search_hint">搜索此日志</string>
+    <string name="logs_filter">按级别和标签筛选</string>
+    <string name="logs_filter_levels">级别</string>
+    <string name="logs_filter_tags">标签</string>
+    <string name="logs_filter_clear">清除筛选</string>
+    <string name="logs_filter_scanning">正在读取整个文件，以便筛选能覆盖屏幕之外的内容。</string>
+
+    <string name="logs_level_verbose">详细</string>
+    <string name="logs_level_debug">调试</string>
+    <string name="logs_level_info">信息</string>
+    <string name="logs_level_warn">警告</string>
+    <string name="logs_level_error">错误</string>
+    <string name="logs_level_fatal">致命</string>
+    <string name="logs_level_other">其他</string>
+
+    <string name="logs_window">第 %1$d–%2$d 行，共 %3$d 行</string>
+    <plurals name="logs_matches">
+        <item quantity="other">%1$d 行匹配</item>
+    </plurals>
+    <string name="logs_dropped">此日志超出了查看器可索引的范围。最早的 %1$d 行未显示；保存问题报告可以保留它们。</string>
+    <string name="logs_line_truncated">此行已截断</string>
+    <plurals name="logs_frames">
+        <item quantity="other">%1$d 层调用栈</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">无法连接到守护进程</string>
+    <string name="logs_state_daemon_body">Vector 未运行时无法获知日志情况。主页上的状态标识不是绿色，也是同一个原因。</string>
+    <string name="logs_state_nofile_title">尚无日志文件</string>
+    <string name="logs_state_nofile_body">守护进程正在运行，但尚未打开此日志。对于详细日志，这通常意味着详细日志记录已关闭。</string>
+    <string name="logs_state_empty_title">此日志为空</string>
+    <string name="logs_state_empty_body">文件存在，但没有写入任何内容。对于模块日志，这正是系统安静时的样子。</string>
+    <string name="logs_state_nomatches_title">没有匹配项</string>
+    <string name="logs_state_nomatches_body">文件中有内容，但当前筛选条件把它们全部排除了。</string>
+    <string name="logs_state_failed_title">无法读取日志</string>
+    <string name="logs_state_failed_body">守护进程返回了一个无法读取的文件：%1$s</string>
+    <string name="logs_loading">正在建立索引…</string>
+
+    <string name="logs_verbose_switch">详细日志</string>
+    <string name="logs_verbose_enforced">正在运行的守护进程强制开启了此项。</string>
+
+    <string name="logs_jump_oldest">跳到最早一行</string>
+    <string name="logs_jump_newest">跳到最新一行</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">开始新的日志？</string>
+    <string name="logs_rotate_body">不会删除任何内容。守护进程会关闭当前分段并新建一个；已关闭的分段仍保留在磁盘上——滑动即可查看——直到它不再属于最近的十个分段，保存的问题报告也仍会包含它。</string>
+    <string name="logs_rotate_confirm">开始新的日志</string>
+    <string name="logs_rotate_done">已开始新的日志</string>
+    <string name="logs_rotate_failed">守护进程拒绝开始新的日志</string>
+    <string name="logs_cancel">取消</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">正在收集日志、tombstone 和 dmesg…</string>
+    <string name="logs_saved">问题报告已保存</string>
+    <string name="logs_save_failed">无法保存问题报告</string>
+    <string name="logs_save_failed_reason">无法保存问题报告：%1$s</string>
+    <string name="logs_share">分享</string>
+
+    <string name="logs_filter_clear_tag">清除标签筛选</string>
+    <string name="logs_settings">日志设置</string>
+    <string name="logs_source_more">同时显示框架自身的日志</string>
+    <string name="logs_source_less">仅显示模块日志</string>
+    <string name="logs_verbose_summary">上报问题前请先开启。应用可以读取自己的日志，因此保持开启会让应用有机会发现 Vector。</string>
+    <string name="logs_save_summary">把两份日志写入你选择的 zip 文件</string>
+    <string name="logs_rotate_summary">关闭当前分段并新建一个</string>
+    <string name="logs_part">第 %1$d/%2$d 段</string>
+    <string name="logs_part_older">更早的分段</string>
+    <string name="logs_part_newer">更新的分段</string>
+</resources>

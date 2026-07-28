@@ -36,14 +36,14 @@
     <!-- Example: "lines 1 200–3 200 of 30 412" -->
     <string name="logs_window">Lines %1$d–%2$d of %3$d</string>
     <plurals name="logs_matches">
-        <item quantity="one">%d matching line</item>
-        <item quantity="other">%d matching lines</item>
+        <item quantity="one">%1$d matching line</item>
+        <item quantity="other">%1$d matching lines</item>
     </plurals>
     <string name="logs_dropped">This log is longer than the viewer indexes. The oldest %1$d lines are not shown; save a bug report to keep them.</string>
     <string name="logs_line_truncated">line cut</string>
     <plurals name="logs_frames">
-        <item quantity="one">%d frame</item>
-        <item quantity="other">%d frames</item>
+        <item quantity="one">%1$d frame</item>
+        <item quantity="other">%1$d frames</item>
     </plurals>
 
     <!-- The four distinct nothing-to-show states -->

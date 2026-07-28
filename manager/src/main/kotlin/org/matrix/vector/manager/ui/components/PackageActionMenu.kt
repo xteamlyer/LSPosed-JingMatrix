@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.theme.VectorMono
@@ -92,6 +93,8 @@ fun PackageActionSheet(
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+LocalizedOverlay {
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -213,6 +216,7 @@ fun PackageActionSheet(
 
         Spacer(Modifier.height(24.dp))
     }
+}
 }
 
 /**

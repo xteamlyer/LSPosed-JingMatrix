@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.PriorityHigh
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,6 +77,7 @@ fun StatusHeader(
     ambience: AmbienceKind,
     onOpenStatus: () -> Unit,
     onOpenAppearance: () -> Unit,
+    onOpenLanguage: () -> Unit,
     onBrandTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -149,7 +151,8 @@ fun StatusHeader(
         ) {
             // The surface gets the upper half of the pane to itself; the status settles at the
             // bottom, where it sits on the surface rather than floating above a gap.
-            Spacer(Modifier.height(78.dp))
+            // Trimmed to pay for the taller status row below, so the pane keeps its height.
+            Spacer(Modifier.height(66.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // The indicator is the details button. It is the thing the user is already
@@ -163,27 +166,69 @@ fun StatusHeader(
                 )
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        // The wordmark is its own target, because something is hidden behind it.
-                        Text(
-                            text = brand,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Normal,
-                            color = onContainer.copy(alpha = 0.62f),
-                            modifier =
-                                Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = onBrandTap,
-                                ),
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Text(
-                            text = stateWord,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = onContainer,
-                        )
+                    // The buttons live *inside* the headline row rather than beside the whole
+                    // block. Centred against the block they were centred against nothing in
+                    // particular — one floated above the wordmark, the other below the version
+                    // line. Here the stack and the state word share a centre line by
+                    // construction, so the eye reads one row, not three loose objects.
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.Bottom,
+                        ) {
+                            // The wordmark is its own target, because something is hidden behind
+                            // it.
+                            Text(
+                                text = brand,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Normal,
+                                color = onContainer.copy(alpha = 0.62f),
+                                modifier =
+                                    Modifier.clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                        onClick = onBrandTap,
+                                    ),
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                text = stateWord,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = onContainer,
+                            )
+                        }
+                        // Neither is a gear. What they open governs how the app *presents*
+                        // itself — its colours and its language — rather than what it does, and
+                        // the icons should say so. Stacked because they belong together.
+                        // Deliberately tighter than a default icon button: the pair sets the
+                        // height of the row it shares with the wordmark, and at 48dp each it
+                        // pushed the version line a finger's width away from the name it belongs
+                        // to.
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            IconButton(
+                                onClick = onOpenAppearance,
+                                modifier = Modifier.size(38.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Palette,
+                                    contentDescription = stringResource(R.string.appearance_title),
+                                    tint = onContainer,
+                                    modifier = Modifier.size(21.dp),
+                                )
+                            }
+                            IconButton(
+                                onClick = onOpenLanguage,
+                                modifier = Modifier.size(38.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Language,
+                                    contentDescription = stringResource(R.string.language_title),
+                                    tint = onContainer,
+                                    modifier = Modifier.size(21.dp),
+                                )
+                            }
+                        }
                     }
                     val detail =
                         buildList {
@@ -199,15 +244,6 @@ fun StatusHeader(
                             color = onContainer.copy(alpha = 0.75f),
                         )
                     }
-                }
-                // Not a gear. What it opens governs *this* screen — its theme, its surface, its
-                // feed — rather than the whole app, and the icon should say so.
-                IconButton(onClick = onOpenAppearance) {
-                    Icon(
-                        Icons.Rounded.Palette,
-                        contentDescription = stringResource(R.string.appearance_title),
-                        tint = onContainer,
-                    )
                 }
             }
         }

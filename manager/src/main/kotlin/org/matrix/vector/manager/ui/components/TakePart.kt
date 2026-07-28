@@ -239,5 +239,8 @@ fun GitHubSignInCard(
 
 private fun copyCode(context: Context, code: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    clipboard?.setPrimaryClip(ClipData.newPlainText("GitHub device code", code))
+    clipboard?.setPrimaryClip(
+        // Android 13 and later show this label in the clipboard preview, so it is user-visible.
+        ClipData.newPlainText(context.getString(R.string.github_device_code), code)
+    )
 }

@@ -38,7 +38,6 @@ import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material.icons.rounded.TrackChanges
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,7 +78,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.components.VectorAlertDialog
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
+import org.matrix.vector.manager.ui.theme.currentLocale
 import org.matrix.vector.manager.data.model.OnlineModule
 import org.matrix.vector.manager.data.model.Release
 import org.matrix.vector.manager.data.model.ReleaseAsset
@@ -488,6 +490,7 @@ private fun ReleaseCard(
     onInstall: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
+    val locale = currentLocale()
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -525,7 +528,7 @@ private fun ReleaseCard(
             release.tagName?.let {
                 Text(text = it, style = VectorMono, color = colors.onSurfaceVariant, maxLines = 1)
             }
-            release.publishedAt.asRepositoryDate()?.let {
+            release.publishedAt.asRepositoryDate(locale)?.let {
                 if (release.tagName != null) {
                     Text(
                         text = "  ·  ",
@@ -625,6 +628,8 @@ private fun ReleaseBadge(text: String, container: Color, content: Color) {
 
 @Composable
 private fun InformationTab(module: OnlineModule, onOpenUrl: (String) -> Unit) {
+    // Hoisted: the rows below are emitted from a LazyListScope, which is not a composable.
+    val locale = currentLocale()
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         if (!module.summary.isNullOrBlank()) {
             item {
@@ -687,7 +692,7 @@ private fun InformationTab(module: OnlineModule, onOpenUrl: (String) -> Unit) {
                 )
             }
         }
-        module.latestReleaseTime.asRepositoryDate()?.let { date ->
+        module.latestReleaseTime.asRepositoryDate(locale)?.let { date ->
             item {
                 InfoRow(
                     icon = Icons.Rounded.Today,
@@ -696,7 +701,7 @@ private fun InformationTab(module: OnlineModule, onOpenUrl: (String) -> Unit) {
                 )
             }
         }
-        module.createdAt.asRepositoryDate()?.let { date ->
+        module.createdAt.asRepositoryDate(locale)?.let { date ->
             item {
                 InfoRow(
                     icon = Icons.Rounded.Today,
@@ -730,6 +735,8 @@ private fun InfoRow(
 private fun AssetSheet(release: Release, onDismiss: () -> Unit, onPick: (ReleaseAsset) -> Unit) {
     val context = LocalContext.current
     ModalBottomSheet(onDismissRequest = onDismiss) {
+LocalizedOverlay {
+
         Text(
             text = stringResource(R.string.store_choose_asset),
             style = MaterialTheme.typography.titleMedium,
@@ -756,6 +763,7 @@ private fun AssetSheet(release: Release, onDismiss: () -> Unit, onPick: (Release
         Spacer(Modifier.navigationBarsPadding().height(16.dp))
     }
 }
+}
 
 /**
  * The consent gate — and parasitically it is the *only* one.
@@ -781,7 +789,7 @@ private fun ConfirmInstall(
         }
     val size = Formatter.formatShortFileSize(context, asset.size)
 
-    AlertDialog(
+    VectorAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.store_confirm_title, module?.title ?: packageName)) },
         text = {

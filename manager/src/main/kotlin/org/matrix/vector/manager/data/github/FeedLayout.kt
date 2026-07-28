@@ -60,7 +60,12 @@ sealed interface FeedItem {
      * without reading a single commit.
      */
     data class MonthMarker(
-        val label: String,
+        /** Stable across languages: a grouping key and a list key, never shown. */
+        val key: String,
+        /** `Calendar.MONTH`, named at draw time in whatever language the reader chose. */
+        val month: Int,
+        /** Null in the current year, where the year would be noise. */
+        val year: Int?,
         val commits: Int,
         val people: Int,
     ) : FeedItem
@@ -115,7 +120,9 @@ object FeedLayout {
                 val inMonth = visible.filter { monthLabel(it.epochSeconds) == month }
                 items +=
                     FeedItem.MonthMarker(
-                        label = month,
+                        key = month,
+                        month = monthOf(commit.epochSeconds),
+                        year = yearOf(commit.epochSeconds).takeIf { it != currentYear() },
                         commits = inMonth.size,
                         people =
                             inMonth
@@ -161,13 +168,25 @@ object FeedLayout {
     const val MAX_GAP_DP = 120f
     private const val SCALE = 13f
 
+    /**
+     * The grouping key, deliberately language-independent.
+     *
+     * This used to be the displayed name, formatted with `Locale.getDefault()` — which is the
+     * process default, the host app's, and so it stayed French while the rest of the app was in
+     * Chinese. Worse, it was computed here in the model, where the in-composition language override
+     * is not visible at all. So the model now groups by an invariant key and the screen names the
+     * month at draw time.
+     */
     private fun monthLabel(epochSeconds: Long): String {
         val cal = Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }
-        val month =
-            cal.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, Locale.getDefault())
-                ?: cal.get(Calendar.MONTH).toString()
-        val thisYear = Calendar.getInstance().get(Calendar.YEAR)
-        val year = cal.get(Calendar.YEAR)
-        return if (year == thisYear) month else "$month $year"
+        return "%d-%02d".format(Locale.ROOT, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH))
     }
+
+    private fun monthOf(epochSeconds: Long): Int =
+        Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }.get(Calendar.MONTH)
+
+    private fun yearOf(epochSeconds: Long): Int =
+        Calendar.getInstance().apply { timeInMillis = epochSeconds * 1000 }.get(Calendar.YEAR)
+
+    private fun currentYear(): Int = Calendar.getInstance().get(Calendar.YEAR)
 }

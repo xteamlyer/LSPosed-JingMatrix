@@ -58,12 +58,12 @@
     <string name="home_quarter_title">Recent activity</string>
     <!-- Example: "7 commits by 4 people" -->
     <plurals name="home_commit_count">
-        <item quantity="one">%d commit</item>
-        <item quantity="other">%d commits</item>
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commits</item>
     </plurals>
     <plurals name="home_people_count">
-        <item quantity="one">by %d person</item>
-        <item quantity="other">by %d people</item>
+        <item quantity="one">by %1$d person</item>
+        <item quantity="other">by %1$d people</item>
     </plurals>
     <string name="home_since">since %1$s</string>
     <string name="home_no_activity">No commits in the last six months.</string>
@@ -92,35 +92,35 @@
 
     <string name="home_month_stats">%1$s · %2$s</string>
     <plurals name="home_people_count_plain">
-        <item quantity="one">%d person</item>
-        <item quantity="other">%d people</item>
+        <item quantity="one">%1$d person</item>
+        <item quantity="other">%1$d people</item>
     </plurals>
 
     <!-- The rail's "you are here" marker -->
     <plurals name="home_commits_ahead">
-        <item quantity="one">%d commit newer than yours</item>
-        <item quantity="other">%d commits newer than yours</item>
+        <item quantity="one">%1$d commit newer than yours</item>
+        <item quantity="other">%1$d commits newer than yours</item>
     </plurals>
     <string name="home_your_build">your build %1$d</string>
     <plurals name="home_quiet_days">
-        <item quantity="one">%d day quiet</item>
-        <item quantity="other">%d days quiet</item>
+        <item quantity="one">%1$d day quiet</item>
+        <item quantity="other">%1$d days quiet</item>
     </plurals>
 
     <!-- Relative time -->
 
     <string name="time_yesterday">yesterday</string>
     <plurals name="time_days_ago">
-        <item quantity="one">%d day ago</item>
-        <item quantity="other">%d days ago</item>
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
     </plurals>
     <plurals name="time_weeks_ago">
-        <item quantity="one">%d week ago</item>
-        <item quantity="other">%d weeks ago</item>
+        <item quantity="one">%1$d week ago</item>
+        <item quantity="other">%1$d weeks ago</item>
     </plurals>
     <plurals name="time_months_ago">
-        <item quantity="one">%d month ago</item>
-        <item quantity="other">%d months ago</item>
+        <item quantity="one">%1$d month ago</item>
+        <item quantity="other">%1$d months ago</item>
     </plurals>
 
     <!-- Commit kinds, shown as small chips on the timeline -->
@@ -141,8 +141,8 @@
     <string name="modules_empty">No modules installed.</string>
     <string name="modules_active_of">%1$d of %2$d active</string>
     <string name="modules_no_match">No module matches that search.</string>
-    <string name="modules_api_scale_legacy">Xposed</string>
-    <string name="modules_api_scale_modern">API</string>
+    <string name="modules_api_scale_legacy" translatable="false">Xposed</string>
+    <string name="modules_api_scale_modern" translatable="false">API</string>
     <string name="modules_backup">Back up modules</string>
     <string name="modules_restore">Restore modules</string>
     <string name="modules_backup_done">Backed up %1$d modules and their scopes.</string>
@@ -181,8 +181,8 @@
     <string name="settings_activity">Activity feed</string>
     <string name="settings_window">History shown on Home</string>
     <plurals name="settings_window_months">
-        <item quantity="one">Last %d month</item>
-        <item quantity="other">Last %d months</item>
+        <item quantity="one">Last %1$d month</item>
+        <item quantity="other">Last %1$d months</item>
     </plurals>
     <string name="settings_open_externally">Open links in a browser</string>
     <string name="settings_open_externally_summary">Off: GitHub pages open inside Vector.</string>
@@ -294,4 +294,8 @@
     <string name="report_see_guide">Full guide in issue</string>
     <string name="report_root_refused">Root refused. Allow Vector in your root manager, then try again%1$s</string>
     <string name="home_custom_build">Custom build — ahead of master</string>
+    <string name="github_device_code">GitHub device code</string>
+    <string name="language_title">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_system_summary">Follow the language your phone is set to</string>
 </resources>

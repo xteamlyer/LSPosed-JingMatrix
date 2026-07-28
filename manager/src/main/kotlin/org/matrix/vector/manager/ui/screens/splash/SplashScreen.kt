@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -79,13 +80,15 @@ fun WingedVictory() {
             label = "splashScale",
         )
 
+    val appName = stringResource(R.string.app_name)
+
     LaunchedEffect(Unit) { started = true }
 
     Box(
         modifier =
             Modifier.fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .semantics { contentDescription = "Vector" },
+                .semantics { contentDescription = appName },
         contentAlignment = Alignment.Center,
     ) {
         Icon(

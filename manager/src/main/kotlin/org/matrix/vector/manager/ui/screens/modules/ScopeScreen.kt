@@ -77,6 +77,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.components.VectorAlertDialog
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.AppInfo
 import org.matrix.vector.manager.di.ServiceLocator
@@ -356,7 +358,7 @@ fun ScopeScreen(
     }
 
     if (confirmStranded) {
-        androidx.compose.material3.AlertDialog(
+        VectorAlertDialog(
             onDismissRequest = { confirmStranded = false },
             title = { Text(stringResource(R.string.scope_empty_title)) },
             text = { Text(stringResource(R.string.scope_empty_message)) },
@@ -402,6 +404,8 @@ private fun ScopeSelectMenu(
             )
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+LocalizedOverlay {
+
             if (hasRecommended) {
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.scope_use_recommended)) },
@@ -450,6 +454,7 @@ private fun ScopeSelectMenu(
                 },
             )
         }
+}
     }
 }
 
@@ -497,6 +502,8 @@ private fun ScopeFilterMenu(
             }
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+LocalizedOverlay {
+
             if (hasRecommended) {
                 // The static-scope view, on request. Offered only when the module actually asked
                 // for something — otherwise it would narrow the list to nothing.
@@ -531,6 +538,7 @@ private fun ScopeFilterMenu(
                 onClick = { onToggleModules() },
             )
         }
+}
     }
 }
 
@@ -555,6 +563,8 @@ private fun ScopeSortMenu(
             )
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+LocalizedOverlay {
+
             ScopeSort.entries.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(stringResource(option.labelRes())) },
@@ -576,6 +586,7 @@ private fun ScopeSortMenu(
                 onClick = { onReverse() },
             )
         }
+}
     }
 }
 

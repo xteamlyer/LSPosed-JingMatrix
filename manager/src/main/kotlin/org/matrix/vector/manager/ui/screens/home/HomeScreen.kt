@@ -71,7 +71,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.DateFormat
 import java.util.Date
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
+import org.matrix.vector.manager.ui.theme.currentLocale
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
 import org.matrix.vector.manager.ui.components.show
@@ -126,6 +128,7 @@ fun HomeScreen(
     val context = LocalContext.current
     var showSplash by rememberSaveable { mutableStateOf(false) }
     var showAppearance by rememberSaveable { mutableStateOf(false) }
+    var showLanguage by rememberSaveable { mutableStateOf(false) }
 
     // Four taps on the wordmark. The count is announced from the second one, because a secret
     // nobody can find is not an easter egg — it is dead code. Two taps could be an accident;
@@ -261,6 +264,7 @@ fun HomeScreen(
                 ambience = AmbienceKind.from(ambienceKey),
                 onOpenStatus = onOpenStatus,
                 onOpenAppearance = { showAppearance = true },
+                onOpenLanguage = { showLanguage = true },
                 onBrandTap = ::onBrandTap,
                 modifier =
                     Modifier.onSizeChanged { headerHeightPx = it.height }
@@ -272,6 +276,10 @@ fun HomeScreen(
                         },
             )
         }
+    }
+
+    if (showLanguage) {
+        LanguageSheet(onDismiss = { showLanguage = false })
     }
 
     if (showAppearance) {
@@ -286,6 +294,8 @@ fun HomeScreen(
             properties =
                 DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = true),
         ) {
+LocalizedOverlay {
+
             Box(
                 modifier =
                     Modifier.fillMaxSize()
@@ -304,6 +314,7 @@ fun HomeScreen(
                 showSplash = false
             }
         }
+}
     }
 }
 
@@ -352,7 +363,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
                     aheadOfMaster = entry.aheadOfMaster,
                 )
             is FeedItem.MonthMarker ->
-                MonthMarkerRow(entry.label, entry.commits, entry.people)
+                MonthMarkerRow(entry.month, entry.year, entry.commits, entry.people)
             is FeedItem.Bots -> BotBundle(count = entry.count, commits = entry.commits)
         }
     }
@@ -364,7 +375,7 @@ private fun FeedItem.key(): String =
         is FeedItem.Commit -> "c:${commit.sha}"
         is FeedItem.Gap -> "g:$afterSha"
         is FeedItem.InstalledMarker -> "installed"
-        is FeedItem.MonthMarker -> "m:$label"
+        is FeedItem.MonthMarker -> "m:$key"
         is FeedItem.Bots -> "bots"
     }
 
@@ -421,7 +432,7 @@ private fun QuarterHeadline(feed: CommunityFeed) {
                 )
             val by = context.resources.getQuantityString(R.plurals.home_people_count, people, people)
             val since =
-                DateFormat.getDateInstance(DateFormat.MEDIUM)
+                DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale())
                     .format(Date(feed.windowStartEpochSeconds * 1000))
             Text(
                 text = "$commits $by  ·  ${stringResource(R.string.home_since, since)}",
@@ -556,12 +567,13 @@ private fun ProjectFooter(feed: CommunityFeed, onClick: () -> Unit) {
         // reads as a footer rather than as one more left-aligned row in the stack above.
         contentAlignment = Alignment.Center,
     ) {
+        val locale = currentLocale()
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FooterStat(Icons.Rounded.Star, compactCount(repo.stars))
-            FooterStat(Icons.AutoMirrored.Rounded.CallSplit, compactCount(repo.forks))
+            FooterStat(Icons.Rounded.Star, compactCount(repo.stars, locale))
+            FooterStat(Icons.AutoMirrored.Rounded.CallSplit, compactCount(repo.forks, locale))
             FooterStat(Icons.Rounded.BugReport, repo.openIssues.toString())
             repo.license?.spdxId?.let {
                 Text(

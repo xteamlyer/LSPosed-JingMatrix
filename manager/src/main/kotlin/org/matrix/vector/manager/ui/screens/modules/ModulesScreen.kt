@@ -39,7 +39,6 @@ import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -91,6 +90,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.components.VectorAlertDialog
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.InstalledModule
 import org.matrix.vector.manager.di.ServiceLocator
@@ -347,7 +348,7 @@ fun ModulesScreen(
 
     if (confirmUninstall) {
         val removed = stringResource(R.string.modules_batch_uninstalled)
-        AlertDialog(
+        VectorAlertDialog(
             onDismissRequest = { confirmUninstall = false },
             icon = { Icon(Icons.Rounded.DeleteOutline, contentDescription = null) },
             title = { Text(stringResource(R.string.modules_uninstall_title)) },
@@ -514,6 +515,8 @@ private fun ModuleFilterButton(
             }
         }
         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+LocalizedOverlay {
+
             ModuleFilter.entries.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(stringResource(option.labelRes())) },
@@ -540,6 +543,7 @@ private fun ModuleFilterButton(
                 )
             }
         }
+}
     }
 }
 

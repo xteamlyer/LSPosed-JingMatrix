@@ -5,7 +5,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - app/src/main/res/values/strings.xml
+      - manager/src/main/res/values/strings*.xml
       - daemon/src/main/res/values/strings.xml
 
 jobs:

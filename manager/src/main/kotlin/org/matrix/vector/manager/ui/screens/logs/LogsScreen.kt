@@ -52,7 +52,6 @@ import androidx.compose.material.icons.rounded.VerticalAlignBottom
 import androidx.compose.material.icons.rounded.VerticalAlignTop
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material.icons.automirrored.rounded.WrapText
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -112,6 +111,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 import kotlinx.coroutines.launch
+import org.matrix.vector.manager.ui.components.VectorAlertDialog
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.BuildConfig
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.ui.theme.VectorLogLine
@@ -274,7 +275,7 @@ fun LogsScreen(viewModel: LogsViewModel = viewModel(factory = LogsViewModelFacto
     if (confirmRotate) {
         val rotated = stringResource(R.string.logs_rotate_done)
         val rotateFailed = stringResource(R.string.logs_rotate_failed)
-        AlertDialog(
+        VectorAlertDialog(
             onDismissRequest = { confirmRotate = false },
             title = { Text(stringResource(R.string.logs_rotate_title)) },
             // README principle 3: the dangerous action names its consequence — and here the
@@ -694,6 +695,8 @@ private fun LogSettingsSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+LocalizedOverlay {
+
         Column(Modifier.padding(bottom = 24.dp)) {
             Text(
                 stringResource(R.string.logs_settings),
@@ -758,6 +761,7 @@ private fun LogSettingsSheet(
             )
         }
     }
+}
 }
 
 
@@ -922,6 +926,8 @@ private fun LogFilterSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+LocalizedOverlay {
+
         Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -985,6 +991,7 @@ private fun LogFilterSheet(
             }
         }
     }
+}
 }
 
 private val FILE_STAMP: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")

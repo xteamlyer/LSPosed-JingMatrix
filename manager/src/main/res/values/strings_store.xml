@@ -20,12 +20,12 @@
 
     <!-- Header. Example: "809 modules · 3 updates" -->
     <plurals name="store_module_count">
-        <item quantity="one">%d module</item>
-        <item quantity="other">%d modules</item>
+        <item quantity="one">%1$d module</item>
+        <item quantity="other">%1$d modules</item>
     </plurals>
     <plurals name="store_update_count">
-        <item quantity="one">%d update</item>
-        <item quantity="other">%d updates</item>
+        <item quantity="one">%1$d update</item>
+        <item quantity="other">%1$d updates</item>
     </plurals>
     <string name="store_all_current">everything you have is current</string>
     <string name="store_offline">Showing the saved catalogue</string>
@@ -61,8 +61,8 @@
     <string name="store_reinstall">Reinstall</string>
     <string name="store_choose_asset">Choose a file to install</string>
     <plurals name="store_asset_downloads">
-        <item quantity="one">%d download</item>
-        <item quantity="other">%d downloads</item>
+        <item quantity="one">%1$d download</item>
+        <item quantity="other">%1$d downloads</item>
     </plurals>
 
     <!-- The confirmation. Parasitically this is the ONLY consent gate: the manager runs inside

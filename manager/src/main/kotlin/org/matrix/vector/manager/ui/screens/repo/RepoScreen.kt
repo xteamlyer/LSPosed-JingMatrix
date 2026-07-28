@@ -54,11 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.StoreCatalog
 import org.matrix.vector.manager.data.model.StoreEntry
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.components.PanelHeader
+import org.matrix.vector.manager.ui.theme.currentLocale
 import org.matrix.vector.manager.ui.components.SearchField
 import org.matrix.vector.manager.ui.theme.VectorMono
 
@@ -239,6 +241,8 @@ private fun StoreFilterButton(
             }
         }
         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+LocalizedOverlay {
+
             StoreSort.entries.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(stringResource(option.labelRes())) },
@@ -303,6 +307,7 @@ private fun StoreFilterButton(
                 },
             )
         }
+}
     }
 }
 
@@ -370,7 +375,7 @@ private fun StoreRow(entry: StoreEntry, onClick: () -> Unit) {
                         tint = colors.onSurfaceVariant,
                     )
             }
-            module.latestReleaseTime.asRepositoryDate()?.let { date ->
+            module.latestReleaseTime.asRepositoryDate(currentLocale())?.let { date ->
                 if (entry.installed != null) Spacer(Modifier.width(10.dp))
                 Text(
                     text = stringResource(R.string.store_updated_on, date),

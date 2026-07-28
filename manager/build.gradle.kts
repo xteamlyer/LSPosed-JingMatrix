@@ -61,6 +61,20 @@ android {
         // left empty the app hides sign-in entirely rather than offering something broken.
         val githubClientId = providers.gradleProperty("githubClientId").getOrElse("")
         buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
+
+        // The languages this module is actually translated into, listed from the resource folders
+        // that carry our own strings.xml. AssetManager.getLocales() cannot answer this: it reports
+        // every locale any dependency ships a resource for — AndroidX alone drags in dozens — plus
+        // the pseudo-locales, so a picker built from it offers languages the app has never seen.
+        val translations =
+            file("src/main/res")
+                .listFiles()
+                .orEmpty()
+                .filter { it.isDirectory && it.name.startsWith("values-") }
+                .filter { File(it, "strings.xml").exists() }
+                .map { it.name.removePrefix("values-").replace("-r", "-") }
+                .sorted()
+        buildConfigField("String", "TRANSLATIONS", "\"${translations.joinToString(",")}\"")
     }
 
     // ic_launcher.xml references @drawable/ic_statue_monochrome, which lives in the

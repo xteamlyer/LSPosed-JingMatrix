@@ -11,6 +11,7 @@ import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.screens.splash.SplashGate
+import org.matrix.vector.manager.ui.theme.LocalizedContent
 import org.matrix.vector.manager.ui.theme.VectorTheme
 
 /**
@@ -49,6 +50,6 @@ class MainActivity : ComponentActivity() {
         // splash then plays and decides for itself when the daemon has been given long enough.
         splash.setKeepOnScreenCondition { false }
 
-        setContent { VectorTheme { SplashGate { VectorApp() } } }
+        setContent { LocalizedContent { VectorTheme { SplashGate { VectorApp() } } } }
     }
 }
