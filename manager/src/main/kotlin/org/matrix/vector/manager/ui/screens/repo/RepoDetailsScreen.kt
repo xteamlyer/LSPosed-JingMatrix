@@ -15,6 +15,8 @@ import android.net.Uri
 import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +45,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.Language
@@ -619,7 +620,32 @@ private fun ReleaseCard(
         }
 
         Spacer(Modifier.height(3.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // The version line doubles as the notes' disclosure.
+        //
+        // It used to be a sentence of its own under the notes — "Show the release notes", with a
+        // chevron, taking a full row to offer what the row above it already implies. A release's
+        // tag, its date and its notes are one object, so the line that names it is where you press
+        // to see more of it, the way every expandable row on the platform behaves. The chevron
+        // turns rather than swapping glyphs, which says the same thing without a second word to
+        // read.
+        val hasNotes = !release.descriptionHTML.isNullOrBlank()
+        val chevron by animateFloatAsState(if (notesOpen) 180f else 0f, label = "notesChevron")
+        val disclose =
+            stringResource(
+                if (notesOpen) R.string.store_release_notes_hide else R.string.store_release_notes
+            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.fillMaxWidth()
+                    .then(
+                        if (!hasNotes) Modifier
+                        else
+                            Modifier.clip(RoundedCornerShape(6.dp))
+                                .clickable(onClick = onToggleNotes)
+                    )
+                    .padding(vertical = 4.dp),
+        ) {
             // The tag, not the name: it carries the version code, which is what actually decides
             // whether the platform will accept this over what is installed.
             release.tagName?.let {
@@ -639,11 +665,20 @@ private fun ReleaseCard(
                     color = colors.onSurfaceVariant,
                 )
             }
+            if (hasNotes) {
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    Icons.Rounded.ExpandMore,
+                    contentDescription = disclose,
+                    tint = colors.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp).rotate(chevron),
+                )
+            }
         }
 
-        if (!release.descriptionHTML.isNullOrBlank()) {
-            Spacer(Modifier.height(10.dp))
+        if (hasNotes) {
             if (notesOpen) {
+                Spacer(Modifier.height(8.dp))
                 // Plain text at its natural height. The list is the only thing that scrolls on
                 // this screen, and it stays that way.
                 val notes =
@@ -659,25 +694,6 @@ private fun ReleaseCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable(onClick = onToggleNotes).padding(vertical = 4.dp),
-            ) {
-                Text(
-                    text =
-                        stringResource(
-                            if (notesOpen) R.string.store_release_notes_hide
-                            else R.string.store_release_notes
-                        ),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colors.primary,
-                )
-                Icon(
-                    if (notesOpen) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                    contentDescription = null,
-                    tint = colors.primary,
                 )
             }
         }
