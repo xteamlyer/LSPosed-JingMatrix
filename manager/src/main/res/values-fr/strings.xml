@@ -37,8 +37,6 @@
     <string name="info_not_injected">Non injecté</string>
     <string name="status_notification">Notification d\'état</string>
     <string name="status_notification_summary">Une notification persistante indiquant que Vector fonctionne.</string>
-    <string name="hidden_icon">Forcer les icônes du lanceur</string>
-    <string name="hidden_icon_summary">Afficher les icônes des applications qui se cachent du lanceur.</string>
     <string name="action_copy_all">Tout copier</string>
     <string name="copied">Copié dans le presse-papiers</string>
 

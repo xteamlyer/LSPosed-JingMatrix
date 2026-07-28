@@ -37,8 +37,6 @@
     <string name="info_not_injected">未注入</string>
     <string name="status_notification">状态通知</string>
     <string name="status_notification_summary">一条常驻通知，用于显示 Vector 正在运行。</string>
-    <string name="hidden_icon">强制显示启动器图标</string>
-    <string name="hidden_icon_summary">为在启动器中隐藏自己的应用显示图标。</string>
     <string name="action_copy_all">全部复制</string>
     <string name="copied">已复制到剪贴板</string>
 

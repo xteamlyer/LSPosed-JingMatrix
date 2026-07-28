@@ -41,8 +41,6 @@
     <string name="info_not_injected">לא הוזרק</string>
     <string name="status_notification">התראת מצב</string>
     <string name="status_notification_summary">התראה קבועה שמראה ש-Vector פועל.</string>
-    <string name="hidden_icon">אילוץ סמלים במסך הבית</string>
-    <string name="hidden_icon_summary">הצגת סמלים של אפליקציות שמסתירות את עצמן ממסך הבית.</string>
     <string name="action_copy_all">העתקת הכול</string>
     <string name="copied">הועתק ללוח</string>
 

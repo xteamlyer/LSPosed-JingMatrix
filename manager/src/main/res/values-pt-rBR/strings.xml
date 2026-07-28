@@ -37,8 +37,6 @@
     <string name="info_not_injected">Não injetado</string>
     <string name="status_notification">Notificação de status</string>
     <string name="status_notification_summary">Uma notificação permanente mostrando que o Vector está em execução.</string>
-    <string name="hidden_icon">Forçar ícones na tela inicial</string>
-    <string name="hidden_icon_summary">Mostrar os ícones dos apps que se escondem da tela inicial.</string>
     <string name="action_copy_all">Copiar tudo</string>
     <string name="copied">Copiado para a área de transferência</string>
 

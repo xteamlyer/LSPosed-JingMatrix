@@ -196,8 +196,8 @@ fun SystemStatusScreen(
             }
             item {
                 FrameworkToggle(
-                    title = stringResource(R.string.hidden_icon),
-                    subtitle = stringResource(R.string.hidden_icon_summary),
+                    title = stringResource(R.string.force_launcher_icons),
+                    subtitle = stringResource(R.string.force_launcher_icons_summary),
                     checked = hiddenIcon,
                     enabled = daemonAlive,
                     onCheckedChange = viewModel::setForcedLauncherIcons,

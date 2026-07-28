@@ -37,8 +37,6 @@
     <string name="info_not_injected">تزریق‌نشده</string>
     <string name="status_notification">اعلان وضعیت</string>
     <string name="status_notification_summary">اعلانی ماندگار که نشان می‌دهد Vector در حال اجراست.</string>
-    <string name="hidden_icon">اجبار به نمایش نماد در لانچر</string>
-    <string name="hidden_icon_summary">نماد برنامه‌هایی که خود را از لانچر پنهان می‌کنند نیز نشان داده شود.</string>
     <string name="action_copy_all">رونوشت همه</string>
     <string name="copied">در بریده‌دان رونوشت شد</string>
 

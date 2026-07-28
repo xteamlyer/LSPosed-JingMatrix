@@ -37,8 +37,6 @@
     <string name="info_not_injected">No inyectado</string>
     <string name="status_notification">Notificación de estado</string>
     <string name="status_notification_summary">Una notificación permanente que indica que Vector está en marcha.</string>
-    <string name="hidden_icon">Forzar iconos en el launcher</string>
-    <string name="hidden_icon_summary">Mostrar los iconos de las apps que se ocultan del launcher.</string>
     <string name="action_copy_all">Copiar todo</string>
     <string name="copied">Copiado al portapapeles</string>
 

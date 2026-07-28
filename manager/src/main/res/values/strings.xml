@@ -57,8 +57,8 @@
     <string name="info_not_injected">Not injected</string>
     <string name="status_notification">Status notification</string>
     <string name="status_notification_summary">A persistent notification showing that Vector is running.</string>
-    <string name="hidden_icon">Force launcher icons</string>
-    <string name="hidden_icon_summary">Show icons for apps that hide themselves from the launcher.</string>
+    <string name="force_launcher_icons">Stop apps hiding their launcher icons</string>
+    <string name="force_launcher_icons_summary">Since Android 10, an app that hides its own launcher icon gets one back that opens its app info page. Turn this off to let it stay hidden — your launcher may not catch up until it restarts. Apps that never had a launcher icon, including most modules, are unaffected.</string>
     <string name="action_copy_all">Copy all</string>
     <string name="copied">Copied to clipboard</string>
 

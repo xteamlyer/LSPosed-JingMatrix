@@ -41,8 +41,6 @@
     <string name="info_not_injected">Tidak terinjeksi</string>
     <string name="status_notification">Notifikasi status</string>
     <string name="status_notification_summary">Notifikasi permanen yang menandakan Vector sedang berjalan.</string>
-    <string name="hidden_icon">Paksa ikon di peluncur</string>
-    <string name="hidden_icon_summary">Tampilkan ikon aplikasi yang menyembunyikan diri dari peluncur.</string>
     <string name="action_copy_all">Salin semua</string>
     <string name="copied">Disalin ke papan klip</string>
 

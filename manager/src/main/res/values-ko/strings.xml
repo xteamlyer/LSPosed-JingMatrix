@@ -37,8 +37,6 @@
     <string name="info_not_injected">주입되지 않음</string>
     <string name="status_notification">상태 알림</string>
     <string name="status_notification_summary">Vector가 실행 중임을 알리는 상시 알림입니다.</string>
-    <string name="hidden_icon">런처 아이콘 강제 표시</string>
-    <string name="hidden_icon_summary">런처에서 자신을 숨기는 앱의 아이콘도 표시합니다.</string>
     <string name="action_copy_all">모두 복사</string>
     <string name="copied">클립보드에 복사했습니다</string>
 

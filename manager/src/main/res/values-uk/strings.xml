@@ -37,8 +37,6 @@
     <string name="info_not_injected">Не впроваджено</string>
     <string name="status_notification">Сповіщення про стан</string>
     <string name="status_notification_summary">Постійне сповіщення, яке показує, що Vector працює.</string>
-    <string name="hidden_icon">Примусово показувати значки</string>
-    <string name="hidden_icon_summary">Показувати значки застосунків, які ховаються з лаунчера.</string>
     <string name="action_copy_all">Копіювати все</string>
     <string name="copied">Скопійовано в буфер обміну</string>
 

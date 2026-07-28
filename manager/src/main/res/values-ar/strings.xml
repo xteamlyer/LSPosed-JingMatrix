@@ -37,8 +37,6 @@
     <string name="info_not_injected">غير محقون</string>
     <string name="status_notification">إشعار الحالة</string>
     <string name="status_notification_summary">إشعار دائم يبيّن أن Vector يعمل.</string>
-    <string name="hidden_icon">فرض أيقونات المشغّل</string>
-    <string name="hidden_icon_summary">إظهار أيقونات التطبيقات التي تخفي نفسها عن المشغّل.</string>
     <string name="action_copy_all">نسخ الكل</string>
     <string name="copied">نُسخ إلى الحافظة</string>
 

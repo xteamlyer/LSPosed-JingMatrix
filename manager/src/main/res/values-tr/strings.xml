@@ -37,8 +37,6 @@
     <string name="info_not_injected">Enjekte edilmedi</string>
     <string name="status_notification">Durum bildirimi</string>
     <string name="status_notification_summary">Vector\'ün çalıştığını gösteren kalıcı bir bildirim.</string>
-    <string name="hidden_icon">Başlatıcı simgelerini zorla</string>
-    <string name="hidden_icon_summary">Kendini başlatıcıdan gizleyen uygulamaların simgelerini de göster.</string>
     <string name="action_copy_all">Tümünü kopyala</string>
     <string name="copied">Panoya kopyalandı</string>
 

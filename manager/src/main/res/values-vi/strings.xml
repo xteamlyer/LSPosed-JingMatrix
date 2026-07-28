@@ -37,8 +37,6 @@
     <string name="info_not_injected">Chưa tiêm</string>
     <string name="status_notification">Thông báo trạng thái</string>
     <string name="status_notification_summary">Một thông báo thường trực cho biết Vector đang chạy.</string>
-    <string name="hidden_icon">Buộc hiện biểu tượng trên màn hình chính</string>
-    <string name="hidden_icon_summary">Hiện biểu tượng của những ứng dụng tự ẩn khỏi màn hình chính.</string>
     <string name="action_copy_all">Sao chép tất cả</string>
     <string name="copied">Đã sao chép vào bộ nhớ tạm</string>
 

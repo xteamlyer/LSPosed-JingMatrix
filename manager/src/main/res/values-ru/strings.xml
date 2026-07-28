@@ -33,8 +33,6 @@
     <string name="info_not_injected">Не внедрён</string>
     <string name="status_notification">Уведомление о состоянии</string>
     <string name="status_notification_summary">Постоянное уведомление о том, что Vector работает.</string>
-    <string name="hidden_icon">Принудительно показывать значки</string>
-    <string name="hidden_icon_summary">Показывать значки приложений, которые прячут себя из списка.</string>
     <string name="action_copy_all">Скопировать всё</string>
     <string name="copied">Скопировано в буфер обмена</string>
     <string name="home_quarter_title">Недавняя активность</string>

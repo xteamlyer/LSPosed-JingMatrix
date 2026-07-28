@@ -37,8 +37,6 @@
     <string name="info_not_injected">未注入</string>
     <string name="status_notification">状態通知</string>
     <string name="status_notification_summary">Vector が動作していることを示す常駐通知。</string>
-    <string name="hidden_icon">ランチャーアイコンを強制表示</string>
-    <string name="hidden_icon_summary">ランチャーから自身を隠しているアプリのアイコンも表示します。</string>
     <string name="action_copy_all">すべてコピー</string>
     <string name="copied">クリップボードにコピーしました</string>
 
