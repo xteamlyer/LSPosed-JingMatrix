@@ -521,10 +521,14 @@ private fun ReleasesTab(
         return
     }
 
-    // One expanded set of notes at a time, so at most one WebView exists in the list — a renderer
-    // per card would keep a renderer process alive for every release on the page. The newest one
-    // starts open, because "what changed" is the question this tab is opened to answer and making
-    // everyone tap once to reach it was the whole complaint.
+    // One expanded set of notes at a time. That began as a way to keep a single WebView in the
+    // list — a renderer per card would have held a renderer process open for every release on the
+    // page — and the notes are parsed to an AnnotatedString now, so the reason is the reading
+    // rather than the memory: five releases with their notes open is a wall of text with no
+    // structure, and the list stops being skimmable.
+    //
+    // The newest one starts open, because "what changed" is the question this tab is opened to
+    // answer and making everyone tap once to reach it was the whole complaint.
     // Keyed by *which* release is newest, not by the list object. The list is rebuilt by the view
     // model's combine on every emission — an installed-version refresh, a channel change, the
     // detail fetch landing — so keying on the list itself re-applied the default and reopened the
