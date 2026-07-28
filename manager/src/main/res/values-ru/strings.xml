@@ -296,4 +296,8 @@
     <string name="store_options">Параметры</string>
     <string name="scope_framework_shared">Один процесс на всех пользователей — это затрагивает всё устройство</string>
     <string name="update_no_output">Установщик ничего не вывел.</string>
+    <string name="update_variant_release">Стабильная</string>
+    <string name="update_variant_debug">Отладочная</string>
+    <string name="update_variant_release_why">Сборка на каждый день</string>
+    <string name="update_variant_debug_why">Подробные логи, для отчёта об ошибке</string>
 </resources>

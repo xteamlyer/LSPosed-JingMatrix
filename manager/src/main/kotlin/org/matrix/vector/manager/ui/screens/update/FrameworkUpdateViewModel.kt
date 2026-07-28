@@ -1,5 +1,8 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import org.matrix.vector.manager.data.github.ZipVariant
+import org.matrix.vector.manager.data.github.CanaryArtifact
+import kotlinx.coroutines.flow.combine
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,6 +61,24 @@ class FrameworkUpdateViewModel : ViewModel() {
 
     val flash: StateFlow<FlashStep> = installer.state
 
+    private val settings = ServiceLocator.settings
+
+    /**
+     * The zip the user has chosen, or the release's own default.
+     *
+     * Falls back rather than refusing when the remembered variant is not in this release: a
+     * release that published only one build must still be installable by someone whose last
+     * choice was the other one.
+     */
+    val chosenZip: StateFlow<CanaryArtifact?> =
+        combine(update, settings.updateVariant) { state, variant ->
+                val zips = state.available?.zips.orEmpty()
+                zips.firstOrNull { it.variant.key == variant } ?: state.available?.defaultZip
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun chooseVariant(variant: ZipVariant) = settings.setUpdateVariant(variant.key)
+
     val lines: StateFlow<List<String>> =
         installer.lines.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -77,8 +98,7 @@ class FrameworkUpdateViewModel : ViewModel() {
     }
 
     fun flash() {
-        val release = update.value.available ?: return
-        val zip = release.zip ?: return
+        val zip = chosenZip.value ?: return
         val url = zip.downloadUrl ?: return
         viewModelScope.launch { installer.flash(url, zip.sizeInBytes, zip.name) }
     }

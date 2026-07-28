@@ -44,12 +44,12 @@ data class DemoScenario(
     /**
      * How a flash behaves when the install screen asks for one.
      *
-     * Not reachable yet, and worth saying so rather than leaving a scenario that quietly does
-     * nothing: the Install button is only enabled when an update actually exists, and whether one
-     * exists comes from GitHub rather than from the daemon. This seam stops at the binder, so it
-     * can script the flash but not the release that triggers it. Reaching these needs the HTTP
-     * seam — an interceptor serving a canned release list — which is the one piece of the harness
-     * still missing.
+     * Reachable through this seam after all, which was not obvious: whether an update *exists* is
+     * decided by comparing the release list against the installed version code — and that version
+     * comes from the daemon, not from GitHub. Reporting an old one is enough to make a real
+     * release look like an update, so the whole flow can be exercised without faking any network
+     * traffic. The release list itself is genuinely GitHub's, which makes this closer to the real
+     * thing than a canned one would be.
      */
     enum class InstallScript {
         SUCCEEDS,
@@ -171,9 +171,16 @@ val DEMO_SCENARIOS: List<DemoScenario> =
             rootVersion = "10763",
         ),
         DemoScenario(
+            id = "update-available",
+            title = "An update is available",
+            summary = "Reports version 1, so a real release becomes an update. Shows the picker.",
+            xposedVersionCode = 1,
+        ),
+        DemoScenario(
             id = "install-fails",
             title = "Flash that dies halfway",
             summary = "Output already streamed, then a non-zero exit. The case that bites.",
+            xposedVersionCode = 1,
             install = DemoScenario.InstallScript.FAILS_PARTWAY,
         ),
     )

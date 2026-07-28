@@ -282,4 +282,8 @@
     <string name="store_options">オプション</string>
     <string name="scope_framework_shared">すべてのユーザーが共有する 1 つのプロセスなので、端末全体に影響します</string>
     <string name="update_no_output">インストーラーは何も出力しませんでした。</string>
+    <string name="update_variant_release">正式版</string>
+    <string name="update_variant_debug">デバッグ版</string>
+    <string name="update_variant_release_why">普段使い向けのビルド</string>
+    <string name="update_variant_debug_why">詳細ログ付き。不具合報告用です</string>
 </resources>

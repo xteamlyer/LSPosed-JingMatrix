@@ -425,10 +425,10 @@ class GitHubRepository(
                         notesMarkdown = release.body,
                         htmlUrl = release.htmlUrl,
                         epochSeconds = parseIso8601(release.publishedAt.orEmpty()),
-                        zip =
+                        zips =
                             release.assets
-                                .firstOrNull { it.name.endsWith(".zip", ignoreCase = true) }
-                                ?.let {
+                                .filter { it.name.endsWith(".zip", ignoreCase = true) }
+                                .map {
                                     CanaryArtifact(
                                         id = it.id,
                                         name = it.name,

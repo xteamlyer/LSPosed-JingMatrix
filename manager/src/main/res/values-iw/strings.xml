@@ -319,4 +319,8 @@
     <string name="store_options">אפשרויות</string>
     <string name="scope_framework_shared">תהליך אחד שכל המשתמשים חולקים, ולכן זה משפיע על כל המכשיר</string>
     <string name="update_no_output">תוכנית ההתקנה לא הדפיסה דבר.</string>
+    <string name="update_variant_release">יציבה</string>
+    <string name="update_variant_debug">ניפוי שגיאות</string>
+    <string name="update_variant_release_why">הגרסה ליום־יום</string>
+    <string name="update_variant_debug_why">יומנים מפורטים, לדיווח על תקלה</string>
 </resources>

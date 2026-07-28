@@ -286,4 +286,8 @@
     <string name="store_options">Opsi</string>
     <string name="scope_framework_shared">Satu proses yang dipakai bersama semua pengguna, jadi ini memengaruhi seluruh perangkat</string>
     <string name="update_no_output">Pemasang tidak mengeluarkan apa pun.</string>
+    <string name="update_variant_release">Rilis</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">Build untuk sehari-hari</string>
+    <string name="update_variant_debug_why">Log rinci, untuk laporan bug</string>
 </resources>

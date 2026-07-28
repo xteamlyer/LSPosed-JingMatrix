@@ -282,4 +282,8 @@
     <string name="store_options">옵션</string>
     <string name="scope_framework_shared">모든 사용자가 함께 쓰는 하나의 프로세스라, 기기 전체에 영향을 줍니다</string>
     <string name="update_no_output">설치 프로그램이 아무것도 출력하지 않았습니다.</string>
+    <string name="update_variant_release">정식</string>
+    <string name="update_variant_debug">디버그</string>
+    <string name="update_variant_release_why">평소 쓰는 빌드</string>
+    <string name="update_variant_debug_why">자세한 로그 포함, 버그 신고용</string>
 </resources>

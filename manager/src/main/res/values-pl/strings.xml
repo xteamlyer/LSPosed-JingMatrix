@@ -315,4 +315,8 @@
     <string name="store_options">Opcje</string>
     <string name="scope_framework_shared">Jeden proces wspólny dla wszystkich użytkowników, więc dotyczy to całego urządzenia</string>
     <string name="update_no_output">Instalator nie wypisał nic.</string>
+    <string name="update_variant_release">Stabilna</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">Wersja na co dzień</string>
+    <string name="update_variant_debug_why">Szczegółowe dzienniki, do zgłoszenia błędu</string>
 </resources>

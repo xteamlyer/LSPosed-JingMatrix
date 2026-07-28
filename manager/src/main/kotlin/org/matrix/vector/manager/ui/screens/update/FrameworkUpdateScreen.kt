@@ -1,5 +1,12 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import org.matrix.vector.manager.data.github.ZipVariant
+import org.matrix.vector.manager.data.github.CanaryArtifact
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -74,6 +81,7 @@ fun FrameworkUpdateScreen(
     val update by viewModel.update.collectAsStateWithLifecycle()
     val flash by viewModel.flash.collectAsStateWithLifecycle()
     val lines by viewModel.lines.collectAsStateWithLifecycle()
+    val chosenZip by viewModel.chosenZip.collectAsStateWithLifecycle()
     val root by viewModel.root.collectAsStateWithLifecycle()
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val release = update.available
@@ -123,7 +131,10 @@ fun FrameworkUpdateScreen(
         },
         bottomBar = {
             UpdateBar(
-                canFlash = release?.zip?.downloadUrl != null && root.canFlash,
+                zips = release?.zips.orEmpty(),
+                chosen = chosenZip,
+                onChoose = viewModel::chooseVariant,
+                canFlash = chosenZip?.downloadUrl != null && root.canFlash,
                 // Null unless root itself is the obstacle; "nothing to install" is not a root
                 // problem and must not borrow its sentence.
                 rootLabel = root.label(),
@@ -228,6 +239,9 @@ private fun InstallLog(lines: List<String>, terminal: Boolean) {
 
 @Composable
 private fun UpdateBar(
+    zips: List<CanaryArtifact>,
+    chosen: CanaryArtifact?,
+    onChoose: (ZipVariant) -> Unit,
     canFlash: Boolean,
     rootLabel: String?,
     flash: FlashStep,
@@ -312,6 +326,9 @@ private fun UpdateBar(
                 }
             FlashStep.Idle ->
                 Column {
+                    // Above the button and only while idle: it is the question the button answers,
+                    // and once a flash is running the choice has already been made.
+                    VariantPicker(zips = zips, chosen = chosen, onChoose = onChoose)
                     // Only when root is genuinely the problem. This used to print the
                     // no-root sentence whenever the button was disabled, so a perfectly rooted
                     // device with nothing to install was told it had no root — while the daemon
@@ -357,3 +374,87 @@ private fun formatSize(bytes: Long): String =
         bytes >= 1024 -> "%.0f kB".format(bytes / 1024.0)
         else -> "$bytes B"
     }
+
+/**
+ * Which of the release's builds to install.
+ *
+ * Every release publishes two: a Release zip of about 8 MB and a Debug zip of about 22 MB. The
+ * screen used to flash whichever GitHub listed first, so the reader could neither choose nor tell
+ * which one they were getting — while the troubleshooting flow elsewhere in this app tells them a
+ * debug build is what maintainers need to help. Asking for something the app cannot install is not
+ * a defensible place to leave it.
+ *
+ * A segmented row rather than checkboxes, because this is one-of-two rather than on-and-off: two
+ * checkboxes permit neither and both, and a single "install the debug build" makes the ordinary
+ * choice an unlabelled absence. It is the same control the theme selector uses, for the same
+ * reason — the shared outline says "it is one of these".
+ *
+ * The size sits on each segment because it is the part of the decision that is otherwise a
+ * surprise: 2.7× is worth knowing before it starts, not after. The line beneath says what the
+ * choice means, and changes with it, so the answer arrives at the moment the question is asked.
+ *
+ * One zip means no control at all — nobody should be asked to choose between one thing — and an
+ * unrecognised name keeps its own file name rather than being labelled as something it may not be.
+ */
+@Composable
+private fun VariantPicker(
+    zips: List<CanaryArtifact>,
+    chosen: CanaryArtifact?,
+    onChoose: (ZipVariant) -> Unit,
+) {
+    if (zips.size < 2) return
+    val colors = MaterialTheme.colorScheme
+    // Release first, whatever order the release listed them in — GitHub happens to put Debug
+    // first, which put the 22 MB option under the reader's thumb and the default second.
+    val ordered = zips.sortedBy { it.variant.ordinal }
+
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        ordered.forEachIndexed { index, zip ->
+            SegmentedButton(
+                selected = zip.name == chosen?.name,
+                onClick = { onChoose(zip.variant) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = ordered.size),
+                icon = {},
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text =
+                            when (zip.variant) {
+                                ZipVariant.Release -> stringResource(R.string.update_variant_release)
+                                ZipVariant.Debug -> stringResource(R.string.update_variant_debug)
+                                ZipVariant.Other -> zip.name
+                            },
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = formatSize(zip.sizeInBytes),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colors.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+
+    val why =
+        when (chosen?.variant) {
+            ZipVariant.Debug -> stringResource(R.string.update_variant_debug_why)
+            ZipVariant.Release -> stringResource(R.string.update_variant_release_why)
+            else -> null
+        }
+    if (why != null) {
+        Spacer(Modifier.height(6.dp))
+        // Crossfaded so the sentence reads as the answer to the tap that just happened rather
+        // than as text that was always there.
+        AnimatedContent(targetState = why, label = "variant") { text ->
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
+                color = colors.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+    }
+}

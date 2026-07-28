@@ -293,4 +293,8 @@
     <string name="store_options">Optionen</string>
     <string name="scope_framework_shared">Ein Prozess, den sich alle Benutzer teilen — das betrifft das ganze Gerät</string>
     <string name="update_no_output">Das Installationsprogramm hat nichts ausgegeben.</string>
+    <string name="update_variant_release">Release</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">Der Build für den Alltag</string>
+    <string name="update_variant_debug_why">Ausführliche Protokolle, für einen Fehlerbericht</string>
 </resources>

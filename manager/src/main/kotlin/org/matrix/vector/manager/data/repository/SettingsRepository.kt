@@ -131,6 +131,23 @@ class SettingsRepository(context: Context) {
      * it as they left it. Written straight through on every gesture — these are a handful of bytes
      * and the alternative is losing the adjustment to the next process death.
      */
+    private val _updateVariant =
+        MutableStateFlow(prefs.getString("update_variant", "release") ?: "release")
+
+    /**
+     * Which build of the framework to install, "release" or "debug".
+     *
+     * Remembered because someone who wants debug builds wants them every time — a maintainer
+     * chasing a bug report is not making a fresh decision on each update — and because the choice
+     * is otherwise invisible until the download size appears.
+     */
+    val updateVariant: StateFlow<String> = _updateVariant.asStateFlow()
+
+    fun setUpdateVariant(key: String) {
+        prefs.edit().putString("update_variant", key).apply()
+        _updateVariant.value = key
+    }
+
     fun ambienceScale(kind: String): Float = prefs.getFloat("ambience_scale_$kind", 1f)
 
     fun setAmbienceScale(kind: String, value: Float) {

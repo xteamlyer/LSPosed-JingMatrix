@@ -293,4 +293,8 @@
     <string name="store_options">Seçenekler</string>
     <string name="scope_framework_shared">Tüm kullanıcıların paylaştığı tek bir süreç, dolayısıyla bu cihazın tamamını etkiler</string>
     <string name="update_no_output">Kurulum programı hiçbir çıktı üretmedi.</string>
+    <string name="update_variant_release">Kararlı</string>
+    <string name="update_variant_debug">Hata ayıklama</string>
+    <string name="update_variant_release_why">Günlük kullanım için</string>
+    <string name="update_variant_debug_why">Ayrıntılı günlükler, hata bildirimi için</string>
 </resources>

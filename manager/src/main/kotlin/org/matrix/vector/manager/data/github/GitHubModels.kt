@@ -250,8 +250,34 @@ data class FrameworkRelease(
     val notesMarkdown: String?,
     val htmlUrl: String?,
     val epochSeconds: Long,
-    val zip: CanaryArtifact?,
-)
+    /**
+     * Every zip the release published, in the order GitHub listed them.
+     *
+     * A list rather than the single "first zip" this used to keep: each release ships a Release
+     * and a Debug build, 8 MB against 22 MB, and picking whichever GitHub happened to list first
+     * meant the reader could neither choose nor tell which one they were about to flash. The app
+     * asks people for a debug build when they report a problem, so it has to be able to install
+     * one.
+     */
+    val zips: List<CanaryArtifact>,
+) {
+    /** The one to offer by default when nothing has been chosen. */
+    val defaultZip: CanaryArtifact?
+        get() = zips.firstOrNull { it.variant == ZipVariant.Release } ?: zips.firstOrNull()
+}
+
+/**
+ * Which build a zip is, read from its file name.
+ *
+ * [Other] is not a failure: a release may one day publish something these two names do not cover,
+ * and a picker that cannot represent it would either hide the file or mislabel it. Both are worse
+ * than showing the name it actually has.
+ */
+enum class ZipVariant(val key: String) {
+    Release("release"),
+    Debug("debug"),
+    Other("other"),
+}
 
 data class CanaryArtifact(
     val id: Long,
@@ -259,5 +285,13 @@ data class CanaryArtifact(
     val sizeInBytes: Long,
     val expired: Boolean,
     val downloadUrl: String?,
-)
+) {
+    val variant: ZipVariant
+        get() =
+            when {
+                name.contains("release", ignoreCase = true) -> ZipVariant.Release
+                name.contains("debug", ignoreCase = true) -> ZipVariant.Debug
+                else -> ZipVariant.Other
+            }
+}
 

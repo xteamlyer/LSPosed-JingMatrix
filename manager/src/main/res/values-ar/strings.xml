@@ -337,4 +337,8 @@
     <string name="store_options">خيارات</string>
     <string name="scope_framework_shared">عملية واحدة يتشاركها جميع المستخدمين، لذا يؤثر هذا في الجهاز كله</string>
     <string name="update_no_output">لم يُخرج برنامج التثبيت أي شيء.</string>
+    <string name="update_variant_release">نهائي</string>
+    <string name="update_variant_debug">تنقيح</string>
+    <string name="update_variant_release_why">الإصدار للاستعمال اليومي</string>
+    <string name="update_variant_debug_why">سجلات مفصّلة، للإبلاغ عن خلل</string>
 </resources>

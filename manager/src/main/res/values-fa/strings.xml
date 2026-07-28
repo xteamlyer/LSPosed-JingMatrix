@@ -293,4 +293,8 @@
     <string name="store_options">گزینه‌ها</string>
     <string name="scope_framework_shared">یک فرایند که همهٔ کاربران در آن شریک‌اند، پس این کل دستگاه را تحت تأثیر می‌گذارد</string>
     <string name="update_no_output">نصب‌کننده چیزی چاپ نکرد.</string>
+    <string name="update_variant_release">نهایی</string>
+    <string name="update_variant_debug">اشکال‌زدایی</string>
+    <string name="update_variant_release_why">ساخت روزمره</string>
+    <string name="update_variant_debug_why">گزارش‌های پرگو، برای گزارش اشکال</string>
 </resources>

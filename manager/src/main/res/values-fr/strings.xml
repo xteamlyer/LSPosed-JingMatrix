@@ -293,4 +293,8 @@
     <string name="store_options">Options</string>
     <string name="scope_framework_shared">Un seul processus partagé par tous les utilisateurs : cela concerne tout l\'appareil</string>
     <string name="update_no_output">L\'installateur n\'a rien affiché.</string>
+    <string name="update_variant_release">Version finale</string>
+    <string name="update_variant_debug">Débogage</string>
+    <string name="update_variant_release_why">La version à utiliser au quotidien</string>
+    <string name="update_variant_debug_why">Journaux détaillés, pour un rapport de bug</string>
 </resources>

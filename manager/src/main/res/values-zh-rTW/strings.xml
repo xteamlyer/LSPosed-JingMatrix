@@ -283,4 +283,8 @@
     <string name="store_options">選項</string>
     <string name="scope_framework_shared">所有使用者共用的同一個行程，因此這會影響整台裝置</string>
     <string name="update_no_output">安裝程式沒有任何輸出。</string>
+    <string name="update_variant_release">正式版</string>
+    <string name="update_variant_debug">偵錯版</string>
+    <string name="update_variant_release_why">日常使用的版本</string>
+    <string name="update_variant_debug_why">帶詳細日誌，用於回報問題</string>
 </resources>

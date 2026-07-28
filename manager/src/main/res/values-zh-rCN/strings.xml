@@ -283,4 +283,8 @@
     <string name="store_options">选项</string>
     <string name="scope_framework_shared">所有用户共用的同一个进程，因此这会影响整台设备</string>
     <string name="update_no_output">安装程序没有任何输出。</string>
+    <string name="update_variant_release">正式版</string>
+    <string name="update_variant_debug">调试版</string>
+    <string name="update_variant_release_why">日常使用的版本</string>
+    <string name="update_variant_debug_why">带详细日志，用于反馈问题</string>
 </resources>

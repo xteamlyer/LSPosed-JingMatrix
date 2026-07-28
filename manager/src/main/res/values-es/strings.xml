@@ -293,4 +293,8 @@
     <string name="store_options">Opciones</string>
     <string name="scope_framework_shared">Un único proceso compartido por todos los usuarios: afecta a todo el dispositivo</string>
     <string name="update_no_output">El instalador no produjo ninguna salida.</string>
+    <string name="update_variant_release">Estable</string>
+    <string name="update_variant_debug">Depuración</string>
+    <string name="update_variant_release_why">La compilación del día a día</string>
+    <string name="update_variant_debug_why">Registros detallados, para informar de un error</string>
 </resources>

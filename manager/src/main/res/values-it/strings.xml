@@ -293,4 +293,8 @@
     <string name="store_options">Opzioni</string>
     <string name="scope_framework_shared">Un solo processo condiviso da tutti gli utenti: riguarda l\'intero dispositivo</string>
     <string name="update_no_output">Il programma di installazione non ha prodotto output.</string>
+    <string name="update_variant_release">Stabile</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">La build di tutti i giorni</string>
+    <string name="update_variant_debug_why">Log dettagliati, per una segnalazione</string>
 </resources>

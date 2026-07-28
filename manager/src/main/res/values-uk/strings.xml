@@ -315,4 +315,8 @@
     <string name="store_options">Параметри</string>
     <string name="scope_framework_shared">Один процес, спільний для всіх користувачів, тож це стосується всього пристрою</string>
     <string name="update_no_output">Встановлювач нічого не вивів.</string>
+    <string name="update_variant_release">Стабільна</string>
+    <string name="update_variant_debug">Зневаджувальна</string>
+    <string name="update_variant_release_why">Збірка на щодень</string>
+    <string name="update_variant_debug_why">Докладні журнали, для звіту про помилку</string>
 </resources>

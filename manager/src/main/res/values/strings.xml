@@ -326,4 +326,8 @@
     <string name="store_options">Options</string>
     <string name="scope_framework_shared">One process shared by every user, so this affects the whole device</string>
     <string name="update_no_output">The installer produced no output.</string>
+    <string name="update_variant_release">Release</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">The build to run day to day</string>
+    <string name="update_variant_debug_why">Verbose logging, for a bug report</string>
 </resources>

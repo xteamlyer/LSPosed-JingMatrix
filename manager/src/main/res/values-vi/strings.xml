@@ -282,4 +282,8 @@
     <string name="store_options">Tuỳ chọn</string>
     <string name="scope_framework_shared">Một tiến trình dùng chung cho mọi người dùng, nên việc này ảnh hưởng toàn thiết bị</string>
     <string name="update_no_output">Trình cài đặt không xuất ra gì cả.</string>
+    <string name="update_variant_release">Chính thức</string>
+    <string name="update_variant_debug">Gỡ lỗi</string>
+    <string name="update_variant_release_why">Bản dùng hằng ngày</string>
+    <string name="update_variant_debug_why">Nhật ký chi tiết, để báo lỗi</string>
 </resources>
