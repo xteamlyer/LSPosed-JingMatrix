@@ -507,7 +507,21 @@ class ScopeViewModel(
         viewModelScope.launch {
             daemonClient
                 .setIncludeNewApps(modulePackageName, enabled)
-                .onSuccess { _uiState.value = _uiState.value.copy(includeNewApps = enabled) }
+                .onSuccess { stored ->
+                    // The daemon's answer, not merely the fact that it answered. It refuses a
+                    // package it holds no row for, and moving the switch anyway showed a setting
+                    // that was never saved.
+                    if (stored) {
+                        _uiState.value = _uiState.value.copy(includeNewApps = enabled)
+                    } else {
+                        Log.e(
+                            Constants.TAG,
+                            "scope: daemon refused include-new-apps=$enabled for " +
+                                modulePackageName,
+                        )
+                        _message.value = ScopeMessage.IncludeNewAppsFailed
+                    }
+                }
                 .onFailure { e ->
                     Log.e(
                         Constants.TAG,

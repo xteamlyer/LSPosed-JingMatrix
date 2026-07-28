@@ -132,17 +132,34 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
             return Result.success(false)
         }
         return runIpc { service ->
-            service.startActivityAsUserWithFeature(
-                Intent(Intent.ACTION_MAIN)
-                    .setClassName(target.packageName, target.name)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .putExtra(
-                        "lsp_no_switch_to_user",
-                        (target.flags and FLAG_SHOW_FOR_ALL_USERS) != 0,
-                    ),
-                userId,
-            )
-            true
+            val code =
+                service.startActivityAsUserWithFeature(
+                    Intent(Intent.ACTION_MAIN)
+                        .setClassName(target.packageName, target.name)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .putExtra(
+                            "lsp_no_switch_to_user",
+                            (target.flags and FLAG_SHOW_FOR_ALL_USERS) != 0,
+                        ),
+                    userId,
+                )
+            // The daemon returns ActivityManager's own start code, and this used to return `true`
+            // over the top of it. Everything from a refused user switch (-1) to a disabled or
+            // unexported activity arrives as a negative number, and every one of them was reported
+            // to the caller as "opened" — so the screen said nothing and nothing opened, which is
+            // the same symptom as a button wired to nothing and is diagnosed the same wrong way.
+            // `ActivityManager.START_SUCCESS` is 0 and is @hide, so the number is
+            // written out; every success code (START_SUCCESS, START_RETURN_INTENT_TO_CALLER,
+            // START_TASK_TO_FRONT, START_DELIVERED_TO_TOP) is >= 0 and every failure < 0.
+            val started = code >= 0
+            if (!started) {
+                Log.e(
+                    Constants.TAG,
+                    "ipc: ${target.packageName}/${target.name} refused by the activity manager " +
+                        "in user $userId (code $code)",
+                )
+            }
+            started
         }
     }
 
@@ -301,7 +318,15 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     suspend fun getIncludeNewApps(packageName: String): Result<Boolean> = runIpc { it.getIncludeNewApps(packageName)
     }
 
-    suspend fun setIncludeNewApps(packageName: String, enable: Boolean): Result<Unit> = runIpc { it.setIncludeNewApps(packageName, enable)
+    /**
+     * Returns whether the daemon stored it, which is not the same as whether the call arrived.
+     *
+     * `ModuleDatabase.setIncludeNewApps` answers false when no row was updated — the package is
+     * not a known module, or it is the framework itself. Typed `Result<Unit>` this was thrown
+     * away, so a refusal and a success were the same value and the switch moved either way.
+     */
+    suspend fun setIncludeNewApps(packageName: String, enable: Boolean): Result<Boolean> = runIpc {
+        it.setIncludeNewApps(packageName, enable)
     }
 
     suspend fun getRootImplementation(): Result<Int> = runIpc { it.rootImplementation }
