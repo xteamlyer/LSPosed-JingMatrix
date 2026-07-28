@@ -115,7 +115,7 @@
 
     <string name="modules_empty">هیچ ماژولی نصب نشده است.</string>
     <string name="modules_active_of">%1$d از %2$d فعال</string>
-    <string name="modules_no_match">ماژولی با این جستجو هم‌خوان نیست.</string>
+    <string name="modules_no_match">ماژولی با این جستجو یا پالایه هم‌خوان نیست.</string>
     <string name="modules_backup">پشتیبان‌گیری از ماژول‌ها</string>
     <string name="modules_restore">بازگردانی ماژول‌ها</string>
     <string name="modules_backup_done">از %1$d ماژول و دامنه‌شان پشتیبان گرفته شد.</string>
@@ -382,4 +382,8 @@
     <string name="crash_recorded_clear">دور انداختن</string>
     <string name="force_launcher_icons">جلوگیری از پنهان کردن نماد برنامه‌ها در لانچر</string>
     <string name="force_launcher_icons_summary">از Android 10 به بعد، برنامه‌ای که نماد خود را در لانچر پنهان می‌کند، نمادی جایگزین می‌گیرد که صفحهٔ اطلاعات برنامه را باز می‌کند. این را خاموش کنید تا پنهان بماند — شاید لانچر شما تا راه‌اندازی دوبارهٔ خودش به‌روز نشود. برنامه‌هایی که هرگز نماد لانچر نداشته‌اند، از جمله بیشتر ماژول‌ها، تحت تأثیر قرار نمی‌گیرند.</string>
+    <string name="action_force_stop_failed">توقف %1$s ممکن نشد.</string>
+    <string name="modules_load_unsupported_api">فعال است، اما برای libxposed API 100 ساخته شده که این چارچوب دیگر آن را بارگذاری نمی‌کند.</string>
+    <string name="update_root_unknown">این ساخت چارچوب اعلام نمی‌کند که کدام پیاده‌سازی روت نصب است.</string>
+    <string name="scope_no_match">برنامه‌ای با این جستجو یا پالایه هم‌خوان نیست.</string>
 </resources>

@@ -135,7 +135,7 @@
 
     <string name="modules_empty">לא מותקנים מודולים.</string>
     <string name="modules_active_of">%1$d מתוך %2$d פעילים</string>
-    <string name="modules_no_match">אין מודול שתואם לחיפוש הזה.</string>
+    <string name="modules_no_match">אין מודול שתואם לחיפוש הזה או לסינון הזה.</string>
     <string name="modules_backup">גיבוי המודולים</string>
     <string name="modules_restore">שחזור המודולים</string>
     <string name="modules_backup_done">גובו %1$d מודולים והתחומים שלהם.</string>
@@ -408,4 +408,8 @@
     <string name="crash_recorded_clear">מחיקה</string>
     <string name="force_launcher_icons">למנוע מאפליקציות להסתיר את הסמל שלהן במסך הבית</string>
     <string name="force_launcher_icons_summary">החל מ-Android 10, אפליקציה שמסתירה את סמל מסך הבית שלה מקבלת סמל חלופי שפותח את פרטי האפליקציה שלה. כבו את האפשרות הזאת כדי לתת לה להישאר מוסתרת — ייתכן שאפליקציית מסך הבית תתעדכן רק לאחר הפעלה מחדש. אפליקציות שמעולם לא היה להן סמל במסך הבית, ובהן רוב המודולים, אינן מושפעות.</string>
+    <string name="action_force_stop_failed">לא ניתן היה לעצור את %1$s.</string>
+    <string name="modules_load_unsupported_api">מופעל, אבל נבנה עבור libxposed API 100, שהמסגרת הזו כבר לא טוענת.</string>
+    <string name="update_root_unknown">גרסת המסגרת הזו לא מדווחת איזה מימוש root מותקן.</string>
+    <string name="scope_no_match">אין אפליקציה שתואמת לחיפוש הזה או לסינון הזה.</string>
 </resources>

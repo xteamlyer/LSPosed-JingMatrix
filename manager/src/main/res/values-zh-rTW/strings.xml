@@ -107,7 +107,7 @@
 
     <string name="modules_empty">尚未安裝任何模組。</string>
     <string name="modules_active_of">%2$d 個模組中有 %1$d 個已啟用</string>
-    <string name="modules_no_match">沒有符合該搜尋條件的模組。</string>
+    <string name="modules_no_match">沒有符合該搜尋或篩選條件的模組。</string>
     <string name="modules_backup">備份模組</string>
     <string name="modules_restore">還原模組</string>
     <string name="modules_backup_done">已備份 %1$d 個模組及其範圍。</string>
@@ -372,4 +372,8 @@
     <string name="crash_recorded_clear">捨棄</string>
     <string name="force_launcher_icons">阻止應用程式隱藏自己的啟動器圖示</string>
     <string name="force_launcher_icons_summary">自 Android 10 起，隱藏了自己啟動器圖示的應用程式會被補上一個圖示，點按它會開啟該應用程式的應用程式資訊頁面。關閉此項可讓它維持隱藏——你的啟動器可能要等重新啟動之後才會更新。本來就沒有啟動器圖示的應用程式不受影響，大多數模組都屬於此類。</string>
+    <string name="action_force_stop_failed">無法停止 %1$s。</string>
+    <string name="modules_load_unsupported_api">已啟用，但針對 libxposed API 100 建置，此框架已不再載入該版本。</string>
+    <string name="update_root_unknown">此框架建置不會回報已安裝的是哪一種 root 實作。</string>
+    <string name="scope_no_match">沒有符合該搜尋或篩選條件的應用程式。</string>
 </resources>

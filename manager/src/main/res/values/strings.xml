@@ -246,6 +246,7 @@
     <string name="scope_sort_relevance">Selected first</string>
     <string name="scope_sort_name">By name</string>
     <string name="scope_search_hint">Search apps</string>
+    <string name="scope_no_match">No app matches that search or filter.</string>
     <string name="scope_system_apps">System apps</string>
     <string name="scope_games">Games</string>
     <string name="scope_recommended">Requested by this module</string>

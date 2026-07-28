@@ -120,7 +120,7 @@
     <string name="egg_one_more">Ещё раз…</string>
     <string name="modules_empty">Модули не установлены.</string>
     <string name="modules_active_of">%1$d из %2$d активны</string>
-    <string name="modules_no_match">Ни один модуль не подходит под этот запрос.</string>
+    <string name="modules_no_match">Ни один модуль не подходит под этот запрос или фильтр.</string>
     <string name="modules_backup">Сохранить модули</string>
     <string name="modules_restore">Восстановить модули</string>
     <string name="modules_backup_done">Сохранено модулей: %1$d, вместе с их областью действия.</string>
@@ -385,4 +385,8 @@
     <string name="crash_recorded_clear">Убрать</string>
     <string name="force_launcher_icons">Не давать приложениям скрывать значок в лаунчере</string>
     <string name="force_launcher_icons_summary">Начиная с Android 10, приложение, которое скрывает свой значок в лаунчере, получает его обратно, и этот значок открывает страницу сведений о приложении. Выключите это, чтобы значок оставался скрытым — лаунчер может обновить свой список только после перезапуска. Приложений, у которых значка в лаунчере никогда не было, включая большинство модулей, это не касается.</string>
+    <string name="action_force_stop_failed">Не удалось остановить %1$s.</string>
+    <string name="modules_load_unsupported_api">Включён, но собран под libxposed API 100, который этот фреймворк больше не загружает.</string>
+    <string name="update_root_unknown">Эта сборка фреймворка не сообщает, какая реализация root установлена.</string>
+    <string name="scope_no_match">Ни одно приложение не подходит под этот запрос или фильтр.</string>
 </resources>

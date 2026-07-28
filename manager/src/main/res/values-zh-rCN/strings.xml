@@ -107,7 +107,7 @@
 
     <string name="modules_empty">尚未安装任何模块。</string>
     <string name="modules_active_of">%2$d 个模块中有 %1$d 个已启用</string>
-    <string name="modules_no_match">没有符合该搜索条件的模块。</string>
+    <string name="modules_no_match">没有符合该搜索或筛选条件的模块。</string>
     <string name="modules_backup">备份模块</string>
     <string name="modules_restore">恢复模块</string>
     <string name="modules_backup_done">已备份 %1$d 个模块及其作用域。</string>
@@ -372,4 +372,8 @@
     <string name="crash_recorded_clear">丢弃</string>
     <string name="force_launcher_icons">阻止应用隐藏自己的桌面图标</string>
     <string name="force_launcher_icons_summary">从 Android 10 起，隐藏了自己桌面图标的应用会被补上一个图标，点击它会打开该应用的应用信息页面。关闭此项可以让它继续保持隐藏——桌面可能要等重启之后才会更新。本来就没有桌面图标的应用不受影响，大多数模块都属于此类。</string>
+    <string name="action_force_stop_failed">无法停止 %1$s。</string>
+    <string name="modules_load_unsupported_api">已启用，但针对 libxposed API 100 构建，此框架已不再加载该版本。</string>
+    <string name="update_root_unknown">此框架构建不会报告已安装的是哪一种 root 实现。</string>
+    <string name="scope_no_match">没有符合该搜索或筛选条件的应用。</string>
 </resources>

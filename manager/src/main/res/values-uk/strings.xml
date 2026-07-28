@@ -131,7 +131,7 @@
 
     <string name="modules_empty">Модулів не встановлено.</string>
     <string name="modules_active_of">%1$d з %2$d активні</string>
-    <string name="modules_no_match">Жоден модуль не відповідає цьому запиту.</string>
+    <string name="modules_no_match">Жоден модуль не відповідає цьому запиту чи фільтру.</string>
     <string name="modules_backup">Створити копію модулів</string>
     <string name="modules_restore">Відновити модулі</string>
     <string name="modules_backup_done">Збережено %1$d модулів та їхні області дії.</string>
@@ -404,4 +404,8 @@
     <string name="crash_recorded_clear">Відкинути</string>
     <string name="force_launcher_icons">Не дозволяти застосункам ховати свій значок у лаунчері</string>
     <string name="force_launcher_icons_summary">Починаючи з Android 10, застосунок, який ховає свій значок у лаунчері, отримує його назад, і цей значок відкриває сторінку відомостей про застосунок. Вимкніть це, щоб значок лишався прихованим — лаунчер може оновити свій перелік лише після перезапуску. Застосунків, які ніколи не мали значка в лаунчері, зокрема більшість модулів, це не стосується.</string>
+    <string name="action_force_stop_failed">Не вдалося зупинити %1$s.</string>
+    <string name="modules_load_unsupported_api">Увімкнено, але зібрано під libxposed API 100, якого цей фреймворк більше не завантажує.</string>
+    <string name="update_root_unknown">Ця збірка фреймворку не повідомляє, яка реалізація root встановлена.</string>
+    <string name="scope_no_match">Жоден застосунок не відповідає цьому запиту чи фільтру.</string>
 </resources>

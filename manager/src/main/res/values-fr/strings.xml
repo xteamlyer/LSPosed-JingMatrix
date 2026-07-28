@@ -115,7 +115,7 @@
 
     <string name="modules_empty">Aucun module installé.</string>
     <string name="modules_active_of">%1$d actifs sur %2$d</string>
-    <string name="modules_no_match">Aucun module ne correspond à cette recherche.</string>
+    <string name="modules_no_match">Aucun module ne correspond à cette recherche ou à ce filtre.</string>
     <string name="modules_backup">Sauvegarder les modules</string>
     <string name="modules_restore">Restaurer les modules</string>
     <string name="modules_backup_done">%1$d modules et leurs portées sauvegardés.</string>
@@ -382,4 +382,8 @@
     <string name="crash_recorded_clear">Effacer</string>
     <string name="force_launcher_icons">Empêcher les applications de masquer leur icône de lancement</string>
     <string name="force_launcher_icons_summary">Depuis Android 10, une application qui masque sa propre icône de lancement en récupère une, qui ouvre sa page d\'infos sur l\'application. Désactivez cette option pour la laisser masquée — votre lanceur ne s\'en apercevra peut-être qu\'après son redémarrage. Les applications qui n\'ont jamais eu d\'icône de lancement, dont la plupart des modules, ne sont pas concernées.</string>
+    <string name="action_force_stop_failed">Impossible d\'arrêter %1$s.</string>
+    <string name="modules_load_unsupported_api">Activé, mais conçu pour l\'API libxposed 100, que ce framework ne charge plus.</string>
+    <string name="update_root_unknown">Ce build du framework n\'indique pas quelle implémentation root est installée.</string>
+    <string name="scope_no_match">Aucune appli ne correspond à cette recherche ou à ce filtre.</string>
 </resources>

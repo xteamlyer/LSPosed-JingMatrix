@@ -107,7 +107,7 @@
 
     <string name="modules_empty">モジュールがインストールされていません。</string>
     <string name="modules_active_of">%2$d 個中 %1$d 個が有効</string>
-    <string name="modules_no_match">その検索に一致するモジュールはありません。</string>
+    <string name="modules_no_match">その検索や絞り込みに一致するモジュールはありません。</string>
     <string name="modules_backup">モジュールをバックアップ</string>
     <string name="modules_restore">モジュールを復元</string>
     <string name="modules_backup_done">%1$d 個のモジュールとその適用範囲をバックアップしました。</string>
@@ -371,4 +371,8 @@
     <string name="crash_recorded_clear">破棄</string>
     <string name="force_launcher_icons">アプリがランチャーアイコンを隠すのを防ぐ</string>
     <string name="force_launcher_icons_summary">Android 10 以降、自分のランチャーアイコンを隠したアプリには、代わりにアプリ情報の画面を開くアイコンが与えられます。オフにすると隠れたままにできます — ランチャー側は再起動するまで古い一覧を表示し続けることがあります。もともとランチャーアイコンを持たないアプリ（ほとんどのモジュールがそうです）には影響しません。</string>
+    <string name="action_force_stop_failed">%1$s を停止できませんでした。</string>
+    <string name="modules_load_unsupported_api">有効ですが、libxposed API 100 向けにビルドされており、このフレームワークはもう読み込みません。</string>
+    <string name="update_root_unknown">このフレームワークのビルドは、どの root 実装がインストールされているかを伝えません。</string>
+    <string name="scope_no_match">その検索や絞り込みに一致するアプリはありません。</string>
 </resources>

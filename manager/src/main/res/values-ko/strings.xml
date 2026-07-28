@@ -107,7 +107,7 @@
 
     <string name="modules_empty">설치된 모듈이 없습니다.</string>
     <string name="modules_active_of">%2$d개 중 %1$d개 활성</string>
-    <string name="modules_no_match">그 검색어와 일치하는 모듈이 없습니다.</string>
+    <string name="modules_no_match">그 검색어나 필터와 일치하는 모듈이 없습니다.</string>
     <string name="modules_backup">모듈 백업</string>
     <string name="modules_restore">모듈 복원</string>
     <string name="modules_backup_done">모듈 %1$d개와 적용 범위를 백업했습니다.</string>
@@ -371,4 +371,8 @@
     <string name="crash_recorded_clear">지우기</string>
     <string name="force_launcher_icons">앱이 런처 아이콘을 숨기지 못하게 막기</string>
     <string name="force_launcher_icons_summary">Android 10부터, 자기 런처 아이콘을 숨긴 앱에는 앱 정보 페이지를 여는 아이콘이 대신 주어집니다. 이 설정을 끄면 숨긴 채로 둘 수 있습니다 — 런처는 다시 시작하기 전까지 예전 목록을 그대로 보여줄 수 있습니다. 처음부터 런처 아이콘이 없던 앱은 영향을 받지 않으며, 대부분의 모듈이 여기에 해당합니다.</string>
+    <string name="action_force_stop_failed">%1$s을(를) 중지하지 못했습니다.</string>
+    <string name="modules_load_unsupported_api">사용 중이지만 libxposed API 100용으로 빌드되어 이 프레임워크가 더 이상 불러오지 않습니다.</string>
+    <string name="update_root_unknown">이 프레임워크 빌드는 어떤 root 구현이 설치되어 있는지 알려주지 않습니다.</string>
+    <string name="scope_no_match">그 검색어나 필터와 일치하는 앱이 없습니다.</string>
 </resources>

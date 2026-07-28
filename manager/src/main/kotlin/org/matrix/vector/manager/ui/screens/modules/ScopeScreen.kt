@@ -730,7 +730,7 @@ private fun ScopeEmptyState() {
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = stringResource(R.string.modules_no_match),
+                text = stringResource(R.string.scope_no_match),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )

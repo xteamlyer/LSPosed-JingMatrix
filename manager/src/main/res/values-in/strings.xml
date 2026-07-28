@@ -111,7 +111,7 @@
 
     <string name="modules_empty">Belum ada modul terpasang.</string>
     <string name="modules_active_of">%1$d dari %2$d aktif</string>
-    <string name="modules_no_match">Tidak ada modul yang cocok dengan pencarian itu.</string>
+    <string name="modules_no_match">Tidak ada modul yang cocok dengan pencarian atau saringan itu.</string>
     <string name="modules_backup">Cadangkan modul</string>
     <string name="modules_restore">Pulihkan modul</string>
     <string name="modules_backup_done">%1$d modul dan cakupannya telah dicadangkan.</string>
@@ -375,4 +375,8 @@
     <string name="crash_recorded_clear">Buang</string>
     <string name="force_launcher_icons">Cegah aplikasi menyembunyikan ikon launcher-nya</string>
     <string name="force_launcher_icons_summary">Sejak Android 10, aplikasi yang menyembunyikan ikon launcher-nya sendiri diberi ikon pengganti yang membuka halaman info aplikasinya. Matikan ini agar aplikasi tersebut tetap tersembunyi — launcher Anda mungkin baru menyusul setelah dimulai ulang. Aplikasi yang memang tidak pernah punya ikon launcher, termasuk sebagian besar modul, tidak terpengaruh.</string>
+    <string name="action_force_stop_failed">%1$s tidak bisa dihentikan.</string>
+    <string name="modules_load_unsupported_api">Aktif, tetapi dibuat untuk libxposed API 100, yang tidak lagi dimuat framework ini.</string>
+    <string name="update_root_unknown">Build framework ini tidak melaporkan implementasi root mana yang terpasang.</string>
+    <string name="scope_no_match">Tidak ada aplikasi yang cocok dengan pencarian atau saringan itu.</string>
 </resources>

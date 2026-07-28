@@ -115,7 +115,7 @@
 
     <string name="modules_empty">Kurulu modül yok.</string>
     <string name="modules_active_of">%2$d modülden %1$d tanesi etkin</string>
-    <string name="modules_no_match">Bu aramayla eşleşen modül yok.</string>
+    <string name="modules_no_match">Bu arama veya süzgeçle eşleşen modül yok.</string>
     <string name="modules_backup">Modülleri yedekle</string>
     <string name="modules_restore">Modülleri geri yükle</string>
     <string name="modules_backup_done">%1$d modül ve kapsamları yedeklendi.</string>
@@ -382,4 +382,8 @@
     <string name="crash_recorded_clear">Sil</string>
     <string name="force_launcher_icons">Uygulamaların başlatıcı simgesini gizlemesini engelle</string>
     <string name="force_launcher_icons_summary">Android 10\'dan beri, kendi başlatıcı simgesini gizleyen bir uygulamaya, uygulama bilgisi sayfasını açan bir simge geri verilir. Gizli kalabilmesi için bunu kapatın — başlatıcınız yeniden başlatılana kadar durumu yansıtmayabilir. Hiçbir zaman başlatıcı simgesi olmamış uygulamalar, çoğu modül dahil, bundan etkilenmez.</string>
+    <string name="action_force_stop_failed">%1$s durdurulamadı.</string>
+    <string name="modules_load_unsupported_api">Etkin, ancak libxposed API 100 için derlendi; bu çerçeve artık onu yüklemiyor.</string>
+    <string name="update_root_unknown">Bu çatı derlemesi hangi root uygulamasının kurulu olduğunu bildirmiyor.</string>
+    <string name="scope_no_match">Bu arama veya süzgeçle eşleşen uygulama yok.</string>
 </resources>

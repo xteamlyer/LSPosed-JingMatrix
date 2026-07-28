@@ -107,7 +107,7 @@
 
     <string name="modules_empty">Chưa cài mô-đun nào.</string>
     <string name="modules_active_of">%1$d trong %2$d đang bật</string>
-    <string name="modules_no_match">Không có mô-đun nào khớp với tìm kiếm đó.</string>
+    <string name="modules_no_match">Không có mô-đun nào khớp với tìm kiếm hoặc bộ lọc đó.</string>
     <string name="modules_backup">Sao lưu mô-đun</string>
     <string name="modules_restore">Khôi phục mô-đun</string>
     <string name="modules_backup_done">Đã sao lưu %1$d mô-đun cùng phạm vi của chúng.</string>
@@ -371,4 +371,8 @@
     <string name="crash_recorded_clear">Xoá</string>
     <string name="force_launcher_icons">Không cho ứng dụng ẩn biểu tượng trên trình khởi chạy</string>
     <string name="force_launcher_icons_summary">Từ Android 10, ứng dụng tự ẩn biểu tượng của mình trên trình khởi chạy sẽ được cấp lại một biểu tượng mở trang thông tin ứng dụng. Tắt mục này để nó vẫn được ẩn — trình khởi chạy có thể chưa cập nhật cho tới khi nó khởi động lại. Những ứng dụng vốn không có biểu tượng khởi chạy, gồm hầu hết mô-đun, không bị ảnh hưởng.</string>
+    <string name="action_force_stop_failed">Không dừng được %1$s.</string>
+    <string name="modules_load_unsupported_api">Đã bật, nhưng được dựng cho libxposed API 100, mà framework này không còn nạp nữa.</string>
+    <string name="update_root_unknown">Bản dựng framework này không cho biết đang có bản cài root nào.</string>
+    <string name="scope_no_match">Không có ứng dụng nào khớp với tìm kiếm hoặc bộ lọc đó.</string>
 </resources>

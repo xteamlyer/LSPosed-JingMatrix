@@ -115,7 +115,7 @@
 
     <string name="modules_empty">Keine Module installiert.</string>
     <string name="modules_active_of">%1$d von %2$d aktiv</string>
-    <string name="modules_no_match">Kein Modul passt zu dieser Suche.</string>
+    <string name="modules_no_match">Kein Modul passt zu dieser Suche oder diesem Filter.</string>
     <string name="modules_backup">Module sichern</string>
     <string name="modules_restore">Module wiederherstellen</string>
     <string name="modules_backup_done">%1$d Module und ihre Geltungsbereiche gesichert.</string>
@@ -382,4 +382,8 @@
     <string name="crash_recorded_clear">Verwerfen</string>
     <string name="force_launcher_icons">Apps daran hindern, ihr Launcher-Symbol zu verstecken</string>
     <string name="force_launcher_icons_summary">Seit Android 10 bekommt eine App, die ihr eigenes Launcher-Symbol versteckt, eines zurück, das ihre App-Info-Seite öffnet. Schalte das aus, damit sie versteckt bleiben kann — dein Launcher merkt das womöglich erst nach einem Neustart. Apps, die nie ein Launcher-Symbol hatten, darunter die meisten Module, sind nicht betroffen.</string>
+    <string name="action_force_stop_failed">%1$s konnte nicht beendet werden.</string>
+    <string name="modules_load_unsupported_api">Aktiviert, aber für libxposed-API 100 gebaut, die dieses Framework nicht mehr lädt.</string>
+    <string name="update_root_unknown">Dieser Framework-Build meldet nicht, welche Root-Implementierung installiert ist.</string>
+    <string name="scope_no_match">Keine App passt zu dieser Suche oder diesem Filter.</string>
 </resources>

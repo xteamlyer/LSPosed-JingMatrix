@@ -147,7 +147,7 @@
 
     <string name="modules_empty">لا وحدات مثبّتة.</string>
     <string name="modules_active_of">%1$d من %2$d نشطة</string>
-    <string name="modules_no_match">لا وحدة تطابق هذا البحث.</string>
+    <string name="modules_no_match">لا وحدة تطابق هذا البحث أو هذه التصفية.</string>
     <string name="modules_backup">نسخ الوحدات احتياطيًا</string>
     <string name="modules_restore">استعادة الوحدات</string>
     <string name="modules_backup_done">نُسخت %1$d وحدة ونطاقاتها.</string>
@@ -426,4 +426,8 @@
     <string name="crash_recorded_clear">تجاهل</string>
     <string name="force_launcher_icons">منع التطبيقات من إخفاء أيقوناتها في المشغّل</string>
     <string name="force_launcher_icons_summary">منذ Android 10، يستعيد التطبيق الذي يخفي أيقونته في المشغّل أيقونةً تفتح صفحة معلومات التطبيق. أوقف هذا الخيار ليبقى مخفيًا — وقد لا يلحق المشغّل بالتغيير حتى يُعاد تشغيله. أما التطبيقات التي لم تكن لها أيقونة أصلًا، ومنها معظم الوحدات، فلا يمسّها هذا.</string>
+    <string name="action_force_stop_failed">تعذّر إيقاف %1$s.</string>
+    <string name="modules_load_unsupported_api">مفعّلة، لكنها بُنيت على libxposed API 100، ولم يعد هذا الإطار يحمّل هذه الواجهة.</string>
+    <string name="update_root_unknown">لا يذكر هذا الإصدار من الإطار تطبيق الروت المثبَّت.</string>
+    <string name="scope_no_match">لا تطبيق يطابق هذا البحث أو هذه التصفية.</string>
 </resources>

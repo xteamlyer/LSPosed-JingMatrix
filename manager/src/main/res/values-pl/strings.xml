@@ -131,7 +131,7 @@
 
     <string name="modules_empty">Nie zainstalowano żadnych modułów.</string>
     <string name="modules_active_of">%1$d z %2$d aktywnych</string>
-    <string name="modules_no_match">Żaden moduł nie pasuje do tego wyszukiwania.</string>
+    <string name="modules_no_match">Żaden moduł nie pasuje do tego wyszukiwania ani filtra.</string>
     <string name="modules_backup">Utwórz kopię modułów</string>
     <string name="modules_restore">Przywróć moduły</string>
     <string name="modules_backup_done">Zapisano %1$d modułów wraz z ich zakresami.</string>
@@ -404,4 +404,8 @@
     <string name="crash_recorded_clear">Odrzuć</string>
     <string name="force_launcher_icons">Nie pozwalaj aplikacjom ukrywać ikon w launcherze</string>
     <string name="force_launcher_icons_summary">Od wersji Android 10 aplikacja, która ukrywa własną ikonę w launcherze, dostaje z powrotem ikonę otwierającą jej stronę informacji o aplikacji. Wyłącz to, aby mogła pozostać ukryta — Twój launcher może pokazywać starą listę, dopóki się nie zrestartuje. Nie dotyczy to aplikacji, które nigdy nie miały ikony w launcherze, w tym większości modułów.</string>
+    <string name="action_force_stop_failed">Nie udało się zatrzymać %1$s.</string>
+    <string name="modules_load_unsupported_api">Włączony, ale zbudowany dla API libxposed 100, którego ten framework już nie wczytuje.</string>
+    <string name="update_root_unknown">Ta kompilacja frameworka nie podaje, która implementacja roota jest zainstalowana.</string>
+    <string name="scope_no_match">Żadna aplikacja nie pasuje do tego wyszukiwania ani filtra.</string>
 </resources>
