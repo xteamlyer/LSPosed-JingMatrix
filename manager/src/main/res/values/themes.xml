@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 
+        Minimal theme to disable the legacy Android window decorations.
+        All actual styling, dynamic colors, and typography will be handled by Jetpack Compose. 
+    -->
+    <style name="Theme.Vector" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <!-- Tell the system to leave the bars transparent so Compose can draw edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+</resources>

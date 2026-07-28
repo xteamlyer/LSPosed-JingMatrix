@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">主页</string>
+    <string name="nav_modules">模块</string>
+    <string name="nav_store">仓库</string>
+    <string name="nav_logs">日志</string>
+
+    <string name="status_active">已激活</string>
+    <string name="status_degraded">异常</string>
+    <string name="status_inactive">未激活</string>
+    <string name="status_checking">正在检查…</string>
+    <string name="status_open_details">查看系统状态</string>
+
+    <string name="issue_sepolicy_title">SELinux 策略未加载</string>
+    <string name="issue_sepolicy_summary">部分功能将无法工作。这通常意味着 Root 方案没有应用 Vector 的策略规则。</string>
+    <string name="issue_system_server_title">系统框架注入失败</string>
+    <string name="issue_system_server_summary">模块无法挂钩系统服务。这种情况很少见，通常是其他 Root 模块干扰所致。</string>
+    <string name="issue_dex2oat_title">Dex 优化器包装不可用</string>
+    <string name="issue_dex2oat_summary">部分系统属性被移除或修改。应用更新后，模块可能不再生效。</string>
+
+    <string name="system_status">系统状态</string>
+    <string name="info_api_version">Xposed API</string>
+    <string name="info_framework_version">框架</string>
+    <string name="info_manager_package">管理器包名</string>
+    <string name="info_dex2oat">Dex 优化器包装</string>
+    <string name="info_selinux">SELinux 策略</string>
+    <string name="info_system_server">系统框架</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">设备</string>
+    <string name="info_abi">架构</string>
+    <string name="info_supported">支持</string>
+    <string name="info_unsupported">不支持</string>
+    <string name="info_loaded">已加载</string>
+    <string name="info_not_loaded">未加载</string>
+    <string name="info_injected">已注入</string>
+    <string name="info_not_injected">未注入</string>
+    <string name="status_notification">状态通知</string>
+    <string name="status_notification_summary">一条常驻通知，用于显示 Vector 正在运行。</string>
+    <string name="action_copy_all">全部复制</string>
+    <string name="copied">已复制到剪贴板</string>
+
+    <string name="home_quarter_title">近期动态</string>
+    <plurals name="home_commit_count">
+        <item quantity="other">%1$d 次提交</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="other">来自 %1$d 位贡献者</item>
+    </plurals>
+    <string name="home_since">自 %1$s 起</string>
+    <string name="home_no_activity">最近六个月没有提交。</string>
+    <string name="home_loading_activity">正在加载近期动态…</string>
+    <string name="home_offline">正在显示已保存的动态——无法连接 GitHub。</string>
+    <string name="home_bumps">%1$d 次依赖更新</string>
+    <string name="home_contribute">参与进来</string>
+    <string name="home_test_canary">试用 Canary</string>
+    <string name="home_open_issue">反馈问题</string>
+    <string name="home_discussions">讨论区</string>
+    <string name="home_review_prs">审阅代码</string>
+
+    <string name="github_sign_in">登录 GitHub</string>
+    <string name="github_sign_in_why">可选。提高动态更新的每小时限额，并让 Vector 显示等待你处理的内容。只读——不申请任何权限。</string>
+    <string name="github_sign_in_code">在 %1$s 输入此代码</string>
+    <string name="github_open_browser">打开浏览器</string>
+    <string name="github_copy_code">复制代码</string>
+    <string name="github_signed_in_as">已登录为 %1$s</string>
+    <string name="github_sign_out">退出登录</string>
+    <string name="github_cancel">取消</string>
+    <string name="github_unreachable">无法连接 GitHub。其余功能仍可正常使用。</string>
+    <string name="home_with_coauthor">%1$s 与 %2$s</string>
+    <string name="home_with_coauthors">%1$s 等 %2$d 人</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="other">%1$d 人</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="other">有 %1$d 次提交比你的版本更新</item>
+    </plurals>
+    <string name="home_your_build">你的版本 %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="other">静默 %1$d 天</item>
+    </plurals>
+
+    <string name="time_yesterday">昨天</string>
+    <plurals name="time_days_ago">
+        <item quantity="other">%1$d 天前</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="other">%1$d 周前</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="other">%1$d 个月前</item>
+    </plurals>
+
+    <string name="appearance_title">外观</string>
+    <string name="appearance_theme">主题</string>
+    <string name="appearance_theme_system">跟随系统</string>
+    <string name="appearance_theme_light">浅色</string>
+    <string name="appearance_theme_dark">深色</string>
+    <string name="appearance_dynamic_color">取色自壁纸</string>
+    <string name="appearance_amoled">深色模式使用纯黑</string>
+    <string name="appearance_amoled_summary">在 OLED 屏幕上更省电。</string>
+    <string name="egg_two_more">还差两次…</string>
+    <string name="egg_one_more">还差一次…</string>
+
+    <string name="modules_empty">尚未安装任何模块。</string>
+    <string name="modules_active_of">%2$d 个模块中有 %1$d 个已启用</string>
+    <string name="modules_no_match">没有符合该搜索或筛选条件的模块。</string>
+    <string name="modules_backup">备份模块</string>
+    <string name="modules_restore">恢复模块</string>
+    <string name="modules_backup_done">已备份 %1$d 个模块及其作用域。</string>
+    <string name="modules_backup_failed">无法写入备份文件。</string>
+    <string name="modules_restore_done">已恢复 %1$d 个模块，跳过 %2$d 个本机未安装的模块。</string>
+    <string name="modules_restore_failed">无法读取该备份文件。</string>
+    <string name="modules_search_hint">搜索模块</string>
+    <string name="modules_clear_search">清除搜索</string>
+    <string name="modules_filter">筛选</string>
+    <string name="modules_section_active">运行中</string>
+    <string name="modules_section_inactive">未运行</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">运行中优先</string>
+    <string name="modules_sort_name">按名称</string>
+    <string name="modules_sort_recent">最近更新</string>
+    <string name="modules_sort_scope">作用域最广</string>
+    <string name="modules_filter_all">全部</string>
+    <string name="modules_filter_active">已启用</string>
+    <string name="modules_filter_inactive">未启用</string>
+    <string name="modules_incompatible">需要 libxposed API %1$d，此框架未提供。</string>
+    <string name="modules_incompatible_legacy">需要 Xposed API %1$d，本框架未提供该版本。</string>
+    <string name="modules_api_behind">针对 libxposed API %1$d 构建。API %2$d 更改了接口，此模块可能无法完全工作。</string>
+    <string name="modules_no_daemon">Vector 未运行，因此无法列出模块。请从主页打开系统状态查看原因。</string>
+    <string name="module_toggle_failed">无法更改 %1$s。框架拒绝了此次更改。</string>
+
+    <string name="web_open_external">在浏览器中打开</string>
+
+    <string name="settings_ambience">页头动效</string>
+    <string name="ambience_snow">雪花</string>
+    <string name="ambience_maze">迷宫</string>
+    <string name="ambience_circuit">电路</string>
+    <string name="ambience_matrix">代码雨</string>
+    <string name="ambience_none">静止</string>
+
+    <string name="settings_activity">动态</string>
+    <string name="settings_window">主页显示的历史范围</string>
+    <plurals name="settings_window_months">
+        <item quantity="other">最近 %1$d 个月</item>
+    </plurals>
+    <string name="settings_open_externally">用浏览器打开链接</string>
+    <string name="settings_open_externally_summary">关闭时：GitHub 页面在 Vector 内打开。</string>
+
+    <string name="scope_use_recommended">使用模块建议的范围</string>
+    <string name="scope_select_visible">选中当前显示的全部</string>
+    <string name="scope_clear_visible">取消当前显示的全部</string>
+    <string name="scope_backup_done">作用域已保存。</string>
+    <string name="scope_backup_failed">无法读取或写入该文件。</string>
+    <string name="scope_select">选择</string>
+    <string name="scope_sort">排序</string>
+    <string name="scope_modules">其他模块</string>
+    <string name="scope_include_new_apps">自动加入新安装的应用</string>
+    <string name="scope_include_new_apps_summary">此后安装的应用会自动加入此模块的作用域。</string>
+    <string name="scope_backup">备份此作用域</string>
+    <string name="scope_restore">恢复此作用域</string>
+    <string name="scope_sort_package">按包名</string>
+    <string name="scope_sort_installed">最近安装</string>
+    <string name="scope_sort_updated">最近更新</string>
+    <string name="scope_sort_reverse">倒序</string>
+    <string name="scope_sort_relevance">已选优先</string>
+    <string name="scope_sort_name">按名称</string>
+    <string name="scope_search_hint">搜索应用</string>
+    <string name="scope_system_apps">系统应用</string>
+    <string name="scope_games">游戏</string>
+    <string name="scope_recommended">此模块请求的应用</string>
+    <string name="scope_static">此模块声明了固定作用域，无法指向其他应用。</string>
+    <string name="scope_pending">将新增 %1$d 项，移除 %2$d 项</string>
+    <string name="scope_apply_warning">应用更改会重启受影响的应用。</string>
+    <string name="scope_apply">应用</string>
+    <string name="scope_discard">放弃</string>
+    <string name="scope_applied">作用域已应用。</string>
+    <string name="scope_apply_failed">框架拒绝了新的作用域。</string>
+    <string name="scope_toggle_failed">框架拒绝了此次更改。</string>
+    <string name="scope_empty_title">没有挂钩对象</string>
+    <string name="scope_empty_message">此模块已启用，但没有选择任何应用，因此不会产生任何作用。请停用它，或选择一些应用。</string>
+    <string name="scope_empty_disable">停用此模块</string>
+    <string name="scope_empty_keep">保持启用</string>
+
+    <string name="action_launch">打开</string>
+    <string name="action_app_info">应用信息</string>
+    <string name="action_force_stop">强行停止</string>
+    <string name="action_optimize">重新优化</string>
+    <string name="action_uninstall">卸载</string>
+    <string name="action_launched">正在打开…</string>
+    <string name="action_no_launcher">此应用没有可打开的界面。</string>
+    <string name="action_opened_info">正在打开应用信息…</string>
+    <string name="action_force_stopped">已停止 %1$s。</string>
+    <string name="action_optimizing">正在重新优化 %1$s，这可能需要一些时间。</string>
+    <string name="action_optimized">已重新优化 %1$s。此前被内联而失效的挂钩现在应该可以工作了。</string>
+    <string name="action_optimize_failed">无法重新优化 %1$s。</string>
+    <string name="action_uninstalled">已卸载 %1$s。</string>
+    <string name="action_uninstall_failed">无法卸载 %1$s。</string>
+
+    <string name="settings">设置</string>
+    <string name="back">返回</string>
+    <string name="retry">重试</string>
+
+    <string name="appearance_color">配色</string>
+    <string name="appearance_custom_color">自选颜色</string>
+    <string name="modules_expand">显示完整说明</string>
+    <string name="modules_collapse">收起</string>
+    <string name="action_optimize_summary">重新编译该应用，让 ART 不再内联模块需要挂钩的方法</string>
+    <string name="modules_scope_framework">挂钩系统框架</string>
+    <string name="scope_origin_locked">由模块固定</string>
+    <string name="scope_origin_chosen">你的选择</string>
+    <string name="modules_selection_clear">取消选择</string>
+    <plurals name="modules_selected">
+        <item quantity="other">已选 %1$d 个</item>
+    </plurals>
+    <string name="modules_batch_enable">启用所选全部</string>
+    <string name="modules_batch_disable">停用所选全部</string>
+    <string name="modules_batch_partial">其中只有 %1$s 个成功</string>
+    <string name="modules_uninstall_title">卸载这些模块？</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="other">这 %1$d 个模块及其全部配置都将被移除，且无法撤销。</item>
+    </plurals>
+    <string name="canary_open_actions">在 GitHub 中打开</string>
+    <string name="canary_open_run">查看此次构建</string>
+    <string name="canary_download">下载</string>
+    <string name="canary_expired">此次构建的产物已过期。</string>
+    <string name="canary_none">尚未发布任何 Canary 版本。</string>
+    <string name="home_contributors_by_commits">提交最多</string>
+    <string name="home_contributors_by_recent">最近提交</string>
+    <string name="scope_recommended_only">模块请求的应用</string>
+    <string name="home_resting">暂歇中——显示已保存的动态。下拉可刷新。</string>
+    <string name="report_title">反馈之前</string>
+    <string name="report_step_canary">先试试最新的 Canary 版本</string>
+    <string name="report_step_canary_body">问题可能已经修复，而且维护者需要 Debug 版本才能帮你排查。请使用 master 分支的构建——来自 Pull Request 的构建并不稳定。</string>
+    <string name="report_step_zygisk">不用 Magisk？请更新 Zygisk</string>
+    <string name="report_step_zygisk_body">刷入最新的 Zygisk 实现，如果有 Debug 版本请优先使用。</string>
+    <string name="report_step_logs">附上日志</string>
+    <string name="report_step_logs_body">没有日志的反馈只能从头问起。此操作会把两份日志写入一个可供附加的 zip 文件。</string>
+    <string name="report_step_crashed">如果 Zygisk 崩溃了</string>
+    <string name="report_step_crashed_body">此时已无法向守护进程索取 zip，但它仍然写下了日志文件。只有 Root 才能读取它们。</string>
+    <string name="report_open_tracker">打开问题追踪页</string>
+    <string name="report_save_with_root">保存日志文件夹（需要 Root）</string>
+    <string name="report_saved_to">已保存至 %1$s</string>
+    <string name="report_see_guide">完整指南见 issue</string>
+    <string name="report_root_refused">Root 请求被拒绝。请在你的 Root 管理器中允许 Vector，然后重试%1$s</string>
+    <string name="home_custom_build">自定义构建——领先于 master</string>
+    <string name="github_device_code">GitHub 设备代码</string>
+
+    <string name="language_title">语言</string>
+    <string name="language_system">跟随系统</string>
+    <string name="language_system_summary">使用手机设置的语言</string>
+
+    <string name="language_translated_by">翻译：%1$s</string>
+    <string name="language_help_short">翻译</string>
+    <string name="language_help">帮助翻译 Vector</string>
+
+    <string name="update_title">框架更新</string>
+    <string name="update_channel_canary">Canary 版本</string>
+    <string name="update_channel_release">正式版</string>
+    <string name="update_install">安装</string>
+    <string name="update_downloading">正在下载 %1$s / %2$s</string>
+    <string name="update_flashing">正在安装…</string>
+    <string name="update_done">已安装</string>
+    <string name="update_reboot">重启</string>
+    <string name="update_reboot_why">重启后生效</string>
+    <string name="update_none">没有可用更新。</string>
+    <string name="update_no_notes">此版本未发布说明。</string>
+    <string name="update_no_root">未找到 root 实现，无法刷入。</string>
+    <string name="update_root_too_old">此设备上的 root 实现过旧，无法用于刷入。</string>
+    <string name="update_root_multiple">检测到两种 root 实现。Vector 不会猜测由哪一个管理模块。</string>
+    <string name="update_failed_start">无法启动安装程序。</string>
+    <string name="update_failed_download">无法下载此更新。</string>
+    <string name="update_failed_exit">安装程序失败（退出码 %1$d）。</string>
+    <string name="update_available">有可用更新</string>
+    <string name="store_mute_updates">忽略此模块的更新</string>
+    <string name="store_mute_updates_summary">在此处与模块列表中都不再计为过期</string>
+    <string name="store_options">选项</string>
+    <string name="scope_framework_shared">所有用户共用的同一个进程，因此这会影响整台设备</string>
+    <string name="update_no_output">安装程序没有任何输出。</string>
+    <string name="update_variant_release">正式版</string>
+    <string name="update_variant_debug">调试版</string>
+    <string name="update_variant_release_why">日常使用的版本</string>
+    <string name="update_variant_debug_why">带详细日志，用于反馈问题</string>
+    <string name="update_versions">全部版本</string>
+    <string name="update_installed">当前已装</string>
+    <string name="update_older">更旧</string>
+    <string name="update_rollback">回退</string>
+    <string name="update_reinstall">重新安装</string>
+    <string name="update_rollback_warning">比当前版本更旧。若其数据库版本较低，回退会重置模块的启用状态与作用域——请先备份模块。</string>
+    <string name="settings_window_all">从项目之初</string>
+    <string name="update_diverged">版本号相同，但并非同一构建——当前运行的并非由此发行版编译</string>
+    <string name="home_filter_clear">显示全部</string>
+    <string name="home_filter_remove">不再仅显示 %1$s</string>
+    <string name="home_history_loading">正在追溯更早的记录…</string>
+    <string name="home_history_more">加载更早的提交</string>
+    <string name="home_history_beginning">一切始于 %1$s</string>
+    <string name="home_scroll_top">回到顶部</string>
+    <string name="home_scroll_down">下一屏</string>
+    <string name="action_not_in_store">不在仓库中</string>
+    <string name="action_not_in_store_summary">无法检查此模块的更新</string>
+    <string name="action_update_to">更新到 %1$s</string>
+    <string name="action_update_from">当前 %1$s · %2$s</string>
+    <string name="action_update_running">正在安装…</string>
+    <string name="action_update_no_apk">此版本没有可安装的 APK</string>
+    <string name="action_update_choose">有多个构建 — 请在仓库中选择</string>
+    <string name="action_update_started">已开始更新</string>
+    <string name="action_open_store">在仓库中打开</string>
+    <string name="modules_updating">正在更新 %1$s — 第 %2$d 个，共 %3$d 个</string>
+    <string name="modules_updates_title">待更新的模块</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">已忽略</string>
+    <string name="modules_update_selected">更新 %1$d 个</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d 个模块可更新</item>
+        <item quantity="other">%1$d 个模块可更新</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">已更新 %1$d 个模块</item>
+        <item quantity="other">已更新 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d 个模块更新失败</item>
+        <item quantity="other">%1$d 个模块更新失败</item>
+    </plurals>
+    <string name="home_window_changed">显示新时间范围的缓存动态 — 下拉刷新</string>
+    <string name="home_history_window_end">这就是此时间范围内的全部</string>
+    <string name="update_same_number">编号相同，构建不同</string>
+    <string name="modules_load_no_apk">已启用，但框架找不到可加载的 APK。</string>
+    <string name="modules_load_unusable">已启用，但框架无法加载，未在运行。</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">已启用 %1$d 个模块</item>
+        <item quantity="other">已启用 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">已停用 %1$d 个模块</item>
+        <item quantity="other">已停用 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">已卸载 %1$d 个模块</item>
+        <item quantity="other">已卸载 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d 个原本就已启用</item>
+        <item quantity="other">%1$d 个原本就已启用</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d 个原本就已停用</item>
+        <item quantity="other">%1$d 个原本就已停用</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">原本就已启用</item>
+        <item quantity="other">%1$d 个全部原本就已启用</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">原本就已停用</item>
+        <item quantity="other">%1$d 个全部原本就已停用</item>
+    </plurals>
+    <string name="info_manager_version">管理器</string>
+    <string name="action_open_companion">打开配套应用</string>
+    <string name="action_open_companion_summary">模块作者为配置它而编写的界面</string>
+    <string name="action_soft_reboot">软重启</string>
+    <string name="action_soft_reboot_summary">重启框架，而不重启手机</string>
+    <string name="action_soft_reboot_confirm">所有正在运行的应用都会关闭，屏幕会黑一下。手机本身保持开机。</string>
+    <string name="info_section_build">正在运行</string>
+    <string name="info_section_health">是否正常</string>
+    <string name="info_section_device">本设备</string>
+    <string name="crash_recorded_title">管理器意外退出</string>
+    <string name="crash_recorded_summary">完整的堆栈信息会随日志导出一起保存，位于其中的 crash_manager 文件夹。</string>
+    <string name="crash_recorded_clear">丢弃</string>
+    <string name="force_launcher_icons">阻止应用隐藏自己的桌面图标</string>
+    <string name="force_launcher_icons_summary">从 Android 10 起，隐藏了自己桌面图标的应用会被补上一个图标，点击它会打开该应用的应用信息页面。关闭此项可以让它继续保持隐藏——桌面可能要等重启之后才会更新。本来就没有桌面图标的应用不受影响，大多数模块都属于此类。</string>
+    <string name="action_force_stop_failed">无法停止 %1$s。</string>
+    <string name="modules_load_unsupported_api">已启用，但针对 libxposed API 100 构建，此框架已不再加载该版本。</string>
+    <string name="update_root_unknown">此框架构建不会报告已安装的是哪一种 root 实现。</string>
+    <string name="scope_no_match">没有符合该搜索或筛选条件的应用。</string>
+</resources>

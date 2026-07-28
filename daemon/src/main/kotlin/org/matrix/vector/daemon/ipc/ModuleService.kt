@@ -103,7 +103,28 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
   override fun getFrameworkName() = ensureModule().let { BuildConfig.FRAMEWORK_NAME }
 
-  override fun getFrameworkVersion() = ensureModule().let { BuildConfig.VERSION_NAME }
+  /**
+   * The whole version, not just its name.
+   *
+   * The interface promises a module "the framework version" as a string, and what goes in it is
+   * this implementation's to decide. "2.0" was true and useless: the number that identifies a
+   * build is the commit count, and even that is shared by every branch built at the same depth, so
+   * a module author reading a bug report could not tell which framework produced it. The manager's
+   * status page grew the exact build for that reason; a module author receives bug reports too.
+   *
+   * The parenthesised group stays purely numeric and [getFrameworkVersionCode] still answers with
+   * the number on its own, so nothing that wants to *compare* versions has any reason to parse
+   * this string.
+   */
+  override fun getFrameworkVersion() =
+      ensureModule().let {
+        buildString {
+          append(BuildConfig.VERSION_NAME)
+          append(" (").append(BuildConfig.VERSION_CODE).append(")")
+          BuildConfig.VERSION_HASH.takeIf { hash -> hash.isNotBlank() }
+              ?.let { hash -> append(" ").append(hash) }
+        }
+      }
 
   override fun getFrameworkVersionCode() = ensureModule().let { BuildConfig.VERSION_CODE }
 
@@ -119,7 +140,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     ensureModule()
     // The scope table has one row per (app, user), so a module enabled for several users saw the
     // same package repeatedly. A scope is a set of package names.
-    return ConfigCache.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
+    return ModuleDatabase.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
         ?: emptyList()
   }
 

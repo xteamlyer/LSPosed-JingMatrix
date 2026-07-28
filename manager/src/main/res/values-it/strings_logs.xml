@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">Log</string>
+
+    <string name="logs_word_wrap">Manda a capo le righe lunghe</string>
+    <string name="logs_save">Salva una segnalazione di bug…</string>
+    <string name="logs_rotate">Comincia un nuovo log…</string>
+
+    <string name="logs_search_hint">Cerca in questo log</string>
+    <string name="logs_filter">Filtra per livello e tag</string>
+    <string name="logs_filter_levels">Livello</string>
+    <string name="logs_filter_tags">Tag</string>
+    <string name="logs_filter_clear">Rimuovi il filtro</string>
+    <string name="logs_filter_scanning">Lettura dell\'intero file, così il filtro vede oltre quello che c\'è sullo schermo.</string>
+
+    <string name="logs_level_verbose">Dettagliato</string>
+    <string name="logs_level_debug">Debug</string>
+    <string name="logs_level_info">Info</string>
+    <string name="logs_level_warn">Avviso</string>
+    <string name="logs_level_error">Errore</string>
+    <string name="logs_level_fatal">Fatale</string>
+    <string name="logs_level_other">Altro</string>
+
+    <string name="logs_window">Righe %1$d–%2$d di %3$d</string>
+    <plurals name="logs_matches">
+        <item quantity="one">%1$d riga corrispondente</item>
+        <item quantity="other">%1$d righe corrispondenti</item>
+    </plurals>
+    <string name="logs_dropped">Questo log è più lungo di quanto il visualizzatore indicizzi. Le %1$d righe più vecchie non sono mostrate; salva una segnalazione di bug per conservarle.</string>
+    <string name="logs_line_truncated">riga tagliata</string>
+    <plurals name="logs_frames">
+        <item quantity="one">%1$d frame</item>
+        <item quantity="other">%1$d frame</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">Il daemon non è raggiungibile</string>
+    <string name="logs_state_daemon_body">Del log non si sa nulla finché Vector non è in esecuzione. È lo stesso motivo per cui la fascia di stato nella Home non è verde.</string>
+    <string name="logs_state_nofile_title">Ancora nessun file di log</string>
+    <string name="logs_state_nofile_body">Il daemon è in esecuzione ma non ha aperto questo log. Per il log dettagliato di solito vuol dire che la registrazione dettagliata è disattivata.</string>
+    <string name="logs_state_empty_title">Questo log è vuoto</string>
+    <string name="logs_state_empty_body">Il file esiste e non ci è stato scritto niente. Per il log dei moduli, un sistema tranquillo è esattamente così.</string>
+    <string name="logs_state_nomatches_title">Nessuna corrispondenza</string>
+    <string name="logs_state_nomatches_body">Il file ha contenuto; il filtro attuale lo esclude tutto.</string>
+    <string name="logs_state_failed_title">Impossibile leggere il log</string>
+    <string name="logs_state_failed_body">Il daemon ha consegnato un file illeggibile: %1$s</string>
+    <string name="logs_loading">Indicizzazione…</string>
+
+    <string name="logs_verbose_switch">Registrazione dettagliata</string>
+    <string name="logs_verbose_enforced">Il daemon in esecuzione la tiene attiva comunque.</string>
+
+    <string name="logs_jump_oldest">Vai alla riga più vecchia</string>
+    <string name="logs_jump_newest">Vai alla riga più recente</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">Cominciare un nuovo log?</string>
+    <string name="logs_rotate_body">Non viene cancellato niente. Il daemon chiude la parte attuale e ne apre una nuova; la parte chiusa resta su disco — a uno scorrimento da qui — finché non esce dalle dieci più recenti, e una segnalazione di bug salvata la include ancora.</string>
+    <string name="logs_rotate_confirm">Comincia un nuovo log</string>
+    <string name="logs_rotate_done">È stato cominciato un nuovo log</string>
+    <string name="logs_rotate_failed">Il daemon si è rifiutato di cominciare un nuovo log</string>
+    <string name="logs_cancel">Annulla</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">Raccolta di log, tombstone e dmesg…</string>
+    <string name="logs_saved">Segnalazione di bug salvata</string>
+    <string name="logs_save_failed">Impossibile salvare la segnalazione di bug</string>
+    <string name="logs_save_failed_reason">Impossibile salvare la segnalazione di bug: %1$s</string>
+    <string name="logs_share">Condividi</string>
+
+    <string name="logs_filter_clear_tag">Rimuovi il filtro sul tag</string>
+    <string name="logs_settings">Impostazioni dei log</string>
+    <string name="logs_source_more">Includi anche le righe del framework</string>
+    <string name="logs_source_less">Mostra solo le righe dei moduli</string>
+    <string name="logs_verbose_summary">Attivala prima di segnalare un bug. Le app possono leggere i propri log, quindi lasciarla attiva è un modo in cui un\'app può accorgersi di Vector.</string>
+    <string name="logs_save_summary">Scrive entrambi i log in uno zip che scegli tu</string>
+    <string name="logs_rotate_summary">Chiude la parte attuale e ne apre una nuova</string>
+    <string name="logs_part">parte %1$d/%2$d</string>
+    <string name="logs_part_older">Parte precedente</string>
+    <string name="logs_part_newer">Parte successiva</string>
+</resources>

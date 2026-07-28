@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Strings for the Compose manager.
+
+  These are new keys, kept separate from the legacy :app string set while both modules
+  exist. When :app is retired, app/src/main/res/values*/strings.xml moves here and
+  crowdin.yml is repointed so the ~40 existing translations carry over rather than
+  being rewritten. Nothing user-visible may be hard-coded in a composable.
+-->
+<resources>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_modules">Modules</string>
+    <string name="nav_store">Store</string>
+    <string name="nav_logs">Logs</string>
+
+    <!-- Framework status -->
+    <string name="status_active">Active</string>
+    <string name="status_degraded">Needs attention</string>
+    <string name="status_inactive">Not activated</string>
+    <string name="status_checking">Checking…</string>
+    <string name="status_open_details">Open system status</string>
+
+    <!-- Degraded causes, in the priority order the daemon reports them -->
+    <string name="issue_sepolicy_title">SELinux policy not loaded</string>
+    <string name="issue_sepolicy_summary">Some features will not work. This usually means the root implementation did not apply Vector\'s policy rules.</string>
+    <string name="issue_system_server_title">System framework injection failed</string>
+    <string name="issue_system_server_summary">Modules cannot hook system services. This is rare, and is usually caused by another root module interfering.</string>
+    <string name="issue_dex2oat_title">Dex optimizer wrapper unavailable</string>
+    <string name="issue_dex2oat_summary">Some system properties were removed or changed. Modules may stop applying after an app updates.</string>
+    <string name="crash_recorded_title">The manager closed unexpectedly</string>
+    <string name="crash_recorded_summary">The full trace travels in the log export, under crash_manager.</string>
+    <string name="crash_recorded_clear">Discard</string>
+
+    <!-- System status detail -->
+    <string name="system_status">System status</string>
+    <string name="info_manager_version">Manager</string>
+    <string name="info_api_version">Xposed API</string>
+    <string name="info_api_version_libxposed" translatable="false">libxposed API</string>
+    <string name="info_section_build">What is running</string>
+    <string name="info_section_health">Whether it is working</string>
+    <string name="info_section_device">This device</string>
+    <string name="info_framework_version">Framework</string>
+    <string name="info_manager_package">Manager package</string>
+    <string name="info_dex2oat">Dex optimizer wrapper</string>
+    <string name="info_selinux">SELinux policy</string>
+    <string name="info_system_server">System framework</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Device</string>
+    <string name="info_abi">Architecture</string>
+    <string name="info_supported">Supported</string>
+    <string name="info_unsupported">Unsupported</string>
+    <string name="info_loaded">Loaded</string>
+    <string name="info_not_loaded">Not loaded</string>
+    <string name="info_injected">Injected</string>
+    <string name="info_not_injected">Not injected</string>
+    <string name="status_notification">Status notification</string>
+    <string name="status_notification_summary">A persistent notification showing that Vector is running.</string>
+    <string name="force_launcher_icons">Stop apps hiding their launcher icons</string>
+    <string name="force_launcher_icons_summary">Since Android 10, an app that hides its own launcher icon gets one back that opens its app info page. Turn this off to let it stay hidden — your launcher may not catch up until it restarts. Apps that never had a launcher icon, including most modules, are unaffected.</string>
+    <string name="action_copy_all">Copy all</string>
+    <string name="copied">Copied to clipboard</string>
+
+    <!-- Home: the community feed -->
+    <string name="home_quarter_title">Recent activity</string>
+    <!-- Example: "7 commits by 4 people" -->
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commits</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">by %1$d person</item>
+        <item quantity="other">by %1$d people</item>
+    </plurals>
+    <string name="home_since">since %1$s</string>
+    <string name="home_filter_clear">Show all</string>
+    <string name="home_filter_remove">Stop showing only %1$s</string>
+    <string name="home_scroll_top">Back to top</string>
+    <string name="home_scroll_down">Next screen</string>
+    <string name="home_history_loading">Reaching further back…</string>
+    <string name="home_history_more">Load earlier commits</string>
+    <string name="home_history_window_end">That is everything in this range</string>
+    <string name="home_history_beginning">Where it began, %1$s</string>
+    <string name="home_no_activity">No commits in the last six months.</string>
+    <string name="home_loading_activity">Loading recent activity…</string>
+    <string name="home_window_changed">Showing saved activity for the new range — pull to refresh</string>
+    <string name="home_offline">Showing saved activity — could not reach GitHub.</string>
+    <string name="home_bumps">%1$d dependency updates</string>
+    <string name="home_contribute">Take part</string>
+    <string name="home_test_canary">Try a canary</string>
+    <string name="home_open_issue">Report a problem</string>
+    <string name="home_discussions">Discussions</string>
+    <string name="home_review_prs">Review a change</string>
+
+    <!-- Optional GitHub sign-in. Never required; everything renders signed out. -->
+    <string name="github_sign_in">Sign in to GitHub</string>
+    <string name="github_sign_in_why">Optional. Raises the hourly limit on activity updates, and lets Vector show what is waiting on you. Read-only — no permissions are requested.</string>
+    <string name="github_sign_in_code">Enter this code at %1$s</string>
+    <string name="github_open_browser">Open browser</string>
+    <string name="github_copy_code">Copy code</string>
+    <string name="github_signed_in_as">Signed in as %1$s</string>
+    <string name="github_sign_out">Sign out</string>
+    <string name="github_cancel">Cancel</string>
+    <string name="github_unreachable">GitHub could not be reached. Everything else still works.</string>
+    <!-- Joins a commit's author with its co-authors, e.g. "Leaf-lsgtky &amp; Qing" -->
+    <string name="home_with_coauthor">%1$s &amp; %2$s</string>
+    <string name="home_with_coauthors">%1$s &amp; %2$d others</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d person</item>
+        <item quantity="other">%1$d people</item>
+    </plurals>
+
+    <!-- The rail's "you are here" marker -->
+    <plurals name="home_commits_ahead">
+        <item quantity="one">%1$d commit newer than yours</item>
+        <item quantity="other">%1$d commits newer than yours</item>
+    </plurals>
+    <string name="home_your_build">your build %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d day quiet</item>
+        <item quantity="other">%1$d days quiet</item>
+    </plurals>
+
+    <!-- Relative time -->
+
+    <string name="time_yesterday">yesterday</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">%1$d week ago</item>
+        <item quantity="other">%1$d weeks ago</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">%1$d month ago</item>
+        <item quantity="other">%1$d months ago</item>
+    </plurals>
+
+    <!-- Commit kinds, shown as small chips on the timeline -->
+
+    <!-- Home appearance sheet. Settings live beside what they change, not in one heap. -->
+    <string name="appearance_title">Appearance</string>
+    <string name="appearance_theme">Theme</string>
+    <string name="appearance_theme_system">Follow system</string>
+    <string name="appearance_theme_light">Light</string>
+    <string name="appearance_theme_dark">Dark</string>
+    <string name="appearance_dynamic_color">Colours from wallpaper</string>
+    <string name="appearance_amoled">True black in dark mode</string>
+    <string name="appearance_amoled_summary">Saves power on OLED screens.</string>
+    <string name="egg_two_more">Two more times…</string>
+    <string name="egg_one_more">One more time…</string>
+
+    <!-- Modules -->
+    <string name="modules_empty">No modules installed.</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d module can be updated</item>
+        <item quantity="other">%1$d modules can be updated</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d module updated</item>
+        <item quantity="other">%1$d modules updated</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d module could not be updated</item>
+        <item quantity="other">%1$d modules could not be updated</item>
+    </plurals>
+    <string name="modules_updating">Updating %1$s — %2$d of %3$d</string>
+    <string name="modules_updates_title">Modules to update</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ignored</string>
+    <string name="modules_update_selected">Update %1$d</string>
+    <string name="modules_active_of">%1$d of %2$d active</string>
+    <string name="modules_no_match">No module matches that search or filter.</string>
+    <string name="modules_api_scale_legacy" translatable="false">Xposed</string>
+    <string name="modules_api_scale_modern" translatable="false">API</string>
+    <string name="modules_backup">Back up modules</string>
+    <string name="modules_restore">Restore modules</string>
+    <string name="modules_backup_done">Backed up %1$d modules and their scopes.</string>
+    <string name="modules_backup_failed">Could not write the backup.</string>
+    <string name="modules_restore_done">Restored %1$d modules, skipped %2$d not installed here.</string>
+    <string name="modules_restore_failed">Could not read that backup.</string>
+    <string name="modules_search_hint">Search modules</string>
+    <string name="modules_clear_search">Clear search</string>
+    <string name="modules_filter">Filter</string>
+    <string name="modules_section_active">Running</string>
+    <string name="modules_section_inactive">Not running</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Running first</string>
+    <string name="modules_sort_name">By name</string>
+    <string name="modules_sort_recent">Recently updated</string>
+    <string name="modules_sort_scope">Widest scope</string>
+    <string name="modules_filter_all">All</string>
+    <string name="modules_filter_active">Active</string>
+    <string name="modules_filter_inactive">Inactive</string>
+    <string name="modules_load_no_apk">Enabled, but the framework could not find its APK to load.</string>
+    <string name="modules_load_unusable">Enabled, but the framework could not load it. It is not running.</string>
+    <string name="modules_load_unsupported_api">Enabled, but built for libxposed API 100, which this framework no longer loads.</string>
+    <string name="modules_incompatible">Needs libxposed API %1$d, which this framework does not provide.</string>
+    <string name="modules_incompatible_legacy">Needs Xposed API %1$d, which this framework does not provide.</string>
+    <string name="modules_api_behind">Built for libxposed API %1$d. API %2$d changed the interface, so this module may not work fully.</string>
+    <string name="modules_no_daemon">Vector is not running, so the module list is unavailable. Open system status from Home to see why.</string>
+    <string name="module_toggle_failed">Could not change %1$s. The framework refused the change.</string>
+
+    <!-- Built-in web viewer -->
+    <string name="web_open_external">Open in browser</string>
+
+    <!-- The status header's living surface -->
+    <string name="settings_ambience">Header surface</string>
+    <string name="ambience_snow">Snow</string>
+    <string name="ambience_maze">Maze</string>
+    <string name="ambience_circuit">Circuit</string>
+    <string name="ambience_matrix">Code rain</string>
+    <string name="ambience_none">Still</string>
+
+    <!-- Settings: activity feed -->
+    <string name="settings_activity">Activity feed</string>
+    <string name="settings_window">History shown on Home</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">Last %1$d month</item>
+        <item quantity="other">Last %1$d months</item>
+    </plurals>
+    <string name="settings_open_externally">Open links in a browser</string>
+    <string name="settings_open_externally_summary">Off: GitHub pages open inside Vector.</string>
+
+    <!-- Scope editor -->
+    <string name="scope_use_recommended">Use what the module asks for</string>
+    <string name="scope_select_visible">Select everything shown</string>
+    <string name="scope_clear_visible">Clear everything shown</string>
+    <string name="scope_backup_done">Scope saved.</string>
+    <string name="scope_backup_failed">Could not read or write that file.</string>
+    <string name="scope_select">Selection</string>
+    <string name="scope_sort">Sort</string>
+    <string name="scope_modules">Other modules</string>
+    <string name="scope_include_new_apps">Add new apps automatically</string>
+    <string name="scope_include_new_apps_summary">Apps installed from now on join this module\'s scope.</string>
+    <string name="scope_backup">Back up this scope</string>
+    <string name="scope_restore">Restore this scope</string>
+    <string name="scope_sort_package">By package name</string>
+    <string name="scope_sort_installed">Recently installed</string>
+    <string name="scope_sort_updated">Recently updated</string>
+    <string name="scope_sort_reverse">Reverse order</string>
+    <string name="scope_sort_relevance">Selected first</string>
+    <string name="scope_sort_name">By name</string>
+    <string name="scope_search_hint">Search apps</string>
+    <string name="scope_no_match">No app matches that search or filter.</string>
+    <string name="scope_system_apps">System apps</string>
+    <string name="scope_games">Games</string>
+    <string name="scope_recommended">Requested by this module</string>
+    <string name="scope_static">This module declares a fixed scope and cannot be pointed at other apps.</string>
+    <!-- e.g. "3 to add, 1 to remove" -->
+    <string name="scope_pending">%1$d to add, %2$d to remove</string>
+    <string name="scope_apply_warning">Applying restarts the affected apps.</string>
+    <string name="scope_apply">Apply</string>
+    <string name="scope_discard">Discard</string>
+    <string name="scope_applied">Scope applied.</string>
+    <string name="scope_apply_failed">The framework refused the new scope.</string>
+    <string name="scope_toggle_failed">The framework refused that change.</string>
+    <string name="scope_empty_title">Nothing to hook</string>
+    <string name="scope_empty_message">This module is enabled but has no apps selected, so it will not do anything. Disable it, or choose some apps.</string>
+    <string name="scope_empty_disable">Disable the module</string>
+    <string name="scope_empty_keep">Leave it enabled</string>
+
+    <!-- Long-press actions on a package -->
+    <string name="action_not_in_store">Not in the store</string>
+    <string name="action_not_in_store_summary">Updates for this module cannot be checked</string>
+    <string name="action_update_to">Update to %1$s</string>
+    <string name="action_update_from">From %1$s · %2$s</string>
+    <string name="action_update_running">Installing…</string>
+    <string name="action_update_no_apk">This release has no APK to install</string>
+    <string name="action_update_choose">Several builds — choose one in the store</string>
+    <string name="action_update_started">Update started</string>
+    <string name="action_open_companion">Open companion app</string>
+    <string name="action_open_companion_summary">The screen this module\'s author wrote to configure it</string>
+    <string name="action_open_store">Open in store</string>
+    <string name="action_launch">Open</string>
+    <string name="action_app_info">App info</string>
+    <string name="action_soft_reboot">Soft reboot</string>
+    <string name="action_soft_reboot_summary">Restart the framework without rebooting the phone</string>
+    <string name="action_soft_reboot_confirm">Every running app closes and the screen goes black for a moment. The phone itself stays on.</string>
+    <string name="action_force_stop">Force stop</string>
+    <string name="action_optimize">Re-optimize</string>
+    <string name="action_uninstall">Uninstall</string>
+    <string name="action_launched">Opening…</string>
+    <string name="action_no_launcher">This app has nothing to open.</string>
+    <string name="action_opened_info">Opening app info…</string>
+    <string name="action_force_stopped">Stopped %1$s.</string>
+    <string name="action_force_stop_failed">Could not stop %1$s.</string>
+    <string name="action_optimizing">Re-optimizing %1$s. This can take a while.</string>
+    <string name="action_optimized">Re-optimized %1$s. Hooks that were inlined away should work now.</string>
+    <string name="action_optimize_failed">Could not re-optimize %1$s.</string>
+    <string name="action_uninstalled">Uninstalled %1$s.</string>
+    <string name="action_uninstall_failed">Could not uninstall %1$s.</string>
+
+    <!-- Generic -->
+    <string name="settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="app_name" translatable="false">Vector</string>
+
+    <string name="appearance_color">Colour</string>
+    <string name="appearance_custom_color">Pick a colour</string>
+    <string name="modules_expand">Show the full description</string>
+    <string name="modules_collapse">Show less</string>
+    <string name="action_optimize_summary">Recompiles the app so ART stops inlining the methods a module needs to hook</string>
+    <string name="modules_scope_framework">Hooks the system framework</string>
+    <string name="scope_origin_locked">Fixed by the module</string>
+    <string name="scope_origin_chosen">Your choice</string>
+    <string name="modules_selection_clear">Clear the selection</string>
+    <plurals name="modules_selected">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="modules_batch_enable">Enable all selected</string>
+    <string name="modules_batch_disable">Disable all selected</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Enabled %1$d module</item>
+        <item quantity="other">Enabled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Disabled %1$d module</item>
+        <item quantity="other">Disabled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Uninstalled %1$d module</item>
+        <item quantity="other">Uninstalled %1$d modules</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d was already on</item>
+        <item quantity="other">%1$d were already on</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d was already off</item>
+        <item quantity="other">%1$d were already off</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">It was already on</item>
+        <item quantity="other">All %1$d were already on</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">It was already off</item>
+        <item quantity="other">All %1$d were already off</item>
+    </plurals>
+    <string name="modules_batch_partial">Only %1$s of them worked</string>
+    <string name="modules_uninstall_title">Uninstall these modules?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">The module and everything it has configured will be removed. This cannot be undone.</item>
+        <item quantity="other">All %1$d modules and everything they have configured will be removed. This cannot be undone.</item>
+    </plurals>
+    <string name="canary_open_actions">Open on GitHub</string>
+    <string name="canary_open_run">Open this run</string>
+    <string name="canary_download">Download</string>
+    <string name="canary_expired">The artifacts of this build have expired.</string>
+    <string name="canary_none">No canary builds published yet.</string>
+    <string name="home_contributors_by_commits">Most commits</string>
+    <string name="home_contributors_by_recent">Most recent</string>
+    <string name="scope_recommended_only">What the module asks for</string>
+    <string name="home_resting">Taking a rest — saved activity. Pull to refresh.</string>
+    <string name="report_title">Before you report</string>
+    <string name="report_step_canary">Try the latest canary first</string>
+    <string name="report_step_canary_body">It may already be fixed, and a debug build is what maintainers need to help you. Stay on master — pull-request builds are unstable.</string>
+    <string name="report_step_zygisk">Not on Magisk? Update Zygisk</string>
+    <string name="report_step_zygisk_body">Flash the latest Zygisk implementation, in its debug build if one exists.</string>
+    <string name="report_step_logs">Attach logs</string>
+    <string name="report_step_logs_body">A report without logs is a conversation that starts over. This writes both logs to a zip you can attach.</string>
+    <string name="report_step_crashed">If Zygisk crashed</string>
+    <string name="report_step_crashed_body">The daemon can no longer be asked for the zip, but it still wrote the files. Root can read them even when nothing else can.</string>
+    <string name="report_open_tracker">Open the issue tracker</string>
+    <string name="report_save_with_root">Save the log folder (needs root)</string>
+    <string name="report_saved_to">Saved to %1$s</string>
+    <string name="report_see_guide">Full guide in issue</string>
+    <string name="report_root_refused">Root refused. Allow Vector in your root manager, then try again%1$s</string>
+    <string name="home_custom_build">Custom build — ahead of master</string>
+    <string name="github_device_code">GitHub device code</string>
+    <string name="language_title">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_system_summary">Follow the language your phone is set to</string>
+
+    <string name="language_translated_by">Translated by %1$s</string>
+    <string name="language_help_short">Translate</string>
+    <string name="language_help">Help translate Vector</string>
+
+    <string name="update_title">Framework update</string>
+    <string name="update_channel_canary">Canary build</string>
+    <string name="update_channel_release">Release</string>
+    <string name="update_install">Install</string>
+    <string name="update_downloading">Downloading %1$s of %2$s</string>
+    <string name="update_flashing">Installing…</string>
+    <string name="update_done">Installed</string>
+    <string name="update_reboot">Restart</string>
+    <string name="update_reboot_why">It takes effect after a restart</string>
+    <string name="update_none">No update available.</string>
+    <string name="update_no_notes">This release published no notes.</string>
+    <string name="update_no_root">No root implementation was found, so nothing can be flashed.</string>
+    <string name="update_root_too_old">The root implementation on this device is too old to flash through.</string>
+    <string name="update_root_unknown">This framework build does not report which root implementation is installed.</string>
+    <string name="update_root_multiple">Two root implementations were found. Vector will not guess which one owns the module.</string>
+    <string name="update_failed_start">The installer could not be started.</string>
+    <string name="update_failed_download">The update could not be downloaded.</string>
+    <string name="update_failed_exit">The installer failed (exit %1$d).</string>
+    <string name="update_available">Update available</string>
+    <string name="store_mute_updates">Ignore updates for this module</string>
+    <string name="store_mute_updates_summary">It stops counting as out of date, here and on the modules list</string>
+    <string name="store_options">Options</string>
+    <string name="scope_framework_shared">One process shared by every user, so this affects the whole device</string>
+    <string name="update_no_output">The installer produced no output.</string>
+    <string name="update_variant_release">Release</string>
+    <string name="update_variant_debug">Debug</string>
+    <string name="update_variant_release_why">The build to run day to day</string>
+    <string name="update_variant_debug_why">Verbose logging, for a bug report</string>
+    <string name="update_versions">All versions</string>
+    <string name="update_installed">Installed</string>
+    <string name="update_same_number">Same number, other build</string>
+    <string name="update_older">Older</string>
+    <string name="update_rollback">Roll back</string>
+    <string name="update_reinstall">Reinstall</string>
+    <string name="update_rollback_warning">Older than what you have. If it uses an older database, rolling back resets which modules are on and what they hook — back your modules up first.</string>
+    <string name="settings_window_all">From the start</string>
+    <string name="update_diverged">Same version number, different build — what is running was not built from this release</string>
+</resources>

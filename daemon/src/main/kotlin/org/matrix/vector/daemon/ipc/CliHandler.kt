@@ -40,7 +40,7 @@ object CliHandler {
     return mapOf(
         "Framework Version" to BuildConfig.VERSION_NAME,
         "Version Code" to BuildConfig.VERSION_CODE,
-        "Enabled Modules" to ConfigCache.state.modules.size,
+        "Enabled Modules" to ModuleDatabase.enabledModules().size,
         "Status Notification" to PreferenceStore.isStatusNotificationEnabled())
   }
 
@@ -55,8 +55,10 @@ object CliHandler {
         val enabledOnly = request.options["enabled"] as? Boolean ?: false
         val disabledOnly = request.options["disabled"] as? Boolean ?: false
 
-        //  Get the current immutable snapshot of enabled modules
-        val enabledModuleKeys = ConfigCache.state.modules.keys
+        // Asked of the configuration, not of the cache. The cache holds what could be *loaded* and
+        // is rebuilt asynchronously, so the CLI used to report a module the user had just enabled
+        // as disabled, and disagree with both the manager and `ManagerService.enabledModules()`.
+        val enabledModuleKeys = ModuleDatabase.enabledModules().toSet()
         //  Get all installed modules from the system
         val installed = ConfigCache.getInstalledModules()
 
@@ -121,14 +123,14 @@ object CliHandler {
     return when (request.action) {
       "ls" -> {
         val scope =
-            ConfigCache.getModuleScope(modulePkg)
+            ModuleDatabase.getModuleScope(modulePkg)
                 ?: throw IllegalArgumentException("Module not found: $modulePkg")
         scope.map { mapOf("APP_PACKAGE" to it.packageName, "USER_ID" to it.userId) }
       }
       "add" -> {
         if (apps.isEmpty()) throw IllegalArgumentException("No target apps provided.")
         rejectBeyondStaticScope(apps)
-        val scope = ConfigCache.getModuleScope(modulePkg) ?: mutableListOf()
+        val scope = ModuleDatabase.getModuleScope(modulePkg) ?: mutableListOf()
 
         apps.forEach { appStr ->
           val parts = appStr.split("/")
@@ -223,7 +225,7 @@ object CliHandler {
         if (dbFile.exists()) dbFile.delete()
 
         // VACUUM INTO creates a consistent, defragmented copy without long-term locking.
-        ConfigCache.dbHelper.writableDatabase.execSQL("VACUUM INTO '$path'")
+        ModuleDatabase.dbHelper.writableDatabase.execSQL("VACUUM INTO '$path'")
         "Database backed up successfully to: $path"
       }
       "restore" -> {
@@ -234,8 +236,8 @@ object CliHandler {
         val sourceFile = File(path)
         if (!sourceFile.exists()) throw FileNotFoundException("Source file does not exist: $path")
 
-        val currentDbPath = ConfigCache.dbHelper.readableDatabase.path
-        ConfigCache.dbHelper.close()
+        val currentDbPath = ModuleDatabase.dbHelper.readableDatabase.path
+        ModuleDatabase.dbHelper.close()
         sourceFile.copyTo(File(currentDbPath), overwrite = true)
 
         ConfigCache.requestCacheUpdate()
@@ -246,8 +248,8 @@ object CliHandler {
         "Database restored from $path. Daemon state is being refreshed."
       }
       "reset" -> {
-        val currentDbPath = ConfigCache.dbHelper.readableDatabase.path
-        ConfigCache.dbHelper.close()
+        val currentDbPath = ModuleDatabase.dbHelper.readableDatabase.path
+        ModuleDatabase.dbHelper.close()
 
         val dbFile = File(currentDbPath)
         val walFile = File("$currentDbPath-wal")

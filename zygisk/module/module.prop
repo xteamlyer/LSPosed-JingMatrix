@@ -1,6 +1,6 @@
 id=zygisk_vector
 name=Vector
-version=${versionName} (${versionCode})
+version=${versionName} (${versionCode}-${versionHash})
 versionCode=${versionCode}
 author=JingMatrix
 description=A modern, Xposed-compatible framework for Android application hooking. (Android 8.1 ~ 16)

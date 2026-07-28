@@ -27,16 +27,39 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      # A missing secret used to be skipped over in silence, and the build carried on to publish a
+      # canary or a tag signed with the debug key — which the daemon's InstallerVerifier rejects,
+      # and which nobody notices until someone tries to install the manager. On this repository the
+      # secret is always meant to be there, so its absence stops the run here. A fork has no access
+      # to it and cannot be given one, so a fork builds unsigned, as does any branch that is not
+      # master: neither publishes anything.
       - name: Write key
         if: ${{ ( github.event_name != 'pull_request' && github.ref == 'refs/heads/master' ) || github.ref_type == 'tag' }}
+        env:
+          KEY_STORE: ${{ secrets.KEY_STORE }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          IS_UPSTREAM: ${{ github.repository_owner == 'JingMatrix' }}
         run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-            echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
-            echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
-            echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
-            echo androidStoreFile='key.jks' >> gradle.properties
-            echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
+          set -euo pipefail
+          if [ -z "$KEY_STORE" ]; then
+            if [ "$IS_UPSTREAM" = "true" ]; then
+              echo "::error::KEY_STORE is empty on ${{ github.ref }}. Refusing to publish an unsigned build."
+              exit 1
+            fi
+            echo "No signing secret on this fork; building unsigned."
+            exit 0
           fi
+          # Through the environment rather than interpolated into the script: a password holding a
+          # quote would otherwise be pasted into a shell word and mangled, or worse, executed.
+          {
+            echo "androidStorePassword=$KEY_STORE_PASSWORD"
+            echo "androidKeyAlias=$ALIAS"
+            echo "androidKeyPassword=$KEY_PASSWORD"
+            echo "androidStoreFile=key.jks"
+          } >> gradle.properties
+          printf '%s' "$KEY_STORE" | base64 --decode > key.jks
 
       - name: Setup Java
         uses: actions/setup-java@v5

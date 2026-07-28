@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">Cari di katalog</string>
+    <string name="store_filter">Urutkan dan saring</string>
+    <string name="store_sort_recent">Baru diperbarui</string>
+    <string name="store_sort_name">Nama</string>
+    <string name="store_sort_stars">Bintang terbanyak</string>
+    <string name="store_updates_first">Yang ada pembaruan dulu</string>
+    <string name="store_channel_stable">Hanya rilis stabil</string>
+    <string name="store_channel_prerelease">Sertakan pra-rilis</string>
+
+    <plurals name="store_module_count">
+        <item quantity="other">%1$d modul</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="other">%1$d pembaruan</item>
+    </plurals>
+    <string name="store_all_current">semua yang Anda punya sudah mutakhir</string>
+    <string name="store_offline">Menampilkan katalog tersimpan</string>
+
+    <string name="store_badge_update">Perbarui ke %1$s</string>
+    <string name="store_badge_installed">Terpasang</string>
+    <string name="store_badge_prerelease">Pra-rilis</string>
+    <string name="store_updated_on">Diperbarui %1$s</string>
+
+    <string name="store_unreachable">Katalog modul tidak dapat dihubungi, dan di perangkat ini belum ada apa pun yang tersimpan.</string>
+    <string name="store_no_match">Tidak ada modul yang cocok dengan pencarian itu.</string>
+    <string name="store_empty">Katalog tidak mengembalikan modul apa pun.</string>
+
+    <string name="store_tab_readme">Readme</string>
+    <string name="store_tab_releases">Rilis</string>
+    <string name="store_tab_information">Informasi</string>
+
+    <string name="store_readme_missing">Modul ini tidak menyertakan readme.</string>
+    <string name="store_detail_partial">Menampilkan apa yang sudah diketahui daftar modul. Readme dan rilis yang lebih lama butuh koneksi.</string>
+    <string name="store_releases_none">Modul ini belum menerbitkan rilis di kanal ini.</string>
+    <string name="store_release_notes">Catatan rilis</string>
+    <string name="store_open_release">Buka di GitHub</string>
+    <string name="store_open_module">Buka halaman modul</string>
+
+    <string name="store_install">Pasang</string>
+    <string name="store_update">Perbarui</string>
+    <string name="store_reinstall">Pasang ulang</string>
+    <string name="store_choose_asset">Pilih berkas untuk dipasang</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="other">%1$d unduhan</item>
+    </plurals>
+
+    <string name="store_confirm_title">Pasang %1$s?</string>
+    <string name="store_confirm_body">%1$s (%2$s) akan diunduh dari katalog modul dan dipasang sebagai %3$s.</string>
+    <string name="store_confirm_trust">Sebuah modul berjalan dengan hak istimewa framework di dalam aplikasi yang di-hook-nya. Pasang hanya jika Anda memercayai pembuatnya.</string>
+    <string name="store_confirm_silent">Vector memasangnya sendiri dan sistem tidak akan bertanya lagi.</string>
+
+    <string name="store_downloading">Mengunduh %1$s dari %2$s</string>
+    <string name="store_installing">Memasang…</string>
+    <string name="store_confirming">Menunggu permintaan sistem…</string>
+    <string name="store_install_failed">%1$s tidak bisa dipasang</string>
+    <string name="store_install_failed_reason">%1$s tidak bisa dipasang: %2$s</string>
+    <string name="store_cancel">Batal</string>
+
+    <string name="store_info_summary">Ringkasan</string>
+    <string name="store_info_scope">Hook</string>
+    <string name="store_info_scope_undeclared">Tidak dinyatakan. Modul ini tidak menyebutkan aplikasi mana yang di-hook-nya.</string>
+    <string name="store_info_homepage">Beranda proyek</string>
+    <string name="store_info_source">Kode sumber</string>
+    <string name="store_info_collaborators">Pemelihara</string>
+    <string name="store_info_stars">Bintang</string>
+    <string name="store_info_updated">Rilis terakhir</string>
+    <string name="store_info_created">Pertama diterbitkan</string>
+
+    <string name="store_doh">Resolusi cermin lewat HTTPS</string>
+    <string name="store_release_notes_hide">Sembunyikan catatan</string>
+    <string name="store_installed_first">Yang terpasang dulu</string>
+
+    <string name="store_group_sort">Urutan</string>
+    <string name="store_group_priority">Prioritas</string>
+    <string name="store_group_channel">Kanal</string>
+    <string name="store_group_network">Jaringan</string>
+    <string name="store_doh_summary">Untuk jaringan yang tidak bisa me-resolve cermin modul.</string>
+    <string name="store_info_scope_installed">Hook, menurut salinan terpasang</string>
+</resources>
