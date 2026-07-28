@@ -1,5 +1,11 @@
 package org.matrix.vector.manager.ui.screens.home
 
+import org.matrix.vector.manager.ui.theme.translatorsFor
+import org.matrix.vector.manager.ui.theme.Translator
+import org.matrix.vector.manager.ui.theme.CROWDIN_URL
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.AssistChip
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -70,7 +76,7 @@ import org.matrix.vector.manager.ui.theme.nativeName
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSheet(onDismiss: () -> Unit) {
+fun LanguageSheet(onOpen: (String) -> Unit, onDismiss: () -> Unit) {
     val settings = ServiceLocator.settings
     val current by settings.appLocale.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -120,6 +126,33 @@ LocalizedOverlay {
                     english = locale.getDisplayName(Locale.ENGLISH),
                     selected = current == locale.toLanguageTag(),
                     onClick = { settings.setAppLocale(locale.toLanguageTag()) },
+                    credits = translatorsFor(locale),
+                    onOpen = onOpen,
+                )
+            }
+            item {
+                HorizontalDivider(Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+                // Last, not first: someone opening this sheet came to change the language, and an
+                // invitation above the list would be in the way of that. It is here for the reader
+                // who has just scrolled past their own language and not found it.
+                ListItem(
+                    modifier = Modifier.clickable { onOpen(CROWDIN_URL) },
+                    headlineContent = { Text(stringResource(R.string.language_help)) },
+                    supportingContent = { Text(stringResource(R.string.language_help_summary)) },
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.Translate,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    trailingContent = {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.OpenInNew,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                 )
             }
         }
@@ -140,6 +173,8 @@ private fun LanguageRow(
     english: String,
     selected: Boolean,
     onClick: () -> Unit,
+    credits: List<Translator> = emptyList(),
+    onOpen: (String) -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     val container by
@@ -183,6 +218,29 @@ private fun LanguageRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            // Only for languages a person put their name to, so the common row keeps its two
+            // lines. A chip rather than plain text because it is a target: tapping it opens the
+            // translator's page while a tap anywhere else on the row still picks the language.
+            if (credits.isNotEmpty()) {
+                Spacer(Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    credits.forEach { person ->
+                        AssistChip(
+                            onClick = { person.url?.let(onOpen) },
+                            enabled = person.url != null,
+                            label = {
+                                Text(
+                                    stringResource(
+                                        R.string.language_translated_by,
+                                        person.name,
+                                    ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            },
+                        )
+                    }
+                }
+            }
         }
         Box(
             modifier =

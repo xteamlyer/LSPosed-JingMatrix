@@ -268,4 +268,8 @@
     <string name="language_title">Язык</string>
     <string name="language_system">Как в системе</string>
     <string name="language_system_summary">Использовать язык, выбранный на телефоне</string>
+
+    <string name="language_translated_by">Перевод: %1$s</string>
+    <string name="language_help">Помочь с переводом Vector</string>
+    <string name="language_help_summary">Любой язык, любой объём — даже несколько строк помогут</string>
 </resources>

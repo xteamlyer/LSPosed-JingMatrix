@@ -291,4 +291,8 @@
     <string name="language_title">שפה</string>
     <string name="language_system">ברירת המחדל של המערכת</string>
     <string name="language_system_summary">לפי השפה שמוגדרת בטלפון</string>
+
+    <string name="language_translated_by">תורגם על ידי %1$s</string>
+    <string name="language_help">עזרו לתרגם את Vector</string>
+    <string name="language_help_summary">כל שפה, בכל היקף — גם כמה מחרוזות עוזרות</string>
 </resources>

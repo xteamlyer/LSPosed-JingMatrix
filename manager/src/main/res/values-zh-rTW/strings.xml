@@ -255,4 +255,8 @@
     <string name="language_title">語言</string>
     <string name="language_system">跟隨系統</string>
     <string name="language_system_summary">使用手機設定的語言</string>
+
+    <string name="language_translated_by">翻譯：%1$s</string>
+    <string name="language_help">協助翻譯 Vector</string>
+    <string name="language_help_summary">任何語言、任意數量——哪怕只譯幾條也有幫助</string>
 </resources>

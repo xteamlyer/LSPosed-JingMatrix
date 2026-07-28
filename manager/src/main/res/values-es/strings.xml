@@ -265,4 +265,8 @@
     <string name="language_title">Idioma</string>
     <string name="language_system">El del sistema</string>
     <string name="language_system_summary">Seguir el idioma configurado en el teléfono</string>
+
+    <string name="language_translated_by">Traducido por %1$s</string>
+    <string name="language_help">Ayuda a traducir Vector</string>
+    <string name="language_help_summary">Cualquier idioma, cualquier cantidad: unas pocas cadenas ya ayudan</string>
 </resources>

@@ -258,4 +258,8 @@
     <string name="language_title">Bahasa</string>
     <string name="language_system">Bawaan sistem</string>
     <string name="language_system_summary">Ikuti bahasa yang disetel di ponsel</string>
+
+    <string name="language_translated_by">Diterjemahkan oleh %1$s</string>
+    <string name="language_help">Bantu menerjemahkan Vector</string>
+    <string name="language_help_summary">Bahasa apa pun, sebanyak apa pun — beberapa baris pun membantu</string>
 </resources>

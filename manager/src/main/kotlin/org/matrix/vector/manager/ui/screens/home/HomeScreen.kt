@@ -279,7 +279,7 @@ fun HomeScreen(
     }
 
     if (showLanguage) {
-        LanguageSheet(onDismiss = { showLanguage = false })
+        LanguageSheet(onOpen = ::open, onDismiss = { showLanguage = false })
     }
 
     if (showAppearance) {

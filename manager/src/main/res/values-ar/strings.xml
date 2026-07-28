@@ -309,4 +309,8 @@
     <string name="language_title">اللغة</string>
     <string name="language_system">لغة النظام</string>
     <string name="language_system_summary">اتّباع اللغة المضبوطة على الهاتف</string>
+
+    <string name="language_translated_by">ترجمة: %1$s</string>
+    <string name="language_help">ساعِد في ترجمة Vector</string>
+    <string name="language_help_summary">أي لغة، وبأي قدر — حتى بضعة نصوص تفيد</string>
 </resources>
