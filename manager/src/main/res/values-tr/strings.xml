@@ -169,7 +169,8 @@
     <string name="scope_select">Seçim</string>
     <string name="scope_sort">Sırala</string>
     <string name="scope_modules">Diğer modüller</string>
-    <string name="scope_auto_include">Modülün kendisini de içer</string>
+    <string name="scope_auto_include">Yeni uygulamaları otomatik ekle</string>
+    <string name="scope_auto_include_summary">Bundan sonra kurulan uygulamalar bu modülün kapsamına girer.</string>
     <string name="scope_backup">Bu kapsamı yedekle</string>
     <string name="scope_restore">Bu kapsamı geri yükle</string>
     <string name="scope_sort_package">Paket adına göre</string>

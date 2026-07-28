@@ -227,7 +227,8 @@
     <string name="scope_select">Selection</string>
     <string name="scope_sort">Sort</string>
     <string name="scope_modules">Other modules</string>
-    <string name="scope_auto_include">Include the module itself</string>
+    <string name="scope_auto_include">Add new apps automatically</string>
+    <string name="scope_auto_include_summary">Apps installed from now on join this module\'s scope.</string>
     <string name="scope_backup">Back up this scope</string>
     <string name="scope_restore">Restore this scope</string>
     <string name="scope_sort_package">By package name</string>

@@ -160,7 +160,8 @@
     <string name="scope_select">Chọn</string>
     <string name="scope_sort">Sắp xếp</string>
     <string name="scope_modules">Mô-đun khác</string>
-    <string name="scope_auto_include">Gồm cả chính mô-đun</string>
+    <string name="scope_auto_include">Tự động thêm ứng dụng mới</string>
+    <string name="scope_auto_include_summary">Ứng dụng cài từ nay sẽ vào phạm vi của mô-đun này.</string>
     <string name="scope_backup">Sao lưu phạm vi này</string>
     <string name="scope_restore">Khôi phục phạm vi này</string>
     <string name="scope_sort_package">Theo tên gói</string>

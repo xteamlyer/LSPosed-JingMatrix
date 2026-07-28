@@ -164,7 +164,8 @@
     <string name="scope_select">Pilihan</string>
     <string name="scope_sort">Urutkan</string>
     <string name="scope_modules">Modul lain</string>
-    <string name="scope_auto_include">Sertakan modulnya sendiri</string>
+    <string name="scope_auto_include">Tambahkan aplikasi baru otomatis</string>
+    <string name="scope_auto_include_summary">Aplikasi yang dipasang mulai sekarang masuk ke cakupan modul ini.</string>
     <string name="scope_backup">Cadangkan cakupan ini</string>
     <string name="scope_restore">Pulihkan cakupan ini</string>
     <string name="scope_sort_package">Menurut nama paket</string>

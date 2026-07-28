@@ -187,7 +187,8 @@
     <string name="scope_select">Zaznaczenie</string>
     <string name="scope_sort">Sortuj</string>
     <string name="scope_modules">Inne moduły</string>
-    <string name="scope_auto_include">Uwzględnij sam moduł</string>
+    <string name="scope_auto_include">Automatycznie dodawaj nowe aplikacje</string>
+    <string name="scope_auto_include_summary">Aplikacje zainstalowane od teraz trafią do zakresu tego modułu.</string>
     <string name="scope_backup">Utwórz kopię tego zakresu</string>
     <string name="scope_restore">Przywróć ten zakres</string>
     <string name="scope_sort_package">Wg nazwy pakietu</string>

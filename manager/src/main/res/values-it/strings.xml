@@ -169,7 +169,8 @@
     <string name="scope_select">Selezione</string>
     <string name="scope_sort">Ordina</string>
     <string name="scope_modules">Altri moduli</string>
-    <string name="scope_auto_include">Includi il modulo stesso</string>
+    <string name="scope_auto_include">Aggiungi automaticamente le nuove app</string>
+    <string name="scope_auto_include_summary">Le app installate d’ora in poi entrano nell’ambito di questo modulo.</string>
     <string name="scope_backup">Salva una copia di questo ambito</string>
     <string name="scope_restore">Ripristina questo ambito</string>
     <string name="scope_sort_package">Per nome del pacchetto</string>

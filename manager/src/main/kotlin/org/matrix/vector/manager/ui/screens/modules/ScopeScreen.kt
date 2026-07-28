@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.RemoveDone
 import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material.icons.rounded.SaveAlt
@@ -468,9 +469,14 @@ private fun ScopeSelectMenu(
                     open = false
                 },
             )
+            // The label used to read "include the module itself", which is a different feature
+            // altogether — so the one thing in this sheet that changes the future of the scope
+            // looked like a niche toggle about the present, and went unnoticed. What it actually
+            // does is what it now says.
             ToggleRow(
                 title = stringResource(R.string.scope_auto_include),
-                icon = Icons.Rounded.Extension,
+                subtitle = stringResource(R.string.scope_auto_include_summary),
+                icon = Icons.Rounded.PlaylistAdd,
                 checked = autoInclude,
                 onCheckedChange = onAutoInclude,
             )

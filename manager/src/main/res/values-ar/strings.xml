@@ -205,7 +205,8 @@
     <string name="scope_select">التحديد</string>
     <string name="scope_sort">الترتيب</string>
     <string name="scope_modules">وحدات أخرى</string>
-    <string name="scope_auto_include">تضمين الوحدة نفسها</string>
+    <string name="scope_auto_include">إضافة التطبيقات الجديدة تلقائيًا</string>
+    <string name="scope_auto_include_summary">التطبيقات التي تُثبَّت من الآن تنضم إلى نطاق هذه الوحدة.</string>
     <string name="scope_backup">نسخ هذا النطاق احتياطيًا</string>
     <string name="scope_restore">استعادة هذا النطاق</string>
     <string name="scope_sort_package">حسب اسم الحزمة</string>

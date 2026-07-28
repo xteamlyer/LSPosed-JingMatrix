@@ -191,7 +191,8 @@
     <string name="scope_select">בחירה</string>
     <string name="scope_sort">מיון</string>
     <string name="scope_modules">מודולים אחרים</string>
-    <string name="scope_auto_include">לכלול גם את המודול עצמו</string>
+    <string name="scope_auto_include">הוספת אפליקציות חדשות אוטומטית</string>
+    <string name="scope_auto_include_summary">אפליקציות שיותקנו מעכשיו יצטרפו לטווח של המודול הזה.</string>
     <string name="scope_backup">גיבוי התחום הזה</string>
     <string name="scope_restore">שחזור התחום הזה</string>
     <string name="scope_sort_package">לפי שם החבילה</string>

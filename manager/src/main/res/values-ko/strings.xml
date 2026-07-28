@@ -160,7 +160,8 @@
     <string name="scope_select">선택</string>
     <string name="scope_sort">정렬</string>
     <string name="scope_modules">다른 모듈</string>
-    <string name="scope_auto_include">모듈 자신도 포함</string>
+    <string name="scope_auto_include">새 앱 자동 추가</string>
+    <string name="scope_auto_include_summary">지금부터 설치되는 앱이 이 모듈의 범위에 포함됩니다.</string>
     <string name="scope_backup">이 적용 범위 백업</string>
     <string name="scope_restore">이 적용 범위 복원</string>
     <string name="scope_sort_package">패키지 이름순</string>

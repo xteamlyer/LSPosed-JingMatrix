@@ -172,7 +172,8 @@
     <string name="scope_select">Выбор</string>
     <string name="scope_sort">Сортировка</string>
     <string name="scope_modules">Другие модули</string>
-    <string name="scope_auto_include">Включая сам модуль</string>
+    <string name="scope_auto_include">Добавлять новые приложения автоматически</string>
+    <string name="scope_auto_include_summary">Приложения, установленные с этого момента, попадут в область действия модуля.</string>
     <string name="scope_backup">Сохранить эту область</string>
     <string name="scope_restore">Восстановить эту область</string>
     <string name="scope_sort_package">По имени пакета</string>
