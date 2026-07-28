@@ -475,6 +475,21 @@ class ScopeViewModel(
         }
     }
 
+    /**
+     * Opens the module's own screen — its launcher entry, or its Xposed settings activity.
+     *
+     * Here as well as in the long-press sheet because this is the screen you are on when you are
+     * thinking about that module: a scope is half of its configuration and the other half lives
+     * inside the module, so having to go back to the list to reach it was a detour through a place
+     * you had just come from.
+     */
+    fun openModule() {
+        viewModelScope.launch {
+            val opened = daemonClient.openAppUi(modulePackageName, userId).getOrDefault(false)
+            if (!opened) _message.value = ScopeMessage.NothingToOpen
+        }
+    }
+
     fun setModuleEnabled(enabled: Boolean) {
         viewModelScope.launch {
             if (moduleRepository.toggleModule(modulePackageName, enabled)) {
@@ -607,4 +622,5 @@ enum class ScopeMessage {
     ApplyFailed,
     ToggleFailed,
     IncludeNewAppsFailed,
+    NothingToOpen,
 }

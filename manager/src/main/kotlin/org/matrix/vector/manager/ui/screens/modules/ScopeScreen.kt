@@ -45,6 +45,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Launch
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Checklist
 import androidx.compose.material.icons.rounded.FilterList
@@ -198,6 +199,7 @@ fun ScopeScreen(
     val applied = stringResource(R.string.scope_applied)
     val applyFailed = stringResource(R.string.scope_apply_failed)
     val toggleFailed = stringResource(R.string.scope_toggle_failed)
+    val nothingToOpen = stringResource(R.string.action_no_launcher)
 
     LaunchedEffect(message) {
         val text =
@@ -206,6 +208,7 @@ fun ScopeScreen(
                 ScopeMessage.ApplyFailed -> applyFailed
                 ScopeMessage.ToggleFailed,
                 ScopeMessage.IncludeNewAppsFailed -> toggleFailed
+                ScopeMessage.NothingToOpen -> nothingToOpen
                 null -> null
             }
         if (text != null) {
@@ -272,6 +275,17 @@ fun ScopeScreen(
                     }
                 },
                 actions = {
+                    // The module's own screen, next to the switch that runs it. A module with
+                    // neither a launcher entry nor a settings activity says so when pressed rather
+                    // than being hidden — its absence is a fact about that module, and a control
+                    // that comes and goes between modules is harder to learn than one that
+                    // answers.
+                    IconButton(onClick = viewModel::openModule) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.Launch,
+                            contentDescription = stringResource(R.string.action_launch),
+                        )
+                    }
                     // The master switch, in the bar. It is the single most consequential control
                     // on the screen and it was previously a card competing with the app list for
                     // the same attention; an overflow menu in its place held items that now live

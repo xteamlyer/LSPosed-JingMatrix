@@ -163,25 +163,10 @@ LocalizedOverlay {
             title = stringResource(R.string.action_launch),
         ) {
             finish {
-                // The launcher activity has to be resolved *as that user* — the manager's own
-                // package manager cannot see another profile's activities.
-                val intent =
-                    Intent(Intent.ACTION_MAIN)
-                        .addCategory(Intent.CATEGORY_LAUNCHER)
-                        .setPackage(packageName)
-                val resolved =
-                    daemon.queryIntentActivitiesAsUser(intent, 0, userId).getOrDefault(emptyList())
-                val target = resolved.firstOrNull()
-                if (target == null) {
-                    PackageActionResult(R.string.action_no_launcher, tone = SnackbarTone.Failure)
-                } else {
-                    val launch =
-                        Intent(Intent.ACTION_MAIN)
-                            .addCategory(Intent.CATEGORY_LAUNCHER)
-                            .setClassName(target.activityInfo.packageName, target.activityInfo.name)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    daemon.startActivityAsUserWithFeature(launch, userId)
+                if (daemon.openAppUi(packageName, userId).getOrDefault(false)) {
                     PackageActionResult(R.string.action_launched)
+                } else {
+                    PackageActionResult(R.string.action_no_launcher, tone = SnackbarTone.Failure)
                 }
             }
         }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.lsposed.lspd.IFrameworkInstallCallback
+import android.content.Intent
 import org.lsposed.lspd.ILSPManagerService
 
 /**
@@ -56,6 +57,43 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
      * two can disagree — an APK whose path will not resolve, or whose DEX will not parse. Without
      * this the module simply looked switched off, which is both wrong and unexplainable.
      */
+    /**
+     * Opens the app's own screen: its launcher entry, or failing that its Xposed settings activity.
+     *
+     * Two ways in, tried in that order, because a great many modules deliberately have no launcher
+     * icon — a module is not something anyone wants in their drawer — and expose their settings
+     * through the convention the original framework established instead. Looking only for a
+     * launcher told the owners of those modules there was "nothing to open", which was this app not
+     * knowing where to knock.
+     *
+     * Resolved as the module's own user throughout: the manager's package manager cannot see
+     * another profile's activities.
+     *
+     * Returns false when neither exists, which is a real answer and not a failure.
+     */
+    suspend fun openAppUi(packageName: String, userId: Int): Result<Boolean> = runIpc { service ->
+        val target =
+            sequenceOf(Intent.CATEGORY_LAUNCHER, XPOSED_MODULE_SETTINGS_CATEGORY)
+                .mapNotNull { category ->
+                    val intent =
+                        Intent(Intent.ACTION_MAIN).addCategory(category).setPackage(packageName)
+                    service
+                        .queryIntentActivitiesAsUser(intent, 0, userId)
+                        ?.list
+                        ?.firstOrNull()
+                }
+                .firstOrNull()
+                ?: return@runIpc false
+
+        service.startActivityAsUserWithFeature(
+            Intent(Intent.ACTION_MAIN)
+                .setClassName(target.activityInfo.packageName, target.activityInfo.name)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            userId,
+        )
+        true
+    }
+
     suspend fun getUnloadableModules(): Result<List<String>> = runIpc {
         it.unloadableModules.toList()
     }
@@ -225,3 +263,11 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
         callback: IFrameworkInstallCallback,
     ): Result<Unit> = runIpc { it.installFrameworkZip(zipPath, callback) }
 }
+
+/**
+ * How an Xposed module has advertised its settings screen since the original framework.
+ *
+ * A module that hides its launcher icon still needs somewhere to be configured from, and this is
+ * where it says so.
+ */
+private const val XPOSED_MODULE_SETTINGS_CATEGORY = "de.robv.android.xposed.category.MODULE_SETTINGS"
