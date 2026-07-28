@@ -155,8 +155,15 @@ interface ILSPManagerService {
     /** Installed and enabled, but no APK path could be resolved for it. */
     const int MODULE_LOAD_NO_APK = 1;
 
-    /** Installed and enabled, but its DEX or ZIP could not be parsed. */
-    const int MODULE_LOAD_BAD_DEX = 2;
+    /**
+     * Installed and enabled, and the framework still would not load it.
+     *
+     * Deliberately not more specific. The loader returns the same nothing for a zip that will not
+     * parse, an APK with no init files, one with no module classes, and one built against
+     * libxposed API 100 — which this framework refuses outright. Naming any single cause would be
+     * a guess.
+     */
+    const int MODULE_LOAD_UNUSABLE = 2;
 
     /**
      * Modules that are enabled and installed, and that the framework still cannot load.

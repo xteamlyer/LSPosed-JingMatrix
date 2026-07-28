@@ -331,7 +331,7 @@
     <string name="home_history_window_end">這就是此時間範圍內的全部</string>
     <string name="update_same_number">編號相同，建置不同</string>
     <string name="modules_load_no_apk">已啟用，但框架找不到可載入的 APK。</string>
-    <string name="modules_load_bad_dex">已啟用，但框架無法讀取其程式碼，未在執行。</string>
+    <string name="modules_load_unusable">已啟用，但框架無法載入，未在執行。</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">已啟用 %1$d 個模組</item>
         <item quantity="other">已啟用 %1$d 個模組</item>

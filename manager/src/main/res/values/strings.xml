@@ -194,7 +194,7 @@
     <string name="modules_filter_active">Active</string>
     <string name="modules_filter_inactive">Inactive</string>
     <string name="modules_load_no_apk">Enabled, but the framework could not find its APK to load.</string>
-    <string name="modules_load_bad_dex">Enabled, but the framework could not read its code. It is not running.</string>
+    <string name="modules_load_unusable">Enabled, but the framework could not load it. It is not running.</string>
     <string name="modules_incompatible">Needs libxposed API %1$d, which this framework does not provide.</string>
     <string name="modules_incompatible_legacy">Needs Xposed API %1$d, which this framework does not provide.</string>
     <string name="modules_api_behind">Built for libxposed API %1$d. API %2$d changed the interface, so this module may not work fully.</string>

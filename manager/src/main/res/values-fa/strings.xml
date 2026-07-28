@@ -341,7 +341,7 @@
     <string name="home_history_window_end">در این بازه همین است</string>
     <string name="update_same_number">همان شماره، ساخت دیگر</string>
     <string name="modules_load_no_apk">فعال است، اما چارچوب APK آن را برای بارگذاری نیافت.</string>
-    <string name="modules_load_bad_dex">فعال است، اما چارچوب نتوانست کد آن را بخواند. اجرا نمی‌شود.</string>
+    <string name="modules_load_unusable">فعال است، اما چارچوب نتوانست آن را بارگذاری کند. اجرا نمی‌شود.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">%1$d ماژول فعال شد</item>
         <item quantity="other">%1$d ماژول فعال شد</item>

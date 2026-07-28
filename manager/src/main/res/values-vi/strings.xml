@@ -330,7 +330,7 @@
     <string name="home_history_window_end">Đó là tất cả trong khoảng này</string>
     <string name="update_same_number">Cùng số, bản dựng khác</string>
     <string name="modules_load_no_apk">Đã bật, nhưng framework không tìm thấy APK để nạp.</string>
-    <string name="modules_load_bad_dex">Đã bật, nhưng framework không đọc được mã của nó. Mô-đun không chạy.</string>
+    <string name="modules_load_unusable">Đã bật, nhưng framework không nạp được. Mô-đun không chạy.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">Đã bật %1$d mô-đun</item>
         <item quantity="other">Đã bật %1$d mô-đun</item>

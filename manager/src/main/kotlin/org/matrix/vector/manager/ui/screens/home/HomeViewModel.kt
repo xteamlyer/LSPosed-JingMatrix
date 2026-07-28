@@ -131,7 +131,7 @@ class HomeViewModel(
                 // From disk, not from GitHub. The archive already holds the commits; the window is
                 // only a view of it, so re-cutting it costs nothing and the feed answers on the
                 // frame after the sheet closes.
-                _feed.update { github.load(GitHubRepository.Freshness.Cached) }
+                _feed.value = github.load(GitHubRepository.Freshness.Cached)
             }
         }
     }
@@ -288,7 +288,14 @@ class HomeViewModel(
     fun refreshFeed(freshness: GitHubRepository.Freshness) {
         viewModelScope.launch {
             _refreshing.value = true
-            _feed.update { github.load(freshness) }
+            // Loaded first, assigned second. `MutableStateFlow.update` is a compare-and-set spin
+            // loop: it re-invokes its lambda whenever another writer wins the race, and this
+            // lambda is a network fetch, an archive append, a snapshot rewrite and a
+            // several-thousand-commit re-parse. Three writers touch this flow — the window
+            // collector, pull-to-refresh and the backfill — so under contention the whole of that
+            // ran twice for one result.
+            val loaded = github.load(freshness)
+            _feed.value = loaded
             _refreshing.value = false
             // Anything that actually went to the network settles the debt below.
             if (freshness != GitHubRepository.Freshness.Cached) _windowChanged.value = false
@@ -334,7 +341,7 @@ class HomeViewModel(
             // GitHub here would spend a request to be told what we have just been told. The reload
             // happens even when nothing was added, so that a walk which ended by finding no new
             // commits can clear the invitation to keep scrolling.
-            _feed.update { github.load(GitHubRepository.Freshness.Cached) }
+            _feed.value = github.load(GitHubRepository.Freshness.Cached)
             if (added == 0) _exhausted.value = true
             _loadingHistory.value = false
         }

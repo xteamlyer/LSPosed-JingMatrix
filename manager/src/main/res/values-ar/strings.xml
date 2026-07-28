@@ -385,7 +385,7 @@
     <string name="home_history_window_end">هذا كل ما في هذا النطاق</string>
     <string name="update_same_number">الرقم نفسه، إصدار آخر</string>
     <string name="modules_load_no_apk">مفعّلة، لكن لم يعثر الإطار على حزمة APK لتحميلها.</string>
-    <string name="modules_load_bad_dex">مفعّلة، لكن تعذّر على الإطار قراءة شفرتها. إنها لا تعمل.</string>
+    <string name="modules_load_unusable">مفعّلة، لكن تعذّر على الإطار تحميلها. إنها لا تعمل.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">تم تفعيل وحدة واحدة</item>
         <item quantity="other">تم تفعيل %1$d وحدات</item>

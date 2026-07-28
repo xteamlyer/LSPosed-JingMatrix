@@ -341,7 +341,7 @@
     <string name="home_history_window_end">C’est tout pour cette période</string>
     <string name="update_same_number">Même numéro, autre version</string>
     <string name="modules_load_no_apk">Activé, mais le framework n’a pas trouvé son APK à charger.</string>
-    <string name="modules_load_bad_dex">Activé, mais le framework n’a pas pu lire son code. Il ne tourne pas.</string>
+    <string name="modules_load_unusable">Activé, mais le framework n’a pas pu le charger. Il ne tourne pas.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">Activé %1$d module</item>
         <item quantity="other">Activé %1$d modules</item>

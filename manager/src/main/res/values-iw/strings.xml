@@ -367,7 +367,7 @@
     <string name="home_history_window_end">זה הכול בטווח הזה</string>
     <string name="update_same_number">אותו מספר, גרסה אחרת</string>
     <string name="modules_load_no_apk">מופעל, אבל המסגרת לא מצאה את קובץ ה-APK שלו לטעינה.</string>
-    <string name="modules_load_bad_dex">מופעל, אבל המסגרת לא הצליחה לקרוא את הקוד שלו. הוא לא רץ.</string>
+    <string name="modules_load_unusable">מופעל, אבל המסגרת לא הצליחה לטעון אותו. הוא לא רץ.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">הופעל מודול %1$d</item>
         <item quantity="other">הופעלו %1$d מודולים</item>

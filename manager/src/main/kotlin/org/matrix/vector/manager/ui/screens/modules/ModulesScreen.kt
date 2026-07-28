@@ -877,8 +877,8 @@ private fun ModuleRow(
                     text =
                         stringResource(
                             when (loadFailure) {
-                                ILSPManagerService.MODULE_LOAD_BAD_DEX ->
-                                    R.string.modules_load_bad_dex
+                                ILSPManagerService.MODULE_LOAD_UNUSABLE ->
+                                    R.string.modules_load_unusable
                                 else -> R.string.modules_load_no_apk
                             }
                         ),

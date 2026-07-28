@@ -363,7 +363,7 @@
     <string name="home_history_window_end">To wszystko w tym zakresie</string>
     <string name="update_same_number">Ten sam numer, inna kompilacja</string>
     <string name="modules_load_no_apk">Włączony, ale framework nie znalazł jego pliku APK do wczytania.</string>
-    <string name="modules_load_bad_dex">Włączony, ale framework nie zdołał odczytać jego kodu. Nie działa.</string>
+    <string name="modules_load_unusable">Włączony, ale framework nie zdołał go wczytać. Nie działa.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">Włączono %1$d moduł</item>
         <item quantity="other">Włączono moduły: %1$d</item>

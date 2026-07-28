@@ -334,7 +334,7 @@
     <string name="home_history_window_end">Itu semua dalam rentang ini</string>
     <string name="update_same_number">Nomor sama, build lain</string>
     <string name="modules_load_no_apk">Aktif, tetapi framework tidak menemukan APK-nya untuk dimuat.</string>
-    <string name="modules_load_bad_dex">Aktif, tetapi framework tidak dapat membaca kodenya. Modul tidak berjalan.</string>
+    <string name="modules_load_unusable">Aktif, tetapi framework tidak dapat memuatnya. Modul tidak berjalan.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">%1$d modul diaktifkan</item>
         <item quantity="other">%1$d modul diaktifkan</item>

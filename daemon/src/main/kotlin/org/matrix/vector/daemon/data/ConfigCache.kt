@@ -159,6 +159,15 @@ object ConfigCache {
 
       var pkgInfo: android.content.pm.PackageInfo? = null
       val users = userManager?.getRealUsers() ?: emptyList()
+      // No users means the question could not be asked, not that the answer is no. `getRealUsers`
+      // swallows a null binder and any failure of `IUserManager.getUsers` into an empty list, and
+      // an empty list here sends *every* enabled module down the not-installed path below — which
+      // deletes its row, its scope and its preferences. A transient failure to reach the user
+      // service would wipe the configuration of every module on the device.
+      if (users.isEmpty()) {
+        Log.w(TAG, "No users available; skipping this rebuild rather than assuming nothing exists")
+        return
+      }
       for (user in users) {
         pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
         if (pkgInfo?.applicationInfo != null) break
@@ -217,9 +226,15 @@ object ConfigCache {
             }
         newModules[pkgName] = module
       } else {
-        // As above: a module whose DEX will not parse is broken, not unwanted.
-        Log.w(TAG, "Failed to parse DEX/ZIP for $pkgName, skipping.")
-        unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_BAD_DEX
+        // As above: a module the framework will not load is broken, not unwanted.
+        //
+        // Not necessarily broken *code*, either. `loadModule` returns null for four different
+        // reasons — a zip or DEX that will not parse, no valid init files, no module classes, and
+        // a module built against libxposed API 100, which this framework refuses outright. It does
+        // not say which, so neither does this: claiming the code could not be read would be a
+        // guess three times out of four.
+        Log.w(TAG, "Could not load $pkgName; skipping.")
+        unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_UNUSABLE
       }
     }
 

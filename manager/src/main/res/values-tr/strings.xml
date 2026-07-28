@@ -341,7 +341,7 @@
     <string name="home_history_window_end">Bu aralıktaki her şey bu kadar</string>
     <string name="update_same_number">Aynı numara, farklı yapı</string>
     <string name="modules_load_no_apk">Etkin, ancak çerçeve yüklenecek APK’sını bulamadı.</string>
-    <string name="modules_load_bad_dex">Etkin, ancak çerçeve kodunu okuyamadı. Çalışmıyor.</string>
+    <string name="modules_load_unusable">Etkin, ancak çerçeve onu yükleyemedi. Çalışmıyor.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">%1$d modül etkinleştirildi</item>
         <item quantity="other">%1$d modül etkinleştirildi</item>

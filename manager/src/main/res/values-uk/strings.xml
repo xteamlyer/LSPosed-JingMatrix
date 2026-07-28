@@ -363,7 +363,7 @@
     <string name="home_history_window_end">Це все за цей період</string>
     <string name="update_same_number">Той самий номер, інша збірка</string>
     <string name="modules_load_no_apk">Увімкнено, але фреймворк не знайшов його APK для завантаження.</string>
-    <string name="modules_load_bad_dex">Увімкнено, але фреймворк не зміг прочитати його код. Він не працює.</string>
+    <string name="modules_load_unusable">Увімкнено, але фреймворк не зміг його завантажити. Він не працює.</string>
     <plurals name="modules_batch_enabled">
         <item quantity="one">Увімкнено %1$d модуль</item>
         <item quantity="other">Увімкнено модулів: %1$d</item>
