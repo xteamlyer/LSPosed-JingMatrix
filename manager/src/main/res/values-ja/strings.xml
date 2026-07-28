@@ -55,7 +55,7 @@
     <string name="home_offline">保存済みの記録を表示しています — GitHub に接続できませんでした。</string>
     <string name="home_bumps">依存関係の更新 %1$d 件</string>
     <string name="home_contribute">参加する</string>
-    <string name="home_test_canary">canary ビルドを試す</string>
+    <string name="home_test_canary">canary を試す</string>
     <string name="home_open_issue">問題を報告</string>
     <string name="home_discussions">ディスカッション</string>
     <string name="home_review_prs">変更をレビュー</string>

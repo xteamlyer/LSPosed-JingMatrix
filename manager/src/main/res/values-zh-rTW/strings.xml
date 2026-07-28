@@ -55,7 +55,7 @@
     <string name="home_offline">正在顯示已儲存的動態——無法連線 GitHub。</string>
     <string name="home_bumps">%1$d 次相依套件更新</string>
     <string name="home_contribute">一起參與</string>
-    <string name="home_test_canary">測試 Canary 版本</string>
+    <string name="home_test_canary">試用 Canary</string>
     <string name="home_open_issue">回報問題</string>
     <string name="home_discussions">討論區</string>
     <string name="home_review_prs">審閱變更</string>

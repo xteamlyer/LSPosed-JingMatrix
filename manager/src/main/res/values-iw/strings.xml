@@ -65,7 +65,7 @@
     <string name="home_offline">מוצגת פעילות שמורה — לא הייתה גישה ל-GitHub.</string>
     <string name="home_bumps">%1$d עדכוני תלויות</string>
     <string name="home_contribute">קחו חלק</string>
-    <string name="home_test_canary">נסו גרסת canary</string>
+    <string name="home_test_canary">לנסות canary</string>
     <string name="home_open_issue">דיווח על תקלה</string>
     <string name="home_discussions">דיונים</string>
     <string name="home_review_prs">סקירת שינוי</string>

@@ -57,7 +57,7 @@
     <string name="home_offline">Activité enregistrée — GitHub était injoignable.</string>
     <string name="home_bumps">%1$d mises à jour de dépendances</string>
     <string name="home_contribute">Participer</string>
-    <string name="home_test_canary">Tester une version canary</string>
+    <string name="home_test_canary">Tester canary</string>
     <string name="home_open_issue">Signaler un problème</string>
     <string name="home_discussions">Discussions</string>
     <string name="home_review_prs">Relire une modification</string>

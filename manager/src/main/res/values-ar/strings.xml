@@ -65,7 +65,7 @@
     <string name="home_offline">يُعرض النشاط المحفوظ — تعذّر الوصول إلى GitHub.</string>
     <string name="home_bumps">%1$d تحديثات للاعتماديات</string>
     <string name="home_contribute">شارِك</string>
-    <string name="home_test_canary">جرّب إصدار canary</string>
+    <string name="home_test_canary">جرّب Canary</string>
     <string name="home_open_issue">أبلغ عن مشكلة</string>
     <string name="home_discussions">النقاشات</string>
     <string name="home_review_prs">راجِع تغييرًا</string>

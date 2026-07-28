@@ -56,7 +56,7 @@
     <string name="home_offline">Показана сохранённая лента — GitHub недоступен.</string>
     <string name="home_bumps">%1$d обновлений зависимостей</string>
     <string name="home_contribute">Присоединиться</string>
-    <string name="home_test_canary">Испытать canary-сборку</string>
+    <string name="home_test_canary">Попробовать canary</string>
     <string name="home_open_issue">Сообщить о проблеме</string>
     <string name="home_discussions">Обсуждения</string>
     <string name="home_review_prs">Просмотреть изменения</string>

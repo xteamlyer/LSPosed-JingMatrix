@@ -57,7 +57,7 @@
     <string name="home_offline">فعالیت ذخیره‌شده نمایش داده می‌شود — دسترسی به GitHub ممکن نشد.</string>
     <string name="home_bumps">%1$d به‌روزرسانی وابستگی</string>
     <string name="home_contribute">مشارکت کنید</string>
-    <string name="home_test_canary">یک ساخت canary را بیازمایید</string>
+    <string name="home_test_canary">آزمایش Canary</string>
     <string name="home_open_issue">گزارش مشکل</string>
     <string name="home_discussions">گفتگوها</string>
     <string name="home_review_prs">بازبینی یک تغییر</string>

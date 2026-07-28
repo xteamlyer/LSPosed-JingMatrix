@@ -75,6 +75,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.pluralStringResource
@@ -764,20 +765,56 @@ private fun ModuleRow(
 
         Spacer(Modifier.width(16.dp))
 
-        // Only this column opens the scope. The row used to be one target, so a tap anywhere —
+        // Only this area opens the scope. The row used to be one target, so a tap anywhere —
         // including the icon someone was aiming at — navigated away.
-        Column(
+        //
+        // A Box, not a third column. Reserving a column for the version and the reach took its
+        // width from *every line* of the description, which is the one piece of prose on this
+        // screen — and it took it permanently, whether or not anything was there to put in it.
+        // They overlap the text column instead and are kept clear of the text by *vertical*
+        // placement: the version sits in the title's band, the reach sits in the band below the
+        // last line. Nothing is reserved horizontally, so the description runs the full width.
+        Box(
             Modifier.weight(1f)
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
         ) {
-            Text(
-                text = module.appName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = nameColor,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Column(Modifier.padding(bottom = REACH_BAND)) {
+            // The title's band. Both halves are fixed and both scroll, so neither can ever reach
+            // the other however long the module's name or its version string becomes — which is
+            // not a hypothetical: names run to "Enable Screenshot (formerly known as Disable
+            // FLAG_SECURE)" and versions to a tag with a commit hash on the end.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = module.appName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = nameColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    modifier =
+                        Modifier.weight(1f)
+                            .basicMarquee(iterations = 1, repeatDelayMillis = 3_000),
+                )
+                Spacer(Modifier.width(10.dp))
+                UpdatableVersion(
+                    text = module.versionName.ifBlank { "" },
+                    hasUpdate = hasUpdate,
+                    marquee = true,
+                    color = colors.onSurfaceVariant,
+                    // With an update in hand the version is the shortest route to the release that
+                    // would replace it, so it becomes the link. Without one it is inert: a tap
+                    // that sometimes navigates and sometimes does nothing teaches nothing.
+                    modifier =
+                        Modifier.width(VERSION_WIDTH)
+                            .then(
+                                if (!hasUpdate) Modifier
+                                else
+                                    Modifier.clip(RoundedCornerShape(6.dp)).clickable {
+                                        onOpenStore()
+                                    }
+                            ),
+                )
+            }
             if (incompatible) {
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -824,36 +861,29 @@ private fun ModuleRow(
             }
         }
 
-        Spacer(Modifier.width(12.dp))
-
-        Column(
-            // Fixed, not free and not merely capped. This column used to size to its own content,
-            // so a module whose version happened to be long — a date stamp, a commit hash, a
-            // `-beta.4+build.7` — took width away from the description, and the rows of one list
-            // ended up with several different text widths for a reason the reader cannot see. A
-            // fixed column makes the list a grid: every description starts and ends in the same
-            // place, and the version's length is its own business. It is sized for a normal
-            // version and its mark; anything longer scrolls past rather than pushing.
-            modifier = Modifier.fillMaxHeight().width(116.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            UpdatableVersion(
-                text = module.versionName.ifBlank { "" },
-                hasUpdate = hasUpdate,
-                marquee = true,
-                color = colors.onSurfaceVariant,
-                // With an update in hand the version is the shortest route to the release that
-                // would replace it, so it becomes the link. Without one it is inert: a tap that
-                // sometimes navigates and sometimes does nothing teaches nothing.
-                modifier =
-                    if (!hasUpdate) Modifier
-                    else Modifier.clip(RoundedCornerShape(6.dp)).clickable { onOpenStore() },
+            // The reach, in the band the row already left empty under the last line of text. It
+            // is allowed to run left past where a column would have ended — nothing is there — so
+            // it costs the description no width at all.
+            ScopePreview(
+                module = module,
+                facts = facts,
+                modifier = Modifier.align(Alignment.BottomEnd),
             )
-            ScopePreview(module = module, facts = facts)
         }
     }
 }
+
+/**
+ * The strip along the bottom of a row that the reach sits in.
+ *
+ * The row already ended in a gap of about this size, so the icons landed in space that was being
+ * left empty anyway: full-width prose and a right-aligned reach, for a few density-independent
+ * pixels rather than a whole column.
+ */
+private val REACH_BAND = 22.dp
+
+/** Room for a version and its mark. Anything longer scrolls past instead of pushing. */
+private val VERSION_WIDTH = 104.dp
 
 /**
  * Who the module actually touches.
@@ -864,7 +894,11 @@ private fun ModuleRow(
  * mistake rather than a fact.
  */
 @Composable
-private fun ScopePreview(module: InstalledModule, facts: ModuleFacts?) {
+private fun ScopePreview(
+    module: InstalledModule,
+    facts: ModuleFacts?,
+    modifier: Modifier = Modifier,
+) {
     val colors = MaterialTheme.colorScheme
     val reach = facts?.scopeCount ?: -1
     val framework = facts?.scopeFramework == true
@@ -873,7 +907,7 @@ private fun ScopePreview(module: InstalledModule, facts: ModuleFacts?) {
     if (reach <= 0 && !framework) return
 
     val preview = facts?.scopePreview.orEmpty()
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (framework) {
             // The framework is a scope target with no icon, so it gets a mark of its own rather
             // than silently becoming part of a number.

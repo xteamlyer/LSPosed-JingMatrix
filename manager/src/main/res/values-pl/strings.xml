@@ -61,7 +61,7 @@
     <string name="home_offline">Pokazano zapisaną aktywność — nie udało się połączyć z GitHubem.</string>
     <string name="home_bumps">%1$d aktualizacji zależności</string>
     <string name="home_contribute">Dołącz</string>
-    <string name="home_test_canary">Wypróbuj kompilację canary</string>
+    <string name="home_test_canary">Wypróbuj canary</string>
     <string name="home_open_issue">Zgłoś problem</string>
     <string name="home_discussions">Dyskusje</string>
     <string name="home_review_prs">Przejrzyj zmianę</string>

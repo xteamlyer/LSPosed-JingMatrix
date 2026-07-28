@@ -59,7 +59,7 @@
     <string name="home_offline">Menampilkan aktivitas tersimpan — GitHub tidak dapat dihubungi.</string>
     <string name="home_bumps">%1$d pembaruan dependensi</string>
     <string name="home_contribute">Ikut serta</string>
-    <string name="home_test_canary">Coba build canary</string>
+    <string name="home_test_canary">Coba canary</string>
     <string name="home_open_issue">Laporkan masalah</string>
     <string name="home_discussions">Diskusi</string>
     <string name="home_review_prs">Tinjau sebuah perubahan</string>

@@ -57,7 +57,7 @@
     <string name="home_offline">Mostrando la actividad guardada: no se pudo acceder a GitHub.</string>
     <string name="home_bumps">%1$d actualizaciones de dependencias</string>
     <string name="home_contribute">Participar</string>
-    <string name="home_test_canary">Probar una compilación canary</string>
+    <string name="home_test_canary">Probar canary</string>
     <string name="home_open_issue">Informar de un problema</string>
     <string name="home_discussions">Debates</string>
     <string name="home_review_prs">Revisar un cambio</string>

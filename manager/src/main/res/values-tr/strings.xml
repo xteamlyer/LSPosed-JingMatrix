@@ -57,7 +57,7 @@
     <string name="home_offline">Kayıtlı hareketler gösteriliyor — GitHub\'a ulaşılamadı.</string>
     <string name="home_bumps">%1$d bağımlılık güncellemesi</string>
     <string name="home_contribute">Katıl</string>
-    <string name="home_test_canary">Bir canary sürümü dene</string>
+    <string name="home_test_canary">Canary dene</string>
     <string name="home_open_issue">Sorun bildir</string>
     <string name="home_discussions">Tartışmalar</string>
     <string name="home_review_prs">Bir değişikliği incele</string>

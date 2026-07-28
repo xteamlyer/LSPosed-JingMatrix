@@ -57,7 +57,7 @@
     <string name="home_offline">Attività salvata — GitHub non era raggiungibile.</string>
     <string name="home_bumps">%1$d aggiornamenti di dipendenze</string>
     <string name="home_contribute">Partecipa</string>
-    <string name="home_test_canary">Prova una build canary</string>
+    <string name="home_test_canary">Prova canary</string>
     <string name="home_open_issue">Segnala un problema</string>
     <string name="home_discussions">Discussioni</string>
     <string name="home_review_prs">Rivedi una modifica</string>

@@ -55,7 +55,7 @@
     <string name="home_offline">Đang hiện hoạt động đã lưu — không kết nối được GitHub.</string>
     <string name="home_bumps">%1$d bản cập nhật phụ thuộc</string>
     <string name="home_contribute">Tham gia</string>
-    <string name="home_test_canary">Thử một bản canary</string>
+    <string name="home_test_canary">Thử bản canary</string>
     <string name="home_open_issue">Báo lỗi</string>
     <string name="home_discussions">Thảo luận</string>
     <string name="home_review_prs">Xem lại một thay đổi</string>

@@ -61,7 +61,7 @@
     <string name="home_offline">Показано збережену активність — GitHub недоступний.</string>
     <string name="home_bumps">%1$d оновлень залежностей</string>
     <string name="home_contribute">Долучитися</string>
-    <string name="home_test_canary">Спробувати збірку canary</string>
+    <string name="home_test_canary">Спробувати canary</string>
     <string name="home_open_issue">Повідомити про проблему</string>
     <string name="home_discussions">Обговорення</string>
     <string name="home_review_prs">Переглянути зміну</string>

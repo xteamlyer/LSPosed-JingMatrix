@@ -57,7 +57,7 @@
     <string name="home_offline">Gespeicherte Aktivität — GitHub war nicht erreichbar.</string>
     <string name="home_bumps">%1$d Abhängigkeits-Updates</string>
     <string name="home_contribute">Mitmachen</string>
-    <string name="home_test_canary">Canary-Build testen</string>
+    <string name="home_test_canary">Canary testen</string>
     <string name="home_open_issue">Problem melden</string>
     <string name="home_discussions">Diskussionen</string>
     <string name="home_review_prs">Änderung prüfen</string>
