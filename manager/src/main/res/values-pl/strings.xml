@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">Start</string>
+    <string name="nav_modules">Moduły</string>
+    <string name="nav_store">Katalog</string>
+    <string name="nav_logs">Dzienniki</string>
+
+    <string name="status_active">Aktywny</string>
+    <string name="status_degraded">Wymaga uwagi</string>
+    <string name="status_inactive">Nieaktywowany</string>
+    <string name="status_checking">Sprawdzanie…</string>
+    <string name="status_open_details">Otwórz stan systemu</string>
+
+    <string name="issue_sepolicy_title">Nie wczytano zasad SELinux</string>
+    <string name="issue_sepolicy_summary">Część funkcji nie zadziała. Zwykle oznacza to, że implementacja roota nie zastosowała reguł Vectora.</string>
+    <string name="issue_system_server_title">Wstrzyknięcie do szkieletu systemu nie powiodło się</string>
+    <string name="issue_system_server_summary">Moduły nie mogą podpinać się pod usługi systemowe. Zdarza się to rzadko i zwykle przeszkadza inny moduł roota.</string>
+    <string name="issue_dex2oat_title">Nakładka dex2oat niedostępna</string>
+    <string name="issue_dex2oat_summary">Część właściwości systemowych usunięto lub zmieniono. Po aktualizacji aplikacji moduły mogą przestać działać.</string>
+
+    <string name="system_status">Stan systemu</string>
+    <string name="info_api_version">API Xposed</string>
+    <string name="info_framework_version">Szkielet</string>
+    <string name="info_manager_package">Pakiet menedżera</string>
+    <string name="info_dex2oat">Nakładka dex2oat</string>
+    <string name="info_selinux">Zasady SELinux</string>
+    <string name="info_system_server">Szkielet systemu</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Urządzenie</string>
+    <string name="info_abi">Architektura</string>
+    <string name="info_supported">Obsługiwana</string>
+    <string name="info_unsupported">Nieobsługiwana</string>
+    <string name="info_loaded">Wczytane</string>
+    <string name="info_not_loaded">Niewczytane</string>
+    <string name="info_injected">Wstrzyknięty</string>
+    <string name="info_not_injected">Niewstrzyknięty</string>
+    <string name="status_notification">Powiadomienie o stanie</string>
+    <string name="status_notification_summary">Stałe powiadomienie informujące, że Vector działa.</string>
+    <string name="hidden_icon">Wymuś ikony w launcherze</string>
+    <string name="hidden_icon_summary">Pokazuj ikony aplikacji, które ukrywają się przed launcherem.</string>
+    <string name="action_copy_all">Kopiuj wszystko</string>
+    <string name="copied">Skopiowano do schowka</string>
+
+    <string name="home_quarter_title">Ostatnia aktywność</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="few">%1$d commity</item>
+        <item quantity="many">%1$d commitów</item>
+        <item quantity="other">%1$d commita</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">od %1$d osoby</item>
+        <item quantity="few">od %1$d osób</item>
+        <item quantity="many">od %1$d osób</item>
+        <item quantity="other">od %1$d osoby</item>
+    </plurals>
+    <string name="home_since">od %1$s</string>
+    <string name="home_no_activity">Brak commitów w ostatnich sześciu miesiącach.</string>
+    <string name="home_loading_activity">Wczytywanie ostatniej aktywności…</string>
+    <string name="home_offline">Pokazano zapisaną aktywność — nie udało się połączyć z GitHubem.</string>
+    <string name="home_bumps">%1$d aktualizacji zależności</string>
+    <string name="home_contribute">Dołącz</string>
+    <string name="home_test_canary">Wypróbuj kompilację canary</string>
+    <string name="home_open_issue">Zgłoś problem</string>
+    <string name="home_discussions">Dyskusje</string>
+    <string name="home_review_prs">Przejrzyj zmianę</string>
+
+    <string name="github_sign_in">Zaloguj się w GitHubie</string>
+    <string name="github_sign_in_why">Opcjonalne. Podnosi godzinowy limit aktualizacji aktywności i pozwala Vectorowi pokazać, co na Ciebie czeka. Tylko do odczytu — żadne uprawnienia nie są proszone.</string>
+    <string name="github_sign_in_code">Wpisz ten kod na %1$s</string>
+    <string name="github_open_browser">Otwórz przeglądarkę</string>
+    <string name="github_copy_code">Kopiuj kod</string>
+    <string name="github_signed_in_as">Zalogowano jako %1$s</string>
+    <string name="github_sign_out">Wyloguj się</string>
+    <string name="github_cancel">Anuluj</string>
+    <string name="github_unreachable">Nie udało się połączyć z GitHubem. Cała reszta działa dalej.</string>
+    <string name="home_with_coauthor">%1$s i %2$s</string>
+    <string name="home_with_coauthors">%1$s i %2$d innych</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d osoba</item>
+        <item quantity="few">%1$d osoby</item>
+        <item quantity="many">%1$d osób</item>
+        <item quantity="other">%1$d osoby</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">%1$d commit nowszy niż Twój</item>
+        <item quantity="few">%1$d commity nowsze niż Twój</item>
+        <item quantity="many">%1$d commitów nowszych niż Twój</item>
+        <item quantity="other">%1$d commita nowszych niż Twój</item>
+    </plurals>
+    <string name="home_your_build">Twoja kompilacja %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d dzień ciszy</item>
+        <item quantity="few">%1$d dni ciszy</item>
+        <item quantity="many">%1$d dni ciszy</item>
+        <item quantity="other">%1$d dnia ciszy</item>
+    </plurals>
+
+    <string name="time_yesterday">wczoraj</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%1$d dzień temu</item>
+        <item quantity="few">%1$d dni temu</item>
+        <item quantity="many">%1$d dni temu</item>
+        <item quantity="other">%1$d dnia temu</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">%1$d tydzień temu</item>
+        <item quantity="few">%1$d tygodnie temu</item>
+        <item quantity="many">%1$d tygodni temu</item>
+        <item quantity="other">%1$d tygodnia temu</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">%1$d miesiąc temu</item>
+        <item quantity="few">%1$d miesiące temu</item>
+        <item quantity="many">%1$d miesięcy temu</item>
+        <item quantity="other">%1$d miesiąca temu</item>
+    </plurals>
+
+    <string name="appearance_title">Wygląd</string>
+    <string name="appearance_theme">Motyw</string>
+    <string name="appearance_theme_system">Jak w systemie</string>
+    <string name="appearance_theme_light">Jasny</string>
+    <string name="appearance_theme_dark">Ciemny</string>
+    <string name="appearance_dynamic_color">Kolory z tapety</string>
+    <string name="appearance_amoled">Czysta czerń w ciemnym motywie</string>
+    <string name="appearance_amoled_summary">Oszczędza energię na ekranach OLED.</string>
+    <string name="egg_two_more">Jeszcze dwa razy…</string>
+    <string name="egg_one_more">Jeszcze raz…</string>
+
+    <string name="modules_empty">Nie zainstalowano żadnych modułów.</string>
+    <string name="modules_active_of">%1$d z %2$d aktywnych</string>
+    <string name="modules_no_match">Żaden moduł nie pasuje do tego wyszukiwania.</string>
+    <string name="modules_backup">Utwórz kopię modułów</string>
+    <string name="modules_restore">Przywróć moduły</string>
+    <string name="modules_backup_done">Zapisano %1$d modułów wraz z ich zakresami.</string>
+    <string name="modules_backup_failed">Nie udało się zapisać kopii.</string>
+    <string name="modules_restore_done">Przywrócono %1$d modułów, pominięto %2$d niezainstalowanych tutaj.</string>
+    <string name="modules_restore_failed">Nie udało się odczytać tej kopii.</string>
+    <string name="modules_search_hint">Szukaj modułów</string>
+    <string name="modules_clear_search">Wyczyść wyszukiwanie</string>
+    <string name="modules_filter">Filtruj</string>
+    <string name="modules_section_active">Działające</string>
+    <string name="modules_section_inactive">Niedziałające</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Najpierw działające</string>
+    <string name="modules_sort_name">Wg nazwy</string>
+    <string name="modules_sort_recent">Ostatnio zaktualizowane</string>
+    <string name="modules_sort_scope">Najszerszy zakres</string>
+    <string name="modules_filter_all">Wszystkie</string>
+    <string name="modules_filter_active">Aktywne</string>
+    <string name="modules_filter_inactive">Nieaktywne</string>
+    <string name="modules_incompatible">Wymaga API Xposed %1$d, którego ten szkielet nie udostępnia.</string>
+    <string name="modules_no_daemon">Vector nie działa, więc lista modułów jest niedostępna. Otwórz stan systemu ze strony startowej, aby zobaczyć dlaczego.</string>
+    <string name="module_toggle_failed">Nie udało się zmienić %1$s. Szkielet odrzucił tę zmianę.</string>
+
+    <string name="web_open_external">Otwórz w przeglądarce</string>
+
+    <string name="settings_ambience">Powierzchnia nagłówka</string>
+    <string name="ambience_snow">Śnieg</string>
+    <string name="ambience_maze">Labirynt</string>
+    <string name="ambience_circuit">Obwód</string>
+    <string name="ambience_matrix">Deszcz kodu</string>
+    <string name="ambience_none">Nieruchoma</string>
+
+    <string name="settings_activity">Strumień aktywności</string>
+    <string name="settings_window">Historia pokazywana na stronie startowej</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">Ostatni %1$d miesiąc</item>
+        <item quantity="few">Ostatnie %1$d miesiące</item>
+        <item quantity="many">Ostatnie %1$d miesięcy</item>
+        <item quantity="other">Ostatnie %1$d miesiąca</item>
+    </plurals>
+    <string name="settings_open_externally">Otwieraj odnośniki w przeglądarce</string>
+    <string name="settings_open_externally_summary">Wyłączone: strony GitHuba otwierają się wewnątrz Vectora.</string>
+
+    <string name="scope_use_recommended">Użyj tego, o co prosi moduł</string>
+    <string name="scope_select_visible">Zaznacz wszystko, co widać</string>
+    <string name="scope_clear_visible">Odznacz wszystko, co widać</string>
+    <string name="scope_backup_done">Zakres zapisany.</string>
+    <string name="scope_backup_failed">Nie udało się odczytać ani zapisać tego pliku.</string>
+    <string name="scope_select">Zaznaczenie</string>
+    <string name="scope_sort">Sortuj</string>
+    <string name="scope_modules">Inne moduły</string>
+    <string name="scope_auto_include">Uwzględnij sam moduł</string>
+    <string name="scope_backup">Utwórz kopię tego zakresu</string>
+    <string name="scope_restore">Przywróć ten zakres</string>
+    <string name="scope_sort_package">Wg nazwy pakietu</string>
+    <string name="scope_sort_installed">Ostatnio zainstalowane</string>
+    <string name="scope_sort_updated">Ostatnio zaktualizowane</string>
+    <string name="scope_sort_reverse">Odwrotna kolejność</string>
+    <string name="scope_sort_relevance">Najpierw zaznaczone</string>
+    <string name="scope_sort_name">Wg nazwy</string>
+    <string name="scope_search_hint">Szukaj aplikacji</string>
+    <string name="scope_system_apps">Aplikacje systemowe</string>
+    <string name="scope_games">Gry</string>
+    <string name="scope_recommended">Wskazana przez ten moduł</string>
+    <string name="scope_static">Ten moduł deklaruje stały zakres i nie da się go skierować na inne aplikacje.</string>
+    <string name="scope_pending">%1$d do dodania, %2$d do usunięcia</string>
+    <string name="scope_apply_warning">Zastosowanie zrestartuje objęte aplikacje.</string>
+    <string name="scope_apply">Zastosuj</string>
+    <string name="scope_discard">Odrzuć</string>
+    <string name="scope_applied">Zakres zastosowany.</string>
+    <string name="scope_apply_failed">Szkielet odrzucił nowy zakres.</string>
+    <string name="scope_toggle_failed">Szkielet odrzucił tę zmianę.</string>
+    <string name="scope_empty_title">Nie ma się pod co podpiąć</string>
+    <string name="scope_empty_message">Ten moduł jest włączony, ale nie wybrano żadnej aplikacji, więc nic nie zrobi. Wyłącz go albo wybierz jakieś aplikacje.</string>
+    <string name="scope_empty_disable">Wyłącz moduł</string>
+    <string name="scope_empty_keep">Zostaw włączony</string>
+
+    <string name="action_launch">Otwórz</string>
+    <string name="action_app_info">Informacje o aplikacji</string>
+    <string name="action_force_stop">Wymuś zatrzymanie</string>
+    <string name="action_optimize">Zoptymalizuj ponownie</string>
+    <string name="action_uninstall">Odinstaluj</string>
+    <string name="action_launched">Otwieranie…</string>
+    <string name="action_no_launcher">Ta aplikacja nie ma nic do otwarcia.</string>
+    <string name="action_opened_info">Otwieranie informacji o aplikacji…</string>
+    <string name="action_force_stopped">Zatrzymano %1$s.</string>
+    <string name="action_optimizing">Ponowna optymalizacja %1$s. To może chwilę potrwać.</string>
+    <string name="action_optimized">Ponownie zoptymalizowano %1$s. Podpięcia utracone przez inlining powinny już działać.</string>
+    <string name="action_optimize_failed">Nie udało się ponownie zoptymalizować %1$s.</string>
+    <string name="action_uninstalled">Odinstalowano %1$s.</string>
+    <string name="action_uninstall_failed">Nie udało się odinstalować %1$s.</string>
+
+    <string name="settings">Ustawienia</string>
+    <string name="back">Wstecz</string>
+    <string name="retry">Spróbuj ponownie</string>
+
+    <string name="appearance_color">Kolor</string>
+    <string name="appearance_custom_color">Wybierz kolor</string>
+    <string name="modules_expand">Pokaż pełny opis</string>
+    <string name="modules_collapse">Pokaż mniej</string>
+    <string name="action_optimize_summary">Kompiluje aplikację na nowo, żeby ART przestał wstawiać w kod metody, pod które moduł musi się podpiąć</string>
+    <string name="modules_scope_framework">Podpina się pod szkielet systemu</string>
+    <string name="scope_origin_locked">Ustalone przez moduł</string>
+    <string name="scope_origin_auto">Automatycznie utrzymywane w zakresie</string>
+    <string name="scope_origin_chosen">Twój wybór</string>
+    <string name="modules_selection_clear">Wyczyść zaznaczenie</string>
+    <plurals name="modules_selected">
+        <item quantity="one">Zaznaczono %1$d</item>
+        <item quantity="few">Zaznaczono %1$d</item>
+        <item quantity="many">Zaznaczono %1$d</item>
+        <item quantity="other">Zaznaczono %1$d</item>
+    </plurals>
+    <string name="modules_batch_enable">Włącz wszystkie zaznaczone</string>
+    <string name="modules_batch_disable">Wyłącz wszystkie zaznaczone</string>
+    <string name="modules_batch_enabled">Włączono modułów: %1$s</string>
+    <string name="modules_batch_disabled">Wyłączono modułów: %1$s</string>
+    <string name="modules_batch_uninstalled">Odinstalowano modułów: %1$s</string>
+    <string name="modules_batch_partial">Zadziałało tylko %1$s z nich</string>
+    <string name="modules_uninstall_title">Odinstalować te moduły?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">Moduł i wszystko, co skonfigurował, zostanie usunięte. Tego nie da się cofnąć.</item>
+        <item quantity="few">Wszystkie %1$d moduły i wszystko, co skonfigurowały, zostanie usunięte. Tego nie da się cofnąć.</item>
+        <item quantity="many">Wszystkie %1$d modułów i wszystko, co skonfigurowały, zostanie usunięte. Tego nie da się cofnąć.</item>
+        <item quantity="other">Wszystkie %1$d modułu i wszystko, co skonfigurowały, zostanie usunięte. Tego nie da się cofnąć.</item>
+    </plurals>
+    <string name="canary_open_actions">Otwórz na GitHubie</string>
+    <string name="canary_open_run">Otwórz to uruchomienie</string>
+    <string name="canary_download">Pobierz</string>
+    <string name="canary_expired">Artefakty tej kompilacji wygasły.</string>
+    <string name="canary_none">Nie opublikowano jeszcze żadnej kompilacji canary.</string>
+    <string name="home_contributors_by_commits">Najwięcej commitów</string>
+    <string name="home_contributors_by_recent">Najnowsi</string>
+    <string name="scope_recommended_only">Tylko to, o co prosi moduł</string>
+    <string name="home_resting">Przerwa — zapisana aktywność. Pociągnij, aby odświeżyć.</string>
+    <string name="report_title">Zanim zgłosisz</string>
+    <string name="report_step_canary">Najpierw wypróbuj najnowszą canary</string>
+    <string name="report_step_canary_body">Być może to już naprawione, a opiekunom do pomocy potrzebna jest kompilacja debugowa. Trzymaj się gałęzi master — kompilacje z pull requestów są niestabilne.</string>
+    <string name="report_step_zygisk">Nie używasz Magiska? Zaktualizuj Zygisk</string>
+    <string name="report_step_zygisk_body">Wgraj najnowszą implementację Zygiska, w wersji debugowej, jeśli taka istnieje.</string>
+    <string name="report_step_logs">Dołącz dzienniki</string>
+    <string name="report_step_logs_body">Zgłoszenie bez dzienników to rozmowa zaczynana od nowa. To zapisze oba dzienniki do pliku zip, który możesz dołączyć.</string>
+    <string name="report_step_crashed">Jeśli Zygisk się wysypał</string>
+    <string name="report_step_crashed_body">Nie da się już poprosić usługi o plik zip, ale pliki i tak zostały zapisane. Root odczyta je nawet wtedy, gdy nic innego nie potrafi.</string>
+    <string name="report_open_tracker">Otwórz zgłoszenia projektu</string>
+    <string name="report_save_with_root">Zapisz katalog dzienników (wymaga roota)</string>
+    <string name="report_saved_to">Zapisano w %1$s</string>
+    <string name="report_see_guide">Pełny poradnik w zgłoszeniu</string>
+    <string name="report_root_refused">Odmówiono roota. Zezwól Vectorowi w swoim menedżerze roota i spróbuj ponownie%1$s</string>
+    <string name="home_custom_build">Własna kompilacja — nowsza niż master</string>
+    <string name="github_device_code">Kod urządzenia GitHub</string>
+    <string name="language_title">Język</string>
+    <string name="language_system">Domyślny systemowy</string>
+    <string name="language_system_summary">Używaj języka ustawionego w telefonie</string>
+</resources>

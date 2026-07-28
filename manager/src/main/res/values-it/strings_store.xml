@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">Cerca nel catalogo</string>
+    <string name="store_filter">Ordina e filtra</string>
+    <string name="store_sort_recent">Aggiornati di recente</string>
+    <string name="store_sort_name">Nome</string>
+    <string name="store_sort_stars">Più stelle</string>
+    <string name="store_updates_first">Prima gli aggiornamenti</string>
+    <string name="store_channel_stable">Solo versioni stabili</string>
+    <string name="store_channel_prerelease">Includi le preversioni</string>
+
+    <plurals name="store_module_count">
+        <item quantity="one">%1$d modulo</item>
+        <item quantity="other">%1$d moduli</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="one">%1$d aggiornamento</item>
+        <item quantity="other">%1$d aggiornamenti</item>
+    </plurals>
+    <string name="store_all_current">tutto quello che hai è aggiornato</string>
+    <string name="store_offline">Catalogo salvato</string>
+
+    <string name="store_badge_update">Aggiorna a %1$s</string>
+    <string name="store_badge_installed">Installato</string>
+    <string name="store_badge_prerelease">Preversione</string>
+    <string name="store_updated_on">Aggiornato il %1$s</string>
+
+    <string name="store_unreachable">Il catalogo dei moduli non era raggiungibile, e su questo dispositivo non c\'è ancora niente salvato.</string>
+    <string name="store_no_match">Nessun modulo corrisponde a questa ricerca.</string>
+    <string name="store_empty">Il catalogo non ha restituito nessun modulo.</string>
+
+    <string name="store_tab_readme">Readme</string>
+    <string name="store_tab_releases">Versioni</string>
+    <string name="store_tab_information">Informazioni</string>
+
+    <string name="store_readme_missing">Questo modulo non include un readme.</string>
+    <string name="store_detail_partial">Viene mostrato quello che l\'elenco dei moduli sapeva già. Il readme e le versioni più vecchie richiedono una connessione.</string>
+    <string name="store_releases_none">Questo modulo non ha pubblicato nessuna versione su questo canale.</string>
+    <string name="store_release_notes">Note di versione</string>
+    <string name="store_open_release">Apri su GitHub</string>
+    <string name="store_open_module">Apri la pagina del modulo</string>
+
+    <string name="store_install">Installa</string>
+    <string name="store_update">Aggiorna</string>
+    <string name="store_reinstall">Reinstalla</string>
+    <string name="store_choose_asset">Scegli un file da installare</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="one">%1$d download</item>
+        <item quantity="other">%1$d download</item>
+    </plurals>
+
+    <string name="store_confirm_title">Installare %1$s?</string>
+    <string name="store_confirm_body">%1$s (%2$s) verrà scaricato dal catalogo dei moduli e installato come %3$s.</string>
+    <string name="store_confirm_trust">Un modulo gira con i privilegi del framework dentro le app che aggancia. Installane uno solo se ti fidi del suo autore.</string>
+    <string name="store_confirm_silent">Vector lo installa da sé e il sistema non chiederà di nuovo.</string>
+
+    <string name="store_downloading">Download di %1$s su %2$s</string>
+    <string name="store_installing">Installazione…</string>
+    <string name="store_confirming">In attesa della richiesta di sistema…</string>
+    <string name="store_install_failed">Impossibile installare %1$s</string>
+    <string name="store_install_failed_reason">Impossibile installare %1$s: %2$s</string>
+    <string name="store_cancel">Annulla</string>
+
+    <string name="store_info_summary">Riepilogo</string>
+    <string name="store_info_scope">Hook</string>
+    <string name="store_info_scope_undeclared">Non dichiarato. Questo modulo non dice quali app aggancia.</string>
+    <string name="store_info_homepage">Sito</string>
+    <string name="store_info_source">Codice sorgente</string>
+    <string name="store_info_collaborators">Manutentori</string>
+    <string name="store_info_stars">Stelle</string>
+    <string name="store_info_updated">Ultima versione</string>
+    <string name="store_info_created">Prima pubblicazione</string>
+
+    <string name="store_doh">Risolvi i mirror via HTTPS</string>
+    <string name="store_release_notes_hide">Nascondi le note</string>
+    <string name="store_installed_first">Prima gli installati</string>
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">로그</string>
+
+    <string name="logs_word_wrap">긴 줄 접기</string>
+    <string name="logs_save">버그 신고 저장…</string>
+    <string name="logs_rotate">새 로그 시작…</string>
+
+    <string name="logs_search_hint">이 로그에서 검색</string>
+    <string name="logs_filter">수준과 태그로 거르기</string>
+    <string name="logs_filter_levels">수준</string>
+    <string name="logs_filter_tags">태그</string>
+    <string name="logs_filter_clear">필터 지우기</string>
+    <string name="logs_filter_scanning">화면 밖까지 걸러낼 수 있도록 파일 전체를 읽는 중입니다.</string>
+
+    <string name="logs_level_verbose">상세</string>
+    <string name="logs_level_debug">디버그</string>
+    <string name="logs_level_info">정보</string>
+    <string name="logs_level_warn">경고</string>
+    <string name="logs_level_error">오류</string>
+    <string name="logs_level_fatal">치명적</string>
+    <string name="logs_level_other">기타</string>
+
+    <string name="logs_window">%3$d줄 중 %1$d–%2$d줄</string>
+    <plurals name="logs_matches">
+        <item quantity="other">일치하는 줄 %1$d개</item>
+    </plurals>
+    <string name="logs_dropped">이 로그는 뷰어가 색인할 수 있는 길이를 넘습니다. 가장 오래된 %1$d줄은 표시되지 않습니다. 남기려면 버그 신고를 저장하세요.</string>
+    <string name="logs_line_truncated">줄 잘림</string>
+    <plurals name="logs_frames">
+        <item quantity="other">스택 %1$d단</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">데몬에 연결할 수 없음</string>
+    <string name="logs_state_daemon_body">Vector가 실행 중이 아니면 로그에 대해 알 수 있는 것이 없습니다. 홈의 상태 띠가 초록색이 아닌 이유도 같습니다.</string>
+    <string name="logs_state_nofile_title">아직 로그 파일이 없음</string>
+    <string name="logs_state_nofile_body">데몬은 실행 중이지만 이 로그를 열지 않았습니다. 상세 로그라면 보통 상세 기록이 꺼져 있다는 뜻입니다.</string>
+    <string name="logs_state_empty_title">이 로그는 비어 있음</string>
+    <string name="logs_state_empty_body">파일은 있지만 아무것도 기록되지 않았습니다. 모듈 로그에서 조용한 시스템은 이런 모습입니다.</string>
+    <string name="logs_state_nomatches_title">일치하는 것이 없음</string>
+    <string name="logs_state_nomatches_body">파일에 내용은 있지만 지금 필터가 전부 걸러내고 있습니다.</string>
+    <string name="logs_state_failed_title">로그를 읽지 못함</string>
+    <string name="logs_state_failed_body">데몬이 건넨 파일을 읽을 수 없었습니다: %1$s</string>
+    <string name="logs_loading">색인하는 중…</string>
+
+    <string name="logs_verbose_switch">상세 기록</string>
+    <string name="logs_verbose_enforced">실행 중인 데몬이 이 설정을 강제로 켜 두고 있습니다.</string>
+
+    <string name="logs_jump_oldest">가장 오래된 줄로</string>
+    <string name="logs_jump_newest">가장 최근 줄로</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">새 로그를 시작할까요?</string>
+    <string name="logs_rotate_body">아무것도 지워지지 않습니다. 데몬이 지금 조각을 닫고 새 조각을 엽니다. 닫힌 조각은 최근 열 개에서 밀려날 때까지 기기에 남고 — 밀어서 볼 수 있습니다 — 저장한 버그 신고에도 그대로 들어갑니다.</string>
+    <string name="logs_rotate_confirm">새 로그 시작</string>
+    <string name="logs_rotate_done">새 로그를 시작했습니다</string>
+    <string name="logs_rotate_failed">데몬이 새 로그 시작을 거부했습니다</string>
+    <string name="logs_cancel">취소</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">로그, tombstone, dmesg를 모으는 중…</string>
+    <string name="logs_saved">버그 신고를 저장했습니다</string>
+    <string name="logs_save_failed">버그 신고를 저장하지 못했습니다</string>
+    <string name="logs_save_failed_reason">버그 신고를 저장하지 못했습니다: %1$s</string>
+    <string name="logs_share">공유</string>
+
+    <string name="logs_filter_clear_tag">태그 필터 지우기</string>
+    <string name="logs_settings">로그 설정</string>
+    <string name="logs_source_more">프레임워크 자체의 줄도 포함</string>
+    <string name="logs_source_less">모듈의 줄만 표시</string>
+    <string name="logs_verbose_summary">버그를 신고하기 전에 켜세요. 앱은 자기 로그를 읽을 수 있으므로, 계속 켜 두면 앱이 Vector를 알아챌 통로가 됩니다.</string>
+    <string name="logs_save_summary">두 로그를 원하는 zip에 기록합니다</string>
+    <string name="logs_rotate_summary">지금 조각을 닫고 새 조각을 엽니다</string>
+    <string name="logs_part">%2$d개 중 %1$d번째 조각</string>
+    <string name="logs_part_older">이전 조각</string>
+    <string name="logs_part_newer">이후 조각</string>
+</resources>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Indonesian. The folder is values-in, not values-id: Android keeps the obsolete ISO 639
+  code for Indonesian, and a values-id folder is never matched at runtime.
+-->
+<resources>
+
+    <string name="nav_home">Beranda</string>
+    <string name="nav_modules">Modul</string>
+    <string name="nav_store">Katalog</string>
+    <string name="nav_logs">Log</string>
+
+    <string name="status_active">Aktif</string>
+    <string name="status_degraded">Perlu perhatian</string>
+    <string name="status_inactive">Belum diaktifkan</string>
+    <string name="status_checking">Memeriksa…</string>
+    <string name="status_open_details">Buka status sistem</string>
+
+    <string name="issue_sepolicy_title">Kebijakan SELinux tidak dimuat</string>
+    <string name="issue_sepolicy_summary">Sebagian fitur tidak akan bekerja. Biasanya ini berarti implementasi root tidak menerapkan aturan kebijakan Vector.</string>
+    <string name="issue_system_server_title">Injeksi ke framework sistem gagal</string>
+    <string name="issue_system_server_summary">Modul tidak bisa meng-hook layanan sistem. Ini jarang terjadi, dan biasanya disebabkan modul root lain yang mengganggu.</string>
+    <string name="issue_dex2oat_title">Pembungkus dex2oat tidak tersedia</string>
+    <string name="issue_dex2oat_summary">Beberapa properti sistem dihapus atau diubah. Modul bisa berhenti bekerja setelah sebuah aplikasi diperbarui.</string>
+
+    <string name="system_status">Status sistem</string>
+    <string name="info_api_version">API Xposed</string>
+    <string name="info_framework_version">Framework</string>
+    <string name="info_manager_package">Paket pengelola</string>
+    <string name="info_dex2oat">Pembungkus dex2oat</string>
+    <string name="info_selinux">Kebijakan SELinux</string>
+    <string name="info_system_server">Framework sistem</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Perangkat</string>
+    <string name="info_abi">Arsitektur</string>
+    <string name="info_supported">Didukung</string>
+    <string name="info_unsupported">Tidak didukung</string>
+    <string name="info_loaded">Dimuat</string>
+    <string name="info_not_loaded">Tidak dimuat</string>
+    <string name="info_injected">Terinjeksi</string>
+    <string name="info_not_injected">Tidak terinjeksi</string>
+    <string name="status_notification">Notifikasi status</string>
+    <string name="status_notification_summary">Notifikasi permanen yang menandakan Vector sedang berjalan.</string>
+    <string name="hidden_icon">Paksa ikon di peluncur</string>
+    <string name="hidden_icon_summary">Tampilkan ikon aplikasi yang menyembunyikan diri dari peluncur.</string>
+    <string name="action_copy_all">Salin semua</string>
+    <string name="copied">Disalin ke papan klip</string>
+
+    <string name="home_quarter_title">Aktivitas terbaru</string>
+    <plurals name="home_commit_count">
+        <item quantity="other">%1$d commit</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="other">oleh %1$d orang</item>
+    </plurals>
+    <string name="home_since">sejak %1$s</string>
+    <string name="home_no_activity">Tidak ada commit dalam enam bulan terakhir.</string>
+    <string name="home_loading_activity">Memuat aktivitas terbaru…</string>
+    <string name="home_offline">Menampilkan aktivitas tersimpan — GitHub tidak dapat dihubungi.</string>
+    <string name="home_bumps">%1$d pembaruan dependensi</string>
+    <string name="home_contribute">Ikut serta</string>
+    <string name="home_test_canary">Coba build canary</string>
+    <string name="home_open_issue">Laporkan masalah</string>
+    <string name="home_discussions">Diskusi</string>
+    <string name="home_review_prs">Tinjau sebuah perubahan</string>
+
+    <string name="github_sign_in">Masuk ke GitHub</string>
+    <string name="github_sign_in_why">Opsional. Menaikkan batas per jam untuk pembaruan aktivitas, dan membuat Vector bisa menampilkan apa yang menunggu Anda. Hanya baca — tidak ada izin yang diminta.</string>
+    <string name="github_sign_in_code">Masukkan kode ini di %1$s</string>
+    <string name="github_open_browser">Buka peramban</string>
+    <string name="github_copy_code">Salin kode</string>
+    <string name="github_signed_in_as">Masuk sebagai %1$s</string>
+    <string name="github_sign_out">Keluar</string>
+    <string name="github_cancel">Batal</string>
+    <string name="github_unreachable">GitHub tidak dapat dihubungi. Selebihnya tetap berjalan.</string>
+    <string name="home_with_coauthor">%1$s &amp; %2$s</string>
+    <string name="home_with_coauthors">%1$s &amp; %2$d lainnya</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="other">%1$d orang</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="other">%1$d commit lebih baru dari milik Anda</item>
+    </plurals>
+    <string name="home_your_build">build Anda %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="other">%1$d hari sepi</item>
+    </plurals>
+
+    <string name="time_yesterday">kemarin</string>
+    <plurals name="time_days_ago">
+        <item quantity="other">%1$d hari lalu</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="other">%1$d minggu lalu</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="other">%1$d bulan lalu</item>
+    </plurals>
+
+    <string name="appearance_title">Tampilan</string>
+    <string name="appearance_theme">Tema</string>
+    <string name="appearance_theme_system">Ikuti sistem</string>
+    <string name="appearance_theme_light">Terang</string>
+    <string name="appearance_theme_dark">Gelap</string>
+    <string name="appearance_dynamic_color">Warna dari wallpaper</string>
+    <string name="appearance_amoled">Hitam pekat di tema gelap</string>
+    <string name="appearance_amoled_summary">Menghemat daya di layar OLED.</string>
+    <string name="egg_two_more">Dua kali lagi…</string>
+    <string name="egg_one_more">Sekali lagi…</string>
+
+    <string name="modules_empty">Belum ada modul terpasang.</string>
+    <string name="modules_active_of">%1$d dari %2$d aktif</string>
+    <string name="modules_no_match">Tidak ada modul yang cocok dengan pencarian itu.</string>
+    <string name="modules_backup">Cadangkan modul</string>
+    <string name="modules_restore">Pulihkan modul</string>
+    <string name="modules_backup_done">%1$d modul dan cakupannya telah dicadangkan.</string>
+    <string name="modules_backup_failed">Cadangan tidak bisa ditulis.</string>
+    <string name="modules_restore_done">%1$d modul dipulihkan, %2$d dilewati karena tidak terpasang di sini.</string>
+    <string name="modules_restore_failed">Cadangan itu tidak bisa dibaca.</string>
+    <string name="modules_search_hint">Cari modul</string>
+    <string name="modules_clear_search">Hapus pencarian</string>
+    <string name="modules_filter">Saring</string>
+    <string name="modules_section_active">Berjalan</string>
+    <string name="modules_section_inactive">Tidak berjalan</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Yang berjalan dulu</string>
+    <string name="modules_sort_name">Menurut nama</string>
+    <string name="modules_sort_recent">Baru diperbarui</string>
+    <string name="modules_sort_scope">Cakupan terluas</string>
+    <string name="modules_filter_all">Semua</string>
+    <string name="modules_filter_active">Aktif</string>
+    <string name="modules_filter_inactive">Nonaktif</string>
+    <string name="modules_incompatible">Butuh API Xposed %1$d, yang tidak disediakan framework ini.</string>
+    <string name="modules_no_daemon">Vector tidak berjalan, jadi daftar modul tidak tersedia. Buka status sistem dari Beranda untuk melihat sebabnya.</string>
+    <string name="module_toggle_failed">%1$s tidak bisa diubah. Framework menolak perubahan itu.</string>
+
+    <string name="web_open_external">Buka di peramban</string>
+
+    <string name="settings_ambience">Permukaan kepala halaman</string>
+    <string name="ambience_snow">Salju</string>
+    <string name="ambience_maze">Labirin</string>
+    <string name="ambience_circuit">Sirkuit</string>
+    <string name="ambience_matrix">Hujan kode</string>
+    <string name="ambience_none">Diam</string>
+
+    <string name="settings_activity">Umpan aktivitas</string>
+    <string name="settings_window">Riwayat yang ditampilkan di Beranda</string>
+    <plurals name="settings_window_months">
+        <item quantity="other">%1$d bulan terakhir</item>
+    </plurals>
+    <string name="settings_open_externally">Buka tautan di peramban</string>
+    <string name="settings_open_externally_summary">Mati: halaman GitHub dibuka di dalam Vector.</string>
+
+    <string name="scope_use_recommended">Pakai yang diminta modul</string>
+    <string name="scope_select_visible">Pilih semua yang tampil</string>
+    <string name="scope_clear_visible">Batalkan pilihan semua yang tampil</string>
+    <string name="scope_backup_done">Cakupan disimpan.</string>
+    <string name="scope_backup_failed">Berkas itu tidak bisa dibaca atau ditulis.</string>
+    <string name="scope_select">Pilihan</string>
+    <string name="scope_sort">Urutkan</string>
+    <string name="scope_modules">Modul lain</string>
+    <string name="scope_auto_include">Sertakan modulnya sendiri</string>
+    <string name="scope_backup">Cadangkan cakupan ini</string>
+    <string name="scope_restore">Pulihkan cakupan ini</string>
+    <string name="scope_sort_package">Menurut nama paket</string>
+    <string name="scope_sort_installed">Baru dipasang</string>
+    <string name="scope_sort_updated">Baru diperbarui</string>
+    <string name="scope_sort_reverse">Urutan terbalik</string>
+    <string name="scope_sort_relevance">Yang dipilih dulu</string>
+    <string name="scope_sort_name">Menurut nama</string>
+    <string name="scope_search_hint">Cari aplikasi</string>
+    <string name="scope_system_apps">Aplikasi sistem</string>
+    <string name="scope_games">Game</string>
+    <string name="scope_recommended">Diminta oleh modul ini</string>
+    <string name="scope_static">Modul ini menetapkan cakupan yang tetap dan tidak bisa diarahkan ke aplikasi lain.</string>
+    <string name="scope_pending">%1$d ditambah, %2$d dihapus</string>
+    <string name="scope_apply_warning">Menerapkan akan memulai ulang aplikasi yang terpengaruh.</string>
+    <string name="scope_apply">Terapkan</string>
+    <string name="scope_discard">Buang</string>
+    <string name="scope_applied">Cakupan diterapkan.</string>
+    <string name="scope_apply_failed">Framework menolak cakupan yang baru.</string>
+    <string name="scope_toggle_failed">Framework menolak perubahan itu.</string>
+    <string name="scope_empty_title">Tidak ada yang bisa di-hook</string>
+    <string name="scope_empty_message">Modul ini aktif tetapi tidak ada aplikasi yang dipilih, jadi ia tidak akan melakukan apa pun. Nonaktifkan, atau pilih beberapa aplikasi.</string>
+    <string name="scope_empty_disable">Nonaktifkan modul</string>
+    <string name="scope_empty_keep">Biarkan aktif</string>
+
+    <string name="action_launch">Buka</string>
+    <string name="action_app_info">Info aplikasi</string>
+    <string name="action_force_stop">Paksa berhenti</string>
+    <string name="action_optimize">Optimalkan ulang</string>
+    <string name="action_uninstall">Copot pemasangan</string>
+    <string name="action_launched">Membuka…</string>
+    <string name="action_no_launcher">Aplikasi ini tidak punya apa pun untuk dibuka.</string>
+    <string name="action_opened_info">Membuka info aplikasi…</string>
+    <string name="action_force_stopped">%1$s dihentikan.</string>
+    <string name="action_optimizing">Mengoptimalkan ulang %1$s. Ini bisa memakan waktu.</string>
+    <string name="action_optimized">%1$s dioptimalkan ulang. Hook yang hilang karena inlining semestinya bekerja sekarang.</string>
+    <string name="action_optimize_failed">%1$s tidak bisa dioptimalkan ulang.</string>
+    <string name="action_uninstalled">%1$s dicopot.</string>
+    <string name="action_uninstall_failed">%1$s tidak bisa dicopot.</string>
+
+    <string name="settings">Setelan</string>
+    <string name="back">Kembali</string>
+    <string name="retry">Coba lagi</string>
+
+    <string name="appearance_color">Warna</string>
+    <string name="appearance_custom_color">Pilih warna</string>
+    <string name="modules_expand">Tampilkan deskripsi lengkap</string>
+    <string name="modules_collapse">Tampilkan lebih sedikit</string>
+    <string name="action_optimize_summary">Mengompilasi ulang aplikasi agar ART berhenti meng-inline metode yang perlu di-hook sebuah modul</string>
+    <string name="modules_scope_framework">Meng-hook framework sistem</string>
+    <string name="scope_origin_locked">Ditetapkan oleh modul</string>
+    <string name="scope_origin_auto">Dipertahankan dalam cakupan secara otomatis</string>
+    <string name="scope_origin_chosen">Pilihan Anda</string>
+    <string name="modules_selection_clear">Batalkan pilihan</string>
+    <plurals name="modules_selected">
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+    <string name="modules_batch_enable">Aktifkan semua yang dipilih</string>
+    <string name="modules_batch_disable">Nonaktifkan semua yang dipilih</string>
+    <string name="modules_batch_enabled">%1$s modul diaktifkan</string>
+    <string name="modules_batch_disabled">%1$s modul dinonaktifkan</string>
+    <string name="modules_batch_uninstalled">%1$s modul dicopot</string>
+    <string name="modules_batch_partial">Hanya %1$s di antaranya yang berhasil</string>
+    <string name="modules_uninstall_title">Copot modul-modul ini?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="other">Semua %1$d modul dan segala yang mereka atur akan dihapus. Ini tidak bisa dibatalkan.</item>
+    </plurals>
+    <string name="canary_open_actions">Buka di GitHub</string>
+    <string name="canary_open_run">Buka eksekusi ini</string>
+    <string name="canary_download">Unduh</string>
+    <string name="canary_expired">Artefak build ini sudah kedaluwarsa.</string>
+    <string name="canary_none">Belum ada build canary yang diterbitkan.</string>
+    <string name="home_contributors_by_commits">Commit terbanyak</string>
+    <string name="home_contributors_by_recent">Paling baru</string>
+    <string name="scope_recommended_only">Hanya yang diminta modul</string>
+    <string name="home_resting">Sedang istirahat — aktivitas tersimpan. Tarik untuk menyegarkan.</string>
+    <string name="report_title">Sebelum melapor</string>
+    <string name="report_step_canary">Coba dulu canary terbaru</string>
+    <string name="report_step_canary_body">Mungkin sudah diperbaiki, dan build debug adalah yang dibutuhkan pemelihara untuk membantu Anda. Tetap di master — build dari pull request tidak stabil.</string>
+    <string name="report_step_zygisk">Tidak memakai Magisk? Perbarui Zygisk</string>
+    <string name="report_step_zygisk_body">Pasang implementasi Zygisk terbaru, dalam build debug bila ada.</string>
+    <string name="report_step_logs">Lampirkan log</string>
+    <string name="report_step_logs_body">Laporan tanpa log adalah percakapan yang dimulai dari awal lagi. Ini menulis kedua log ke sebuah zip yang bisa Anda lampirkan.</string>
+    <string name="report_step_crashed">Jika Zygisk mogok</string>
+    <string name="report_step_crashed_body">Zip tidak bisa lagi diminta ke daemon, tetapi berkasnya sudah terlanjur ditulis. Root bisa membacanya bahkan ketika tidak ada cara lain.</string>
+    <string name="report_open_tracker">Buka pelacak masalah</string>
+    <string name="report_save_with_root">Simpan folder log (perlu root)</string>
+    <string name="report_saved_to">Disimpan ke %1$s</string>
+    <string name="report_see_guide">Panduan lengkap ada di isu</string>
+    <string name="report_root_refused">Root ditolak. Izinkan Vector di pengelola root Anda, lalu coba lagi%1$s</string>
+    <string name="home_custom_build">Build sendiri — lebih maju dari master</string>
+    <string name="github_device_code">Kode perangkat GitHub</string>
+    <string name="language_title">Bahasa</string>
+    <string name="language_system">Bawaan sistem</string>
+    <string name="language_system_summary">Ikuti bahasa yang disetel di ponsel</string>
+</resources>

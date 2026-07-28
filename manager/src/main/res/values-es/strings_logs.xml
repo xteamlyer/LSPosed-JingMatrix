@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">Registros</string>
+
+    <string name="logs_word_wrap">Ajustar las líneas largas</string>
+    <string name="logs_save">Guardar un informe de error…</string>
+    <string name="logs_rotate">Empezar un registro nuevo…</string>
+
+    <string name="logs_search_hint">Buscar en este registro</string>
+    <string name="logs_filter">Filtrar por nivel y etiqueta</string>
+    <string name="logs_filter_levels">Nivel</string>
+    <string name="logs_filter_tags">Etiqueta</string>
+    <string name="logs_filter_clear">Quitar el filtro</string>
+    <string name="logs_filter_scanning">Leyendo el archivo entero para que el filtro alcance más allá de lo que hay en pantalla.</string>
+
+    <string name="logs_level_verbose">Detallado</string>
+    <string name="logs_level_debug">Depuración</string>
+    <string name="logs_level_info">Info</string>
+    <string name="logs_level_warn">Aviso</string>
+    <string name="logs_level_error">Error</string>
+    <string name="logs_level_fatal">Fatal</string>
+    <string name="logs_level_other">Otro</string>
+
+    <string name="logs_window">Líneas %1$d–%2$d de %3$d</string>
+    <plurals name="logs_matches">
+        <item quantity="one">%1$d línea coincidente</item>
+        <item quantity="other">%1$d líneas coincidentes</item>
+    </plurals>
+    <string name="logs_dropped">Este registro es más largo de lo que el visor indexa. Las %1$d líneas más antiguas no se muestran; guarda un informe de error para conservarlas.</string>
+    <string name="logs_line_truncated">línea cortada</string>
+    <plurals name="logs_frames">
+        <item quantity="one">%1$d marco</item>
+        <item quantity="other">%1$d marcos</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">No se puede contactar con el daemon</string>
+    <string name="logs_state_daemon_body">No se sabe nada del registro mientras Vector no esté en marcha. Es la misma razón por la que la cinta de estado de Inicio no está verde.</string>
+    <string name="logs_state_nofile_title">Todavía no hay archivo de registro</string>
+    <string name="logs_state_nofile_body">El daemon está en marcha pero no ha abierto este registro. En el registro detallado eso suele significar que el registro detallado está desactivado.</string>
+    <string name="logs_state_empty_title">Este registro está vacío</string>
+    <string name="logs_state_empty_body">El archivo existe y no se ha escrito nada en él. En el registro de módulos, así es como se ve un sistema tranquilo.</string>
+    <string name="logs_state_nomatches_title">No hay coincidencias</string>
+    <string name="logs_state_nomatches_body">El archivo tiene contenido; el filtro actual lo excluye todo.</string>
+    <string name="logs_state_failed_title">No se pudo leer el registro</string>
+    <string name="logs_state_failed_body">El daemon entregó un archivo que no se pudo leer: %1$s</string>
+    <string name="logs_loading">Indexando…</string>
+
+    <string name="logs_verbose_switch">Registro detallado</string>
+    <string name="logs_verbose_enforced">El daemon en marcha lo mantiene activado de todos modos.</string>
+
+    <string name="logs_jump_oldest">Ir a la línea más antigua</string>
+    <string name="logs_jump_newest">Ir a la línea más reciente</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">¿Empezar un registro nuevo?</string>
+    <string name="logs_rotate_body">No se borra nada. El daemon cierra la parte actual y abre una nueva; la parte cerrada se queda en el disco —a un deslizamiento de aquí— hasta que salga de las diez más recientes, y un informe de error guardado la sigue incluyendo.</string>
+    <string name="logs_rotate_confirm">Empezar un registro nuevo</string>
+    <string name="logs_rotate_done">Se ha empezado un registro nuevo</string>
+    <string name="logs_rotate_failed">El daemon se negó a empezar un registro nuevo</string>
+    <string name="logs_cancel">Cancelar</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">Recogiendo registros, tombstones y dmesg…</string>
+    <string name="logs_saved">Informe de error guardado</string>
+    <string name="logs_save_failed">No se pudo guardar el informe de error</string>
+    <string name="logs_save_failed_reason">No se pudo guardar el informe de error: %1$s</string>
+    <string name="logs_share">Compartir</string>
+
+    <string name="logs_filter_clear_tag">Quitar el filtro de etiqueta</string>
+    <string name="logs_settings">Ajustes de los registros</string>
+    <string name="logs_source_more">Incluir también las líneas del framework</string>
+    <string name="logs_source_less">Mostrar solo las líneas de los módulos</string>
+    <string name="logs_verbose_summary">Actívalo antes de informar de un error. Las apps pueden leer sus propios registros, así que dejarlo activado es una vía por la que una app puede detectar Vector.</string>
+    <string name="logs_save_summary">Escribe ambos registros en un zip que tú elijas</string>
+    <string name="logs_rotate_summary">Cierra la parte actual y abre una nueva</string>
+    <string name="logs_part">parte %1$d/%2$d</string>
+    <string name="logs_part_older">Parte anterior</string>
+    <string name="logs_part_newer">Parte posterior</string>
+</resources>

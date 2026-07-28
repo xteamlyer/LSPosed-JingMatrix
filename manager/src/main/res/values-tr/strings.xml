@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">Ana sayfa</string>
+    <string name="nav_modules">Modüller</string>
+    <string name="nav_store">Katalog</string>
+    <string name="nav_logs">Günlükler</string>
+
+    <string name="status_active">Etkin</string>
+    <string name="status_degraded">İlgi gerekiyor</string>
+    <string name="status_inactive">Etkinleştirilmedi</string>
+    <string name="status_checking">Denetleniyor…</string>
+    <string name="status_open_details">Sistem durumunu aç</string>
+
+    <string name="issue_sepolicy_title">SELinux ilkesi yüklenmedi</string>
+    <string name="issue_sepolicy_summary">Bazı özellikler çalışmayacak. Bu genellikle root uygulamasının Vector\'ün ilke kurallarını uygulamadığı anlamına gelir.</string>
+    <string name="issue_system_server_title">Sistem çatısına enjeksiyon başarısız</string>
+    <string name="issue_system_server_summary">Modüller sistem servislerine hook takamıyor. Nadirdir; genellikle araya giren başka bir root modülünden kaynaklanır.</string>
+    <string name="issue_dex2oat_title">dex2oat sarmalayıcısı kullanılamıyor</string>
+    <string name="issue_dex2oat_summary">Bazı sistem özellikleri kaldırılmış ya da değiştirilmiş. Bir uygulama güncellendikten sonra modüller etkisini yitirebilir.</string>
+
+    <string name="system_status">Sistem durumu</string>
+    <string name="info_api_version">Xposed API\'si</string>
+    <string name="info_framework_version">Çatı</string>
+    <string name="info_manager_package">Yönetici paketi</string>
+    <string name="info_dex2oat">dex2oat sarmalayıcısı</string>
+    <string name="info_selinux">SELinux ilkesi</string>
+    <string name="info_system_server">Sistem çatısı</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Cihaz</string>
+    <string name="info_abi">Mimari</string>
+    <string name="info_supported">Destekleniyor</string>
+    <string name="info_unsupported">Desteklenmiyor</string>
+    <string name="info_loaded">Yüklendi</string>
+    <string name="info_not_loaded">Yüklenmedi</string>
+    <string name="info_injected">Enjekte edildi</string>
+    <string name="info_not_injected">Enjekte edilmedi</string>
+    <string name="status_notification">Durum bildirimi</string>
+    <string name="status_notification_summary">Vector\'ün çalıştığını gösteren kalıcı bir bildirim.</string>
+    <string name="hidden_icon">Başlatıcı simgelerini zorla</string>
+    <string name="hidden_icon_summary">Kendini başlatıcıdan gizleyen uygulamaların simgelerini de göster.</string>
+    <string name="action_copy_all">Tümünü kopyala</string>
+    <string name="copied">Panoya kopyalandı</string>
+
+    <string name="home_quarter_title">Son hareketler</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commit</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">%1$d kişiden</item>
+        <item quantity="other">%1$d kişiden</item>
+    </plurals>
+    <string name="home_since">%1$s tarihinden beri</string>
+    <string name="home_no_activity">Son altı ayda hiç commit yok.</string>
+    <string name="home_loading_activity">Son hareketler yükleniyor…</string>
+    <string name="home_offline">Kayıtlı hareketler gösteriliyor — GitHub\'a ulaşılamadı.</string>
+    <string name="home_bumps">%1$d bağımlılık güncellemesi</string>
+    <string name="home_contribute">Katıl</string>
+    <string name="home_test_canary">Bir canary sürümü dene</string>
+    <string name="home_open_issue">Sorun bildir</string>
+    <string name="home_discussions">Tartışmalar</string>
+    <string name="home_review_prs">Bir değişikliği incele</string>
+
+    <string name="github_sign_in">GitHub\'a giriş yap</string>
+    <string name="github_sign_in_why">İsteğe bağlı. Hareket güncellemelerinin saatlik sınırını yükseltir ve Vector\'ün sizi bekleyenleri göstermesini sağlar. Yalnızca okuma — hiçbir izin istenmez.</string>
+    <string name="github_sign_in_code">Bu kodu %1$s adresine girin</string>
+    <string name="github_open_browser">Tarayıcıyı aç</string>
+    <string name="github_copy_code">Kodu kopyala</string>
+    <string name="github_signed_in_as">%1$s olarak giriş yapıldı</string>
+    <string name="github_sign_out">Çıkış yap</string>
+    <string name="github_cancel">Vazgeç</string>
+    <string name="github_unreachable">GitHub\'a ulaşılamadı. Diğer her şey çalışmaya devam ediyor.</string>
+    <string name="home_with_coauthor">%1$s ve %2$s</string>
+    <string name="home_with_coauthors">%1$s ve %2$d kişi daha</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d kişi</item>
+        <item quantity="other">%1$d kişi</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">sizinkinden %1$d commit yeni</item>
+        <item quantity="other">sizinkinden %1$d commit yeni</item>
+    </plurals>
+    <string name="home_your_build">sizin sürümünüz %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d gün sessizlik</item>
+        <item quantity="other">%1$d gün sessizlik</item>
+    </plurals>
+
+    <string name="time_yesterday">dün</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%1$d gün önce</item>
+        <item quantity="other">%1$d gün önce</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">%1$d hafta önce</item>
+        <item quantity="other">%1$d hafta önce</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">%1$d ay önce</item>
+        <item quantity="other">%1$d ay önce</item>
+    </plurals>
+
+    <string name="appearance_title">Görünüm</string>
+    <string name="appearance_theme">Tema</string>
+    <string name="appearance_theme_system">Sistemi izle</string>
+    <string name="appearance_theme_light">Açık</string>
+    <string name="appearance_theme_dark">Koyu</string>
+    <string name="appearance_dynamic_color">Duvar kâğıdından renkler</string>
+    <string name="appearance_amoled">Koyu temada saf siyah</string>
+    <string name="appearance_amoled_summary">OLED ekranlarda güç tasarrufu sağlar.</string>
+    <string name="egg_two_more">İki kez daha…</string>
+    <string name="egg_one_more">Bir kez daha…</string>
+
+    <string name="modules_empty">Kurulu modül yok.</string>
+    <string name="modules_active_of">%2$d modülden %1$d tanesi etkin</string>
+    <string name="modules_no_match">Bu aramayla eşleşen modül yok.</string>
+    <string name="modules_backup">Modülleri yedekle</string>
+    <string name="modules_restore">Modülleri geri yükle</string>
+    <string name="modules_backup_done">%1$d modül ve kapsamları yedeklendi.</string>
+    <string name="modules_backup_failed">Yedek yazılamadı.</string>
+    <string name="modules_restore_done">%1$d modül geri yüklendi, burada kurulu olmayan %2$d tanesi atlandı.</string>
+    <string name="modules_restore_failed">Bu yedek okunamadı.</string>
+    <string name="modules_search_hint">Modül ara</string>
+    <string name="modules_clear_search">Aramayı temizle</string>
+    <string name="modules_filter">Süz</string>
+    <string name="modules_section_active">Çalışıyor</string>
+    <string name="modules_section_inactive">Çalışmıyor</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Önce çalışanlar</string>
+    <string name="modules_sort_name">Ada göre</string>
+    <string name="modules_sort_recent">Yakında güncellenenler</string>
+    <string name="modules_sort_scope">En geniş kapsam</string>
+    <string name="modules_filter_all">Tümü</string>
+    <string name="modules_filter_active">Etkin</string>
+    <string name="modules_filter_inactive">Etkin değil</string>
+    <string name="modules_incompatible">Xposed API %1$d gerekiyor; bu çatı onu sağlamıyor.</string>
+    <string name="modules_no_daemon">Vector çalışmıyor, bu yüzden modül listesi alınamıyor. Nedenini görmek için Ana sayfadan sistem durumunu açın.</string>
+    <string name="module_toggle_failed">%1$s değiştirilemedi. Çatı değişikliği reddetti.</string>
+
+    <string name="web_open_external">Tarayıcıda aç</string>
+
+    <string name="settings_ambience">Başlık yüzeyi</string>
+    <string name="ambience_snow">Kar</string>
+    <string name="ambience_maze">Labirent</string>
+    <string name="ambience_circuit">Devre</string>
+    <string name="ambience_matrix">Kod yağmuru</string>
+    <string name="ambience_none">Durgun</string>
+
+    <string name="settings_activity">Hareket akışı</string>
+    <string name="settings_window">Ana sayfada gösterilen geçmiş</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">Son %1$d ay</item>
+        <item quantity="other">Son %1$d ay</item>
+    </plurals>
+    <string name="settings_open_externally">Bağlantıları tarayıcıda aç</string>
+    <string name="settings_open_externally_summary">Kapalı: GitHub sayfaları Vector içinde açılır.</string>
+
+    <string name="scope_use_recommended">Modülün istediğini kullan</string>
+    <string name="scope_select_visible">Görünenlerin tümünü seç</string>
+    <string name="scope_clear_visible">Görünenlerin seçimini kaldır</string>
+    <string name="scope_backup_done">Kapsam kaydedildi.</string>
+    <string name="scope_backup_failed">Bu dosya okunamadı ya da yazılamadı.</string>
+    <string name="scope_select">Seçim</string>
+    <string name="scope_sort">Sırala</string>
+    <string name="scope_modules">Diğer modüller</string>
+    <string name="scope_auto_include">Modülün kendisini de içer</string>
+    <string name="scope_backup">Bu kapsamı yedekle</string>
+    <string name="scope_restore">Bu kapsamı geri yükle</string>
+    <string name="scope_sort_package">Paket adına göre</string>
+    <string name="scope_sort_installed">Yakında kurulanlar</string>
+    <string name="scope_sort_updated">Yakında güncellenenler</string>
+    <string name="scope_sort_reverse">Ters sıra</string>
+    <string name="scope_sort_relevance">Önce seçilenler</string>
+    <string name="scope_sort_name">Ada göre</string>
+    <string name="scope_search_hint">Uygulama ara</string>
+    <string name="scope_system_apps">Sistem uygulamaları</string>
+    <string name="scope_games">Oyunlar</string>
+    <string name="scope_recommended">Bu modülün istediği</string>
+    <string name="scope_static">Bu modül sabit bir kapsam bildiriyor ve başka uygulamalara yöneltilemez.</string>
+    <string name="scope_pending">%1$d eklenecek, %2$d çıkarılacak</string>
+    <string name="scope_apply_warning">Uygulamak, etkilenen uygulamaları yeniden başlatır.</string>
+    <string name="scope_apply">Uygula</string>
+    <string name="scope_discard">Vazgeç</string>
+    <string name="scope_applied">Kapsam uygulandı.</string>
+    <string name="scope_apply_failed">Çatı yeni kapsamı reddetti.</string>
+    <string name="scope_toggle_failed">Çatı bu değişikliği reddetti.</string>
+    <string name="scope_empty_title">Hook takılacak bir şey yok</string>
+    <string name="scope_empty_message">Bu modül etkin ama hiçbir uygulama seçilmemiş, dolayısıyla hiçbir şey yapmayacak. Ya devre dışı bırakın ya da birkaç uygulama seçin.</string>
+    <string name="scope_empty_disable">Modülü devre dışı bırak</string>
+    <string name="scope_empty_keep">Etkin bırak</string>
+
+    <string name="action_launch">Aç</string>
+    <string name="action_app_info">Uygulama bilgisi</string>
+    <string name="action_force_stop">Zorla durdur</string>
+    <string name="action_optimize">Yeniden iyileştir</string>
+    <string name="action_uninstall">Kaldır</string>
+    <string name="action_launched">Açılıyor…</string>
+    <string name="action_no_launcher">Bu uygulamanın açılacak bir ekranı yok.</string>
+    <string name="action_opened_info">Uygulama bilgisi açılıyor…</string>
+    <string name="action_force_stopped">%1$s durduruldu.</string>
+    <string name="action_optimizing">%1$s yeniden iyileştiriliyor. Bu biraz sürebilir.</string>
+    <string name="action_optimized">%1$s yeniden iyileştirildi. Satır içine alınıp kaybolan hook\'lar artık çalışmalı.</string>
+    <string name="action_optimize_failed">%1$s yeniden iyileştirilemedi.</string>
+    <string name="action_uninstalled">%1$s kaldırıldı.</string>
+    <string name="action_uninstall_failed">%1$s kaldırılamadı.</string>
+
+    <string name="settings">Ayarlar</string>
+    <string name="back">Geri</string>
+    <string name="retry">Yeniden dene</string>
+
+    <string name="appearance_color">Renk</string>
+    <string name="appearance_custom_color">Bir renk seç</string>
+    <string name="modules_expand">Açıklamanın tamamını göster</string>
+    <string name="modules_collapse">Daha az göster</string>
+    <string name="action_optimize_summary">Uygulamayı yeniden derler, böylece ART bir modülün hook takması gereken yöntemleri satır içine almaz</string>
+    <string name="modules_scope_framework">Sistem çatısına hook takar</string>
+    <string name="scope_origin_locked">Modül tarafından sabitlendi</string>
+    <string name="scope_origin_auto">Kapsamda otomatik tutuluyor</string>
+    <string name="scope_origin_chosen">Sizin seçiminiz</string>
+    <string name="modules_selection_clear">Seçimi temizle</string>
+    <plurals name="modules_selected">
+        <item quantity="one">%1$d seçildi</item>
+        <item quantity="other">%1$d seçildi</item>
+    </plurals>
+    <string name="modules_batch_enable">Seçilenlerin tümünü etkinleştir</string>
+    <string name="modules_batch_disable">Seçilenlerin tümünü devre dışı bırak</string>
+    <string name="modules_batch_enabled">%1$s modül etkinleştirildi</string>
+    <string name="modules_batch_disabled">%1$s modül devre dışı bırakıldı</string>
+    <string name="modules_batch_uninstalled">%1$s modül kaldırıldı</string>
+    <string name="modules_batch_partial">Bunlardan yalnızca %1$s tanesi işe yaradı</string>
+    <string name="modules_uninstall_title">Bu modüller kaldırılsın mı?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">Modül ve yapılandırdığı her şey kaldırılacak. Bu geri alınamaz.</item>
+        <item quantity="other">%1$d modülün tamamı ve yapılandırdıkları her şey kaldırılacak. Bu geri alınamaz.</item>
+    </plurals>
+    <string name="canary_open_actions">GitHub\'da aç</string>
+    <string name="canary_open_run">Bu çalıştırmayı aç</string>
+    <string name="canary_download">İndir</string>
+    <string name="canary_expired">Bu derlemenin çıktıları süresi dolmuş.</string>
+    <string name="canary_none">Henüz yayımlanmış canary sürümü yok.</string>
+    <string name="home_contributors_by_commits">En çok commit</string>
+    <string name="home_contributors_by_recent">En yeni</string>
+    <string name="scope_recommended_only">Yalnızca modülün istedikleri</string>
+    <string name="home_resting">Mola veriliyor — kayıtlı hareketler. Yenilemek için çekin.</string>
+    <string name="report_title">Bildirmeden önce</string>
+    <string name="report_step_canary">Önce en son canary\'yi deneyin</string>
+    <string name="report_step_canary_body">Sorun çoktan giderilmiş olabilir; ayrıca bakımcıların size yardım edebilmesi için hata ayıklama sürümü gerekir. master\'da kalın — pull request derlemeleri kararsızdır.</string>
+    <string name="report_step_zygisk">Magisk kullanmıyor musunuz? Zygisk\'i güncelleyin</string>
+    <string name="report_step_zygisk_body">En son Zygisk uygulamasını, varsa hata ayıklama sürümüyle yükleyin.</string>
+    <string name="report_step_logs">Günlükleri ekleyin</string>
+    <string name="report_step_logs_body">Günlüksüz bir bildirim, baştan başlayan bir konuşmadır. Bu işlem iki günlüğü de ekleyebileceğiniz bir zip dosyasına yazar.</string>
+    <string name="report_step_crashed">Zygisk çöktüyse</string>
+    <string name="report_step_crashed_body">Artık zip\'i art alan sürecinden isteyemezsiniz ama dosyalar yine de yazıldı. Başka hiçbir şey okuyamazken root okuyabilir.</string>
+    <string name="report_open_tracker">Sorun takipçisini aç</string>
+    <string name="report_save_with_root">Günlük klasörünü kaydet (root gerekir)</string>
+    <string name="report_saved_to">%1$s konumuna kaydedildi</string>
+    <string name="report_see_guide">Tam kılavuz sorunda</string>
+    <string name="report_root_refused">Root reddedildi. Root yöneticinizde Vector\'e izin verip yeniden deneyin%1$s</string>
+    <string name="home_custom_build">Özel derleme — master\'ın ilerisinde</string>
+    <string name="github_device_code">GitHub cihaz kodu</string>
+    <string name="language_title">Dil</string>
+    <string name="language_system">Sistem varsayılanı</string>
+    <string name="language_system_summary">Telefonda ayarlı dili izle</string>
+</resources>

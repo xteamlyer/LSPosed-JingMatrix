@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">Katalogda ara</string>
+    <string name="store_filter">Sırala ve süz</string>
+    <string name="store_sort_recent">Yakında güncellenenler</string>
+    <string name="store_sort_name">Ad</string>
+    <string name="store_sort_stars">En çok yıldız</string>
+    <string name="store_updates_first">Önce güncellemeler</string>
+    <string name="store_channel_stable">Yalnızca kararlı sürümler</string>
+    <string name="store_channel_prerelease">Ön sürümleri de içer</string>
+
+    <plurals name="store_module_count">
+        <item quantity="one">%1$d modül</item>
+        <item quantity="other">%1$d modül</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="one">%1$d güncelleme</item>
+        <item quantity="other">%1$d güncelleme</item>
+    </plurals>
+    <string name="store_all_current">elinizdeki her şey güncel</string>
+    <string name="store_offline">Kayıtlı katalog gösteriliyor</string>
+
+    <string name="store_badge_update">%1$s sürümüne güncelle</string>
+    <string name="store_badge_installed">Kurulu</string>
+    <string name="store_badge_prerelease">Ön sürüm</string>
+    <string name="store_updated_on">%1$s tarihinde güncellendi</string>
+
+    <string name="store_unreachable">Modül kataloğuna ulaşılamadı ve bu cihazda henüz kayıtlı bir şey yok.</string>
+    <string name="store_no_match">Bu aramayla eşleşen modül yok.</string>
+    <string name="store_empty">Katalog hiç modül döndürmedi.</string>
+
+    <string name="store_tab_readme">Benioku</string>
+    <string name="store_tab_releases">Sürümler</string>
+    <string name="store_tab_information">Bilgi</string>
+
+    <string name="store_readme_missing">Bu modül bir benioku dosyası içermiyor.</string>
+    <string name="store_detail_partial">Modül listesinin zaten bildikleri gösteriliyor. Benioku ve eski sürümler için bağlantı gerekiyor.</string>
+    <string name="store_releases_none">Bu modül bu kanalda hiç sürüm yayımlamamış.</string>
+    <string name="store_release_notes">Sürüm notları</string>
+    <string name="store_open_release">GitHub\'da aç</string>
+    <string name="store_open_module">Modül sayfasını aç</string>
+
+    <string name="store_install">Kur</string>
+    <string name="store_update">Güncelle</string>
+    <string name="store_reinstall">Yeniden kur</string>
+    <string name="store_choose_asset">Kurulacak dosyayı seçin</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="one">%1$d indirme</item>
+        <item quantity="other">%1$d indirme</item>
+    </plurals>
+
+    <string name="store_confirm_title">%1$s kurulsun mu?</string>
+    <string name="store_confirm_body">%1$s (%2$s) modül kataloğundan indirilip %3$s olarak kurulacak.</string>
+    <string name="store_confirm_trust">Bir modül, hook taktığı uygulamaların içinde çatının ayrıcalıklarıyla çalışır. Yalnızca yazarına güveniyorsanız kurun.</string>
+    <string name="store_confirm_silent">Vector bunu kendisi kurar ve sistem bir daha sormaz.</string>
+
+    <string name="store_downloading">%2$s içinden %1$s indiriliyor</string>
+    <string name="store_installing">Kuruluyor…</string>
+    <string name="store_confirming">Sistem sorusu bekleniyor…</string>
+    <string name="store_install_failed">%1$s kurulamadı</string>
+    <string name="store_install_failed_reason">%1$s kurulamadı: %2$s</string>
+    <string name="store_cancel">Vazgeç</string>
+
+    <string name="store_info_summary">Özet</string>
+    <string name="store_info_scope">Hook\'lar</string>
+    <string name="store_info_scope_undeclared">Bildirilmemiş. Bu modül hangi uygulamalara hook taktığını söylemiyor.</string>
+    <string name="store_info_homepage">Ana sayfa</string>
+    <string name="store_info_source">Kaynak kodu</string>
+    <string name="store_info_collaborators">Bakımcılar</string>
+    <string name="store_info_stars">Yıldızlar</string>
+    <string name="store_info_updated">Son sürüm</string>
+    <string name="store_info_created">İlk yayım</string>
+
+    <string name="store_doh">Yansıları HTTPS üzerinden çöz</string>
+    <string name="store_release_notes_hide">Notları gizle</string>
+    <string name="store_installed_first">Önce kurulu olanlar</string>
+</resources>
