@@ -63,8 +63,8 @@ abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParamete
  * The commit a build actually came from, short, with a marker for uncommitted changes.
  *
  * The version code is the commit count on origin/master, so every branch build carries master's
- * number: a build flashed from a feature branch and one flashed from master both report
- * "v2.0 (3052)" and cannot be told apart on the device. That is not hypothetical — it cost a real
+ * number: a build flashed from a feature branch and one flashed from master both report "v2.0
+ * (3052)" and cannot be told apart on the device. That is not hypothetical — it cost a real
  * investigation to establish which of the two was installed.
  *
  * The hash goes in module.prop's human-readable version only. BuildConfig.VERSION_NAME, which is
@@ -91,7 +91,8 @@ abstract class GitCommitHashValueSource : ValueSource<String, ValueSourceParamet
             standardOutput = dirty
             isIgnoreExitValue = true
         }
-        val suffix = if (dirtyResult.exitValue == 0 && dirty.toString().isNotBlank()) "-dirty" else ""
+        val suffix =
+            if (dirtyResult.exitValue == 0 && dirty.toString().isNotBlank()) "-dirty" else ""
         return hash.toString().trim() + suffix
     }
 }

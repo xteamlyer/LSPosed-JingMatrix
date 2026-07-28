@@ -24,40 +24,38 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        buildConfigField(
-            "String",
-            "DEFAULT_MANAGER_PACKAGE_NAME",
-            """"$defaultManagerPackageName"""",
-        )
-        buildConfigField("String", "FRAMEWORK_NAME", """"${rootProject.name}"""")
-        buildConfigField("String", "MANAGER_INJECTED_PKG_NAME", """"$injectedPackageName"""")
-        buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
-        buildConfigField("String", "VERSION_NAME", """"${versionNameProvider.get()}"""")
-        buildConfigField("long", "VERSION_CODE", versionCodeProvider.get())
-        // The version code is the commit count on origin/master, so it is identical for a branch
-        // build and a master build. The hash is what tells a bug report which one it came from.
-        buildConfigField("String", "VERSION_HASH", """"${versionHashProvider.get()}"""")
+  defaultConfig {
+    buildConfigField(
+        "String",
+        "DEFAULT_MANAGER_PACKAGE_NAME",
+        """"$defaultManagerPackageName"""",
+    )
+    buildConfigField("String", "FRAMEWORK_NAME", """"${rootProject.name}"""")
+    buildConfigField("String", "MANAGER_INJECTED_PKG_NAME", """"$injectedPackageName"""")
+    buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
+    buildConfigField("String", "VERSION_NAME", """"${versionNameProvider.get()}"""")
+    buildConfigField("long", "VERSION_CODE", versionCodeProvider.get())
+    // The version code is the commit count on origin/master, so it is identical for a branch
+    // build and a master build. The hash is what tells a bug report which one it came from.
+    buildConfigField("String", "VERSION_HASH", """"${versionHashProvider.get()}"""")
 
-        val cliToken = UUID.randomUUID()
-        // Inject the MSB and LSB as Long constants
-        buildConfigField("Long", "CLI_TOKEN_MSB", "${cliToken.mostSignificantBits}L")
-        buildConfigField("Long", "CLI_TOKEN_LSB", "${cliToken.leastSignificantBits}L")
+    val cliToken = UUID.randomUUID()
+    // Inject the MSB and LSB as Long constants
+    buildConfigField("Long", "CLI_TOKEN_MSB", "${cliToken.mostSignificantBits}L")
+    buildConfigField("Long", "CLI_TOKEN_LSB", "${cliToken.leastSignificantBits}L")
+  }
+
+  buildTypes {
+    all { externalNativeBuild { cmake { arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true" } } }
+    release {
+      isMinifyEnabled = true
+      proguardFiles("proguard-rules.pro")
     }
+  }
 
-    buildTypes {
-        all {
-            externalNativeBuild { cmake { arguments += "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=true" } }
-        }
-        release {
-            isMinifyEnabled = true
-            proguardFiles("proguard-rules.pro")
-        }
-    }
+  externalNativeBuild { cmake { path("src/main/jni/CMakeLists.txt") } }
 
-    externalNativeBuild { cmake { path("src/main/jni/CMakeLists.txt") } }
-
-    namespace = "org.matrix.vector.daemon"
+  namespace = "org.matrix.vector.daemon"
 }
 
 /**
@@ -138,15 +136,15 @@ androidComponents {
 }
 
 dependencies {
-    implementation(libs.agp.apksig)
-    implementation(libs.gson)
-    implementation(libs.picocli)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(projects.external.apache)
-    implementation(projects.hiddenapi.bridge)
-    implementation(projects.services.daemonService)
-    implementation(projects.services.managerService)
-    compileOnly(libs.androidx.annotation)
-    compileOnly(projects.hiddenapi.stubs)
+  implementation(libs.agp.apksig)
+  implementation(libs.gson)
+  implementation(libs.picocli)
+  implementation(libs.kotlinx.coroutines.android)
+  implementation(libs.kotlinx.coroutines.core)
+  implementation(projects.external.apache)
+  implementation(projects.hiddenapi.bridge)
+  implementation(projects.services.daemonService)
+  implementation(projects.services.managerService)
+  compileOnly(libs.androidx.annotation)
+  compileOnly(projects.hiddenapi.stubs)
 }
