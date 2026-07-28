@@ -39,6 +39,16 @@ class FakeManagerService(
     private val real: ILSPManagerService?,
 ) : ILSPManagerService.Stub() {
 
+    /**
+     * What each package's version was when the scenario started.
+     *
+     * The scenario claims everything is out of date, and something has to decide when to stop
+     * claiming it. Recording the first answer per package and comparing against it means the lie
+     * ends exactly when the package actually changes — so an install performed by the manager is
+     * visible in the manager, which is the behaviour worth testing here.
+     */
+    private val baselineVersions = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
     private fun stall() {
         if (scenario.stallMillis > 0) Thread.sleep(scenario.stallMillis)
     }
@@ -152,6 +162,16 @@ class FakeManagerService(
         // daemon's own objects.
         val rewritten =
             actual.list.map { info ->
+                val baseline = baselineVersions.putIfAbsent(info.packageName, info.longVersionCode)
+                if (baseline != null && baseline != info.longVersionCode) {
+                    // This one has genuinely changed under us since the scenario started, which
+                    // for a demo means the manager just installed it. Reporting the truth from
+                    // here is what makes this a test rather than a picture: the row has to stop
+                    // being out of date, the count has to drop, and the panel has to notice
+                    // without being left and re-entered. Keep lying and the install always looks
+                    // like it did nothing.
+                    return@map info
+                }
                 info.also {
                     it.longVersionCode = 1
                     it.versionName = "0.1-demo"

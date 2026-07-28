@@ -338,4 +338,5 @@
         <item quantity="one">%1$d modül güncellenemedi</item>
         <item quantity="other">%1$d modül güncellenemedi</item>
     </plurals>
+    <string name="home_window_changed">Yeni aralık için kayıtlı etkinlik gösteriliyor — yenilemek için çekin</string>
 </resources>

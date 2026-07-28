@@ -360,4 +360,5 @@
         <item quantity="one">Nie udało się zaktualizować %1$d modułu</item>
         <item quantity="other">Nie udało się zaktualizować %1$d modułów</item>
     </plurals>
+    <string name="home_window_changed">Zapisana aktywność dla nowego zakresu — pociągnij, aby odświeżyć</string>
 </resources>

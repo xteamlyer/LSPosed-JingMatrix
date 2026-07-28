@@ -75,6 +75,7 @@
     <string name="home_history_beginning">Where it began, %1$s</string>
     <string name="home_no_activity">No commits in the last six months.</string>
     <string name="home_loading_activity">Loading recent activity…</string>
+    <string name="home_window_changed">Showing saved activity for the new range — pull to refresh</string>
     <string name="home_offline">Showing saved activity — could not reach GitHub.</string>
     <string name="home_bumps">%1$d dependency updates</string>
     <string name="home_contribute">Take part</string>

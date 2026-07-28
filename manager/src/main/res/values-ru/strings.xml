@@ -341,4 +341,5 @@
         <item quantity="one">Не удалось обновить %1$d модуль</item>
         <item quantity="other">Не удалось обновить %1$d модулей</item>
     </plurals>
+    <string name="home_window_changed">Показана сохранённая активность за новый период — потяните, чтобы обновить</string>
 </resources>

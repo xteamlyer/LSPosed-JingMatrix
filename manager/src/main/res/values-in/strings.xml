@@ -331,4 +331,5 @@
         <item quantity="one">%1$d modul gagal diperbarui</item>
         <item quantity="other">%1$d modul gagal diperbarui</item>
     </plurals>
+    <string name="home_window_changed">Menampilkan aktivitas tersimpan untuk rentang baru — tarik untuk menyegarkan</string>
 </resources>

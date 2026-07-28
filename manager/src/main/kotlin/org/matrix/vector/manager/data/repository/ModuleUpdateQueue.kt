@@ -25,6 +25,7 @@ import org.matrix.vector.manager.data.model.ReleaseAsset
 class ModuleUpdateQueue(
     private val installer: ModuleInstaller,
     private val store: RepoRepository,
+    private val modules: ModuleRepository,
     private val scope: CoroutineScope,
 ) {
 
@@ -76,6 +77,12 @@ class ModuleUpdateQueue(
                 // one daemon call over every installed package, and paying that four times to
                 // watch four badges settle a second earlier each is not a trade worth making.
                 store.refreshInstalled()
+                // Told rather than overheard. A replaced package does broadcast, and the manager
+                // does listen — but the broadcast is the system's to deliver and this process is a
+                // guest in `com.android.shell`, so a list that only refreshes when the broadcast
+                // arrives is a list that sometimes does not. This is the one install path the app
+                // itself performed; there is no reason for it to learn about it second-hand.
+                modules.notePackagesChanged()
             }
     }
 

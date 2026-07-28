@@ -26,6 +26,11 @@ fun Context.packageEventsFlow(): Flow<PackageEvent> = callbackFlow {
                 val userId = intent.getIntExtra(Intent.EXTRA_USER, 0)
 
                 when (intent.action) {
+                    // An update to an existing package. It also arrives as ADDED with
+                    // EXTRA_REPLACING, but only after a REMOVED for the old copy — and a listener
+                    // that acts on the REMOVED has already dropped the module from the list by the
+                    // time the ADDED lands. Handling REPLACED directly is one event, in order.
+                    Intent.ACTION_PACKAGE_REPLACED,
                     Intent.ACTION_PACKAGE_ADDED -> {
                         trySend(PackageEvent.Added(packageName, userId))
                     }
@@ -43,6 +48,7 @@ fun Context.packageEventsFlow(): Flow<PackageEvent> = callbackFlow {
     val filter =
         IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addAction(Intent.ACTION_PACKAGE_CHANGED)
             addDataScheme("package")

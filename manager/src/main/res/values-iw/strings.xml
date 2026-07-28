@@ -364,4 +364,5 @@
         <item quantity="one">לא ניתן היה לעדכן מודול %1$d</item>
         <item quantity="other">לא ניתן היה לעדכן %1$d מודולים</item>
     </plurals>
+    <string name="home_window_changed">מוצגת פעילות שמורה לטווח החדש — משכו לרענון</string>
 </resources>

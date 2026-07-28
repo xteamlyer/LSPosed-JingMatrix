@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Extension
-import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Check
@@ -35,7 +35,7 @@ import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Unarchive
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.foundation.text.BasicTextField
@@ -110,6 +110,7 @@ import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
 import org.matrix.vector.manager.ui.components.SheetHeading
 import org.matrix.vector.manager.ui.screens.repo.StoreChannel
 import org.matrix.vector.manager.ui.screens.repo.releasesOn
+import androidx.compose.foundation.layout.widthIn
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.InstalledModule
 import org.matrix.vector.manager.di.ServiceLocator
@@ -262,6 +263,24 @@ fun ModulesScreen(
             // describe a set the user was not looking at.
             val pagerState = rememberPagerState(pageCount = { tabs.size })
             val visible = tabs.getOrNull(pagerState.currentPage)
+            // The sheet lives outside the pager, so it needs the current page's answer handed to
+            // it rather than reading the whole device's.
+            val present = visible?.modules?.map { it.packageName }?.toSet().orEmpty()
+            val visibleUpgradable = upgradable intersect present
+            val visibleMutedUpgradable = mutedUpgradable intersect present
+
+            // Inside the Column so the per-profile sets are in scope; a modal sheet draws in its
+            // own window, so where it sits in the tree costs nothing.
+            if (showUpdates) {
+                ModuleUpdatesSheet(
+                    entries = storeEntries,
+                    upgradable = visibleUpgradable,
+                    mutedUpgradable = visibleMutedUpgradable,
+                    channel = StoreChannel.of(updateChannel),
+                    onStart = viewModel::startUpdates,
+                    onDismiss = { showUpdates = false },
+                )
+            }
 
             // The selection bar takes the title and description rows and nothing else, so the
             // search field below stays exactly where the thumb left it and the list does not jump
@@ -356,7 +375,11 @@ fun ModulesScreen(
                 ) {
                     item(key = "updates") {
                         UpdateLine(
-                            updates = upgradable.size,
+                            // Counted against the modules on *this* page. A profile has its own
+                            // set of installed modules, and a count carried over from another one
+                            // offers updates for packages that are not there — the sheet would
+                            // then be empty, or worse, install into the wrong profile.
+                            updates = modules.count { it.packageName in upgradable },
                             queue = updateQueue,
                             onOpen = { showUpdates = true },
                             onAcknowledge = viewModel::acknowledgeUpdates,
@@ -388,17 +411,6 @@ fun ModulesScreen(
               }
             }
         }
-    }
-
-    if (showUpdates) {
-        ModuleUpdatesSheet(
-            entries = storeEntries,
-            upgradable = upgradable,
-            mutedUpgradable = mutedUpgradable,
-            channel = StoreChannel.of(updateChannel),
-            onStart = viewModel::startUpdates,
-            onDismiss = { showUpdates = false },
-        )
     }
 
     if (confirmUninstall) {
@@ -490,7 +502,7 @@ private fun SelectionBar(
             )
             SelectionAction(Icons.Rounded.CheckCircle, R.string.modules_batch_enable, onEnable)
             SelectionAction(Icons.Rounded.Block, R.string.modules_batch_disable, onDisable)
-            SelectionAction(Icons.Rounded.Backup, R.string.modules_backup, onBackup)
+            SelectionAction(Icons.Rounded.Archive, R.string.modules_backup, onBackup)
             SelectionAction(
                 Icons.Rounded.DeleteOutline,
                 R.string.action_uninstall,
@@ -619,16 +631,22 @@ private fun ModulesHeader(
         actions = {
             // Both shown rather than hidden behind an overflow. There are exactly two, they are
             // opposites, and a menu holding two items costs a tap to say what a glance could.
+            //
+            // A box with an arrow going in, and one with an arrow coming out. The cloud-and-arrow
+            // that used to be here is the platform's *upload* glyph, and nothing about this
+            // uploads anywhere — the file goes wherever the document picker is pointed, usually
+            // this device. The pair also reads as a pair, which the previous one did not: a cloud
+            // and a clock are two unrelated pictures for two halves of one idea.
             IconButton(onClick = onRestore) {
                 Icon(
-                    Icons.Rounded.Restore,
+                    Icons.Rounded.Unarchive,
                     contentDescription = stringResource(R.string.modules_restore),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             IconButton(onClick = onBackup) {
                 Icon(
-                    Icons.Rounded.Backup,
+                    Icons.Rounded.Archive,
                     contentDescription = stringResource(R.string.modules_backup),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -673,6 +691,7 @@ private fun ModuleRow(
     onClick: () -> Unit,
     onIconClick: () -> Unit,
     onLongClick: () -> Unit,
+    onOpenStore: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     val incompatible = facts?.incompatible == true
@@ -714,7 +733,10 @@ private fun ModuleRow(
                 AppIcon(
                     applicationInfo = module.applicationInfo,
                     contentDescription = null,
-                    size = 56.dp,
+                    // 48 rather than 56. Still comfortably a touch target — it is the selection
+                    // handle — but eight density-independent pixels handed back to the column that
+                    // holds the name and the description, which is where the reading happens.
+                    size = 48.dp,
                 )
                 // The tick covers the icon rather than sitting beside it. A selected row has to be
                 // unmistakable at a glance across a screen of them, and the icon is the one part
@@ -805,14 +827,28 @@ private fun ModuleRow(
         Spacer(Modifier.width(12.dp))
 
         Column(
-            modifier = Modifier.fillMaxHeight(),
+            // Fixed, not free and not merely capped. This column used to size to its own content,
+            // so a module whose version happened to be long — a date stamp, a commit hash, a
+            // `-beta.4+build.7` — took width away from the description, and the rows of one list
+            // ended up with several different text widths for a reason the reader cannot see. A
+            // fixed column makes the list a grid: every description starts and ends in the same
+            // place, and the version's length is its own business. It is sized for a normal
+            // version and its mark; anything longer scrolls past rather than pushing.
+            modifier = Modifier.fillMaxHeight().width(116.dp),
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             UpdatableVersion(
                 text = module.versionName.ifBlank { "" },
                 hasUpdate = hasUpdate,
+                marquee = true,
                 color = colors.onSurfaceVariant,
+                // With an update in hand the version is the shortest route to the release that
+                // would replace it, so it becomes the link. Without one it is inert: a tap that
+                // sometimes navigates and sometimes does nothing teaches nothing.
+                modifier =
+                    if (!hasUpdate) Modifier
+                    else Modifier.clip(RoundedCornerShape(6.dp)).clickable { onOpenStore() },
             )
             ScopePreview(module = module, facts = facts)
         }
@@ -1007,6 +1043,7 @@ private fun ModuleListItem(
         facts = facts,
         hasUpdate = hasUpdate,
         selected = selected,
+        onOpenStore = onOpenStore,
         // Once anything is selected the whole row joins the selection, because that is what every
         // other list on the platform does and reaching for a 56dp icon to add the ninth module
         // would be its own small ordeal.

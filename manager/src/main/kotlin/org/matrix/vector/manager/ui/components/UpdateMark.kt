@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -49,6 +50,8 @@ fun UpdatableVersion(
     text: String,
     hasUpdate: Boolean,
     modifier: Modifier = Modifier,
+    /** Whether an over-long version scrolls past instead of being cut. */
+    marquee: Boolean = false,
     style: TextStyle = VectorMono,
     color: Color = LocalContentColor.current,
     markColor: Color = MaterialTheme.colorScheme.tertiary,
@@ -80,6 +83,13 @@ fun UpdatableVersion(
             color = if (hasUpdate) markColor else color,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            // Marquee rather than an ellipsis when a version is longer than its column. A version
+            // string is not prose — `1.2.3-beta.4+a1b2c3d` truncated to `1.2.3-be…` has lost the
+            // part that distinguishes it from the build beside it — so the whole of it goes past
+            // once, on its own, and stops.
+            modifier =
+                if (marquee) Modifier.basicMarquee(iterations = 1, repeatDelayMillis = 2_000)
+                else Modifier,
         )
     }
 }

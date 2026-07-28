@@ -338,4 +338,5 @@
         <item quantity="one">%1$d module n’a pas pu être mis à jour</item>
         <item quantity="other">%1$d modules n’ont pas pu être mis à jour</item>
     </plurals>
+    <string name="home_window_changed">Activité enregistrée pour la nouvelle période — tirez pour actualiser</string>
 </resources>

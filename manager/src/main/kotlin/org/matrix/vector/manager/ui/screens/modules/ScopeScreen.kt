@@ -7,7 +7,7 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.RemoveDone
-import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Unarchive
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.FilterChip
@@ -489,7 +489,7 @@ private fun ScopeSelectMenu(
             )
             SheetAction(
                 title = stringResource(R.string.scope_restore),
-                icon = Icons.Rounded.Restore,
+                icon = Icons.Rounded.Unarchive,
                 onClick = {
                     onRestore()
                     open = false

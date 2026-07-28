@@ -327,4 +327,5 @@
         <item quantity="one">Không thể cập nhật %1$d mô-đun</item>
         <item quantity="other">Không thể cập nhật %1$d mô-đun</item>
     </plurals>
+    <string name="home_window_changed">Đang hiện hoạt động đã lưu cho khoảng mới — kéo để làm mới</string>
 </resources>

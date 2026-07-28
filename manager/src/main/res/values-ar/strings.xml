@@ -382,4 +382,5 @@
         <item quantity="one">تعذّر تحديث وحدة %1$d</item>
         <item quantity="other">تعذّر تحديث %1$d وحدات</item>
     </plurals>
+    <string name="home_window_changed">يتم عرض النشاط المحفوظ للنطاق الجديد — اسحب للتحديث</string>
 </resources>

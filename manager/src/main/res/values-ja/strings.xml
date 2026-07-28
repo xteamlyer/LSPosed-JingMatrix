@@ -327,4 +327,5 @@
         <item quantity="one">%1$d 個のモジュールを更新できませんでした</item>
         <item quantity="other">%1$d 個のモジュールを更新できませんでした</item>
     </plurals>
+    <string name="home_window_changed">新しい期間の保存済みアクティビティを表示中 — 引いて更新</string>
 </resources>

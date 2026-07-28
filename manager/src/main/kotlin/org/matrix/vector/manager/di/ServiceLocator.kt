@@ -172,7 +172,7 @@ object ServiceLocator {
     }
 
     /** Sequential module updates, outliving the sheet that started them. */
-    val moduleUpdates: ModuleUpdateQueue by lazy { ModuleUpdateQueue(installer, store, appScope) }
+    val moduleUpdates: ModuleUpdateQueue by lazy { ModuleUpdateQueue(installer, store, modules, appScope) }
 
     val frameworkInstaller: FrameworkInstaller by lazy { FrameworkInstaller(context, http, daemon) }
 

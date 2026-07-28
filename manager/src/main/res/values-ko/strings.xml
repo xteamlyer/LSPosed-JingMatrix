@@ -327,4 +327,5 @@
         <item quantity="one">모듈 %1$d개를 업데이트하지 못했습니다</item>
         <item quantity="other">모듈 %1$d개를 업데이트하지 못했습니다</item>
     </plurals>
+    <string name="home_window_changed">새 기간의 저장된 활동을 표시 중 — 당겨서 새로고침</string>
 </resources>

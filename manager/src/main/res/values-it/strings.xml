@@ -338,4 +338,5 @@
         <item quantity="one">%1$d modulo non è stato aggiornato</item>
         <item quantity="other">%1$d moduli non sono stati aggiornati</item>
     </plurals>
+    <string name="home_window_changed">Attività salvata per il nuovo intervallo — trascina per aggiornare</string>
 </resources>
