@@ -338,4 +338,30 @@
     <string name="home_history_beginning">כאן זה התחיל, %1$s</string>
     <string name="home_scroll_top">חזרה למעלה</string>
     <string name="home_scroll_down">המסך הבא</string>
+    <string name="action_not_in_store">לא נמצא בחנות</string>
+    <string name="action_not_in_store_summary">לא ניתן לבדוק עדכונים למודול הזה</string>
+    <string name="action_update_to">עדכון ל-%1$s</string>
+    <string name="action_update_from">מ-%1$s · %2$s</string>
+    <string name="action_update_running">מתקין…</string>
+    <string name="action_update_no_apk">למהדורה הזו אין APK להתקנה</string>
+    <string name="action_update_choose">כמה גרסאות — בחר אחת בחנות</string>
+    <string name="action_update_started">העדכון התחיל</string>
+    <string name="action_open_store">פתיחה בחנות</string>
+    <string name="modules_updating">מעדכן את %1$s — %2$d מתוך %3$d</string>
+    <string name="modules_updates_title">מודולים לעדכון</string>
+    <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_ignored">מתעלמים</string>
+    <string name="modules_update_selected">עדכון %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">אפשר לעדכן מודול %1$d</item>
+        <item quantity="other">אפשר לעדכן %1$d מודולים</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">מודול %1$d עודכן</item>
+        <item quantity="other">%1$d מודולים עודכנו</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">לא ניתן היה לעדכן מודול %1$d</item>
+        <item quantity="other">לא ניתן היה לעדכן %1$d מודולים</item>
+    </plurals>
 </resources>

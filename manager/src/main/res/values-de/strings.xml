@@ -312,4 +312,30 @@
     <string name="home_history_beginning">Hier begann es, %1$s</string>
     <string name="home_scroll_top">Nach oben</string>
     <string name="home_scroll_down">Nächster Bildschirm</string>
+    <string name="action_not_in_store">Nicht im Store</string>
+    <string name="action_not_in_store_summary">Updates für dieses Modul können nicht geprüft werden</string>
+    <string name="action_update_to">Auf %1$s aktualisieren</string>
+    <string name="action_update_from">Von %1$s · %2$s</string>
+    <string name="action_update_running">Wird installiert…</string>
+    <string name="action_update_no_apk">Diese Version enthält kein installierbares APK</string>
+    <string name="action_update_choose">Mehrere Builds — im Store auswählen</string>
+    <string name="action_update_started">Update gestartet</string>
+    <string name="action_open_store">Im Store öffnen</string>
+    <string name="modules_updating">%1$s wird aktualisiert — %2$d von %3$d</string>
+    <string name="modules_updates_title">Module zum Aktualisieren</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ignoriert</string>
+    <string name="modules_update_selected">%1$d aktualisieren</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d Modul kann aktualisiert werden</item>
+        <item quantity="other">%1$d Module können aktualisiert werden</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d Modul aktualisiert</item>
+        <item quantity="other">%1$d Module aktualisiert</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d Modul konnte nicht aktualisiert werden</item>
+        <item quantity="other">%1$d Module konnten nicht aktualisiert werden</item>
+    </plurals>
 </resources>

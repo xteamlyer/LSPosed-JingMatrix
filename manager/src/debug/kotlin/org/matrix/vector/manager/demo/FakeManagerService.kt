@@ -125,12 +125,40 @@ class FakeManagerService(
 
     // ---- everything else is the real device, when there is one ---------------------------------
 
+    /**
+     * The installed package list, optionally rewritten to look old.
+     *
+     * This one call is where "is there an update for this module" is really decided: the catalogue
+     * says what the newest version is, and the comparison is against what this returns. Reporting
+     * a low version here is therefore the whole of the "modules are out of date" scenario, and it
+     * has the property that makes these scenarios worth having — nothing downstream is faked. The
+     * catalogue is the real one, the releases are real, the APK that gets installed is real, and so
+     * is the install.
+     *
+     * The rewrite is applied to every package rather than to modules alone, because telling them
+     * apart means opening APKs and this is the daemon's side of the wire, where that answer is not
+     * known. The visible cost is that the demo's module rows all read `0.1-demo` — which is the
+     * signal that the scenario is on, and no worse than the arbitrary number it replaces.
+     */
     override fun getInstalledPackagesFromAllUsers(
         flags: Int,
         filterNoProcess: Boolean,
-    ): ParcelableListSlice<PackageInfo> =
-        real?.getInstalledPackagesFromAllUsers(flags, filterNoProcess)
-            ?: ParcelableListSlice(emptyList())
+    ): ParcelableListSlice<PackageInfo> {
+        val actual =
+            real?.getInstalledPackagesFromAllUsers(flags, filterNoProcess)
+                ?: return ParcelableListSlice(emptyList())
+        if (scenario.moduleVersions == DemoScenario.ModuleVersionScript.REAL) return actual
+        // Mutated in place: these are already unparcelled copies belonging to this process, not the
+        // daemon's own objects.
+        val rewritten =
+            actual.list.map { info ->
+                info.also {
+                    it.longVersionCode = 1
+                    it.versionName = "0.1-demo"
+                }
+            }
+        return ParcelableListSlice(rewritten)
+    }
 
     override fun enabledModules(): Array<String> = real?.enabledModules() ?: emptyArray()
 

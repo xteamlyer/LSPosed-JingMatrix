@@ -334,4 +334,30 @@
     <string name="home_history_beginning">Tu się zaczęło, %1$s</string>
     <string name="home_scroll_top">Wróć na górę</string>
     <string name="home_scroll_down">Następny ekran</string>
+    <string name="action_not_in_store">Nie ma go w repozytorium</string>
+    <string name="action_not_in_store_summary">Nie można sprawdzić aktualizacji tego modułu</string>
+    <string name="action_update_to">Aktualizuj do %1$s</string>
+    <string name="action_update_from">Z %1$s · %2$s</string>
+    <string name="action_update_running">Instalowanie…</string>
+    <string name="action_update_no_apk">To wydanie nie zawiera pliku APK</string>
+    <string name="action_update_choose">Kilka wydań — wybierz w repozytorium</string>
+    <string name="action_update_started">Rozpoczęto aktualizację</string>
+    <string name="action_open_store">Otwórz w repozytorium</string>
+    <string name="modules_updating">Aktualizowanie %1$s — %2$d z %3$d</string>
+    <string name="modules_updates_title">Moduły do aktualizacji</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ignorowany</string>
+    <string name="modules_update_selected">Aktualizuj %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d moduł można zaktualizować</item>
+        <item quantity="other">%1$d modułów można zaktualizować</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">Zaktualizowano %1$d moduł</item>
+        <item quantity="other">Zaktualizowano %1$d modułów</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">Nie udało się zaktualizować %1$d modułu</item>
+        <item quantity="other">Nie udało się zaktualizować %1$d modułów</item>
+    </plurals>
 </resources>

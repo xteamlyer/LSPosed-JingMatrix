@@ -312,4 +312,30 @@
     <string name="home_history_beginning">آغاز کار، %1$s</string>
     <string name="home_scroll_top">بازگشت به بالا</string>
     <string name="home_scroll_down">صفحهٔ بعدی</string>
+    <string name="action_not_in_store">در فروشگاه نیست</string>
+    <string name="action_not_in_store_summary">به‌روزرسانی‌های این ماژول بررسی‌شدنی نیست</string>
+    <string name="action_update_to">به‌روزرسانی به %1$s</string>
+    <string name="action_update_from">از %1$s · %2$s</string>
+    <string name="action_update_running">در حال نصب…</string>
+    <string name="action_update_no_apk">این انتشار APK قابل نصبی ندارد</string>
+    <string name="action_update_choose">چند ساخت — یکی را در فروشگاه انتخاب کنید</string>
+    <string name="action_update_started">به‌روزرسانی آغاز شد</string>
+    <string name="action_open_store">گشودن در فروشگاه</string>
+    <string name="modules_updating">به‌روزرسانی %1$s — %2$d از %3$d</string>
+    <string name="modules_updates_title">ماژول‌های قابل به‌روزرسانی</string>
+    <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_ignored">نادیده‌گرفته</string>
+    <string name="modules_update_selected">به‌روزرسانی %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d ماژول قابل به‌روزرسانی است</item>
+        <item quantity="other">%1$d ماژول قابل به‌روزرسانی است</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d ماژول به‌روزرسانی شد</item>
+        <item quantity="other">%1$d ماژول به‌روزرسانی شد</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d ماژول به‌روزرسانی نشد</item>
+        <item quantity="other">%1$d ماژول به‌روزرسانی نشد</item>
+    </plurals>
 </resources>

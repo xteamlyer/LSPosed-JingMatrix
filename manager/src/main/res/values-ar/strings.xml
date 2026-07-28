@@ -356,4 +356,30 @@
     <string name="home_history_beginning">حيث بدأ كل شيء، %1$s</string>
     <string name="home_scroll_top">العودة إلى الأعلى</string>
     <string name="home_scroll_down">الشاشة التالية</string>
+    <string name="action_not_in_store">غير موجود في المتجر</string>
+    <string name="action_not_in_store_summary">لا يمكن التحقق من تحديثات هذه الوحدة</string>
+    <string name="action_update_to">التحديث إلى %1$s</string>
+    <string name="action_update_from">من %1$s · %2$s</string>
+    <string name="action_update_running">جارٍ التثبيت…</string>
+    <string name="action_update_no_apk">هذا الإصدار لا يحتوي على APK للتثبيت</string>
+    <string name="action_update_choose">عدة إصدارات — اختر واحدًا في المتجر</string>
+    <string name="action_update_started">بدأ التحديث</string>
+    <string name="action_open_store">الفتح في المتجر</string>
+    <string name="modules_updating">جارٍ تحديث %1$s — %2$d من %3$d</string>
+    <string name="modules_updates_title">وحدات للتحديث</string>
+    <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_ignored">مُتجاهَلة</string>
+    <string name="modules_update_selected">تحديث %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">يمكن تحديث وحدة %1$d</item>
+        <item quantity="other">يمكن تحديث %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">تم تحديث وحدة %1$d</item>
+        <item quantity="other">تم تحديث %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">تعذّر تحديث وحدة %1$d</item>
+        <item quantity="other">تعذّر تحديث %1$d وحدات</item>
+    </plurals>
 </resources>

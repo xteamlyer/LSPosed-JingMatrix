@@ -146,6 +146,23 @@
 
     <!-- Modules -->
     <string name="modules_empty">No modules installed.</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d module can be updated</item>
+        <item quantity="other">%1$d modules can be updated</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d module updated</item>
+        <item quantity="other">%1$d modules updated</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d module could not be updated</item>
+        <item quantity="other">%1$d modules could not be updated</item>
+    </plurals>
+    <string name="modules_updating">Updating %1$s — %2$d of %3$d</string>
+    <string name="modules_updates_title">Modules to update</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ignored</string>
+    <string name="modules_update_selected">Update %1$d</string>
     <string name="modules_active_of">%1$d of %2$d active</string>
     <string name="modules_no_match">No module matches that search.</string>
     <string name="modules_api_scale_legacy" translatable="false">Xposed</string>
@@ -231,6 +248,15 @@
     <string name="scope_empty_keep">Leave it enabled</string>
 
     <!-- Long-press actions on a package -->
+    <string name="action_not_in_store">Not in the store</string>
+    <string name="action_not_in_store_summary">Updates for this module cannot be checked</string>
+    <string name="action_update_to">Update to %1$s</string>
+    <string name="action_update_from">From %1$s · %2$s</string>
+    <string name="action_update_running">Installing…</string>
+    <string name="action_update_no_apk">This release has no APK to install</string>
+    <string name="action_update_choose">Several builds — choose one in the store</string>
+    <string name="action_update_started">Update started</string>
+    <string name="action_open_store">Open in store</string>
     <string name="action_launch">Open</string>
     <string name="action_app_info">App info</string>
     <string name="action_force_stop">Force stop</string>

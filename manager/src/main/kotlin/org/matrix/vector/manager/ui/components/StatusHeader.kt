@@ -156,16 +156,26 @@ fun StatusHeader(
             // Trimmed to pay for the taller status row below, so the pane keeps its height.
             Spacer(Modifier.height(66.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Top) {
                 // The indicator is the details button. It is the thing the user is already
                 // looking at when they wonder *why* it says what it says, so it should be the
                 // thing that answers — a separate chevron was a second control for one intent.
-                StatusIndicator(
-                    state = state,
-                    tint = onContainer,
-                    onClick = onOpenStatus,
-                    contentDescription = stringResource(R.string.status_open_details),
-                )
+                //
+                // Centred on the *headline* rather than on the whole block. Centring it against
+                // the block put it level with the gap between "Vector Active" and the version
+                // line, so it read as belonging to neither; against the headline it sits square
+                // with the word it is the state of.
+                Box(
+                    modifier = Modifier.height(HEADLINE_ROW),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    StatusIndicator(
+                        state = state,
+                        tint = onContainer,
+                        onClick = onOpenStatus,
+                        contentDescription = stringResource(R.string.status_open_details),
+                    )
+                }
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
                     // The buttons live *inside* the headline row rather than beside the whole
@@ -210,7 +220,7 @@ fun StatusHeader(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             IconButton(
                                 onClick = onOpenAppearance,
-                                modifier = Modifier.size(38.dp),
+                                modifier = Modifier.size(ICON_BUTTON),
                             ) {
                                 Icon(
                                     Icons.Rounded.Palette,
@@ -221,7 +231,7 @@ fun StatusHeader(
                             }
                             IconButton(
                                 onClick = onOpenLanguage,
-                                modifier = Modifier.size(38.dp),
+                                modifier = Modifier.size(ICON_BUTTON),
                             ) {
                                 Icon(
                                     Icons.Rounded.Language,
@@ -338,3 +348,15 @@ private fun Color.compositeOverSurface(): Color {
         alpha = 1f,
     )
 }
+
+/** One of the two stacked buttons beside the wordmark. */
+private val ICON_BUTTON = 38.dp
+
+/**
+ * The height of the row the wordmark shares with those buttons.
+ *
+ * Derived rather than guessed, because the status indicator is centred against it: the stack is
+ * what makes that row taller than its text, so if the buttons change size the indicator has to
+ * follow or it stops lining up with the word it belongs to.
+ */
+private val HEADLINE_ROW = ICON_BUTTON * 2

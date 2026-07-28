@@ -301,4 +301,30 @@
     <string name="home_history_beginning">ここから始まりました（%1$s）</string>
     <string name="home_scroll_top">先頭に戻る</string>
     <string name="home_scroll_down">次の画面へ</string>
+    <string name="action_not_in_store">ストアにありません</string>
+    <string name="action_not_in_store_summary">このモジュールの更新は確認できません</string>
+    <string name="action_update_to">%1$s に更新</string>
+    <string name="action_update_from">%1$s から · %2$s</string>
+    <string name="action_update_running">インストール中…</string>
+    <string name="action_update_no_apk">このリリースにインストールできる APK がありません</string>
+    <string name="action_update_choose">複数のビルドがあります — ストアで選択</string>
+    <string name="action_update_started">更新を開始しました</string>
+    <string name="action_open_store">ストアで開く</string>
+    <string name="modules_updating">%1$s を更新中 — %3$d 件中 %2$d 件目</string>
+    <string name="modules_updates_title">更新するモジュール</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">無視中</string>
+    <string name="modules_update_selected">%1$d 件を更新</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d 個のモジュールを更新できます</item>
+        <item quantity="other">%1$d 個のモジュールを更新できます</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d 個のモジュールを更新しました</item>
+        <item quantity="other">%1$d 個のモジュールを更新しました</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d 個のモジュールを更新できませんでした</item>
+        <item quantity="other">%1$d 個のモジュールを更新できませんでした</item>
+    </plurals>
 </resources>

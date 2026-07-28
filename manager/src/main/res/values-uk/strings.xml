@@ -334,4 +334,30 @@
     <string name="home_history_beginning">Тут усе почалося, %1$s</string>
     <string name="home_scroll_top">Догори</string>
     <string name="home_scroll_down">Наступний екран</string>
+    <string name="action_not_in_store">Немає у сховищі</string>
+    <string name="action_not_in_store_summary">Оновлення цього модуля перевірити не можна</string>
+    <string name="action_update_to">Оновити до %1$s</string>
+    <string name="action_update_from">З %1$s · %2$s</string>
+    <string name="action_update_running">Встановлення…</string>
+    <string name="action_update_no_apk">У цьому випуску немає APK для встановлення</string>
+    <string name="action_update_choose">Кілька збірок — виберіть у сховищі</string>
+    <string name="action_update_started">Оновлення розпочато</string>
+    <string name="action_open_store">Відкрити у сховищі</string>
+    <string name="modules_updating">Оновлення %1$s — %2$d з %3$d</string>
+    <string name="modules_updates_title">Модулі для оновлення</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ігнорується</string>
+    <string name="modules_update_selected">Оновити %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d модуль можна оновити</item>
+        <item quantity="other">%1$d модулів можна оновити</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">Оновлено %1$d модуль</item>
+        <item quantity="other">Оновлено %1$d модулів</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">Не вдалося оновити %1$d модуль</item>
+        <item quantity="other">Не вдалося оновити %1$d модулів</item>
+    </plurals>
 </resources>

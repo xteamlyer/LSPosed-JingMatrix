@@ -30,6 +30,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,21 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
+import android.text.format.Formatter
+import androidx.compose.material.icons.rounded.ArrowCircleUp
+import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.NotificationsOff
+import androidx.compose.material.icons.rounded.Storefront
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.matrix.vector.manager.data.model.ReleaseAsset
+import org.matrix.vector.manager.data.model.StoreEntry
+import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
+import org.matrix.vector.manager.ui.screens.repo.StoreChannel
+import org.matrix.vector.manager.ui.screens.repo.releasesOn
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.theme.VectorMono
 
@@ -81,6 +97,13 @@ fun PackageActionSheet(
     isModule: Boolean,
     onDismiss: () -> Unit,
     onResult: (PackageActionResult) -> Unit,
+    /**
+     * Where the module's store page is, when there is one to go to.
+     *
+     * Optional because this sheet is also opened from the Scope screen, over an app that is not a
+     * module and has no page. Null there rather than a row that leads nowhere.
+     */
+    onOpenStore: ((String) -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     val daemon = ServiceLocator.daemon
@@ -125,6 +148,15 @@ LocalizedOverlay {
 
         HorizontalDivider(Modifier.padding(horizontal = 24.dp))
         Spacer(Modifier.height(4.dp))
+
+        if (isModule) {
+            ModuleUpdateSection(
+                packageName = packageName,
+                onOpenStore = onOpenStore,
+                onDismiss = onDismiss,
+                onResult = onResult,
+            )
+        }
 
         ActionRow(
             icon = Icons.AutoMirrored.Rounded.Launch,
@@ -270,5 +302,152 @@ private fun ActionRow(
                 )
             }
         }
+    }
+}
+
+/**
+ * What this module's update situation is, and the two things to do about it.
+ *
+ * It belongs on the module rather than in the Store, because this is where the reader already is.
+ * Before this, a module marked out of date in the list offered nothing to press: the route was to
+ * remember its name, cross to the Store tab, find it again and install from there — and the switch
+ * that silences a module you have decided not to follow was at the end of that same detour.
+ *
+ * Three states, and the third is the one usually got wrong:
+ *
+ * * **Out of date** — the update leads, named with the version it brings, because that is the
+ *   reason the sheet was opened.
+ * * **Current** — no row at all. "Up to date" is a sentence that has to be read to learn nothing.
+ * * **Not in the store** — said plainly. Most sideloaded modules are not in the catalogue, and a
+ *   silent absence is indistinguishable from "up to date"; someone waiting to be told about a
+ *   version that can never be checked is worse off than someone told to check themselves.
+ *
+ * The catalogue is only asked once it has loaded. Saying "not in the store" while the answer is
+ * still on its way would be a guess dressed as a fact.
+ */
+@Composable
+private fun ModuleUpdateSection(
+    packageName: String,
+    onOpenStore: ((String) -> Unit)?,
+    onDismiss: () -> Unit,
+    onResult: (PackageActionResult) -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val context = LocalContext.current
+    val settings = ServiceLocator.settings
+
+    val entries by ServiceLocator.storeEntries.collectAsStateWithLifecycle()
+    val catalog by ServiceLocator.store.catalog.collectAsStateWithLifecycle()
+    val muted by settings.mutedUpdates.collectAsStateWithLifecycle()
+    val channelPreference by settings.updateChannel.collectAsStateWithLifecycle()
+    val queue by ServiceLocator.moduleUpdates.state.collectAsStateWithLifecycle()
+
+    val entry = entries[packageName]
+    if (entry == null) {
+        if (catalog.loaded) {
+            ActionRow(
+                icon = Icons.Rounded.CloudOff,
+                title = stringResource(R.string.action_not_in_store),
+                subtitle = stringResource(R.string.action_not_in_store_summary),
+                onClick = {},
+            )
+            HorizontalDivider(Modifier.padding(horizontal = 24.dp))
+            Spacer(Modifier.height(4.dp))
+        }
+        return
+    }
+
+    // Asked without the mute, because the sheet still has to show the update to the person who
+    // muted it — the whole point of putting the switch here is that they can change their mind in
+    // the place where they see the consequence.
+    val outdated = entry.copy(updatesMuted = false).upgradable
+    val release =
+        remember(entry.module, channelPreference) {
+            entry.module.releasesOn(StoreChannel.of(channelPreference)).firstOrNull()
+        }
+    val apks = release?.releaseAssets.orEmpty().filter { it.isApk }
+    var confirming by remember { mutableStateOf<ReleaseAsset?>(null) }
+
+    if (outdated) {
+        val busy = queue.running && (queue.current?.packageName == packageName)
+        ActionRow(
+            icon = Icons.Rounded.ArrowCircleUp,
+            title =
+                stringResource(R.string.action_update_to, entry.latest?.versionName.orEmpty()),
+            subtitle =
+                when {
+                    busy -> stringResource(R.string.action_update_running)
+                    apks.isEmpty() -> stringResource(R.string.action_update_no_apk)
+                    // Several APKs is an architecture split or a variant, and choosing between
+                    // them needs the names and sizes the store page already lays out. Sending the
+                    // reader there is better than picking one on their behalf.
+                    apks.size > 1 -> stringResource(R.string.action_update_choose)
+                    else ->
+                        stringResource(
+                            R.string.action_update_from,
+                            entry.installed?.versionName.orEmpty(),
+                            Formatter.formatShortFileSize(context, apks.first().size),
+                        )
+                },
+            tint = if (busy || apks.isEmpty()) colors.onSurfaceVariant else colors.primary,
+            onClick = {
+                when {
+                    busy || apks.isEmpty() -> Unit
+                    apks.size > 1 -> {
+                        onDismiss()
+                        onOpenStore?.invoke(packageName)
+                    }
+                    else -> confirming = apks.first()
+                }
+            },
+        )
+    }
+
+    ToggleRow(
+        title = stringResource(R.string.store_mute_updates),
+        icon = Icons.Rounded.NotificationsOff,
+        checked = packageName in muted,
+        onCheckedChange = { settings.setUpdatesMuted(packageName, it) },
+        subtitle = stringResource(R.string.store_mute_updates_summary),
+    )
+
+    if (onOpenStore != null) {
+        ActionRow(
+            icon = Icons.Rounded.Storefront,
+            title = stringResource(R.string.action_open_store),
+            onClick = {
+                onDismiss()
+                onOpenStore(packageName)
+            },
+        )
+    }
+
+    HorizontalDivider(Modifier.padding(horizontal = 24.dp))
+    Spacer(Modifier.height(4.dp))
+
+    confirming?.let { asset ->
+        ConfirmInstall(
+            module = entry.module,
+            packageName = packageName,
+            asset = asset,
+            onDismiss = { confirming = null },
+            onConfirm = {
+                confirming = null
+                // Through the queue rather than straight to the installer, so a single update
+                // reports itself in the same place a batch does — the line on the Modules header,
+                // which outlives this sheet. Closing the sheet is not cancelling the install.
+                ServiceLocator.moduleUpdates.start(
+                    listOf(
+                        ModuleUpdateQueue.Item(
+                            packageName = packageName,
+                            title = entry.module.title,
+                            asset = asset,
+                        )
+                    )
+                )
+                onDismiss()
+                onResult(PackageActionResult(R.string.action_update_started))
+            },
+        )
     }
 }

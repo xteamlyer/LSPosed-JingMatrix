@@ -40,7 +40,26 @@ data class DemoScenario(
     val rootImplementation: Int = ILSPManagerService.ROOT_MAGISK,
     val rootVersion: String? = "28.1",
     val install: InstallScript = InstallScript.SUCCEEDS,
+
+    /**
+     * What version the device claims its installed modules are.
+     *
+     * The same trick the framework update uses, one level down: whether a module is out of date is
+     * decided by comparing the store catalogue against the version the *daemon* reports, so
+     * reporting an old one turns every module the catalogue knows into an update. The catalogue,
+     * the releases and the APKs are all genuinely the store's — the only lie is the number this
+     * device claims to be on, which is the one thing that cannot be arranged without keeping a
+     * stack of outdated module APKs around to install.
+     */
+    val moduleVersions: ModuleVersionScript = ModuleVersionScript.REAL,
 ) {
+
+    /** Whether installed module versions are passed through or rewritten. */
+    enum class ModuleVersionScript {
+        REAL,
+        OUTDATED,
+    }
+
     /**
      * How a flash behaves when the install screen asks for one.
      *
@@ -182,5 +201,12 @@ val DEMO_SCENARIOS: List<DemoScenario> =
             summary = "Output already streamed, then a non-zero exit. The case that bites.",
             xposedVersionCode = 1,
             install = DemoScenario.InstallScript.FAILS_PARTWAY,
+        ),
+        DemoScenario(
+            id = "modules-outdated",
+            title = "Every module is out of date",
+            summary =
+                "Reports old versions, so the store is ahead of all of them. Installs are real.",
+            moduleVersions = DemoScenario.ModuleVersionScript.OUTDATED,
         ),
     )

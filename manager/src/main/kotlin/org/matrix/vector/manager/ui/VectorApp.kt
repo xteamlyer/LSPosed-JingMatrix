@@ -112,7 +112,8 @@ private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
     }
     entry<TopLevelRoute.Modules> {
         ModulesScreen(
-            onModuleClick = { packageName, userId -> navigator.go(Scope(packageName, userId)) }
+            onModuleClick = { packageName, userId -> navigator.go(Scope(packageName, userId)) },
+            onOpenStore = { packageName -> navigator.go(StoreDetail(packageName)) },
         )
     }
     entry<TopLevelRoute.Store> {

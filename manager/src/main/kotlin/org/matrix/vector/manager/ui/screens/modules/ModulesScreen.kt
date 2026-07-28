@@ -94,6 +94,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.matrix.vector.manager.ui.components.VectorAlertDialog
 import org.matrix.vector.manager.ui.theme.LocalizedOverlay
+import android.text.format.Formatter
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.ArrowCircleUp
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import org.matrix.vector.manager.data.model.ReleaseAsset
+import org.matrix.vector.manager.data.model.StoreEntry
+import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
+import org.matrix.vector.manager.ui.components.SheetHeading
+import org.matrix.vector.manager.ui.screens.repo.StoreChannel
+import org.matrix.vector.manager.ui.screens.repo.releasesOn
 import org.matrix.vector.manager.R
 import org.matrix.vector.manager.data.model.InstalledModule
 import org.matrix.vector.manager.di.ServiceLocator
@@ -138,6 +154,7 @@ class ModulesViewModelFactory : ViewModelProvider.Factory {
 @Composable
 fun ModulesScreen(
     onModuleClick: (packageName: String, userId: Int) -> Unit,
+    onOpenStore: (packageName: String) -> Unit,
     viewModel: ModulesViewModel = viewModel(factory = ModulesViewModelFactory()),
 ) {
     val tabs by viewModel.userModulesTabs.collectAsStateWithLifecycle()
@@ -152,7 +169,12 @@ fun ModulesScreen(
 
     val selection by viewModel.selection.collectAsStateWithLifecycle()
     val upgradable by viewModel.upgradable.collectAsStateWithLifecycle()
+    val mutedUpgradable by viewModel.mutedUpgradable.collectAsStateWithLifecycle()
+    val updateQueue by viewModel.updateQueue.collectAsStateWithLifecycle()
+    val storeEntries by viewModel.storeEntries.collectAsStateWithLifecycle()
+    val updateChannel by viewModel.updateChannel.collectAsStateWithLifecycle()
     var confirmUninstall by remember { mutableStateOf(false) }
+    var showUpdates by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val snackbars = remember { SnackbarHostState() }
@@ -332,6 +354,14 @@ fun ModulesScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(top = 4.dp, bottom = 20.dp),
                 ) {
+                    item(key = "updates") {
+                        UpdateLine(
+                            updates = upgradable.size,
+                            queue = updateQueue,
+                            onOpen = { showUpdates = true },
+                            onAcknowledge = viewModel::acknowledgeUpdates,
+                        )
+                    }
                     if (sectioned) {
                         val active = modules.filter { it.isEnabled }
                         val inactive = modules.filterNot { it.isEnabled }
@@ -340,7 +370,7 @@ fun ModulesScreen(
                             stickyHeader(key = "h:active") {
                                 SectionHeader(stringResource(R.string.modules_section_active), active.size)
                             }
-                            moduleRows(active, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
+                            moduleRows(active, facts, selection, upgradable, onModuleClick, onOpenStore, viewModel::toggleSelected, ::report)
                         }
                         if (inactive.isNotEmpty()) {
                             stickyHeader(key = "h:inactive") {
@@ -349,15 +379,26 @@ fun ModulesScreen(
                                     inactive.size,
                                 )
                             }
-                            moduleRows(inactive, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
+                            moduleRows(inactive, facts, selection, upgradable, onModuleClick, onOpenStore, viewModel::toggleSelected, ::report)
                         }
                     } else {
-                        moduleRows(modules, facts, selection, upgradable, onModuleClick, viewModel::toggleSelected, ::report)
+                        moduleRows(modules, facts, selection, upgradable, onModuleClick, onOpenStore, viewModel::toggleSelected, ::report)
                     }
                 }
               }
             }
         }
+    }
+
+    if (showUpdates) {
+        ModuleUpdatesSheet(
+            entries = storeEntries,
+            upgradable = upgradable,
+            mutedUpgradable = mutedUpgradable,
+            channel = StoreChannel.of(updateChannel),
+            onStart = viewModel::startUpdates,
+            onDismiss = { showUpdates = false },
+        )
     }
 
     if (confirmUninstall) {
@@ -910,6 +951,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.moduleRows(
     selection: Set<ModuleKey>,
     upgradable: Set<String>,
     onModuleClick: (String, Int) -> Unit,
+    onOpenStore: (String) -> Unit,
     onSelect: (InstalledModule) -> Unit,
     onAction: (PackageActionResult) -> Unit,
 ) {
@@ -921,6 +963,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.moduleRows(
             selected = ModuleKey(module.packageName, module.userId) in selection,
             selectionActive = selection.isNotEmpty(),
             onClick = { onModuleClick(module.packageName, module.userId) },
+            onOpenStore = { onOpenStore(module.packageName) },
             onSelect = { onSelect(module) },
             onAction = onAction,
         )
@@ -952,6 +995,7 @@ private fun ModuleListItem(
     selected: Boolean,
     selectionActive: Boolean,
     onClick: () -> Unit,
+    onOpenStore: () -> Unit,
     onSelect: () -> Unit,
     onAction: (PackageActionResult) -> Unit,
 ) {
@@ -986,6 +1030,7 @@ private fun ModuleListItem(
             isModule = true,
             onDismiss = { menuOpen = false },
             onResult = onAction,
+            onOpenStore = { onOpenStore() },
         )
     }
 }
@@ -1010,6 +1055,220 @@ private fun SectionHeader(title: String, count: Int) {
                 style = VectorMono,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+/**
+ * The one line in the panel that says how many modules are behind, and how the run is going.
+ *
+ * A line under the header rather than a badge on a tab or a banner over the list. The panel's own
+ * first sentence is already "3 of 11 active"; "4 can be updated" is the same kind of fact about the
+ * same set, and it reads as the second half of that sentence rather than as an interruption.
+ *
+ * It is absent when there is nothing to update. A row that says "everything is current" is a row
+ * that has to be read to learn nothing, on every visit, forever.
+ *
+ * During a run it stops being a button and becomes the report: which module, how far through. That
+ * is why it is here and not inside the sheet — updating four modules takes longer than anyone will
+ * hold a sheet open, so the progress has to live somewhere they will actually be.
+ */
+@Composable
+private fun UpdateLine(
+    updates: Int,
+    queue: ModuleUpdateQueue.State,
+    onOpen: () -> Unit,
+    onAcknowledge: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val running = queue.running
+    val settled = !running && queue.total > 0
+    if (!running && !settled && updates == 0) return
+
+    Row(
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(colors.primary.copy(alpha = 0.09f))
+                .clickable(onClick = if (settled) onAcknowledge else onOpen)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector =
+                when {
+                    settled && queue.failed.isNotEmpty() -> Icons.Rounded.ErrorOutline
+                    settled -> Icons.Rounded.CheckCircle
+                    else -> Icons.Rounded.ArrowCircleUp
+                },
+            contentDescription = null,
+            tint = if (settled && queue.failed.isNotEmpty()) colors.error else colors.primary,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text =
+                when {
+                    running ->
+                        stringResource(
+                            R.string.modules_updating,
+                            queue.current?.title ?: "",
+                            queue.finished + 1,
+                            queue.total,
+                        )
+                    settled && queue.failed.isNotEmpty() ->
+                        pluralStringResource(
+                            R.plurals.modules_update_failed,
+                            queue.failed.size,
+                            queue.failed.size,
+                        )
+                    settled ->
+                        pluralStringResource(
+                            R.plurals.modules_updated,
+                            queue.done.size,
+                            queue.done.size,
+                        )
+                    else -> pluralStringResource(R.plurals.modules_updates, updates, updates)
+                },
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (settled && queue.failed.isNotEmpty()) colors.error else colors.primary,
+        )
+    }
+}
+
+/**
+ * Which of the modules that are behind to bring forward.
+ *
+ * Checkboxes rather than a single "update everything" button, because these are other people's
+ * APKs going onto someone's phone: the reader gets to see the list and say which. Everything is
+ * ticked to begin with, since that is what someone opening this usually means.
+ *
+ * Modules whose updates were silenced are listed too, below the rest and unticked. They are
+ * genuinely out of date, and this is the one screen where saying so is useful rather than nagging
+ * — it is also the only way to find what you muted six months ago without going through the store
+ * one module at a time.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ModuleUpdatesSheet(
+    entries: Map<String, StoreEntry>,
+    upgradable: Set<String>,
+    mutedUpgradable: Set<String>,
+    channel: StoreChannel,
+    onStart: (List<ModuleUpdateQueue.Item>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val colors = MaterialTheme.colorScheme
+    val context = LocalContext.current
+
+    // One APK is installable from here; several is a choice this sheet has no room to make, so
+    // those keep their row, uncheckable, pointing at the store page that does.
+    data class Row(val entry: StoreEntry, val asset: ReleaseAsset?, val muted: Boolean)
+
+    val rows =
+        remember(entries, upgradable, mutedUpgradable, channel) {
+            (upgradable + mutedUpgradable).mapNotNull { name ->
+                val entry = entries[name] ?: return@mapNotNull null
+                val apks =
+                    entry.module
+                        .releasesOn(channel)
+                        .firstOrNull()
+                        ?.releaseAssets
+                        .orEmpty()
+                        .filter { it.isApk }
+                Row(entry, apks.singleOrNull(), name in mutedUpgradable)
+            }
+                .sortedWith(compareBy({ it.muted }, { it.entry.module.title.lowercase() }))
+        }
+
+    var chosen by
+        remember(rows) {
+            mutableStateOf(
+                rows.filter { !it.muted && it.asset != null }.map { it.entry.module.name }.toSet()
+            )
+        }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        LocalizedOverlay {
+            Column(Modifier.padding(bottom = 24.dp)) {
+                SheetHeading(
+                    stringResource(R.string.modules_updates_title),
+                    Icons.Rounded.ArrowCircleUp,
+                )
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    rows.forEach { row ->
+                        val name = row.entry.module.name
+                        val selectable = row.asset != null
+                        ListItem(
+                            modifier =
+                                Modifier.clickable(enabled = selectable) {
+                                    chosen = if (name in chosen) chosen - name else chosen + name
+                                },
+                            headlineContent = { Text(row.entry.module.title) },
+                            supportingContent = {
+                                Text(
+                                    text =
+                                        when {
+                                            row.asset == null ->
+                                                stringResource(R.string.action_update_choose)
+                                            else ->
+                                                stringResource(
+                                                    R.string.modules_update_versions,
+                                                    row.entry.installed?.versionName.orEmpty(),
+                                                    row.entry.latest?.versionName.orEmpty(),
+                                                    Formatter.formatShortFileSize(
+                                                        context,
+                                                        row.asset.size,
+                                                    ),
+                                                )
+                                        }
+                                )
+                            },
+                            leadingContent = {
+                                Checkbox(
+                                    checked = name in chosen,
+                                    onCheckedChange = null,
+                                    enabled = selectable,
+                                )
+                            },
+                            trailingContent =
+                                if (!row.muted) null
+                                else {
+                                    {
+                                        Text(
+                                            text = stringResource(R.string.modules_update_ignored),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = colors.onSurfaceVariant,
+                                        )
+                                    }
+                                },
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    enabled = chosen.isNotEmpty(),
+                    onClick = {
+                        onStart(
+                            rows
+                                .filter { it.entry.module.name in chosen && it.asset != null }
+                                .map {
+                                    ModuleUpdateQueue.Item(
+                                        packageName = it.entry.module.name,
+                                        title = it.entry.module.title,
+                                        asset = it.asset!!,
+                                    )
+                                }
+                        )
+                        onDismiss()
+                    },
+                ) {
+                    Text(stringResource(R.string.modules_update_selected, chosen.size))
+                }
+            }
         }
     }
 }

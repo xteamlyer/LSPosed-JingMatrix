@@ -168,10 +168,15 @@ data class StoreEntry(
     /**
      * There is a newer version *and* the reader wants to hear about it.
      *
-     * Muting is folded in here rather than at each place that reads this, because there are four
-     * of them — the header count, the updates-first priority, the row badge and the detail
-     * screen's install button — and a mute that only some of them honoured would be worse than
-     * none at all.
+     * Muting is folded in here rather than at each place that reads this, because there are three
+     * of them — the header count, the updates-first priority and the row badge — and a mute that
+     * only some of them honoured would be worse than none at all.
+     *
+     * The two screens that show a module *by itself* deliberately do not read this: the store's
+     * detail page and the module's own sheet both offer the update whether or not it is muted, and
+     * the sheet puts the switch right beside it. Muting means "stop counting this and stop
+     * mentioning it in lists", not "refuse to let me update it" — someone who has opened the page
+     * for one module is not being nagged, they are asking.
      */
     val upgradable: Boolean
         get() =

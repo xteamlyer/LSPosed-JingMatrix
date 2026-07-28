@@ -24,6 +24,8 @@ import org.matrix.vector.manager.data.model.MATCH_ANY_USER
 import org.matrix.vector.manager.data.model.ModuleDetection
 import org.matrix.vector.manager.data.model.PER_USER_RANGE
 import org.matrix.vector.manager.data.repository.ModuleRepository
+import org.matrix.vector.manager.data.model.StoreEntry
+import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ipc.DaemonClient
 
@@ -127,6 +129,19 @@ class ModulesViewModel(
      */
     val upgradable: StateFlow<Set<String>> = ServiceLocator.upgradablePackages
 
+    val mutedUpgradable: StateFlow<Set<String>> = ServiceLocator.mutedUpgradablePackages
+
+    val storeEntries: StateFlow<Map<String, StoreEntry>> = ServiceLocator.storeEntries
+
+    val updateChannel: StateFlow<String> = ServiceLocator.settings.updateChannel
+
+    val updateQueue: StateFlow<ModuleUpdateQueue.State> = ServiceLocator.moduleUpdates.state
+
+    fun startUpdates(items: List<ModuleUpdateQueue.Item>) =
+        ServiceLocator.moduleUpdates.start(items)
+
+    fun acknowledgeUpdates() = ServiceLocator.moduleUpdates.acknowledge()
+
     private val _frameworkApi = MutableStateFlow(0)
 
     /** "8 of 14 active", without needing the filtered list. */
@@ -207,6 +222,11 @@ class ModulesViewModel(
     init {
         loadModules()
         moduleRepository.refresh()
+        // The update marks, the header line and the sheet all read the catalogue, and until now
+        // nothing on this screen asked for it — the marks appeared only if the splash prefetch had
+        // happened to succeed. Cheap to repeat: the request is cache-controlled and a concurrent
+        // caller is a no-op rather than a second 1.2 MB download.
+        ServiceLocator.appScope.launch { runCatching { ServiceLocator.store.refresh() } }
         viewModelScope.launch {
             // drop(1): the current value is the state we just rendered, not a change.
             moduleRepository.scopeRevision.drop(1).collect { loadFacts(_discovered.value) }

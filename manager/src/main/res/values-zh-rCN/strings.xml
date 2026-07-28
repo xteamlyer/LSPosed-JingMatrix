@@ -302,4 +302,30 @@
     <string name="home_history_beginning">一切始于 %1$s</string>
     <string name="home_scroll_top">回到顶部</string>
     <string name="home_scroll_down">下一屏</string>
+    <string name="action_not_in_store">不在仓库中</string>
+    <string name="action_not_in_store_summary">无法检查此模块的更新</string>
+    <string name="action_update_to">更新到 %1$s</string>
+    <string name="action_update_from">当前 %1$s · %2$s</string>
+    <string name="action_update_running">正在安装…</string>
+    <string name="action_update_no_apk">此版本没有可安装的 APK</string>
+    <string name="action_update_choose">有多个构建 — 请在仓库中选择</string>
+    <string name="action_update_started">已开始更新</string>
+    <string name="action_open_store">在仓库中打开</string>
+    <string name="modules_updating">正在更新 %1$s — 第 %2$d 个，共 %3$d 个</string>
+    <string name="modules_updates_title">待更新的模块</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">已忽略</string>
+    <string name="modules_update_selected">更新 %1$d 个</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d 个模块可更新</item>
+        <item quantity="other">%1$d 个模块可更新</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">已更新 %1$d 个模块</item>
+        <item quantity="other">已更新 %1$d 个模块</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d 个模块更新失败</item>
+        <item quantity="other">%1$d 个模块更新失败</item>
+    </plurals>
 </resources>

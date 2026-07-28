@@ -8,6 +8,7 @@ import org.matrix.vector.manager.data.model.StoreEntry
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
 import android.annotation.SuppressLint
 import android.content.Context
@@ -27,6 +28,7 @@ import org.matrix.vector.manager.data.repository.BackupRepository
 import org.matrix.vector.manager.data.repository.FrameworkInstaller
 import org.matrix.vector.manager.data.repository.FrameworkUpdateRepository
 import org.matrix.vector.manager.data.repository.ModuleInstaller
+import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
 import org.matrix.vector.manager.data.repository.ModuleRepository
 import org.matrix.vector.manager.data.repository.RepoRepository
 import org.matrix.vector.manager.data.repository.SettingsRepository
@@ -102,40 +104,75 @@ object ServiceLocator {
     val frameworkUpdates: FrameworkUpdateRepository by lazy { FrameworkUpdateRepository(github) }
 
     /**
-     * Installed modules the catalogue has something newer for, muting already applied.
+     * Every installed module the catalogue knows about, joined to what this device has.
      *
-     * Here rather than in either view model because both need it and they must agree: the Modules
-     * list marks a version as out of date, and the Store counts the same modules in its header.
-     * Two independent answers to "is this out of date" is precisely how those two numbers end up
-     * contradicting each other on one device.
+     * Here rather than in either view model because three screens need it and they must agree: the
+     * Modules list marks a version as out of date, the module's own sheet offers to update it, and
+     * the Store counts the same modules in its header. Three independent answers to "is this out of
+     * date" is precisely how those numbers end up contradicting each other on one device.
      *
-     * It is expressed through `StoreEntry.upgradable`, the same property the Store's own list and
-     * count use, so there is one definition of the word and not a second one that merely agrees
-     * today.
+     * Keyed by package and limited to what is installed, because every reader of this asks about a
+     * module in front of them. The Store's own list joins the other direction — catalogue first —
+     * and keeps doing so.
      */
-    val upgradablePackages: StateFlow<Set<String>> by lazy {
-        combine(store.catalog, store.installedVersions, settings.updateChannel, settings.mutedUpdates) {
-                catalog,
-                installed,
-                channelPreference,
-                muted ->
+    val storeEntries: StateFlow<Map<String, StoreEntry>> by lazy {
+        combine(
+                store.catalog,
+                store.installedVersions,
+                settings.updateChannel,
+                settings.mutedUpdates,
+            ) { catalog, installed, channelPreference, muted ->
                 val channel = StoreChannel.of(channelPreference)
                 catalog.modules
-                    .map {
-                        StoreEntry(
-                            module = it,
-                            latest = it.latestOn(channel),
-                            installed = installed[it.name],
-                            updatesMuted = it.name in muted,
-                        )
+                    .filter { it.name in installed }
+                    .associate { module ->
+                        module.name to
+                            StoreEntry(
+                                module = module,
+                                latest = module.latestOn(channel),
+                                installed = installed[module.name],
+                                updatesMuted = module.name in muted,
+                            )
                     }
-                    .filter { it.upgradable }
+            }
+            .flowOn(Dispatchers.Default)
+            .stateIn(appScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+    }
+
+    /**
+     * Installed modules the catalogue has something newer for, muting already applied.
+     *
+     * Expressed through `StoreEntry.upgradable`, the same property the Store's own list and count
+     * use, so there is one definition of the word and not a second one that merely agrees today.
+     */
+    val upgradablePackages: StateFlow<Set<String>> by lazy {
+        storeEntries
+            .map { entries -> entries.values.filter { it.upgradable }.map { it.module.name }.toSet() }
+            .stateIn(appScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+    }
+
+    /**
+     * Installed modules that *are* out of date but were asked to keep quiet.
+     *
+     * Counted separately rather than folded into [upgradablePackages], because the two answer
+     * different questions: one is "what should this device tell you about", the other is "what did
+     * you tell it to stop mentioning". Only the update sheet asks the second, and it asks so that
+     * an ignored module is visible when someone goes looking, rather than being unreachable from
+     * the panel that hid it.
+     */
+    val mutedUpgradablePackages: StateFlow<Set<String>> by lazy {
+        storeEntries
+            .map { entries ->
+                entries.values
+                    .filter { it.updatesMuted && it.copy(updatesMuted = false).upgradable }
                     .map { it.module.name }
                     .toSet()
             }
-            .flowOn(Dispatchers.Default)
             .stateIn(appScope, SharingStarted.WhileSubscribed(5_000), emptySet())
     }
+
+    /** Sequential module updates, outliving the sheet that started them. */
+    val moduleUpdates: ModuleUpdateQueue by lazy { ModuleUpdateQueue(installer, store, appScope) }
 
     val frameworkInstaller: FrameworkInstaller by lazy { FrameworkInstaller(context, http, daemon) }
 

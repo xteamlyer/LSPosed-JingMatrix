@@ -301,4 +301,30 @@
     <string name="home_history_beginning">Nơi mọi thứ bắt đầu, %1$s</string>
     <string name="home_scroll_top">Về đầu trang</string>
     <string name="home_scroll_down">Màn hình tiếp theo</string>
+    <string name="action_not_in_store">Không có trong kho</string>
+    <string name="action_not_in_store_summary">Không thể kiểm tra bản cập nhật cho mô-đun này</string>
+    <string name="action_update_to">Cập nhật lên %1$s</string>
+    <string name="action_update_from">Từ %1$s · %2$s</string>
+    <string name="action_update_running">Đang cài đặt…</string>
+    <string name="action_update_no_apk">Bản phát hành này không có APK</string>
+    <string name="action_update_choose">Có nhiều bản dựng — chọn trong kho</string>
+    <string name="action_update_started">Đã bắt đầu cập nhật</string>
+    <string name="action_open_store">Mở trong kho</string>
+    <string name="modules_updating">Đang cập nhật %1$s — %2$d trên %3$d</string>
+    <string name="modules_updates_title">Mô-đun cần cập nhật</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Đang bỏ qua</string>
+    <string name="modules_update_selected">Cập nhật %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">Có thể cập nhật %1$d mô-đun</item>
+        <item quantity="other">Có thể cập nhật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">Đã cập nhật %1$d mô-đun</item>
+        <item quantity="other">Đã cập nhật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">Không thể cập nhật %1$d mô-đun</item>
+        <item quantity="other">Không thể cập nhật %1$d mô-đun</item>
+    </plurals>
 </resources>
