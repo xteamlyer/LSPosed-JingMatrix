@@ -13,6 +13,7 @@ import android.content.pm.VersionedPackage
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.os.SELinux
@@ -28,6 +29,7 @@ import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.UserInfo
 import org.matrix.vector.daemon.BuildConfig
+import org.matrix.vector.daemon.VectorDaemon
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.data.ModuleDatabase
@@ -44,6 +46,10 @@ import rikka.parcelablelist.ParcelableListSlice
 private const val TAG = "VectorManagerService"
 
 object ManagerService : ILSPManagerService.Stub() {
+
+  /** AOSP's switch for the synthesised launcher entries Android 10 introduced. */
+  private const val SHOW_HIDDEN_ICON_APPS = "show_hidden_icon_apps_enabled"
+
 
   private var managerPid = -1
   private var pendingManager = false
@@ -285,6 +291,8 @@ object ManagerService : ILSPManagerService.Stub() {
     activityManager?.forceStopPackage(packageName, userId)
   }
 
+  override fun softReboot() = VectorDaemon.softReboot()
+
   override fun reboot() {
     powerManager?.reboot(false, null, false)
   }
@@ -400,21 +408,40 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun dex2oatFlagsLoaded() =
       SystemProperties.get("dalvik.vm.dex2oat-flags").contains("--inline-max-code-units=0")
 
-  override fun setHiddenIcon(hide: Boolean) {
-    val args =
-        Bundle().apply {
-          putString("value", if (hide) "0" else "1")
-          putString("_user", "0")
-        }
+  /**
+   * Android 10 and later synthesise a launcher entry for an installed app that declares none, and
+   * `show_hidden_icon_apps_enabled` is the switch for that: 1 shows them, 0 leaves them hidden.
+   *
+   * Written through the settings provider by hand until now, using the pre-Android-12 signature of
+   * `IContentProvider.call` — the one without an `AttributionSource`. Since Android 12 that method
+   * does not exist, so every call threw `NoSuchMethodError`, the daemon logged it at warning level
+   * and returned normally, and the manager moved its switch as though something had happened. On a
+   * Pixel 6 running Android 17 this failed on every attempt. The daemon has run
+   * `ActivityThread.systemMain()` since start-up, so it has a real system context and can simply
+   * use the public API, which has no signature to rot.
+   *
+   * The boolean now means what the manager's label says — *force* the icons to appear — rather than
+   * the inverse it used to carry.
+   */
+  override fun setForcedLauncherIcons(force: Boolean) {
     runCatching {
-          val provider =
-              activityManager
-                  ?.getContentProviderExternal("settings", 0, SystemContext.token, null)
-                  ?.provider
-          provider?.call("android", "settings", "PUT_global", "show_hidden_icon_apps_enabled", args)
+          Settings.Global.putInt(
+              systemContentResolver(), SHOW_HIDDEN_ICON_APPS, if (force) 1 else 0)
         }
-        .onFailure { Log.w(TAG, "setHiddenIcon failed", it) }
+        .onFailure { Log.w(TAG, "setForcedLauncherIcons failed", it) }
   }
+
+  override fun forcedLauncherIcons(): Boolean =
+      runCatching {
+            // The platform default is 1, and an unset value must read as the default rather than
+            // as "off" — otherwise the switch shows the opposite of what the system is doing on
+            // every device where nobody has ever touched it.
+            Settings.Global.getInt(systemContentResolver(), SHOW_HIDDEN_ICON_APPS, 1) == 1
+          }
+          .getOrDefault(true)
+
+  private fun systemContentResolver() =
+      android.app.ActivityThread.currentActivityThread().systemContext.contentResolver
 
   override fun getLogs(zipFd: ParcelFileDescriptor) {
     FileSystem.getLogs(zipFd)

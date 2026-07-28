@@ -71,9 +71,23 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
      *
      * Returns false when neither exists, which is a real answer and not a failure.
      */
-    suspend fun openAppUi(packageName: String, userId: Int): Result<Boolean> = runIpc { service ->
+    suspend fun openAppUi(
+        packageName: String,
+        userId: Int,
+        /**
+         * True for a module, where the companion screen is the point.
+         *
+         * A module that declares both is declaring which is which: the Xposed category marks the
+         * screen written to configure the module, the launcher entry is whatever it puts in the
+         * drawer. For an ordinary app there is no such distinction and only the launcher applies.
+         */
+        companionFirst: Boolean = false,
+    ): Result<Boolean> = runIpc { service ->
+        val order =
+            if (companionFirst) listOf(XPOSED_MODULE_SETTINGS_CATEGORY, Intent.CATEGORY_LAUNCHER)
+            else listOf(Intent.CATEGORY_LAUNCHER, XPOSED_MODULE_SETTINGS_CATEGORY)
         val target =
-            sequenceOf(Intent.CATEGORY_LAUNCHER, XPOSED_MODULE_SETTINGS_CATEGORY)
+            order.asSequence()
                 .mapNotNull { category ->
                     val intent =
                         Intent(Intent.ACTION_MAIN).addCategory(category).setPackage(packageName)
@@ -236,7 +250,14 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     ): Result<List<android.content.pm.ResolveInfo>> = runIpc { it.queryIntentActivitiesAsUser(intent, flags, userId).list
     }
 
-    suspend fun setHiddenIcon(hide: Boolean): Result<Unit> = runIpc { it.setHiddenIcon(hide)
+    /** Restarts the framework without rebooting the device. Everything on screen goes with it. */
+    suspend fun softReboot(): Result<Unit> = runIpc { it.softReboot() }
+
+    /** Whether apps that declare no launcher entry are given one anyway; the platform default. */
+    suspend fun forcedLauncherIcons(): Result<Boolean> = runIpc { it.forcedLauncherIcons() }
+
+    suspend fun setForcedLauncherIcons(force: Boolean): Result<Unit> = runIpc {
+        it.setForcedLauncherIcons(force)
     }
 
     suspend fun getIncludeNewApps(packageName: String): Result<Boolean> = runIpc { it.getIncludeNewApps(packageName)

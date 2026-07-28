@@ -370,4 +370,10 @@
         <item quantity="one">Era già disattivo</item>
         <item quantity="other">Tutti e %1$d erano già disattivi</item>
     </plurals>
+    <string name="info_manager_version">Gestore</string>
+    <string name="action_open_companion">Apri l’app companion</string>
+    <string name="action_open_companion_summary">La schermata che il suo autore ha scritto per configurarlo</string>
+    <string name="action_soft_reboot">Riavvio soft</string>
+    <string name="action_soft_reboot_summary">Riavviare il framework senza riavviare il telefono</string>
+    <string name="action_soft_reboot_confirm">Tutte le app in esecuzione si chiudono e lo schermo si spegne per un attimo. Il telefono resta acceso.</string>
 </resources>

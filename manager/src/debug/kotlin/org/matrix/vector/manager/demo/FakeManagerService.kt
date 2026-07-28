@@ -248,8 +248,15 @@ class FakeManagerService(
     ): ParcelableListSlice<ResolveInfo> =
         real?.queryIntentActivitiesAsUser(intent, flags, userId) ?: ParcelableListSlice(emptyList())
 
-    override fun setHiddenIcon(hide: Boolean) {
-        real?.setHiddenIcon(hide)
+    override fun softReboot() {
+        // Deliberately inert: a demo that could restart the framework would take the phone down
+        // with it, and every screen this scenario exists to show would go with it.
+    }
+
+    override fun forcedLauncherIcons(): Boolean = real?.forcedLauncherIcons() ?: true
+
+    override fun setForcedLauncherIcons(force: Boolean) {
+        real?.setForcedLauncherIcons(force)
     }
 
     override fun getLogs(zipFd: ParcelFileDescriptor?) {

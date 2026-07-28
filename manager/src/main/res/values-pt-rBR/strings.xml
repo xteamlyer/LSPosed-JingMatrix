@@ -370,4 +370,10 @@
         <item quantity="one">Já estava inativo</item>
         <item quantity="other">Todos os %1$d já estavam inativos</item>
     </plurals>
+    <string name="info_manager_version">Gerenciador</string>
+    <string name="action_open_companion">Abrir o app complementar</string>
+    <string name="action_open_companion_summary">A tela que o autor escreveu para configurá-lo</string>
+    <string name="action_soft_reboot">Reinício suave</string>
+    <string name="action_soft_reboot_summary">Reiniciar o framework sem reiniciar o telefone</string>
+    <string name="action_soft_reboot_confirm">Todos os apps abertos fecham e a tela apaga por um instante. O telefone continua ligado.</string>
 </resources>

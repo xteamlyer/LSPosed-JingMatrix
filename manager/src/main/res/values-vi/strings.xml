@@ -359,4 +359,10 @@
         <item quantity="one">Vốn đã tắt</item>
         <item quantity="other">Cả %1$d đều đã tắt sẵn</item>
     </plurals>
+    <string name="info_manager_version">Trình quản lý</string>
+    <string name="action_open_companion">Mở ứng dụng đồng hành</string>
+    <string name="action_open_companion_summary">Màn hình tác giả viết để cấu hình mô-đun</string>
+    <string name="action_soft_reboot">Khởi động mềm</string>
+    <string name="action_soft_reboot_summary">Khởi động lại framework mà không khởi động lại điện thoại</string>
+    <string name="action_soft_reboot_confirm">Mọi ứng dụng đang chạy sẽ đóng và màn hình tối đi một lát. Bản thân điện thoại vẫn bật.</string>
 </resources>

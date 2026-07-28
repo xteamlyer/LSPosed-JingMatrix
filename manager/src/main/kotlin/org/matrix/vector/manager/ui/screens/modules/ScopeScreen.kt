@@ -71,6 +71,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -275,17 +276,6 @@ fun ScopeScreen(
                     }
                 },
                 actions = {
-                    // The module's own screen, next to the switch that runs it. A module with
-                    // neither a launcher entry nor a settings activity says so when pressed rather
-                    // than being hidden — its absence is a fact about that module, and a control
-                    // that comes and goes between modules is harder to learn than one that
-                    // answers.
-                    IconButton(onClick = viewModel::openModule) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.Launch,
-                            contentDescription = stringResource(R.string.action_launch),
-                        )
-                    }
                     // The master switch, in the bar. It is the single most consequential control
                     // on the screen and it was previously a card competing with the app list for
                     // the same attention; an overflow menu in its place held items that now live
@@ -305,6 +295,20 @@ fun ScopeScreen(
             )
         },
         snackbarHost = { VectorSnackbarHost(snackbars) },
+        // The module's own screen, in the corner rather than in the bar. The bar holds what the
+        // screen *is* — whose scope, and whether it runs — and this is a departure from it: it
+        // leaves for somewhere else. A module with neither a companion nor a launcher entry says
+        // so when pressed rather than hiding the button, because its absence is a fact about that
+        // module and a control that comes and goes between modules is harder to learn than one
+        // that answers.
+        floatingActionButton = {
+            FloatingActionButton(onClick = viewModel::openModule) {
+                Icon(
+                    Icons.AutoMirrored.Rounded.Launch,
+                    contentDescription = stringResource(R.string.action_open_companion),
+                )
+            }
+        },
         bottomBar = {
             // Appears only when there is something to apply, so the cost is stated exactly when
             // it becomes real.
@@ -756,7 +760,7 @@ private fun AppRow(
         supportingContent = {
             Column {
                 Text(
-                    app.packageName,
+                    ScopeViewModel.displayPackageName(app.packageName),
                     style = VectorMono,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -359,4 +359,10 @@
         <item quantity="one">이미 꺼져 있었습니다</item>
         <item quantity="other">%1$d개 모두 이미 꺼져 있었습니다</item>
     </plurals>
+    <string name="info_manager_version">관리자</string>
+    <string name="action_open_companion">컴패니언 앱 열기</string>
+    <string name="action_open_companion_summary">이 모듈의 제작자가 설정용으로 만든 화면</string>
+    <string name="action_soft_reboot">소프트 재부팅</string>
+    <string name="action_soft_reboot_summary">휴대폰을 재시작하지 않고 프레임워크만 다시 시작</string>
+    <string name="action_soft_reboot_confirm">실행 중인 앱이 모두 닫히고 화면이 잠시 꺼집니다. 휴대폰 자체는 켜진 상태입니다.</string>
 </resources>

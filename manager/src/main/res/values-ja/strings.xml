@@ -359,4 +359,10 @@
         <item quantity="one">すでに無効でした</item>
         <item quantity="other">%1$d 個すべてすでに無効でした</item>
     </plurals>
+    <string name="info_manager_version">マネージャー</string>
+    <string name="action_open_companion">コンパニオンアプリを開く</string>
+    <string name="action_open_companion_summary">作者がこのモジュールの設定用に用意した画面</string>
+    <string name="action_soft_reboot">ソフトリブート</string>
+    <string name="action_soft_reboot_summary">端末を再起動せずにフレームワークを再起動します</string>
+    <string name="action_soft_reboot_confirm">起動中のアプリはすべて終了し、画面が一瞬暗くなります。端末自体は起動したままです。</string>
 </resources>

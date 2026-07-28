@@ -414,4 +414,10 @@
         <item quantity="one">كانت معطّلة أصلًا</item>
         <item quantity="other">كل الـ %1$d كانت معطّلة أصلًا</item>
     </plurals>
+    <string name="info_manager_version">المدير</string>
+    <string name="action_open_companion">فتح التطبيق المرافق</string>
+    <string name="action_open_companion_summary">الشاشة التي كتبها مؤلف الوحدة لضبطها</string>
+    <string name="action_soft_reboot">إعادة تشغيل ناعمة</string>
+    <string name="action_soft_reboot_summary">إعادة تشغيل الإطار دون إعادة تشغيل الهاتف</string>
+    <string name="action_soft_reboot_confirm">تُغلق كل التطبيقات العاملة وتُظلم الشاشة للحظة. الهاتف نفسه يبقى قيد التشغيل.</string>
 </resources>

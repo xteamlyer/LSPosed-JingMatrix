@@ -135,7 +135,7 @@ fun SystemStatusScreen(
                     title = stringResource(R.string.hidden_icon),
                     subtitle = stringResource(R.string.hidden_icon_summary),
                     checked = hiddenIcon,
-                    onCheckedChange = viewModel::setHiddenIcon,
+                    onCheckedChange = viewModel::setForcedLauncherIcons,
                 )
             }
         }
@@ -194,7 +194,20 @@ private fun buildRows(
 ): List<Pair<String, String>> {
     val unknown = "—"
     return listOf(
-        stringResource(R.string.info_framework_version) to (status.versionLabel ?: unknown),
+        stringResource(R.string.info_framework_version) to
+            buildString {
+                append(status.versionLabel ?: unknown)
+                // The exact build, not just its number. Two builds share a version code whenever
+                // they sit at the same depth on different branches, and a working tree with
+                // uncommitted changes says so — which is exactly what a bug report needs and what
+                // a screenshot of this page could not previously give.
+                status.commit?.takeIf { it.isNotBlank() }?.let { append("  ·  ").append(it) }
+            },
+        // Named separately from the framework, because they are flashed separately and are not
+        // always the same build. When these two lines disagree, that is the answer to a whole
+        // class of "it behaves oddly" reports.
+        stringResource(R.string.info_manager_version) to
+            "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})  ·  ${BuildConfig.VERSION_HASH}",
         // Named by which scale the number is on. The two share a field and nothing else: 93 is a
         // legacy Xposed API, 101 is a libxposed one, and calling both "Xposed API" is how a reader
         // ends up comparing versions that were never comparable.

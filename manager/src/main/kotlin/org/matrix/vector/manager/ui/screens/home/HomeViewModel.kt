@@ -41,6 +41,15 @@ data class FrameworkStatus(
     val dex2oatCompatibility: Int = ILSPManagerService.DEX2OAT_OK,
     val sepolicyLoaded: Boolean = false,
     val systemServerInjected: Boolean = false,
+    /**
+     * The commit the running framework was built from, short, `-dirty` when its tree was not clean.
+     *
+     * The version code is a commit count, so it cannot tell a branch build from the official build
+     * of the same depth — and the framework and the manager are flashed separately, so they are
+     * not always the same build. Naming both is the difference between a bug report that can be
+     * placed and one that cannot.
+     */
+    val commit: String? = null,
 ) {
     val versionLabel: String?
         get() = versionName?.let { if (versionCode > 0) "$it ($versionCode)" else it }
@@ -126,6 +135,7 @@ class HomeViewModel(
         }
 
         val versionName = daemon.getXposedVersionName().getOrNull()
+        val commit = daemon.getFrameworkCommit().getOrNull()
         val versionCode = daemon.getXposedVersionCode().getOrDefault(0L)
         val api = daemon.getXposedApiVersion().getOrNull()
 
@@ -148,6 +158,7 @@ class HomeViewModel(
         _status.value =
             FrameworkStatus(
                 state = if (issues.isEmpty()) FrameworkState.Active else FrameworkState.Degraded,
+                commit = commit,
                 versionName = versionName,
                 versionCode = versionCode,
                 apiVersion = api,
@@ -231,11 +242,17 @@ class HomeViewModel(
      */
     val frameworkUpdate: StateFlow<FrameworkUpdateState> = ServiceLocator.frameworkUpdates.state
 
-    private val _hiddenIcon = MutableStateFlow(false)
+    // True is the platform's own default, so the switch shows what the system is doing on a device
+    // where nobody has touched it — rather than reading "off" until the daemon answers.
+    private val _hiddenIcon = MutableStateFlow(true)
     val hiddenIcon: StateFlow<Boolean> = _hiddenIcon.asStateFlow()
 
     private suspend fun refreshToggles() {
         _statusNotification.value = daemon.enableStatusNotification().getOrDefault(false)
+        // Read, not assumed. This one had no getter at all, so the switch started at a hardcoded
+        // value on every launch and told the reader whatever that value was — which on a device
+        // where the setting had been changed was simply wrong.
+        _hiddenIcon.value = daemon.forcedLauncherIcons().getOrDefault(true)
     }
 
     fun setStatusNotification(enabled: Boolean) {
@@ -246,13 +263,17 @@ class HomeViewModel(
         }
     }
 
-    fun setHiddenIcon(hidden: Boolean) {
+    fun setForcedLauncherIcons(force: Boolean) {
         viewModelScope.launch {
             // The old implementation wrote the inverse of what it read — it set the daemon flag
             // from one source of truth and read its state back from Settings.Global — so the
             // switch could show a state the framework did not hold. It now reports only what it
             // successfully wrote.
-            daemon.setHiddenIcon(hidden).onSuccess { _hiddenIcon.value = hidden }
+            daemon.setForcedLauncherIcons(force).onSuccess {
+                // Read back rather than assumed: the write reaches a system setting that can
+                // refuse, and this switch has spent its life reporting a success it never checked.
+                _hiddenIcon.value = daemon.forcedLauncherIcons().getOrDefault(force)
+            }
         }
     }
 

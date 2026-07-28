@@ -370,4 +370,10 @@
         <item quantity="one">از قبل غیرفعال بود</item>
         <item quantity="other">هر %1$d از قبل غیرفعال بودند</item>
     </plurals>
+    <string name="info_manager_version">مدیر</string>
+    <string name="action_open_companion">گشودن برنامهٔ همراه</string>
+    <string name="action_open_companion_summary">صفحه‌ای که نویسندهٔ این ماژول برای پیکربندی آن نوشته است</string>
+    <string name="action_soft_reboot">راه‌اندازی نرم</string>
+    <string name="action_soft_reboot_summary">راه‌اندازی دوبارهٔ چارچوب بدون راه‌اندازی مجدد گوشی</string>
+    <string name="action_soft_reboot_confirm">همهٔ برنامه‌های در حال اجرا بسته می‌شوند و صفحه لحظه‌ای سیاه می‌شود. خود گوشی روشن می‌ماند.</string>
 </resources>

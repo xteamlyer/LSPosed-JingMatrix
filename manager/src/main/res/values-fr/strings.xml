@@ -370,4 +370,10 @@
         <item quantity="one">Il était déjà désactivé</item>
         <item quantity="other">Les %1$d étaient déjà désactivés</item>
     </plurals>
+    <string name="info_manager_version">Gestionnaire</string>
+    <string name="action_open_companion">Ouvrir l’application compagnon</string>
+    <string name="action_open_companion_summary">L’écran que son auteur a écrit pour le configurer</string>
+    <string name="action_soft_reboot">Redémarrage à chaud</string>
+    <string name="action_soft_reboot_summary">Redémarrer le framework sans redémarrer le téléphone</string>
+    <string name="action_soft_reboot_confirm">Toutes les applications ouvertes se ferment et l’écran s’éteint un instant. Le téléphone, lui, reste allumé.</string>
 </resources>

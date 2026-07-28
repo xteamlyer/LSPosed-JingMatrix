@@ -396,4 +396,10 @@
         <item quantity="one">כבר היה מושבת</item>
         <item quantity="other">כל %1$d כבר היו מושבתים</item>
     </plurals>
+    <string name="info_manager_version">מנהל</string>
+    <string name="action_open_companion">פתיחת אפליקציית הלוויין</string>
+    <string name="action_open_companion_summary">המסך שכותב המודול כתב כדי להגדיר אותו</string>
+    <string name="action_soft_reboot">אתחול רך</string>
+    <string name="action_soft_reboot_summary">הפעלה מחדש של המסגרת בלי לאתחל את הטלפון</string>
+    <string name="action_soft_reboot_confirm">כל האפליקציות הפעילות ייסגרו והמסך יחשיך לרגע. הטלפון עצמו נשאר דולק.</string>
 </resources>

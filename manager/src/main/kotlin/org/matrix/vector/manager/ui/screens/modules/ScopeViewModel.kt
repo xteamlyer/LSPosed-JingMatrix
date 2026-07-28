@@ -608,6 +608,22 @@ class ScopeViewModel(
 
         /** How the daemon names the system server in a scope list. */
         const val SYSTEM_FRAMEWORK_PACKAGE = "system"
+
+        /**
+         * What to *show* for it, which is not what it is stored as.
+         *
+         * The scope table has said `system` since long before this manager, and the daemon, the
+         * CLI and every backup file on every device say it too — so the stored name stays. But the
+         * process it actually means is `system_server`, and a reader looking at a package name
+         * expects the name of the thing. The rename lives here, at the point of display, and
+         * nothing written back to the daemon ever passes through it.
+         */
+        const val SYSTEM_FRAMEWORK_DISPLAY_NAME = "system_server"
+
+        /** The package name as it should appear on screen. */
+        fun displayPackageName(packageName: String): String =
+            if (packageName == SYSTEM_FRAMEWORK_PACKAGE) SYSTEM_FRAMEWORK_DISPLAY_NAME
+            else packageName
         const val FRAMEWORK_LABEL = "System Framework"
     }
 }

@@ -97,7 +97,15 @@ interface ILSPManagerService {
 
     boolean dex2oatFlagsLoaded() = 32;
 
-    void setHiddenIcon(boolean hide) = 33;
+    /**
+     * Whether to force a launcher entry for apps that declare none.
+     *
+     * Android 10 and later synthesise one; `show_hidden_icon_apps_enabled` decides whether they
+     * appear. The argument used to mean the opposite of the manager's own label, and the write
+     * itself has been failing on Android 12 and later since the hidden method it used changed
+     * shape. Both are fixed together, so the name states the direction: true shows the icons.
+     */
+    void setForcedLauncherIcons(boolean force) = 33;
 
     void getLogs(in ParcelFileDescriptor zipFd) = 34;
 
@@ -163,4 +171,15 @@ interface ILSPManagerService {
 
     /** Why [getUnloadableModules] lists this one; MODULE_LOAD_OK when it does not. */
     int getModuleLoadState(String packageName) = 60;
+
+    /** The current state of [setForcedLauncherIcons]; true is the platform default. */
+    boolean forcedLauncherIcons() = 61;
+
+    /**
+     * Restarts the framework without rebooting the device — the "soft reboot".
+     *
+     * The only way to stop and start the system framework, which is what "force stop" would mean
+     * for it. Every app on screen goes with it.
+     */
+    void softReboot() = 62;
 }

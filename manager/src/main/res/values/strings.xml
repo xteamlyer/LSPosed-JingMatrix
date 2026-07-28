@@ -32,6 +32,7 @@
 
     <!-- System status detail -->
     <string name="system_status">System status</string>
+    <string name="info_manager_version">Manager</string>
     <string name="info_api_version">Xposed API</string>
     <string name="info_api_version_libxposed" translatable="false">libxposed API</string>
     <string name="info_framework_version">Framework</string>
@@ -264,9 +265,14 @@
     <string name="action_update_no_apk">This release has no APK to install</string>
     <string name="action_update_choose">Several builds — choose one in the store</string>
     <string name="action_update_started">Update started</string>
+    <string name="action_open_companion">Open companion app</string>
+    <string name="action_open_companion_summary">The screen this module\'s author wrote to configure it</string>
     <string name="action_open_store">Open in store</string>
     <string name="action_launch">Open</string>
     <string name="action_app_info">App info</string>
+    <string name="action_soft_reboot">Soft reboot</string>
+    <string name="action_soft_reboot_summary">Restart the framework without rebooting the phone</string>
+    <string name="action_soft_reboot_confirm">Every running app closes and the screen goes black for a moment. The phone itself stays on.</string>
     <string name="action_force_stop">Force stop</string>
     <string name="action_optimize">Re-optimize</string>
     <string name="action_uninstall">Uninstall</string>

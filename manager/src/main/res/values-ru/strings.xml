@@ -373,4 +373,10 @@
         <item quantity="one">Он уже был выключен</item>
         <item quantity="other">Все %1$d уже были выключены</item>
     </plurals>
+    <string name="info_manager_version">Менеджер</string>
+    <string name="action_open_companion">Открыть приложение-компаньон</string>
+    <string name="action_open_companion_summary">Экран, который автор модуля написал для его настройки</string>
+    <string name="action_soft_reboot">Мягкая перезагрузка</string>
+    <string name="action_soft_reboot_summary">Перезапустить фреймворк, не перезагружая телефон</string>
+    <string name="action_soft_reboot_confirm">Все запущенные приложения закроются, экран на мгновение погаснет. Сам телефон останется включённым.</string>
 </resources>

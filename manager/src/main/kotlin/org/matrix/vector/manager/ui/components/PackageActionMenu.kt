@@ -45,9 +45,9 @@ import org.matrix.vector.manager.ui.theme.LocalizedOverlay
 import org.matrix.vector.manager.R
 import android.text.format.Formatter
 import androidx.compose.material.icons.rounded.ArrowCircleUp
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.NotificationsOff
-import androidx.compose.material.icons.rounded.Storefront
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -58,6 +58,10 @@ import org.matrix.vector.manager.data.model.StoreEntry
 import org.matrix.vector.manager.data.repository.ModuleUpdateQueue
 import org.matrix.vector.manager.ui.screens.repo.StoreChannel
 import org.matrix.vector.manager.ui.screens.repo.releasesOn
+import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material3.TextButton
+import org.matrix.vector.manager.ui.screens.modules.ScopeViewModel
+import org.matrix.vector.manager.ui.screens.modules.ScopeViewModel.Companion.SYSTEM_FRAMEWORK_PACKAGE
 import org.matrix.vector.manager.di.ServiceLocator
 import org.matrix.vector.manager.ui.theme.VectorMono
 
@@ -105,8 +109,44 @@ fun PackageActionSheet(
      */
     onOpenStore: ((String) -> Unit)? = null,
 ) {
+    // The framework is a scope target, not an app. It has no launcher entry, no settings page in
+    // Settings, and nothing ART could re-optimize; offering those three was offering three
+    // dead ends. What it does have is a way to be stopped and started, which for the framework
+    // means taking every running app down with it — so that is what it says.
+    val isSystemFramework = packageName == SYSTEM_FRAMEWORK_PACKAGE
+    var confirmSoftReboot by remember { mutableStateOf(false) }
+
     val scope = rememberCoroutineScope()
     val daemon = ServiceLocator.daemon
+
+    if (confirmSoftReboot) {
+        VectorAlertDialog(
+            onDismissRequest = { confirmSoftReboot = false },
+            icon = { Icon(Icons.Rounded.RestartAlt, contentDescription = null) },
+            title = { Text(stringResource(R.string.action_soft_reboot)) },
+            text = { Text(stringResource(R.string.action_soft_reboot_confirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmSoftReboot = false
+                        onDismiss()
+                        scope.launch { daemon.softReboot() }
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.action_soft_reboot),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmSoftReboot = false }) {
+                    Text(stringResource(R.string.store_cancel))
+                }
+            },
+        )
+    }
+
     val colors = MaterialTheme.colorScheme
     // No skipPartiallyExpanded. Passing it removed the half-height stop, which is the only thing
     // a drag on a sheet can *do* other than dismiss it — so a sheet taller than half the screen
@@ -137,7 +177,7 @@ LocalizedOverlay {
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = packageName,
+                    text = ScopeViewModel.displayPackageName(packageName),
                     style = VectorMono,
                     color = colors.onSurfaceVariant,
                     maxLines = 1,
@@ -158,12 +198,26 @@ LocalizedOverlay {
             )
         }
 
+        // A module is not an app you "open" — most have nothing to look at. What it may have is a
+        // companion: the screen its author wrote to configure it, which is what the Xposed settings
+        // category marks. Naming it that way is the difference between a control that looks
+        // pointless and one that says what it is for.
+        if (!isSystemFramework)
         ActionRow(
             icon = Icons.AutoMirrored.Rounded.Launch,
-            title = stringResource(R.string.action_launch),
+            title =
+                stringResource(
+                    if (isModule) R.string.action_open_companion else R.string.action_launch
+                ),
+            subtitle =
+                if (isModule) stringResource(R.string.action_open_companion_summary) else null,
         ) {
             finish {
-                if (daemon.openAppUi(packageName, userId).getOrDefault(false)) {
+                if (
+                    daemon
+                        .openAppUi(packageName, userId, companionFirst = isModule)
+                        .getOrDefault(false)
+                ) {
                     PackageActionResult(R.string.action_launched)
                 } else {
                     PackageActionResult(R.string.action_no_launcher, tone = SnackbarTone.Failure)
@@ -171,6 +225,7 @@ LocalizedOverlay {
             }
         }
 
+        if (!isSystemFramework)
         ActionRow(icon = Icons.Rounded.Info, title = stringResource(R.string.action_app_info)) {
             finish {
                 val intent =
@@ -182,39 +237,63 @@ LocalizedOverlay {
             }
         }
 
-        ActionRow(icon = Icons.Rounded.Stop, title = stringResource(R.string.action_force_stop)) {
-            finish {
-                daemon.forceStopPackage(packageName, userId)
-                PackageActionResult(
-                    R.string.action_force_stopped,
-                    appName,
-                    tone = SnackbarTone.Success,
-                )
+        // Force-stopping the framework is a soft reboot, and calling it anything else would be
+        // hiding what the button does: `system_server` is forked from the zygote, so stopping and
+        // starting it takes every running app down with it. Named and explained accordingly, and
+        // confirmed first — this is the one action on this sheet that ends what the reader is
+        // doing everywhere else on the phone.
+        if (isSystemFramework) {
+            ActionRow(
+                icon = Icons.Rounded.RestartAlt,
+                title = stringResource(R.string.action_soft_reboot),
+                subtitle = stringResource(R.string.action_soft_reboot_summary),
+                tint = colors.error,
+            ) {
+                confirmSoftReboot = true
+            }
+        } else {
+            ActionRow(
+                icon = Icons.Rounded.Stop,
+                title = stringResource(R.string.action_force_stop),
+            ) {
+                finish {
+                    daemon.forceStopPackage(packageName, userId)
+                    PackageActionResult(
+                        R.string.action_force_stopped,
+                        appName,
+                        tone = SnackbarTone.Success,
+                    )
+                }
             }
         }
 
-        ActionRow(
-            icon = Icons.Rounded.Bolt,
-            title = stringResource(R.string.action_optimize),
-            subtitle = stringResource(R.string.action_optimize_summary),
-            tint = colors.primary,
-        ) {
-            finish {
-                // Slow — this recompiles the app — so the caller is told it started and told
-                // again when it finishes.
-                onResult(
-                    PackageActionResult(
-                        R.string.action_optimizing,
-                        appName,
-                        tone = SnackbarTone.Working,
+        // Only for a hook target. Re-optimizing recompiles an app so that ART stops inlining the
+        // methods a module wants to hook — which is about the app being hooked, not about the
+        // module doing the hooking. On a module it was an expensive button for nothing.
+        if (!isModule && !isSystemFramework) {
+            ActionRow(
+                icon = Icons.Rounded.Bolt,
+                title = stringResource(R.string.action_optimize),
+                subtitle = stringResource(R.string.action_optimize_summary),
+                tint = colors.primary,
+            ) {
+                finish {
+                    // Slow — this recompiles the app — so the caller is told it started and told
+                    // again when it finishes.
+                    onResult(
+                        PackageActionResult(
+                            R.string.action_optimizing,
+                            appName,
+                            tone = SnackbarTone.Working,
+                        )
                     )
-                )
-                val ok = daemon.optimizePackage(packageName).getOrDefault(false)
-                PackageActionResult(
-                    if (ok) R.string.action_optimized else R.string.action_optimize_failed,
-                    appName,
-                    tone = if (ok) SnackbarTone.Success else SnackbarTone.Failure,
-                )
+                    val ok = daemon.optimizePackage(packageName).getOrDefault(false)
+                    PackageActionResult(
+                        if (ok) R.string.action_optimized else R.string.action_optimize_failed,
+                        appName,
+                        tone = if (ok) SnackbarTone.Success else SnackbarTone.Failure,
+                    )
+                }
             }
         }
 
@@ -398,7 +477,8 @@ private fun ModuleUpdateSection(
 
     if (onOpenStore != null) {
         ActionRow(
-            icon = Icons.Rounded.Storefront,
+            // The same glyph the Store tab carries, because it is the same place.
+            icon = Icons.Rounded.CloudDownload,
             title = stringResource(R.string.action_open_store),
             onClick = {
                 onDismiss()

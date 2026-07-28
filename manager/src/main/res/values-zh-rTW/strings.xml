@@ -360,4 +360,10 @@
         <item quantity="one">原本就已停用</item>
         <item quantity="other">%1$d 個全部原本就已停用</item>
     </plurals>
+    <string name="info_manager_version">管理器</string>
+    <string name="action_open_companion">開啟隨附應用程式</string>
+    <string name="action_open_companion_summary">模組作者為設定它而撰寫的介面</string>
+    <string name="action_soft_reboot">軟重啟</string>
+    <string name="action_soft_reboot_summary">重新啟動框架，而不重新啟動手機</string>
+    <string name="action_soft_reboot_confirm">所有正在執行的應用程式都會關閉，螢幕會黑一下。手機本身保持開機。</string>
 </resources>

@@ -223,6 +223,22 @@ object VectorDaemon {
         .onFailure { Log.w(TAG, "Failed to clear system caches via reflection", it) }
   }
 
+  /**
+   * Brings the framework down and up without rebooting the device.
+   *
+   * `system_server` is forked from the *primary* zygote, so restarting that is what restarts the
+   * framework — on a 64/32 device the primary init service is still called `zygote` (it runs
+   * app_process64) and `zygote_secondary` is the 32-bit one. Restarting the secondary leaves
+   * system_server running, which is right for [restartSystemServer]'s own purpose and wrong for
+   * this one; they are separate functions for that reason.
+   *
+   * Everything on screen dies with it. The caller is expected to have said so first.
+   */
+  fun softReboot() {
+    Log.w(TAG, "Soft reboot: restarting the primary zygote")
+    SystemProperties.set("ctl.restart", "zygote")
+  }
+
   fun restartSystemServer() {
     Log.w(TAG, "Restarting system_server...")
     val restartTarget =

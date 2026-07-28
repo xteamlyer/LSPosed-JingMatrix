@@ -363,4 +363,10 @@
         <item quantity="one">Sudah nonaktif</item>
         <item quantity="other">Semua %1$d sudah nonaktif</item>
     </plurals>
+    <string name="info_manager_version">Manajer</string>
+    <string name="action_open_companion">Buka aplikasi pendamping</string>
+    <string name="action_open_companion_summary">Layar yang ditulis pembuat modul untuk mengaturnya</string>
+    <string name="action_soft_reboot">Boot ulang lunak</string>
+    <string name="action_soft_reboot_summary">Mulai ulang framework tanpa me-reboot ponsel</string>
+    <string name="action_soft_reboot_confirm">Semua aplikasi yang berjalan tertutup dan layar gelap sesaat. Ponselnya sendiri tetap menyala.</string>
 </resources>

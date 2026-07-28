@@ -1,5 +1,3 @@
-import java.time.Instant
-
 plugins {
     alias(libs.plugins.agp.app)
     // Kotlin itself comes from AGP 9's built-in support — applying
@@ -41,6 +39,7 @@ apksign {
 
 val defaultManagerPackageName: String by rootProject.extra
 val injectedPackageName: String by rootProject.extra
+val versionHashProvider: Provider<String> by rootProject.extra
 
 android {
     namespace = defaultManagerPackageName
@@ -52,7 +51,12 @@ android {
 
     defaultConfig {
         applicationId = defaultManagerPackageName
-        buildConfigField("long", "BUILD_TIME", Instant.now().epochSecond.toString())
+        // The commit this manager was built from, short, with a marker when the tree was dirty.
+        // The version code is `git rev-list --count origin/master`, so a branch build and the
+        // official build of the same depth are indistinguishable by number — and the manager and
+        // the daemon are flashed separately, so they can be different builds of the same number.
+        // This is what tells them apart, and the status page shows both.
+        buildConfigField("String", "VERSION_HASH", """"${versionHashProvider.get()}"""")
         buildConfigField("String", "MANAGER_PACKAGE_NAME", "\"$defaultManagerPackageName\"")
         buildConfigField("String", "INJECTED_PACKAGE_NAME", "\"$injectedPackageName\"")
 

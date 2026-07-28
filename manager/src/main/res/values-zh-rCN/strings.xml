@@ -360,4 +360,10 @@
         <item quantity="one">原本就已停用</item>
         <item quantity="other">%1$d 个全部原本就已停用</item>
     </plurals>
+    <string name="info_manager_version">管理器</string>
+    <string name="action_open_companion">打开配套应用</string>
+    <string name="action_open_companion_summary">模块作者为配置它而编写的界面</string>
+    <string name="action_soft_reboot">软重启</string>
+    <string name="action_soft_reboot_summary">重启框架，而不重启手机</string>
+    <string name="action_soft_reboot_confirm">所有正在运行的应用都会关闭，屏幕会黑一下。手机本身保持开机。</string>
 </resources>

@@ -370,4 +370,10 @@
         <item quantity="one">War schon aus</item>
         <item quantity="other">Alle %1$d waren schon aus</item>
     </plurals>
+    <string name="info_manager_version">Manager</string>
+    <string name="action_open_companion">Begleit-App öffnen</string>
+    <string name="action_open_companion_summary">Der Bildschirm, den der Autor dieses Moduls zum Einrichten geschrieben hat</string>
+    <string name="action_soft_reboot">Soft-Reboot</string>
+    <string name="action_soft_reboot_summary">Das Framework neu starten, ohne das Telefon neu zu starten</string>
+    <string name="action_soft_reboot_confirm">Alle laufenden Apps werden beendet und der Bildschirm wird kurz schwarz. Das Telefon selbst bleibt an.</string>
 </resources>

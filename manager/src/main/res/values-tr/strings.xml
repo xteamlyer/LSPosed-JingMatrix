@@ -370,4 +370,10 @@
         <item quantity="one">Zaten kapalıydı</item>
         <item quantity="other">%1$d tanesinin hepsi zaten kapalıydı</item>
     </plurals>
+    <string name="info_manager_version">Yönetici</string>
+    <string name="action_open_companion">Yardımcı uygulamayı aç</string>
+    <string name="action_open_companion_summary">Modülün yazarının onu ayarlamak için yazdığı ekran</string>
+    <string name="action_soft_reboot">Yumuşak yeniden başlatma</string>
+    <string name="action_soft_reboot_summary">Telefonu yeniden başlatmadan çerçeveyi yeniden başlat</string>
+    <string name="action_soft_reboot_confirm">Çalışan tüm uygulamalar kapanır ve ekran bir anlığına kararır. Telefonun kendisi açık kalır.</string>
 </resources>
