@@ -57,6 +57,8 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
         }
     }
 
+    suspend fun getFrameworkCommit(): Result<String?> = runIpc { it.frameworkCommit }
+
     suspend fun getXposedVersionName(): Result<String> = runIpc { it.xposedVersionName }
 
     suspend fun getXposedVersionCode(): Result<Long> = runIpc { it.xposedVersionCode }

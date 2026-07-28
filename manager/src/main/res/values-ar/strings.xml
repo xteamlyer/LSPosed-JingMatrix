@@ -348,4 +348,5 @@
     <string name="update_reinstall">إعادة التثبيت</string>
     <string name="update_rollback_warning">أقدم من المثبَّت. إن كانت قاعدة بياناته أقدم، فالرجوع يعيد ضبط الوحدات المفعّلة ونطاقاتها — انسخ وحداتك احتياطيًا أولًا.</string>
     <string name="settings_window_all">منذ البداية</string>
+    <string name="update_diverged">رقم الإصدار نفسه لكن البناء مختلف — ما يعمل الآن لم يُبنَ من هذا الإصدار</string>
 </resources>

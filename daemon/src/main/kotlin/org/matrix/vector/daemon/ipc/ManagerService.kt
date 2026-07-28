@@ -216,6 +216,8 @@ object ManagerService : ILSPManagerService.Stub() {
 
   override fun getXposedVersionName() = BuildConfig.VERSION_NAME
 
+  override fun getFrameworkCommit(): String? = BuildConfig.VERSION_HASH.takeIf { it.isNotBlank() }
+
   override fun getInstalledPackagesFromAllUsers(
       flags: Int,
       filterNoProcess: Boolean

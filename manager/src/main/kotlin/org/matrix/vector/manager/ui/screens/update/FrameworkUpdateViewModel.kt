@@ -134,7 +134,7 @@ class FrameworkUpdateViewModel : ViewModel() {
         }
         viewModelScope.launch {
             val installed = daemon.getXposedVersionCode().getOrNull() ?: 0L
-            updates.refresh(installed)
+            updates.refresh(installed, daemon.getFrameworkCommit().getOrNull())
         }
     }
 

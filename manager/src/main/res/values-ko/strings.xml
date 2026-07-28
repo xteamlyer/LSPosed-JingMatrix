@@ -293,4 +293,5 @@
     <string name="update_reinstall">다시 설치</string>
     <string name="update_rollback_warning">설치된 것보다 이전입니다. 데이터베이스가 더 낮으면 되돌릴 때 켜진 모듈과 적용 범위가 초기화됩니다. 먼저 백업하세요.</string>
     <string name="settings_window_all">처음부터</string>
+    <string name="update_diverged">버전 번호는 같지만 다른 빌드입니다. 실행 중인 것은 이 릴리스에서 만들어지지 않았습니다</string>
 </resources>

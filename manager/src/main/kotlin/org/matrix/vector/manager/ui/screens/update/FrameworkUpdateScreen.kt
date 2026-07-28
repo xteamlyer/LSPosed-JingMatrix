@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import org.matrix.vector.manager.data.repository.divergesFrom
 import androidx.compose.foundation.clickable
 import org.matrix.vector.manager.ui.theme.currentLocale
 import org.matrix.vector.manager.ui.theme.LocalizedOverlay
@@ -176,6 +177,7 @@ fun FrameworkUpdateScreen(
                 chosen = chosenZip,
                 onChoose = viewModel::chooseVariant,
                 direction = direction,
+                diverged = update.divergesFrom(selected),
                 canFlash = chosenZip?.downloadUrl != null && root.canFlash,
                 // Null unless root itself is the obstacle; "nothing to install" is not a root
                 // problem and must not borrow its sentence.
@@ -285,6 +287,7 @@ private fun UpdateBar(
     chosen: CanaryArtifact?,
     onChoose: (ZipVariant) -> Unit,
     direction: ReleaseDirection,
+    diverged: Boolean,
     canFlash: Boolean,
     rootLabel: String?,
     flash: FlashStep,
@@ -381,6 +384,18 @@ private fun UpdateBar(
                             text = rootLabel,
                             style = MaterialTheme.typography.labelMedium,
                             color = colors.error,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    // Same number, different build. Worth saying plainly, because the number is
+                    // the only thing the rest of the screen compares by and it is not enough: the
+                    // version code is a commit count on master, so a branch build wears the same
+                    // one as the release it was never built from.
+                    if (diverged) {
+                        Text(
+                            text = stringResource(R.string.update_diverged),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = colors.tertiary,
                         )
                         Spacer(Modifier.height(8.dp))
                     }

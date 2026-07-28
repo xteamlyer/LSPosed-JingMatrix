@@ -132,4 +132,12 @@ interface ILSPManagerService {
      * Returns immediately; the work runs on a daemon thread and reports through [callback].
      */
     void installFrameworkZip(String zipPath, IFrameworkInstallCallback callback) = 57;
+
+    /**
+     * The commit this daemon was built from, short, or null when it was not recorded.
+     *
+     * The version code is the commit count on origin/master, so a branch build and the official
+     * build of the same count are indistinguishable by number alone. This is what tells them apart.
+     */
+    String getFrameworkCommit() = 58;
 }

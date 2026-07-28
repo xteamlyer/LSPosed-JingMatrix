@@ -326,4 +326,5 @@
     <string name="update_reinstall">Zainstaluj ponownie</string>
     <string name="update_rollback_warning">Starsza niż zainstalowana. Jeśli ma starszą bazę, cofnięcie zresetuje włączone moduły i ich zakresy — zrób najpierw kopię.</string>
     <string name="settings_window_all">Od początku</string>
+    <string name="update_diverged">Ten sam numer wersji, inna kompilacja — to, co działa, nie powstało z tego wydania</string>
 </resources>

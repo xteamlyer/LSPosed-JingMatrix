@@ -145,7 +145,12 @@ class HomeViewModel(
             )
 
         if (versionCode > 0) {
-            viewModelScope.launch { ServiceLocator.frameworkUpdates.refresh(versionCode) }
+            viewModelScope.launch {
+                ServiceLocator.frameworkUpdates.refresh(
+                    versionCode,
+                    daemon.getFrameworkCommit().getOrNull(),
+                )
+            }
         }
     }
 

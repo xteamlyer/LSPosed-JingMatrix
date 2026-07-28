@@ -297,4 +297,5 @@
     <string name="update_reinstall">Pasang ulang</string>
     <string name="update_rollback_warning">Lebih lama dari yang terpasang. Jika basis datanya lebih lama, kembali akan mereset modul mana yang aktif dan apa yang di-hook — cadangkan dulu.</string>
     <string name="settings_window_all">Sejak awal</string>
+    <string name="update_diverged">Nomor versi sama, build berbeda — yang berjalan tidak dibangun dari rilis ini</string>
 </resources>

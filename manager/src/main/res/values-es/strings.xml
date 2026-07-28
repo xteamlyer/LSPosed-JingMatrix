@@ -304,4 +304,5 @@
     <string name="update_reinstall">Reinstalar</string>
     <string name="update_rollback_warning">Anterior a la instalada. Si su base de datos es más antigua, volver reinicia qué módulos están activos y qué hookean: haz una copia antes.</string>
     <string name="settings_window_all">Desde el principio</string>
+    <string name="update_diverged">Mismo número de versión, compilación distinta: lo que se ejecuta no salió de esta versión</string>
 </resources>

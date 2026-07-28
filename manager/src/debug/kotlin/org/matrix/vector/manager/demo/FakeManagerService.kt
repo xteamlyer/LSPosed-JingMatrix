@@ -74,6 +74,13 @@ class FakeManagerService(
 
     override fun getRootImplementation(): Int = scenario.rootImplementation
 
+    /**
+     * Passed through, because a scenario that lied about the commit would be testing the *mismatch*
+     * warning rather than the states this harness exists for. Add a field here when there is a
+     * scenario that needs one.
+     */
+    override fun getFrameworkCommit(): String? = real?.frameworkCommit
+
     override fun getRootImplementationVersion(): String? = scenario.rootVersion
 
     /**

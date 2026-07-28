@@ -304,4 +304,5 @@
     <string name="update_reinstall">Reinstalla</string>
     <string name="update_rollback_warning">Più vecchia di quella installata. Se il database è precedente, tornare indietro azzera quali moduli sono attivi e cosa agganciano: fai prima un backup.</string>
     <string name="settings_window_all">Dall’inizio</string>
+    <string name="update_diverged">Stesso numero di versione, build diversa: ciò che gira non viene da questa release</string>
 </resources>

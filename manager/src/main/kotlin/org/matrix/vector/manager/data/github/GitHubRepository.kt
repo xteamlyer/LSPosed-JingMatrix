@@ -471,6 +471,11 @@ class GitHubRepository(
                         notesMarkdown = release.body,
                         htmlUrl = release.htmlUrl,
                         epochSeconds = parseIso8601(release.publishedAt.orEmpty()),
+                        // A branch name is not a build. Only a SHA identifies one.
+                        commit =
+                            release.targetCommitish.takeIf { c ->
+                                c.length >= 7 && c.all { it.isDigit() || it in 'a'..'f' }
+                            },
                         zips =
                             release.assets
                                 .filter { it.name.endsWith(".zip", ignoreCase = true) }

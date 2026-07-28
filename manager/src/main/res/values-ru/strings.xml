@@ -307,4 +307,5 @@
     <string name="update_reinstall">Переустановить</string>
     <string name="update_rollback_warning">Старее установленной. Если у неё более старая база, откат сбросит, какие модули включены и что они перехватывают — сначала сделайте резервную копию.</string>
     <string name="settings_window_all">С самого начала</string>
+    <string name="update_diverged">Тот же номер версии, но другая сборка — запущенное собрано не из этого выпуска</string>
 </resources>

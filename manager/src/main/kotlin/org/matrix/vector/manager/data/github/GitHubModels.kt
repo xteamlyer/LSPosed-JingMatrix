@@ -251,6 +251,15 @@ data class FrameworkRelease(
     val htmlUrl: String?,
     val epochSeconds: Long,
     /**
+     * The commit the release was cut from, when GitHub knows one.
+     *
+     * `target_commitish` is a full SHA for the canaries, because CI creates them against an exact
+     * commit — but it is the literal string "master" for a hand-made release, which names a branch
+     * and not a build. Only the first kind can be compared against, and the difference between
+     * "these differ" and "I cannot tell" is one the UI has to keep.
+     */
+    val commit: String?,
+    /**
      * Every zip the release published, in the order GitHub listed them.
      *
      * A list rather than the single "first zip" this used to keep: each release ships a Release

@@ -330,4 +330,5 @@
     <string name="update_reinstall">התקנה מחדש</string>
     <string name="update_rollback_warning">ישנה מזו שמותקנת. אם מסד הנתונים שלה ישן יותר, חזרה תאפס אילו מודולים פעילים ולמה הם מתחברים — גבו אותם קודם.</string>
     <string name="settings_window_all">מההתחלה</string>
+    <string name="update_diverged">אותו מספר גרסה, בנייה אחרת — מה שרץ לא נבנה מהמהדורה הזאת</string>
 </resources>

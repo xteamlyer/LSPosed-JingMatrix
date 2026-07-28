@@ -293,4 +293,5 @@
     <string name="update_reinstall">再インストール</string>
     <string name="update_rollback_warning">使用中より古いビルドです。データベースが古い場合、戻すと有効なモジュールと適用範囲がリセットされます。先にバックアップしてください。</string>
     <string name="settings_window_all">最初から</string>
+    <string name="update_diverged">バージョン番号は同じですが別のビルドです。動作中のものはこのリリースから作られていません</string>
 </resources>

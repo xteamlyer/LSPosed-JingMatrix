@@ -30,7 +30,11 @@ class FrameworkUpdateRepository(private val github: GitHubRepository) {
     private val _state = MutableStateFlow(FrameworkUpdateState())
     val state: StateFlow<FrameworkUpdateState> = _state.asStateFlow()
 
-    suspend fun refresh(installedVersionCode: Long, freshness: GitHubRepository.Freshness = GitHubRepository.Freshness.Revalidate) {
+    suspend fun refresh(
+        installedVersionCode: Long,
+        installedCommit: String? = null,
+        freshness: GitHubRepository.Freshness = GitHubRepository.Freshness.Revalidate,
+    ) {
         if (installedVersionCode <= 0) return
         val releases = github.frameworkReleases(freshness)
         if (releases.isEmpty()) return
@@ -49,6 +53,7 @@ class FrameworkUpdateRepository(private val github: GitHubRepository) {
                 loaded = true,
                 onCanaryChannel = onCanary,
                 installedVersionCode = installedVersionCode,
+                installedCommit = installedCommit,
                 available = newest?.takeIf { it.versionCode > installedVersionCode },
                 // Kept rather than discarded, which is what this used to do with everything but
                 // the newest. "No update available" was a dead end, and the same list that answers
@@ -70,6 +75,8 @@ data class FrameworkUpdateState(
     val loaded: Boolean = false,
     val onCanaryChannel: Boolean = false,
     val installedVersionCode: Long = 0,
+    /** The commit the running daemon was built from, when it recorded one. */
+    val installedCommit: String? = null,
     val available: FrameworkRelease? = null,
     /** Every release on this channel, newest first — including ones older than the installed one. */
     val history: List<FrameworkRelease> = emptyList(),
@@ -83,4 +90,20 @@ enum class ReleaseDirection {
     Newer,
     Installed,
     Older,
+}
+
+/**
+ * Whether the running build is the one this release published.
+ *
+ * Only askable when both sides recorded a commit: the canaries carry a SHA, a hand-made release
+ * carries a branch name, and a build made before this existed carries nothing. "I cannot tell" is a
+ * third answer and must not be reported as either of the other two.
+ */
+fun FrameworkUpdateState.divergesFrom(release: FrameworkRelease?): Boolean {
+    if (release == null || release.versionCode != installedVersionCode) return false
+    val mine = installedCommit ?: return false
+    val theirs = release.commit ?: return false
+    // A dirty build matches nothing by definition — it was not built from any commit.
+    if (mine.endsWith("-dirty")) return true
+    return !theirs.startsWith(mine)
 }

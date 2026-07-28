@@ -294,4 +294,5 @@
     <string name="update_reinstall">重新安装</string>
     <string name="update_rollback_warning">比当前版本更旧。若其数据库版本较低，回退会重置模块的启用状态与作用域——请先备份模块。</string>
     <string name="settings_window_all">从项目之初</string>
+    <string name="update_diverged">版本号相同，但并非同一构建——当前运行的并非由此发行版编译</string>
 </resources>
