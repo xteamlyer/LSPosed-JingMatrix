@@ -341,4 +341,5 @@
         <item quantity="other">%1$d ماژول به‌روزرسانی نشد</item>
     </plurals>
     <string name="home_window_changed">نمایش فعالیت ذخیره‌شده برای بازهٔ جدید — برای به‌روزرسانی بکشید</string>
+    <string name="home_history_window_end">در این بازه همین است</string>
 </resources>

@@ -385,4 +385,5 @@
         <item quantity="other">تعذّر تحديث %1$d وحدات</item>
     </plurals>
     <string name="home_window_changed">يتم عرض النشاط المحفوظ للنطاق الجديد — اسحب للتحديث</string>
+    <string name="home_history_window_end">هذا كل ما في هذا النطاق</string>
 </resources>

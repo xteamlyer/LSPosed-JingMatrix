@@ -187,6 +187,13 @@ data class CommunityFeed(
      * says so.
      */
     val hasMoreHistory: Boolean = false,
+    /**
+     * True when a bounded window is already backed by history reaching past its start.
+     *
+     * The distinction the foot of the feed needs: "there is nothing more *here*" is a different
+     * sentence from "this is where the project began", and neither is "there is more to fetch".
+     */
+    val windowCovered: Boolean = false,
 ) {
     val commitCount: Int
         get() = commits.size

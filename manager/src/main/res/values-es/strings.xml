@@ -341,4 +341,5 @@
         <item quantity="other">No se pudieron actualizar %1$d módulos</item>
     </plurals>
     <string name="home_window_changed">Mostrando actividad guardada del nuevo intervalo: desliza para actualizar</string>
+    <string name="home_history_window_end">Eso es todo en este intervalo</string>
 </resources>

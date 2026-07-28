@@ -344,4 +344,5 @@
         <item quantity="other">Не удалось обновить %1$d модулей</item>
     </plurals>
     <string name="home_window_changed">Показана сохранённая активность за новый период — потяните, чтобы обновить</string>
+    <string name="home_history_window_end">Это всё за этот период</string>
 </resources>

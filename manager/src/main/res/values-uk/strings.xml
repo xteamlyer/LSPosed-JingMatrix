@@ -363,4 +363,5 @@
         <item quantity="other">Не вдалося оновити %1$d модулів</item>
     </plurals>
     <string name="home_window_changed">Показано збережену активність за новий період — потягніть, щоб оновити</string>
+    <string name="home_history_window_end">Це все за цей період</string>
 </resources>

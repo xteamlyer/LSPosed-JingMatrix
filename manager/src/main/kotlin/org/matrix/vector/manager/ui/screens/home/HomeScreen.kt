@@ -477,6 +477,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.communitySection(
                     else
                         DateFormat.getDateInstance(DateFormat.LONG, locale)
                             .format(Date(feed.windowStartEpochSeconds * 1000)),
+                windowCovered = feed.windowCovered,
                 onReachEnd = onLoadMoreHistory,
                 onRetry = onLoadMoreHistory,
                 autoFetch = authorFilter.isEmpty(),

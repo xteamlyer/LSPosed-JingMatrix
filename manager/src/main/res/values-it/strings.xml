@@ -341,4 +341,5 @@
         <item quantity="other">%1$d moduli non sono stati aggiornati</item>
     </plurals>
     <string name="home_window_changed">Attività salvata per il nuovo intervallo — trascina per aggiornare</string>
+    <string name="home_history_window_end">È tutto in questo intervallo</string>
 </resources>

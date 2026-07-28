@@ -476,6 +476,10 @@ class GitHubRepository(
         freshness: Freshness = Freshness.Cached,
     ): CommunityFeed {
         if (totalCommits > 0) knownTotalCommits = totalCommits
+        // Read once: three of the answers below are about what is *held*, not what is shown.
+        val archived = archive.read()
+        val archiveOldest =
+            archived.minOfOrNull { parseIso8601(it.commit.author.date) } ?: Long.MAX_VALUE
         val commits =
             raw.map { c ->
                     val subject = c.commit.message.lineSequence().first().trim()
@@ -566,15 +570,22 @@ class GitHubRepository(
             fromCache = fromCache,
             offline = offline,
             loaded = true,
-            // Two ways the window can be under-served, and both mean "keep walking": an unbounded
-            // window is never covered until history runs out, and a bounded one is uncovered while
-            // the oldest commit in hand is still newer than its start — which happens whenever the
-            // window holds more than the hundred commits a single request returns.
+            // Whether *fetching* could add anything, which is not the same question as whether
+            // the window is full.
+            //
+            // Judged against the oldest commit in the **archive**, never against the oldest one on
+            // screen. The rendered list is already cut to the window, so its oldest entry is at or
+            // after the window's start by construction — comparing that against the start was a
+            // test that could never fail, and a bounded window therefore offered "load earlier
+            // commits" forever, on a fetch that could only return commits the window would throw
+            // away again.
             hasMoreHistory =
                 !archive.state().complete &&
-                    !(totalCommits > 0 && archive.read().size >= totalCommits) &&
-                    (windowStart <= 0 ||
-                        (commits.minOfOrNull { it.epochSeconds } ?: 0L) > windowStart),
+                    !(totalCommits > 0 && archived.size >= totalCommits) &&
+                    (windowStart <= 0 || archiveOldest > windowStart),
+            // The archive reaches past the start of a bounded window: everything the window can
+            // ever show is already held, so the foot says so instead of inviting a fetch.
+            windowCovered = windowStart > 0 && archiveOldest <= windowStart,
         )
     }
 

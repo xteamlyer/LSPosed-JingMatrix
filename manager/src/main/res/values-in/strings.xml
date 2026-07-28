@@ -334,4 +334,5 @@
         <item quantity="other">%1$d modul gagal diperbarui</item>
     </plurals>
     <string name="home_window_changed">Menampilkan aktivitas tersimpan untuk rentang baru — tarik untuk menyegarkan</string>
+    <string name="home_history_window_end">Itu semua dalam rentang ini</string>
 </resources>

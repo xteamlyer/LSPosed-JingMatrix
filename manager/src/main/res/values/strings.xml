@@ -73,6 +73,7 @@
     <string name="home_scroll_down">Next screen</string>
     <string name="home_history_loading">Reaching further back…</string>
     <string name="home_history_more">Load earlier commits</string>
+    <string name="home_history_window_end">That is everything in this range</string>
     <string name="home_history_beginning">Where it began, %1$s</string>
     <string name="home_no_activity">No commits in the last six months.</string>
     <string name="home_loading_activity">Loading recent activity…</string>

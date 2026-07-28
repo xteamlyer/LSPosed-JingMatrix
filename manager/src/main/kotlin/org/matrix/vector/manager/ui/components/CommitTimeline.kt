@@ -465,6 +465,8 @@ fun HistoryFootRow(
     hasMore: Boolean,
     stalled: Boolean,
     beginningDate: String?,
+    /** True when the window is bounded and already full: nothing more can arrive inside it. */
+    windowCovered: Boolean,
     onReachEnd: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
@@ -519,8 +521,14 @@ fun HistoryFootRow(
                 when {
                     loading -> stringResource(R.string.home_history_loading)
                     hasMore -> stringResource(R.string.home_history_more)
+                    // The strongest statement first: this is the first commit of the project, and
+                    // there is nothing before it for any window to reach.
                     beginningDate != null ->
                         stringResource(R.string.home_history_beginning, beginningDate)
+                    // Weaker and more common: the window is full. Older commits exist and are
+                    // held; this range simply does not include them, so fetching is not what the
+                    // reader wants — a wider range is.
+                    windowCovered -> stringResource(R.string.home_history_window_end)
                     else -> ""
                 },
             style = MaterialTheme.typography.labelSmall,

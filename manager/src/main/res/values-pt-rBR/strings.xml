@@ -341,4 +341,5 @@
         <item quantity="other">%1$d módulos não puderam ser atualizados</item>
     </plurals>
     <string name="home_window_changed">Mostrando atividade salva do novo intervalo — puxe para atualizar</string>
+    <string name="home_history_window_end">Isso é tudo neste intervalo</string>
 </resources>

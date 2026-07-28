@@ -341,4 +341,5 @@
         <item quantity="other">%1$d modül güncellenemedi</item>
     </plurals>
     <string name="home_window_changed">Yeni aralık için kayıtlı etkinlik gösteriliyor — yenilemek için çekin</string>
+    <string name="home_history_window_end">Bu aralıktaki her şey bu kadar</string>
 </resources>

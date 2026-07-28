@@ -341,4 +341,5 @@
         <item quantity="other">%1$d Module konnten nicht aktualisiert werden</item>
     </plurals>
     <string name="home_window_changed">Gespeicherte Aktivität für den neuen Zeitraum — zum Aktualisieren ziehen</string>
+    <string name="home_history_window_end">Das ist alles in diesem Zeitraum</string>
 </resources>

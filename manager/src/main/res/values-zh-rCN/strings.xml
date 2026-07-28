@@ -331,4 +331,5 @@
         <item quantity="other">%1$d 个模块更新失败</item>
     </plurals>
     <string name="home_window_changed">显示新时间范围的缓存动态 — 下拉刷新</string>
+    <string name="home_history_window_end">这就是此时间范围内的全部</string>
 </resources>

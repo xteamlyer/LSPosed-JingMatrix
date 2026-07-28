@@ -331,4 +331,5 @@
         <item quantity="other">%1$d 個模組更新失敗</item>
     </plurals>
     <string name="home_window_changed">顯示新時間範圍的快取動態 — 下拉重新整理</string>
+    <string name="home_history_window_end">這就是此時間範圍內的全部</string>
 </resources>
