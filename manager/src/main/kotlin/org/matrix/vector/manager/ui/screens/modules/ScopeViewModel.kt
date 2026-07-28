@@ -43,7 +43,7 @@ enum class ScopeSort {
 data class ScopeUiState(
     val moduleName: String = "",
     val isEnabled: Boolean = false,
-    val autoInclude: Boolean = false,
+    val includeNewApps: Boolean = false,
     val recommended: RecommendedScope = RecommendedScope.NONE,
     val loading: Boolean = true,
     /**
@@ -338,8 +338,8 @@ class ScopeViewModel(
                     moduleName =
                         info?.loadLabel(packageManager)?.toString() ?: modulePackageName,
                     isEnabled = modulePackageName in moduleRepository.enabledModulesState.value,
-                    autoInclude =
-                        daemonClient.getAutoInclude(modulePackageName).getOrDefault(false),
+                    includeNewApps =
+                        daemonClient.getIncludeNewApps(modulePackageName).getOrDefault(false),
                     recommended = recommended,
                     loading = false,
                     multipleUsers = userCount > 1,
@@ -423,12 +423,12 @@ class ScopeViewModel(
         showRecommendedOnly.value = only
     }
 
-    fun setAutoInclude(enabled: Boolean) {
+    fun setIncludeNewApps(enabled: Boolean) {
         viewModelScope.launch {
             daemonClient
-                .setAutoInclude(modulePackageName, enabled)
-                .onSuccess { _uiState.value = _uiState.value.copy(autoInclude = enabled) }
-                .onFailure { _message.value = ScopeMessage.AutoIncludeFailed }
+                .setIncludeNewApps(modulePackageName, enabled)
+                .onSuccess { _uiState.value = _uiState.value.copy(includeNewApps = enabled) }
+                .onFailure { _message.value = ScopeMessage.IncludeNewAppsFailed }
         }
     }
 
@@ -558,5 +558,5 @@ enum class ScopeMessage {
     Applied,
     ApplyFailed,
     ToggleFailed,
-    AutoIncludeFailed,
+    IncludeNewAppsFailed,
 }

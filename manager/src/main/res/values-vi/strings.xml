@@ -160,8 +160,8 @@
     <string name="scope_select">Chọn</string>
     <string name="scope_sort">Sắp xếp</string>
     <string name="scope_modules">Mô-đun khác</string>
-    <string name="scope_auto_include">Tự động thêm ứng dụng mới</string>
-    <string name="scope_auto_include_summary">Ứng dụng cài từ nay sẽ vào phạm vi của mô-đun này.</string>
+    <string name="scope_include_new_apps">Tự động thêm ứng dụng mới</string>
+    <string name="scope_include_new_apps_summary">Ứng dụng cài từ nay sẽ vào phạm vi của mô-đun này.</string>
     <string name="scope_backup">Sao lưu phạm vi này</string>
     <string name="scope_restore">Khôi phục phạm vi này</string>
     <string name="scope_sort_package">Theo tên gói</string>
@@ -213,7 +213,6 @@
     <string name="action_optimize_summary">Biên dịch lại ứng dụng để ART thôi nội tuyến những phương thức mà mô-đun cần hook</string>
     <string name="modules_scope_framework">Hook framework hệ thống</string>
     <string name="scope_origin_locked">Do mô-đun cố định</string>
-    <string name="scope_origin_auto">Tự động giữ trong phạm vi</string>
     <string name="scope_origin_chosen">Bạn chọn</string>
     <string name="modules_selection_clear">Bỏ chọn</string>
     <plurals name="modules_selected">

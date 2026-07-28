@@ -169,8 +169,8 @@
     <string name="scope_select">Seleção</string>
     <string name="scope_sort">Ordenar</string>
     <string name="scope_modules">Outros módulos</string>
-    <string name="scope_auto_include">Adicionar novos apps automaticamente</string>
-    <string name="scope_auto_include_summary">Apps instalados de agora em diante entram no escopo deste módulo.</string>
+    <string name="scope_include_new_apps">Adicionar novos apps automaticamente</string>
+    <string name="scope_include_new_apps_summary">Apps instalados de agora em diante entram no escopo deste módulo.</string>
     <string name="scope_backup">Fazer backup deste escopo</string>
     <string name="scope_restore">Restaurar este escopo</string>
     <string name="scope_sort_package">Por nome do pacote</string>
@@ -222,7 +222,6 @@
     <string name="action_optimize_summary">Recompila o app para que o ART pare de fazer inlining dos métodos em que um módulo precisa dar hook</string>
     <string name="modules_scope_framework">Dá hook no framework do sistema</string>
     <string name="scope_origin_locked">Fixado pelo módulo</string>
-    <string name="scope_origin_auto">Mantido no escopo automaticamente</string>
     <string name="scope_origin_chosen">Escolha sua</string>
     <string name="modules_selection_clear">Limpar a seleção</string>
     <plurals name="modules_selected">

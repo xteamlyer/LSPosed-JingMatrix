@@ -287,7 +287,7 @@ object VectorService : IDaemonService.Stub() {
               !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false) &&
               moduleName != null) {
 
-            ModuleDatabase.getAutoIncludeModules().forEach { xposedModule ->
+            ModuleDatabase.modulesIncludingNewApps().forEach { xposedModule ->
               val scopeList = ModuleDatabase.getModuleScope(xposedModule) ?: mutableListOf()
 
               val newScope =

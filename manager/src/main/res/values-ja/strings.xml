@@ -160,8 +160,8 @@
     <string name="scope_select">選択</string>
     <string name="scope_sort">並べ替え</string>
     <string name="scope_modules">ほかのモジュール</string>
-    <string name="scope_auto_include">新しいアプリを自動で追加</string>
-    <string name="scope_auto_include_summary">これ以降インストールされたアプリが、このモジュールの適用範囲に加わります。</string>
+    <string name="scope_include_new_apps">新しいアプリを自動で追加</string>
+    <string name="scope_include_new_apps_summary">これ以降インストールされたアプリが、このモジュールの適用範囲に加わります。</string>
     <string name="scope_backup">この適用範囲をバックアップ</string>
     <string name="scope_restore">この適用範囲を復元</string>
     <string name="scope_sort_package">パッケージ名順</string>
@@ -213,7 +213,6 @@
     <string name="action_optimize_summary">アプリを再コンパイルし、モジュールがフックしたいメソッドを ART がインライン化しないようにします</string>
     <string name="modules_scope_framework">システムフレームワークをフック</string>
     <string name="scope_origin_locked">モジュールが固定</string>
-    <string name="scope_origin_auto">自動的に範囲へ保持</string>
     <string name="scope_origin_chosen">あなたの選択</string>
     <string name="modules_selection_clear">選択を解除</string>
     <plurals name="modules_selected">

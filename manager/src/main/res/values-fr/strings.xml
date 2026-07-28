@@ -169,8 +169,8 @@
     <string name="scope_select">Sélection</string>
     <string name="scope_sort">Trier</string>
     <string name="scope_modules">Autres modules</string>
-    <string name="scope_auto_include">Ajouter automatiquement les nouvelles applis</string>
-    <string name="scope_auto_include_summary">Les applis installées à partir de maintenant rejoignent la portée de ce module.</string>
+    <string name="scope_include_new_apps">Ajouter automatiquement les nouvelles applis</string>
+    <string name="scope_include_new_apps_summary">Les applis installées à partir de maintenant rejoignent la portée de ce module.</string>
     <string name="scope_backup">Sauvegarder cette portée</string>
     <string name="scope_restore">Restaurer cette portée</string>
     <string name="scope_sort_package">Par nom de paquet</string>
@@ -222,7 +222,6 @@
     <string name="action_optimize_summary">Recompile l\'application pour qu\'ART cesse d\'inliner les méthodes qu\'un module doit hooker</string>
     <string name="modules_scope_framework">Hooke le framework système</string>
     <string name="scope_origin_locked">Fixé par le module</string>
-    <string name="scope_origin_auto">Gardé dans la portée automatiquement</string>
     <string name="scope_origin_chosen">Votre choix</string>
     <string name="modules_selection_clear">Effacer la sélection</string>
     <plurals name="modules_selected">

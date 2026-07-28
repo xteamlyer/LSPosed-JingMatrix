@@ -201,10 +201,10 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     suspend fun setHiddenIcon(hide: Boolean): Result<Unit> = runIpc { it.setHiddenIcon(hide)
     }
 
-    suspend fun getAutoInclude(packageName: String): Result<Boolean> = runIpc { it.getAutoInclude(packageName)
+    suspend fun getIncludeNewApps(packageName: String): Result<Boolean> = runIpc { it.getIncludeNewApps(packageName)
     }
 
-    suspend fun setAutoInclude(packageName: String, enable: Boolean): Result<Unit> = runIpc { it.setAutoInclude(packageName, enable)
+    suspend fun setIncludeNewApps(packageName: String, enable: Boolean): Result<Unit> = runIpc { it.setIncludeNewApps(packageName, enable)
     }
 
     suspend fun getRootImplementation(): Result<Int> = runIpc { it.rootImplementation }

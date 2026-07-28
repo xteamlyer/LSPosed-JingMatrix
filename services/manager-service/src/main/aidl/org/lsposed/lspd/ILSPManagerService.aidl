@@ -111,9 +111,9 @@ interface ILSPManagerService {
 
     void setEnableStatusNotification(boolean enable) = 48;
 
-    boolean getAutoInclude(String packageName) = 51;
+    boolean getIncludeNewApps(String packageName) = 51;
 
-    boolean setAutoInclude(String packageName, boolean enable) = 52;
+    boolean setIncludeNewApps(String packageName, boolean enable) = 52;
 
     /** One of the ROOT_* constants. Detected once and cached, as the detection shells out. */
     int getRootImplementation() = 55;

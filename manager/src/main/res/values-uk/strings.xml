@@ -187,8 +187,8 @@
     <string name="scope_select">Вибір</string>
     <string name="scope_sort">Сортування</string>
     <string name="scope_modules">Інші модулі</string>
-    <string name="scope_auto_include">Додавати нові застосунки автоматично</string>
-    <string name="scope_auto_include_summary">Застосунки, встановлені відтепер, потраплять в область дії цього модуля.</string>
+    <string name="scope_include_new_apps">Додавати нові застосунки автоматично</string>
+    <string name="scope_include_new_apps_summary">Застосунки, встановлені відтепер, потраплять в область дії цього модуля.</string>
     <string name="scope_backup">Зберегти цю область дії</string>
     <string name="scope_restore">Відновити цю область дії</string>
     <string name="scope_sort_package">За назвою пакета</string>
@@ -240,7 +240,6 @@
     <string name="action_optimize_summary">Перекомпільовує застосунок, щоб ART перестав вбудовувати методи, які модулю потрібно перехопити</string>
     <string name="modules_scope_framework">Перехоплює системний фреймворк</string>
     <string name="scope_origin_locked">Задано модулем</string>
-    <string name="scope_origin_auto">Автоматично лишається в області дії</string>
     <string name="scope_origin_chosen">Ваш вибір</string>
     <string name="modules_selection_clear">Зняти вибір</string>
     <plurals name="modules_selected">

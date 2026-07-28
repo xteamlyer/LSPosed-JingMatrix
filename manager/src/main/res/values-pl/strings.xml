@@ -187,8 +187,8 @@
     <string name="scope_select">Zaznaczenie</string>
     <string name="scope_sort">Sortuj</string>
     <string name="scope_modules">Inne moduły</string>
-    <string name="scope_auto_include">Automatycznie dodawaj nowe aplikacje</string>
-    <string name="scope_auto_include_summary">Aplikacje zainstalowane od teraz trafią do zakresu tego modułu.</string>
+    <string name="scope_include_new_apps">Automatycznie dodawaj nowe aplikacje</string>
+    <string name="scope_include_new_apps_summary">Aplikacje zainstalowane od teraz trafią do zakresu tego modułu.</string>
     <string name="scope_backup">Utwórz kopię tego zakresu</string>
     <string name="scope_restore">Przywróć ten zakres</string>
     <string name="scope_sort_package">Wg nazwy pakietu</string>
@@ -240,7 +240,6 @@
     <string name="action_optimize_summary">Kompiluje aplikację na nowo, żeby ART przestał wstawiać w kod metody, pod które moduł musi się podpiąć</string>
     <string name="modules_scope_framework">Podpina się pod szkielet systemu</string>
     <string name="scope_origin_locked">Ustalone przez moduł</string>
-    <string name="scope_origin_auto">Automatycznie utrzymywane w zakresie</string>
     <string name="scope_origin_chosen">Twój wybór</string>
     <string name="modules_selection_clear">Wyczyść zaznaczenie</string>
     <plurals name="modules_selected">

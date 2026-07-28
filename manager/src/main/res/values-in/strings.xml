@@ -164,8 +164,8 @@
     <string name="scope_select">Pilihan</string>
     <string name="scope_sort">Urutkan</string>
     <string name="scope_modules">Modul lain</string>
-    <string name="scope_auto_include">Tambahkan aplikasi baru otomatis</string>
-    <string name="scope_auto_include_summary">Aplikasi yang dipasang mulai sekarang masuk ke cakupan modul ini.</string>
+    <string name="scope_include_new_apps">Tambahkan aplikasi baru otomatis</string>
+    <string name="scope_include_new_apps_summary">Aplikasi yang dipasang mulai sekarang masuk ke cakupan modul ini.</string>
     <string name="scope_backup">Cadangkan cakupan ini</string>
     <string name="scope_restore">Pulihkan cakupan ini</string>
     <string name="scope_sort_package">Menurut nama paket</string>
@@ -217,7 +217,6 @@
     <string name="action_optimize_summary">Mengompilasi ulang aplikasi agar ART berhenti meng-inline metode yang perlu di-hook sebuah modul</string>
     <string name="modules_scope_framework">Meng-hook framework sistem</string>
     <string name="scope_origin_locked">Ditetapkan oleh modul</string>
-    <string name="scope_origin_auto">Dipertahankan dalam cakupan secara otomatis</string>
     <string name="scope_origin_chosen">Pilihan Anda</string>
     <string name="modules_selection_clear">Batalkan pilihan</string>
     <plurals name="modules_selected">

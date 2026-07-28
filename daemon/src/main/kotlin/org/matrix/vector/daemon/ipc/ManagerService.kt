@@ -440,10 +440,10 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun getDex2OatWrapperCompatibility() =
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Dex2OatServer.compatibility else 0
 
-  override fun setAutoInclude(packageName: String, enabled: Boolean) =
-      ModuleDatabase.setAutoInclude(packageName, enabled)
+  override fun setIncludeNewApps(packageName: String, enabled: Boolean) =
+      ModuleDatabase.setIncludeNewApps(packageName, enabled)
 
-  override fun getAutoInclude(packageName: String) = ModuleDatabase.getAutoInclude(packageName)
+  override fun getIncludeNewApps(packageName: String) = ModuleDatabase.getIncludeNewApps(packageName)
 
   override fun getRootImplementation() = RootImplementation.implementation
 

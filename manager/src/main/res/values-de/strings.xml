@@ -169,8 +169,8 @@
     <string name="scope_select">Auswahl</string>
     <string name="scope_sort">Sortieren</string>
     <string name="scope_modules">Andere Module</string>
-    <string name="scope_auto_include">Neue Apps automatisch hinzufügen</string>
-    <string name="scope_auto_include_summary">Ab jetzt installierte Apps kommen in den Geltungsbereich dieses Moduls.</string>
+    <string name="scope_include_new_apps">Neue Apps automatisch hinzufügen</string>
+    <string name="scope_include_new_apps_summary">Ab jetzt installierte Apps kommen in den Geltungsbereich dieses Moduls.</string>
     <string name="scope_backup">Diesen Geltungsbereich sichern</string>
     <string name="scope_restore">Diesen Geltungsbereich wiederherstellen</string>
     <string name="scope_sort_package">Nach Paketname</string>
@@ -222,7 +222,6 @@
     <string name="action_optimize_summary">Kompiliert die App neu, damit ART die Methoden nicht mehr wegoptimiert, die ein Modul hooken muss</string>
     <string name="modules_scope_framework">Hookt das System-Framework</string>
     <string name="scope_origin_locked">Vom Modul festgelegt</string>
-    <string name="scope_origin_auto">Automatisch im Geltungsbereich gehalten</string>
     <string name="scope_origin_chosen">Deine Wahl</string>
     <string name="modules_selection_clear">Auswahl aufheben</string>
     <plurals name="modules_selected">

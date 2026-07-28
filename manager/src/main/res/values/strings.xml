@@ -227,8 +227,8 @@
     <string name="scope_select">Selection</string>
     <string name="scope_sort">Sort</string>
     <string name="scope_modules">Other modules</string>
-    <string name="scope_auto_include">Add new apps automatically</string>
-    <string name="scope_auto_include_summary">Apps installed from now on join this module\'s scope.</string>
+    <string name="scope_include_new_apps">Add new apps automatically</string>
+    <string name="scope_include_new_apps_summary">Apps installed from now on join this module\'s scope.</string>
     <string name="scope_backup">Back up this scope</string>
     <string name="scope_restore">Restore this scope</string>
     <string name="scope_sort_package">By package name</string>
@@ -293,7 +293,6 @@
     <string name="action_optimize_summary">Recompiles the app so ART stops inlining the methods a module needs to hook</string>
     <string name="modules_scope_framework">Hooks the system framework</string>
     <string name="scope_origin_locked">Fixed by the module</string>
-    <string name="scope_origin_auto">Kept in scope automatically</string>
     <string name="scope_origin_chosen">Your choice</string>
     <string name="modules_selection_clear">Clear the selection</string>
     <plurals name="modules_selected">

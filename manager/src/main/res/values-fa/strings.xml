@@ -169,8 +169,8 @@
     <string name="scope_select">گزینش</string>
     <string name="scope_sort">چینش</string>
     <string name="scope_modules">ماژول‌های دیگر</string>
-    <string name="scope_auto_include">افزودن خودکار برنامه‌های جدید</string>
-    <string name="scope_auto_include_summary">برنامه‌هایی که از این پس نصب شوند به دامنهٔ این ماژول افزوده می‌شوند.</string>
+    <string name="scope_include_new_apps">افزودن خودکار برنامه‌های جدید</string>
+    <string name="scope_include_new_apps_summary">برنامه‌هایی که از این پس نصب شوند به دامنهٔ این ماژول افزوده می‌شوند.</string>
     <string name="scope_backup">پشتیبان‌گیری از این دامنه</string>
     <string name="scope_restore">بازگردانی این دامنه</string>
     <string name="scope_sort_package">بر پایهٔ نام بسته</string>
@@ -222,7 +222,6 @@
     <string name="action_optimize_summary">برنامه را از نو ترجمه می‌کند تا ART متدهایی را که ماژول باید به آن‌ها قلاب بزند درون‌ریزی نکند</string>
     <string name="modules_scope_framework">به چارچوب سامانه قلاب می‌زند</string>
     <string name="scope_origin_locked">ثابت‌شده از سوی ماژول</string>
-    <string name="scope_origin_auto">به‌طور خودکار در دامنه می‌ماند</string>
     <string name="scope_origin_chosen">گزینش شما</string>
     <string name="modules_selection_clear">برداشتن گزینش</string>
     <plurals name="modules_selected">

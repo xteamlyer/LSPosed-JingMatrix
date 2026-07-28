@@ -205,7 +205,7 @@ fun ScopeScreen(
                 ScopeMessage.Applied -> applied
                 ScopeMessage.ApplyFailed -> applyFailed
                 ScopeMessage.ToggleFailed,
-                ScopeMessage.AutoIncludeFailed -> toggleFailed
+                ScopeMessage.IncludeNewAppsFailed -> toggleFailed
                 null -> null
             }
         if (text != null) {
@@ -320,11 +320,11 @@ fun ScopeScreen(
                 // the list it acts on, rather than behind an overflow menu in the title bar.
                 ScopeSelectMenu(
                     hasRecommended = !state.recommended.isEmpty,
-                    autoInclude = state.autoInclude,
+                    includeNewApps = state.includeNewApps,
                     onUseRecommended = viewModel::useRecommended,
                     onSelectAll = viewModel::selectAllVisible,
                     onSelectNone = viewModel::clearAllVisible,
-                    onAutoInclude = viewModel::setAutoInclude,
+                    onIncludeNewApps = viewModel::setIncludeNewApps,
                     onBackup = { scopeBackupLauncher.launch("$packageName-scope.json") },
                     onRestore = { scopeRestoreLauncher.launch(arrayOf("*/*")) },
                 )
@@ -365,7 +365,6 @@ fun ScopeScreen(
                             when {
                                 state.recommended.staticScope && app.isRecommended ->
                                     ScopeOrigin.Locked
-                                app.isRecommended && state.autoInclude -> ScopeOrigin.AutoIncluded
                                 app.isRecommended -> ScopeOrigin.Requested
                                 else -> ScopeOrigin.Chosen
                             },
@@ -421,11 +420,11 @@ fun ScopeScreen(
 @Composable
 private fun ScopeSelectMenu(
     hasRecommended: Boolean,
-    autoInclude: Boolean,
+    includeNewApps: Boolean,
     onUseRecommended: () -> Unit,
     onSelectAll: () -> Unit,
     onSelectNone: () -> Unit,
-    onAutoInclude: (Boolean) -> Unit,
+    onIncludeNewApps: (Boolean) -> Unit,
     onBackup: () -> Unit,
     onRestore: () -> Unit,
 ) {
@@ -474,11 +473,11 @@ private fun ScopeSelectMenu(
             // looked like a niche toggle about the present, and went unnoticed. What it actually
             // does is what it now says.
             ToggleRow(
-                title = stringResource(R.string.scope_auto_include),
-                subtitle = stringResource(R.string.scope_auto_include_summary),
+                title = stringResource(R.string.scope_include_new_apps),
+                subtitle = stringResource(R.string.scope_include_new_apps_summary),
                 icon = Icons.Rounded.PlaylistAdd,
-                checked = autoInclude,
-                onCheckedChange = onAutoInclude,
+                checked = includeNewApps,
+                onCheckedChange = onIncludeNewApps,
             )
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -657,16 +656,20 @@ private fun ScopeSheet(
 /**
  * How a row came to be in the scope, which decides the ring around its icon.
  *
- * Three different mechanisms can put an app in a module's scope and they behave differently when
- * the world changes — one is fixed forever, one keeps adding apps behind your back, one is only
- * ever what you ticked. Before this they all rendered as an identical checkbox, so a scope the
- * module controls looked exactly like a scope the user controls.
+ * Different mechanisms can put an app in a module's scope and they behave differently when the
+ * world changes — one is fixed forever, one is the module's suggestion, one is only ever what you
+ * ticked. Before this they all rendered as an identical checkbox, so a scope the module controls
+ * looked exactly like a scope the user controls.
+ *
+ * There was a fourth, "auto-included", shown when a recommended app met a module that adds new
+ * apps automatically. It was a guess: that setting reacts to packages *installed from now on*, and
+ * nothing records how an app already in scope got there. So it labelled recommended apps with a
+ * mechanism that had not touched them. The setting explains itself in the sheet, where it is a
+ * property of the module rather than a claim about a row.
  */
 private enum class ScopeOrigin {
     /** The module fixed this scope; the user cannot change it. */
     Locked,
-    /** The module asked for it, and auto-include will keep re-adding it. */
-    AutoIncluded,
     /** The module asked for it, but it is the user's choice. */
     Requested,
     /** Nothing asked for it; it is in the scope because someone ticked it. */
@@ -679,7 +682,6 @@ private fun ScopeOrigin.color(): Color =
         // Locked reads as "not yours to change", so it borrows the disabled-ish outline rather
         // than a colour that invites a tap.
         ScopeOrigin.Locked -> MaterialTheme.colorScheme.outline
-        ScopeOrigin.AutoIncluded -> MaterialTheme.colorScheme.tertiary
         ScopeOrigin.Requested -> MaterialTheme.colorScheme.primary
         ScopeOrigin.Chosen -> Color.Transparent
     }
@@ -687,7 +689,6 @@ private fun ScopeOrigin.color(): Color =
 private fun ScopeOrigin.labelRes(): Int =
     when (this) {
         ScopeOrigin.Locked -> R.string.scope_origin_locked
-        ScopeOrigin.AutoIncluded -> R.string.scope_origin_auto
         ScopeOrigin.Requested -> R.string.scope_recommended
         ScopeOrigin.Chosen -> R.string.scope_origin_chosen
     }

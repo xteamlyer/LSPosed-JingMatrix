@@ -76,10 +76,10 @@ object ModuleDatabase {
     return result
   }
 
-  fun getAutoInclude(packageName: String): Boolean {
+  fun getIncludeNewApps(packageName: String): Boolean {
     if (packageName == "lspd") return false
 
-    var isAutoInclude = false
+    var isIncludeNewApps = false
     dbHelper.readableDatabase
         .query(
             "modules",
@@ -91,13 +91,13 @@ object ModuleDatabase {
             null)
         .use { cursor ->
           if (cursor.moveToFirst()) {
-            isAutoInclude = cursor.getInt(0) == 1
+            isIncludeNewApps = cursor.getInt(0) == 1
           }
         }
-    return isAutoInclude
+    return isIncludeNewApps
   }
 
-  fun getAutoIncludeModules(): List<String> {
+  fun modulesIncludingNewApps(): List<String> {
     val result = mutableListOf<String>()
     dbHelper.readableDatabase
         .query("modules", arrayOf("module_pkg_name"), "auto_include = 1", null, null, null, null)
@@ -348,7 +348,7 @@ object ModuleDatabase {
     return res
   }
 
-  fun setAutoInclude(packageName: String, enabled: Boolean): Boolean {
+  fun setIncludeNewApps(packageName: String, enabled: Boolean): Boolean {
     if (packageName == "lspd") return false
 
     val values = ContentValues().apply { put("auto_include", if (enabled) 1 else 0) }

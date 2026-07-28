@@ -160,8 +160,8 @@
     <string name="scope_select">선택</string>
     <string name="scope_sort">정렬</string>
     <string name="scope_modules">다른 모듈</string>
-    <string name="scope_auto_include">새 앱 자동 추가</string>
-    <string name="scope_auto_include_summary">지금부터 설치되는 앱이 이 모듈의 범위에 포함됩니다.</string>
+    <string name="scope_include_new_apps">새 앱 자동 추가</string>
+    <string name="scope_include_new_apps_summary">지금부터 설치되는 앱이 이 모듈의 범위에 포함됩니다.</string>
     <string name="scope_backup">이 적용 범위 백업</string>
     <string name="scope_restore">이 적용 범위 복원</string>
     <string name="scope_sort_package">패키지 이름순</string>
@@ -213,7 +213,6 @@
     <string name="action_optimize_summary">앱을 다시 컴파일해, 모듈이 후킹해야 하는 메서드를 ART가 인라인화하지 않도록 합니다</string>
     <string name="modules_scope_framework">시스템 프레임워크를 후킹함</string>
     <string name="scope_origin_locked">모듈이 고정함</string>
-    <string name="scope_origin_auto">자동으로 범위에 유지됨</string>
     <string name="scope_origin_chosen">직접 선택함</string>
     <string name="modules_selection_clear">선택 해제</string>
     <plurals name="modules_selected">

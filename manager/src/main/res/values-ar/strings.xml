@@ -205,8 +205,8 @@
     <string name="scope_select">التحديد</string>
     <string name="scope_sort">الترتيب</string>
     <string name="scope_modules">وحدات أخرى</string>
-    <string name="scope_auto_include">إضافة التطبيقات الجديدة تلقائيًا</string>
-    <string name="scope_auto_include_summary">التطبيقات التي تُثبَّت من الآن تنضم إلى نطاق هذه الوحدة.</string>
+    <string name="scope_include_new_apps">إضافة التطبيقات الجديدة تلقائيًا</string>
+    <string name="scope_include_new_apps_summary">التطبيقات التي تُثبَّت من الآن تنضم إلى نطاق هذه الوحدة.</string>
     <string name="scope_backup">نسخ هذا النطاق احتياطيًا</string>
     <string name="scope_restore">استعادة هذا النطاق</string>
     <string name="scope_sort_package">حسب اسم الحزمة</string>
@@ -258,7 +258,6 @@
     <string name="action_optimize_summary">يعيد ترجمة التطبيق كي يتوقف ART عن تضمين الدوال التي تحتاج الوحدة إلى ربطها</string>
     <string name="modules_scope_framework">يربط إطار النظام</string>
     <string name="scope_origin_locked">ثابت من الوحدة</string>
-    <string name="scope_origin_auto">يبقى في النطاق تلقائيًا</string>
     <string name="scope_origin_chosen">اختيارك</string>
     <string name="modules_selection_clear">إلغاء التحديد</string>
     <plurals name="modules_selected">

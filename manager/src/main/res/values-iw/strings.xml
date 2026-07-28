@@ -191,8 +191,8 @@
     <string name="scope_select">בחירה</string>
     <string name="scope_sort">מיון</string>
     <string name="scope_modules">מודולים אחרים</string>
-    <string name="scope_auto_include">הוספת אפליקציות חדשות אוטומטית</string>
-    <string name="scope_auto_include_summary">אפליקציות שיותקנו מעכשיו יצטרפו לטווח של המודול הזה.</string>
+    <string name="scope_include_new_apps">הוספת אפליקציות חדשות אוטומטית</string>
+    <string name="scope_include_new_apps_summary">אפליקציות שיותקנו מעכשיו יצטרפו לטווח של המודול הזה.</string>
     <string name="scope_backup">גיבוי התחום הזה</string>
     <string name="scope_restore">שחזור התחום הזה</string>
     <string name="scope_sort_package">לפי שם החבילה</string>
@@ -244,7 +244,6 @@
     <string name="action_optimize_summary">מהדר מחדש את האפליקציה כדי ש-ART יפסיק לשלב בקוד את המתודות שהמודול צריך להתחבר אליהן</string>
     <string name="modules_scope_framework">מתחבר למסגרת המערכת</string>
     <string name="scope_origin_locked">נקבע על ידי המודול</string>
-    <string name="scope_origin_auto">נשמר בתחום אוטומטית</string>
     <string name="scope_origin_chosen">הבחירה שלכם</string>
     <string name="modules_selection_clear">ניקוי הבחירה</string>
     <plurals name="modules_selected">

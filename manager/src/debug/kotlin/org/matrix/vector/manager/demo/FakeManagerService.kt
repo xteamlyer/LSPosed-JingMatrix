@@ -269,9 +269,9 @@ class FakeManagerService(
         real?.setEnableStatusNotification(enable)
     }
 
-    override fun getAutoInclude(packageName: String?): Boolean =
-        real?.getAutoInclude(packageName) ?: false
+    override fun getIncludeNewApps(packageName: String?): Boolean =
+        real?.getIncludeNewApps(packageName) ?: false
 
-    override fun setAutoInclude(packageName: String?, enable: Boolean): Boolean =
-        real?.setAutoInclude(packageName, enable) ?: false
+    override fun setIncludeNewApps(packageName: String?, enable: Boolean): Boolean =
+        real?.setIncludeNewApps(packageName, enable) ?: false
 }
