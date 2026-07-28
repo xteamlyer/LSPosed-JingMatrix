@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Extension
-import androidx.compose.material.icons.rounded.FolderOpen
+import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Check
@@ -640,12 +640,12 @@ private fun ModulesHeader(
             // mirror images of the same shape are one shape, and telling them apart means stopping
             // to work out which way the arrow points.
             //
-            // Two different pictures instead, each naming what happens rather than its direction:
-            // save this to a file, open a file. Both are what the document picker is about to
-            // show, which is the next thing the reader will see either way.
+            // Two different pictures instead: a tray to save into, and the platform's own restore
+            // glyph. Naming the *outcome* beats naming the mechanism — "open a file" was accurate
+            // and still made the reader work out what opening a file would do to their modules.
             IconButton(onClick = onRestore) {
                 Icon(
-                    Icons.Rounded.FolderOpen,
+                    Icons.Rounded.SettingsBackupRestore,
                     contentDescription = stringResource(R.string.modules_restore),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -738,14 +738,19 @@ private fun ModuleRow(
             // names and descriptions all start from, and every row in the list showed that gap.
             horizontalAlignment = Alignment.End,
         ) {
-            Box(contentAlignment = Alignment.Center) {
+            // Fixed, so that picking a module up cannot resize its row. The tick used to be drawn
+            // 56dp over a 48dp icon, which grew this box by eight — and with it the icon column,
+            // the row's intrinsic height, and every row below it. Selecting one module reflowed
+            // the list under the thumb that selected it. The slot is now the icon's size whatever
+            // is drawn inside it.
+            Box(modifier = Modifier.size(ICON_SIZE), contentAlignment = Alignment.Center) {
                 AppIcon(
                     applicationInfo = module.applicationInfo,
                     contentDescription = null,
                     // 48 rather than 56. Still comfortably a touch target — it is the selection
                     // handle — but eight density-independent pixels handed back to the column that
                     // holds the name and the description, which is where the reading happens.
-                    size = 48.dp,
+                    size = ICON_SIZE,
                 )
                 // The tick covers the icon rather than sitting beside it. A selected row has to be
                 // unmistakable at a glance across a screen of them, and the icon is the one part
@@ -753,7 +758,7 @@ private fun ModuleRow(
                 if (selected) {
                     Box(
                         modifier =
-                            Modifier.size(56.dp)
+                            Modifier.fillMaxSize()
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)),
                         contentAlignment = Alignment.Center,
@@ -892,6 +897,9 @@ private val REACH_BAND = 22.dp
 
 /** Room for a version and its mark. Anything longer scrolls past instead of pushing. */
 private val VERSION_WIDTH = 104.dp
+
+/** The module's icon, and the slot it is drawn in whether or not it is selected. */
+private val ICON_SIZE = 48.dp
 
 /**
  * Who the module actually touches.
