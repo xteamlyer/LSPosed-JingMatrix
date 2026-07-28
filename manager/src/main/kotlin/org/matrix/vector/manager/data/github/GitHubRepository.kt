@@ -71,22 +71,30 @@ class GitHubRepository(
             val months = windowMonthsProvider().coerceIn(1, 60)
             val windowStart =
                 System.currentTimeMillis() / 1000 - months * DAYS_PER_MONTH * 24L * 60 * 60
+            val previous =
+                runCatching { json.decodeFromString<Snapshot>(snapshotFile.readText()) }.getOrNull()
             val fresh = runCatching { fetch(windowStart, freshness) }.getOrNull()
             if (fresh != null) {
+                // Merged with what was already on disk rather than replacing it. The stars, forks
+                // and licence come from a *second* request, and the two do not fail together: on a
+                // rate-limited hour the commits arrived and the repo did not, and writing that
+                // straight through erased a perfectly good cached answer — the footer disappeared
+                // and stayed disappeared, because every later launch overwrote it again. A field
+                // this fetch could not answer keeps the last answer that was.
+                val repo = fresh.repo ?: previous?.repo
+                val total = if (fresh.totalCommits > 0) fresh.totalCommits else previous?.totalCommits ?: 0L
                 runCatching {
                     snapshotFile.writeText(
-                        json.encodeToString(
-                            Snapshot(fresh.totalCommits, fresh.rawCommits, fresh.repo)
-                        )
+                        json.encodeToString(Snapshot(total, fresh.rawCommits, repo))
                     )
                 }
                 return@withContext build(
                     fresh.rawCommits,
-                    fresh.repo,
+                    repo,
                     windowStart,
                     fromCache = false,
                     offline = false,
-                    totalCommits = fresh.totalCommits,
+                    totalCommits = total,
                     freshness = freshness,
                 )
             }
