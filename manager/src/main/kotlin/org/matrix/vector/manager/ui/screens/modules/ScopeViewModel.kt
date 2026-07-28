@@ -509,10 +509,17 @@ class ScopeViewModel(
      * thinking about that module: a scope is half of its configuration and the other half lives
      * inside the module, so having to go back to the list to reach it was a detour through a place
      * you had just come from.
+     *
+     * Asks the same question [findCompanion] asked. It did not: the button appeared when a
+     * companion existed and then opened whatever a plain app would open, so a module whose only
+     * screen is its Xposed settings activity showed a button that could never work.
      */
     fun openModule() {
         viewModelScope.launch {
-            val opened = daemonClient.openAppUi(modulePackageName, userId).getOrDefault(false)
+            val opened =
+                daemonClient
+                    .openAppUi(modulePackageName, userId, companionFirst = true)
+                    .getOrDefault(false)
             if (!opened) _message.value = ScopeMessage.NothingToOpen
         }
     }

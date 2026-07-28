@@ -74,8 +74,14 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     suspend fun findAppUi(
         packageName: String,
         userId: Int,
-        /** True for a module, where the companion screen is the point. */
-        companionFirst: Boolean = false,
+        /**
+         * True for a module, where the companion screen is the point.
+         *
+         * No default, deliberately. When it had one, a caller that asked whether a companion
+         * exists and a caller that opened it could — and did — disagree about which question they
+         * were asking, which showed a button that could never do anything.
+         */
+        companionFirst: Boolean,
     ): Result<ActivityInfo?> = runIpc { service ->
         val categories = buildList {
             if (companionFirst) add(XPOSED_MODULE_SETTINGS_CATEGORY)
@@ -108,7 +114,8 @@ class DaemonClient(private val serviceState: StateFlow<ILSPManagerService?>) {
     suspend fun openAppUi(
         packageName: String,
         userId: Int,
-        companionFirst: Boolean = false,
+        /** As in [findAppUi], and for the same reason it has no default there. */
+        companionFirst: Boolean,
     ): Result<Boolean> {
         val target =
             findAppUi(packageName, userId, companionFirst).getOrNull()
