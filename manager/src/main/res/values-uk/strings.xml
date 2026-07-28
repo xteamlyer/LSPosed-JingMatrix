@@ -319,4 +319,10 @@
     <string name="update_variant_debug">Зневаджувальна</string>
     <string name="update_variant_release_why">Збірка на щодень</string>
     <string name="update_variant_debug_why">Докладні журнали, для звіту про помилку</string>
+    <string name="update_versions">Усі версії</string>
+    <string name="update_installed">Встановлена</string>
+    <string name="update_older">Старіша</string>
+    <string name="update_rollback">Відкотити</string>
+    <string name="update_reinstall">Перевстановити</string>
+    <string name="update_rollback_warning">Старіша за встановлену. Якщо база даних старіша, відкат скине, які модулі увімкнені та що вони перехоплюють — спершу зробіть копію.</string>
 </resources>

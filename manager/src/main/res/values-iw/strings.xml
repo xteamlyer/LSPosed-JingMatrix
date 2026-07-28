@@ -323,4 +323,10 @@
     <string name="update_variant_debug">ניפוי שגיאות</string>
     <string name="update_variant_release_why">הגרסה ליום־יום</string>
     <string name="update_variant_debug_why">יומנים מפורטים, לדיווח על תקלה</string>
+    <string name="update_versions">כל הגרסאות</string>
+    <string name="update_installed">מותקנת</string>
+    <string name="update_older">ישנה יותר</string>
+    <string name="update_rollback">חזרה</string>
+    <string name="update_reinstall">התקנה מחדש</string>
+    <string name="update_rollback_warning">ישנה מזו שמותקנת. אם מסד הנתונים שלה ישן יותר, חזרה תאפס אילו מודולים פעילים ולמה הם מתחברים — גבו אותם קודם.</string>
 </resources>

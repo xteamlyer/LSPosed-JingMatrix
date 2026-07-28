@@ -286,4 +286,10 @@
     <string name="update_variant_debug">デバッグ版</string>
     <string name="update_variant_release_why">普段使い向けのビルド</string>
     <string name="update_variant_debug_why">詳細ログ付き。不具合報告用です</string>
+    <string name="update_versions">すべてのバージョン</string>
+    <string name="update_installed">使用中</string>
+    <string name="update_older">より古い</string>
+    <string name="update_rollback">戻す</string>
+    <string name="update_reinstall">再インストール</string>
+    <string name="update_rollback_warning">使用中より古いビルドです。データベースが古い場合、戻すと有効なモジュールと適用範囲がリセットされます。先にバックアップしてください。</string>
 </resources>

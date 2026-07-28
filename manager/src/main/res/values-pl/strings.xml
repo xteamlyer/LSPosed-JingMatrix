@@ -319,4 +319,10 @@
     <string name="update_variant_debug">Debug</string>
     <string name="update_variant_release_why">Wersja na co dzień</string>
     <string name="update_variant_debug_why">Szczegółowe dzienniki, do zgłoszenia błędu</string>
+    <string name="update_versions">Wszystkie wersje</string>
+    <string name="update_installed">Zainstalowana</string>
+    <string name="update_older">Starsza</string>
+    <string name="update_rollback">Cofnij</string>
+    <string name="update_reinstall">Zainstaluj ponownie</string>
+    <string name="update_rollback_warning">Starsza niż zainstalowana. Jeśli ma starszą bazę, cofnięcie zresetuje włączone moduły i ich zakresy — zrób najpierw kopię.</string>
 </resources>

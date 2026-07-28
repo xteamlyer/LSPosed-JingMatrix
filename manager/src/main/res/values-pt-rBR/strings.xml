@@ -297,4 +297,10 @@
     <string name="update_variant_debug">Depuração</string>
     <string name="update_variant_release_why">A versão para o dia a dia</string>
     <string name="update_variant_debug_why">Registros detalhados, para relatar um erro</string>
+    <string name="update_versions">Todas as versões</string>
+    <string name="update_installed">Instalada</string>
+    <string name="update_older">Mais antiga</string>
+    <string name="update_rollback">Voltar</string>
+    <string name="update_reinstall">Reinstalar</string>
+    <string name="update_rollback_warning">Mais antiga que a instalada. Se o banco for anterior, voltar reinicia quais módulos estão ligados e o que eles hookeiam — faça um backup antes.</string>
 </resources>

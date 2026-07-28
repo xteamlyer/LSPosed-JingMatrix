@@ -297,4 +297,10 @@
     <string name="update_variant_debug">Depuración</string>
     <string name="update_variant_release_why">La compilación del día a día</string>
     <string name="update_variant_debug_why">Registros detallados, para informar de un error</string>
+    <string name="update_versions">Todas las versiones</string>
+    <string name="update_installed">Instalada</string>
+    <string name="update_older">Anterior</string>
+    <string name="update_rollback">Volver</string>
+    <string name="update_reinstall">Reinstalar</string>
+    <string name="update_rollback_warning">Anterior a la instalada. Si su base de datos es más antigua, volver reinicia qué módulos están activos y qué hookean: haz una copia antes.</string>
 </resources>

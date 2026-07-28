@@ -330,4 +330,10 @@
     <string name="update_variant_debug">Debug</string>
     <string name="update_variant_release_why">The build to run day to day</string>
     <string name="update_variant_debug_why">Verbose logging, for a bug report</string>
+    <string name="update_versions">All versions</string>
+    <string name="update_installed">Installed</string>
+    <string name="update_older">Older</string>
+    <string name="update_rollback">Roll back</string>
+    <string name="update_reinstall">Reinstall</string>
+    <string name="update_rollback_warning">Older than what you have. If it uses an older database, rolling back resets which modules are on and what they hook — back your modules up first.</string>
 </resources>

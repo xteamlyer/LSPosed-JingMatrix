@@ -297,4 +297,10 @@
     <string name="update_variant_debug">Debug</string>
     <string name="update_variant_release_why">La build di tutti i giorni</string>
     <string name="update_variant_debug_why">Log dettagliati, per una segnalazione</string>
+    <string name="update_versions">Tutte le versioni</string>
+    <string name="update_installed">Installata</string>
+    <string name="update_older">Più vecchia</string>
+    <string name="update_rollback">Tornare indietro</string>
+    <string name="update_reinstall">Reinstalla</string>
+    <string name="update_rollback_warning">Più vecchia di quella installata. Se il database è precedente, tornare indietro azzera quali moduli sono attivi e cosa agganciano: fai prima un backup.</string>
 </resources>

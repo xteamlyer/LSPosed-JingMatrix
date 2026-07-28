@@ -290,4 +290,10 @@
     <string name="update_variant_debug">Debug</string>
     <string name="update_variant_release_why">Build untuk sehari-hari</string>
     <string name="update_variant_debug_why">Log rinci, untuk laporan bug</string>
+    <string name="update_versions">Semua versi</string>
+    <string name="update_installed">Terpasang</string>
+    <string name="update_older">Lebih lama</string>
+    <string name="update_rollback">Kembali</string>
+    <string name="update_reinstall">Pasang ulang</string>
+    <string name="update_rollback_warning">Lebih lama dari yang terpasang. Jika basis datanya lebih lama, kembali akan mereset modul mana yang aktif dan apa yang di-hook — cadangkan dulu.</string>
 </resources>

@@ -297,4 +297,10 @@
     <string name="update_variant_debug">اشکال‌زدایی</string>
     <string name="update_variant_release_why">ساخت روزمره</string>
     <string name="update_variant_debug_why">گزارش‌های پرگو، برای گزارش اشکال</string>
+    <string name="update_versions">همهٔ نسخه‌ها</string>
+    <string name="update_installed">نصب‌شده</string>
+    <string name="update_older">قدیمی‌تر</string>
+    <string name="update_rollback">بازگشت</string>
+    <string name="update_reinstall">نصب دوباره</string>
+    <string name="update_rollback_warning">قدیمی‌تر از نصب‌شده است. اگر پایگاه دادهٔ آن قدیمی‌تر باشد، بازگشت تنظیم ماژول‌های فعال و دامنه‌هایشان را بازنشانی می‌کند — نخست پشتیبان بگیرید.</string>
 </resources>

@@ -341,4 +341,10 @@
     <string name="update_variant_debug">تنقيح</string>
     <string name="update_variant_release_why">الإصدار للاستعمال اليومي</string>
     <string name="update_variant_debug_why">سجلات مفصّلة، للإبلاغ عن خلل</string>
+    <string name="update_versions">كل الإصدارات</string>
+    <string name="update_installed">المثبَّت</string>
+    <string name="update_older">أقدم</string>
+    <string name="update_rollback">الرجوع</string>
+    <string name="update_reinstall">إعادة التثبيت</string>
+    <string name="update_rollback_warning">أقدم من المثبَّت. إن كانت قاعدة بياناته أقدم، فالرجوع يعيد ضبط الوحدات المفعّلة ونطاقاتها — انسخ وحداتك احتياطيًا أولًا.</string>
 </resources>

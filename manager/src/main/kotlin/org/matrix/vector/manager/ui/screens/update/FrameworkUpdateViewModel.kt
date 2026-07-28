@@ -1,5 +1,7 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import org.matrix.vector.manager.data.repository.ReleaseDirection
+import org.matrix.vector.manager.data.github.FrameworkRelease
 import org.matrix.vector.manager.data.github.ZipVariant
 import org.matrix.vector.manager.data.github.CanaryArtifact
 import kotlinx.coroutines.flow.combine
@@ -63,6 +65,45 @@ class FrameworkUpdateViewModel : ViewModel() {
 
     private val settings = ServiceLocator.settings
 
+    private val explicit = MutableStateFlow<Long?>(null)
+
+    /**
+     * The release the screen is about.
+     *
+     * Defaults to whatever is worth offering — the update if there is one, otherwise the newest
+     * known build, which is usually the installed one — and follows an explicit choice once made.
+     * Held as a version code rather than the object so a refresh that returns fresh instances does
+     * not silently drop the selection.
+     */
+    val selected: StateFlow<FrameworkRelease?> =
+        combine(update, explicit) { state, pinned ->
+                val list = state.history
+                pinned?.let { code -> list.firstOrNull { it.versionCode == code } }
+                    ?: state.available
+                    ?: list.firstOrNull()
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Where the selected release sits relative to what is running. */
+    val direction: StateFlow<ReleaseDirection> =
+        combine(update, selected) { state, release ->
+                when {
+                    release == null -> ReleaseDirection.Installed
+                    release.versionCode > state.installedVersionCode -> ReleaseDirection.Newer
+                    release.versionCode < state.installedVersionCode -> ReleaseDirection.Older
+                    else -> ReleaseDirection.Installed
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                ReleaseDirection.Installed,
+            )
+
+    fun select(release: FrameworkRelease) {
+        explicit.value = release.versionCode
+    }
+
     /**
      * The zip the user has chosen, or the release's own default.
      *
@@ -71,9 +112,9 @@ class FrameworkUpdateViewModel : ViewModel() {
      * choice was the other one.
      */
     val chosenZip: StateFlow<CanaryArtifact?> =
-        combine(update, settings.updateVariant) { state, variant ->
-                val zips = state.available?.zips.orEmpty()
-                zips.firstOrNull { it.variant.key == variant } ?: state.available?.defaultZip
+        combine(selected, settings.updateVariant) { release, variant ->
+                val zips = release?.zips.orEmpty()
+                zips.firstOrNull { it.variant.key == variant } ?: release?.defaultZip
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 

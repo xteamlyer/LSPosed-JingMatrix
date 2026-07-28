@@ -50,6 +50,11 @@ class FrameworkUpdateRepository(private val github: GitHubRepository) {
                 onCanaryChannel = onCanary,
                 installedVersionCode = installedVersionCode,
                 available = newest?.takeIf { it.versionCode > installedVersionCode },
+                // Kept rather than discarded, which is what this used to do with everything but
+                // the newest. "No update available" was a dead end, and the same list that answers
+                // "is there anything newer" also answers "what could I go back to" — a question
+                // people ask after a build breaks something for them.
+                history = candidates.sortedByDescending { it.versionCode },
             )
     }
 }
@@ -66,7 +71,16 @@ data class FrameworkUpdateState(
     val onCanaryChannel: Boolean = false,
     val installedVersionCode: Long = 0,
     val available: FrameworkRelease? = null,
+    /** Every release on this channel, newest first — including ones older than the installed one. */
+    val history: List<FrameworkRelease> = emptyList(),
 ) {
     val hasUpdate: Boolean
         get() = available != null
+}
+
+/** Where a release sits relative to what is installed. */
+enum class ReleaseDirection {
+    Newer,
+    Installed,
+    Older,
 }

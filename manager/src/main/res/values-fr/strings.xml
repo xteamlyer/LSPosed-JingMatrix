@@ -297,4 +297,10 @@
     <string name="update_variant_debug">Débogage</string>
     <string name="update_variant_release_why">La version à utiliser au quotidien</string>
     <string name="update_variant_debug_why">Journaux détaillés, pour un rapport de bug</string>
+    <string name="update_versions">Toutes les versions</string>
+    <string name="update_installed">Installée</string>
+    <string name="update_older">Plus ancienne</string>
+    <string name="update_rollback">Revenir</string>
+    <string name="update_reinstall">Réinstaller</string>
+    <string name="update_rollback_warning">Plus ancienne que la vôtre. Si sa base est antérieure, revenir réinitialise les modules activés et leurs portées — sauvegardez-les d\'abord.</string>
 </resources>

@@ -1,5 +1,22 @@
 package org.matrix.vector.manager.ui.screens.update
 
+import androidx.compose.foundation.clickable
+import org.matrix.vector.manager.ui.theme.currentLocale
+import org.matrix.vector.manager.ui.theme.LocalizedOverlay
+import org.matrix.vector.manager.ui.components.SheetHeading
+import org.matrix.vector.manager.data.repository.ReleaseDirection
+import org.matrix.vector.manager.data.github.FrameworkRelease
+import java.util.Date
+import java.text.DateFormat
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ListItem
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.RadioButtonChecked
+import androidx.compose.material.icons.rounded.History
 import org.matrix.vector.manager.data.github.ZipVariant
 import org.matrix.vector.manager.data.github.CanaryArtifact
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,8 +100,24 @@ fun FrameworkUpdateScreen(
     val lines by viewModel.lines.collectAsStateWithLifecycle()
     val chosenZip by viewModel.chosenZip.collectAsStateWithLifecycle()
     val root by viewModel.root.collectAsStateWithLifecycle()
+    val selected by viewModel.selected.collectAsStateWithLifecycle()
+    val direction by viewModel.direction.collectAsStateWithLifecycle()
     val scope = androidx.compose.runtime.rememberCoroutineScope()
-    val release = update.available
+    var versionsOpen by remember { mutableStateOf(false) }
+    // The screen is about whichever release is selected, which defaults to the update when there
+    // is one and to the newest known build otherwise — so the page has something to show and
+    // something to do even when everything is up to date.
+    val release = selected
+
+    if (versionsOpen) {
+        VersionsSheet(
+            history = update.history,
+            installedVersionCode = update.installedVersionCode,
+            selected = selected,
+            onSelect = viewModel::select,
+            onDismiss = { versionsOpen = false },
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -118,6 +151,14 @@ fun FrameworkUpdateScreen(
                     }
                 },
                 actions = {
+                    if (update.history.size > 1) {
+                        IconButton(onClick = { versionsOpen = true }) {
+                            Icon(
+                                Icons.Rounded.History,
+                                contentDescription = stringResource(R.string.update_versions),
+                            )
+                        }
+                    }
                     release?.htmlUrl?.let { url ->
                         IconButton(onClick = { onOpenUrl(url) }) {
                             Icon(
@@ -134,6 +175,7 @@ fun FrameworkUpdateScreen(
                 zips = release?.zips.orEmpty(),
                 chosen = chosenZip,
                 onChoose = viewModel::chooseVariant,
+                direction = direction,
                 canFlash = chosenZip?.downloadUrl != null && root.canFlash,
                 // Null unless root itself is the obstacle; "nothing to install" is not a root
                 // problem and must not borrow its sentence.
@@ -242,6 +284,7 @@ private fun UpdateBar(
     zips: List<CanaryArtifact>,
     chosen: CanaryArtifact?,
     onChoose: (ZipVariant) -> Unit,
+    direction: ReleaseDirection,
     canFlash: Boolean,
     rootLabel: String?,
     flash: FlashStep,
@@ -341,6 +384,18 @@ private fun UpdateBar(
                         )
                         Spacer(Modifier.height(8.dp))
                     }
+                    if (direction == ReleaseDirection.Older) {
+                        // Specific, not a vague caution: the daemon's onDowngrade wipes the module
+                        // database when the schema moved, and the manager cannot tell from a
+                        // release list whether it did. Naming the consequence — and the backup
+                        // that prevents it — is the only useful thing to say.
+                        Text(
+                            text = stringResource(R.string.update_rollback_warning),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = colors.tertiary,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
                     Button(
                         onClick = onFlash,
                         enabled = canFlash,
@@ -352,7 +407,18 @@ private fun UpdateBar(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.update_install))
+                        // The button says what it will actually do. "Install" on a build older
+                        // than the running one is not wrong so much as unhelpful — the word is
+                        // the last chance to notice you picked the wrong row.
+                        Text(
+                            stringResource(
+                                when (direction) {
+                                    ReleaseDirection.Newer -> R.string.update_install
+                                    ReleaseDirection.Installed -> R.string.update_reinstall
+                                    ReleaseDirection.Older -> R.string.update_rollback
+                                }
+                            )
+                        )
                     }
                 }
         }
@@ -456,5 +522,96 @@ private fun VariantPicker(
             )
         }
         Spacer(Modifier.height(10.dp))
+    }
+}
+
+/**
+ * Every build on this channel, so "no update available" is not a dead end.
+ *
+ * The same list that answers "is there anything newer" also answers "what could I go back to",
+ * and the second question is the one people ask after a build breaks something for them. It was
+ * being fetched and discarded.
+ *
+ * The installed build is marked rather than hidden: it is the reference point every other row is
+ * read against, and removing it would leave the reader counting positions to work out where they
+ * are.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VersionsSheet(
+    history: List<FrameworkRelease>,
+    installedVersionCode: Long,
+    selected: FrameworkRelease?,
+    onSelect: (FrameworkRelease) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val colors = MaterialTheme.colorScheme
+    val locale = currentLocale()
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        LocalizedOverlay {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
+                SheetHeading(stringResource(R.string.update_versions), Icons.Rounded.History)
+                history.forEach { release ->
+                    val installed = release.versionCode == installedVersionCode
+                    val older = release.versionCode < installedVersionCode
+                    ListItem(
+                        modifier =
+                            Modifier.clickable {
+                                onSelect(release)
+                                onDismiss()
+                            },
+                        headlineContent = { Text(release.title) },
+                        supportingContent = {
+                            Text(
+                                listOfNotNull(
+                                        DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
+                                            .format(Date(release.epochSeconds * 1000)),
+                                        if (release.isCanary) {
+                                            stringResource(R.string.update_channel_canary)
+                                        } else {
+                                            stringResource(R.string.update_channel_release)
+                                        },
+                                    )
+                                    .joinToString("  ·  ")
+                            )
+                        },
+                        leadingContent = {
+                            // The one that is running, marked the way the activity feed marks the
+                            // commit you are on — a filled dot against hollow ones.
+                            Icon(
+                                if (installed) Icons.Rounded.RadioButtonChecked
+                                else Icons.Rounded.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint =
+                                    when {
+                                        installed -> colors.primary
+                                        release.versionCode == selected?.versionCode ->
+                                            colors.onSurface
+                                        else -> colors.outline
+                                    },
+                            )
+                        },
+                        trailingContent = {
+                            val label =
+                                when {
+                                    installed -> stringResource(R.string.update_installed)
+                                    older -> stringResource(R.string.update_older)
+                                    else -> null
+                                }
+                            if (label != null) {
+                                Text(
+                                    label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color =
+                                        if (installed) colors.primary else colors.onSurfaceVariant,
+                                )
+                            }
+                        },
+                    )
+                }
+            }
+        }
     }
 }

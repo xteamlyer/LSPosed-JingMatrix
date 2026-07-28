@@ -286,4 +286,10 @@
     <string name="update_variant_debug">Gỡ lỗi</string>
     <string name="update_variant_release_why">Bản dùng hằng ngày</string>
     <string name="update_variant_debug_why">Nhật ký chi tiết, để báo lỗi</string>
+    <string name="update_versions">Tất cả phiên bản</string>
+    <string name="update_installed">Đang dùng</string>
+    <string name="update_older">Cũ hơn</string>
+    <string name="update_rollback">Quay lại</string>
+    <string name="update_reinstall">Cài lại</string>
+    <string name="update_rollback_warning">Cũ hơn bản đang dùng. Nếu cơ sở dữ liệu cũ hơn, quay lại sẽ đặt lại mô-đun nào đang bật và chúng hook gì — hãy sao lưu trước.</string>
 </resources>

@@ -287,4 +287,10 @@
     <string name="update_variant_debug">调试版</string>
     <string name="update_variant_release_why">日常使用的版本</string>
     <string name="update_variant_debug_why">带详细日志，用于反馈问题</string>
+    <string name="update_versions">全部版本</string>
+    <string name="update_installed">当前已装</string>
+    <string name="update_older">更旧</string>
+    <string name="update_rollback">回退</string>
+    <string name="update_reinstall">重新安装</string>
+    <string name="update_rollback_warning">比当前版本更旧。若其数据库版本较低，回退会重置模块的启用状态与作用域——请先备份模块。</string>
 </resources>

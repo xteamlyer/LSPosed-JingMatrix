@@ -297,4 +297,10 @@
     <string name="update_variant_debug">Hata ayıklama</string>
     <string name="update_variant_release_why">Günlük kullanım için</string>
     <string name="update_variant_debug_why">Ayrıntılı günlükler, hata bildirimi için</string>
+    <string name="update_versions">Tüm sürümler</string>
+    <string name="update_installed">Kurulu</string>
+    <string name="update_older">Daha eski</string>
+    <string name="update_rollback">Geri dön</string>
+    <string name="update_reinstall">Yeniden kur</string>
+    <string name="update_rollback_warning">Kurulu olandan eski. Veritabanı daha eskiyse geri dönmek hangi modüllerin açık olduğunu ve neye bağlandıklarını sıfırlar — önce yedekleyin.</string>
 </resources>
