@@ -252,15 +252,17 @@ class ScopeViewModel(
                             filters.query.isBlank() ||
                                 app.appName.contains(filters.query, ignoreCase = true) ||
                                 app.packageName.contains(filters.query, ignoreCase = true)
-                        // The framework is always offered: it is the one target a module cannot
-                        // reach any other way, and hiding it behind a filter strands the module.
-                        val isFramework = app.packageName == SYSTEM_FRAMEWORK_PACKAGE
                         // An app already in the scope is never filtered away. Otherwise a default
                         // filter can hide a target the user deliberately chose, and the list then
                         // disagrees with what the module is actually hooking.
                         val chosen = ScopeTarget(app.packageName, app.userId) in filters.draft
-                        val matchesSys =
-                            isFramework || chosen || filters.showSystem || !app.isSystemApp
+                        // The framework is a system target and is filtered like one. It used to be
+                        // exempt, on the reasoning that a module which needs it would otherwise be
+                        // stranded — but the exemption above already covers that: once it is in the
+                        // scope no filter can hide it. Before it was chosen it is simply the most
+                        // system of system apps, and someone who has asked not to see those has
+                        // asked not to see it.
+                        val matchesSys = chosen || filters.showSystem || !app.isSystemApp
                         val matchesGame = chosen || filters.showGames || !app.isGame
                         val matchesModule =
                             chosen || showMods || modules == null || app.packageName !in modules
@@ -276,15 +278,27 @@ class ScopeViewModel(
                     .sortedWith(comparatorFor(order))
                     .toList()
                     .let { if (reverse) it.reversed() else it }
-                    // Pinned above the apps, and after the reverse so that reversing the order
-                    // cannot bury it at the bottom. It is not an app and does not belong in the
-                    // same ordering as one: sorted by name it landed under S, by install time it
-                    // landed wherever its borrowed timestamp put it, and either way the one target
-                    // that is not discoverable any other way was somewhere in a list of thousands.
+                    // What is in the scope comes first, then the framework, then everything else.
+                    //
+                    // Grouping the chosen at the top applies to every ordering, not just to
+                    // Relevance, because this is a picker: the rows you have already ticked are
+                    // the ones you come back to check, and hunting for them alphabetically among
+                    // several hundred is the work the sort was supposed to save. Each sort still
+                    // orders within the two groups.
+                    //
+                    // The framework still needs a pin, because it is not an app and does not sort
+                    // like one: by name it lands under S, by install time wherever its borrowed
+                    // timestamp puts it, and either way the one target that is not discoverable
+                    // any other way is lost in a list of thousands. But the pin used to be
+                    // absolute, which put a target nobody had chosen above every target they had.
+                    //
+                    // After the reverse, so reversing cannot bury any of it at the bottom.
                     .let { list ->
-                        val framework = list.filter { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
-                        if (framework.isEmpty()) list
-                        else framework + list.filterNot { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
+                        val (chosen, rest) = list.partition { it.isSelectedInScope }
+                        val framework = rest.filter { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
+                        chosen +
+                            framework +
+                            rest.filterNot { it.packageName == SYSTEM_FRAMEWORK_PACKAGE }
                     }
             }
             // Filtering and sorting the full installed-app list is real work — often thousands of
