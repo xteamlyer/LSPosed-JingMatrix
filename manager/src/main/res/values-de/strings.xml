@@ -303,4 +303,5 @@
     <string name="update_rollback">Zurückgehen</string>
     <string name="update_reinstall">Neu installieren</string>
     <string name="update_rollback_warning">Älter als das Installierte. Bei älterer Datenbank setzt das Zurückgehen zurück, welche Module an sind und was sie hooken — sichere sie vorher.</string>
+    <string name="settings_window_all">Von Anfang an</string>
 </resources>

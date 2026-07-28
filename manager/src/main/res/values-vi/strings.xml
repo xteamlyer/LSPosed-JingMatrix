@@ -292,4 +292,5 @@
     <string name="update_rollback">Quay lại</string>
     <string name="update_reinstall">Cài lại</string>
     <string name="update_rollback_warning">Cũ hơn bản đang dùng. Nếu cơ sở dữ liệu cũ hơn, quay lại sẽ đặt lại mô-đun nào đang bật và chúng hook gì — hãy sao lưu trước.</string>
+    <string name="settings_window_all">Từ đầu</string>
 </resources>

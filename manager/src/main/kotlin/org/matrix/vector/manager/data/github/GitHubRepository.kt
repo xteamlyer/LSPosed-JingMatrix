@@ -68,9 +68,15 @@ class GitHubRepository(
 
     suspend fun load(freshness: Freshness = Freshness.Revalidate): CommunityFeed =
         withContext(Dispatchers.IO) {
-            val months = windowMonthsProvider().coerceIn(1, 60)
+            // Zero means "as far back as there is", which is a different question from "how many
+            // months". The commit request is a single page of 100 — there is no pagination here —
+            // so an unbounded window does not mean thousands of requests; it means the newest
+            // hundred, however far back that reaches. The line under the feed says which date that
+            // turned out to be, rather than claiming the project began there.
+            val months = windowMonthsProvider().coerceIn(0, 60)
             val windowStart =
-                System.currentTimeMillis() / 1000 - months * DAYS_PER_MONTH * 24L * 60 * 60
+                if (months == 0) 0L
+                else System.currentTimeMillis() / 1000 - months * DAYS_PER_MONTH * 24L * 60 * 60
             val previous =
                 runCatching { json.decodeFromString<Snapshot>(snapshotFile.readText()) }.getOrNull()
             val fresh = runCatching { fetch(windowStart, freshness) }.getOrNull()
@@ -308,7 +314,12 @@ class GitHubRepository(
         return CommunityFeed(
             commits = commits,
             contributors = contributors,
-            windowStartEpochSeconds = windowStart,
+            // The oldest commit actually in hand, not the window that was asked for. They differ
+            // whenever the window reaches further back than the history does — always, for an
+            // unbounded window — and "since 1 January 1970" would be a strange thing to tell
+            // someone. Saying how far the data really goes is both honest and more useful.
+            windowStartEpochSeconds =
+                commits.minOfOrNull { it.epochSeconds }?.coerceAtLeast(windowStart) ?: windowStart,
             repo = repo,
             totalCommits = totalCommits,
             fromCache = fromCache,

@@ -303,4 +303,5 @@
     <string name="update_rollback">Revenir</string>
     <string name="update_reinstall">Réinstaller</string>
     <string name="update_rollback_warning">Plus ancienne que la vôtre. Si sa base est antérieure, revenir réinitialise les modules activés et leurs portées — sauvegardez-les d\'abord.</string>
+    <string name="settings_window_all">Depuis le début</string>
 </resources>

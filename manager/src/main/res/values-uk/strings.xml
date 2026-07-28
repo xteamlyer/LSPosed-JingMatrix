@@ -325,4 +325,5 @@
     <string name="update_rollback">Відкотити</string>
     <string name="update_reinstall">Перевстановити</string>
     <string name="update_rollback_warning">Старіша за встановлену. Якщо база даних старіша, відкат скине, які модулі увімкнені та що вони перехоплюють — спершу зробіть копію.</string>
+    <string name="settings_window_all">Від початку</string>
 </resources>

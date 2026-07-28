@@ -303,4 +303,5 @@
     <string name="update_rollback">Geri dön</string>
     <string name="update_reinstall">Yeniden kur</string>
     <string name="update_rollback_warning">Kurulu olandan eski. Veritabanı daha eskiyse geri dönmek hangi modüllerin açık olduğunu ve neye bağlandıklarını sıfırlar — önce yedekleyin.</string>
+    <string name="settings_window_all">En baştan</string>
 </resources>

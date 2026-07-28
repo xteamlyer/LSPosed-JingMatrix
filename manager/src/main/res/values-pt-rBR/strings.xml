@@ -303,4 +303,5 @@
     <string name="update_rollback">Voltar</string>
     <string name="update_reinstall">Reinstalar</string>
     <string name="update_rollback_warning">Mais antiga que a instalada. Se o banco for anterior, voltar reinicia quais módulos estão ligados e o que eles hookeiam — faça um backup antes.</string>
+    <string name="settings_window_all">Desde o início</string>
 </resources>

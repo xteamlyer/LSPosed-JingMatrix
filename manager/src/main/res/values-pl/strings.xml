@@ -325,4 +325,5 @@
     <string name="update_rollback">Cofnij</string>
     <string name="update_reinstall">Zainstaluj ponownie</string>
     <string name="update_rollback_warning">Starsza niż zainstalowana. Jeśli ma starszą bazę, cofnięcie zresetuje włączone moduły i ich zakresy — zrób najpierw kopię.</string>
+    <string name="settings_window_all">Od początku</string>
 </resources>

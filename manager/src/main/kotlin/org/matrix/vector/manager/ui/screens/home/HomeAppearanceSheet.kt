@@ -163,17 +163,22 @@ LocalizedOverlay {
 
             SheetHeading(stringResource(R.string.settings_activity), Icons.Rounded.History)
             ChoiceRow {
-                listOf(1, 3, 6, 12).forEach { months ->
+                // Zero is "as far back as there is", last because it is the widest.
+                listOf(1, 3, 6, 12, 0).forEach { months ->
                     FilterChip(
                         selected = windowMonths == months,
                         onClick = { settings.setActivityWindowMonths(months) },
                         label = {
                             Text(
-                                pluralStringResource(
-                                    R.plurals.settings_window_months,
-                                    months,
-                                    months,
-                                )
+                                if (months == 0) {
+                                    stringResource(R.string.settings_window_all)
+                                } else {
+                                    pluralStringResource(
+                                        R.plurals.settings_window_months,
+                                        months,
+                                        months,
+                                    )
+                                }
                             )
                         },
                     )

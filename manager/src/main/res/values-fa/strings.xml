@@ -303,4 +303,5 @@
     <string name="update_rollback">بازگشت</string>
     <string name="update_reinstall">نصب دوباره</string>
     <string name="update_rollback_warning">قدیمی‌تر از نصب‌شده است. اگر پایگاه دادهٔ آن قدیمی‌تر باشد، بازگشت تنظیم ماژول‌های فعال و دامنه‌هایشان را بازنشانی می‌کند — نخست پشتیبان بگیرید.</string>
+    <string name="settings_window_all">از آغاز</string>
 </resources>
