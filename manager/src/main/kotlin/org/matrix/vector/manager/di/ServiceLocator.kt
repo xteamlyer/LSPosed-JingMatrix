@@ -12,6 +12,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
 import android.annotation.SuppressLint
 import android.content.Context
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,6 +40,7 @@ import org.matrix.vector.manager.data.repository.SettingsRepository
 import org.matrix.vector.manager.ipc.DaemonClient
 import org.matrix.vector.manager.ipc.packageEventsFlow
 import org.matrix.vector.manager.net.HttpClientFactory
+import org.matrix.vector.manager.net.VectorDns
 
 /**
  * Hand-rolled service location, deliberately not a DI framework.
@@ -77,7 +82,16 @@ object ServiceLocator {
 
     val daemon: DaemonClient by lazy { DaemonClient(service) }
 
-    val http: OkHttpClient by lazy { HttpClientFactory.create(context, settings) }
+    private val net: HttpClientFactory.NetStack by lazy {
+        HttpClientFactory.create(context, settings)
+    }
+
+    val http: OkHttpClient
+        get() = net.client
+
+    /** The resolver inside [http], so the settings sheet can report what DoH is actually doing. */
+    val dns: VectorDns
+        get() = net.dns
 
     val settings: SettingsRepository by lazy { SettingsRepository(context) }
 
@@ -195,6 +209,21 @@ object ServiceLocator {
         // Before anything else that could fail. Nothing below is load-bearing for it, and a crash
         // during startup is exactly the one that is hardest to catch on a cable.
         CrashRecorder.install(appContext!!)
+
+        // Coil is configured by hand rather than through its manifest hooks, for the same reason
+        // OkHttp is: parasitically this app's manifest is never installed, so nothing that
+        // self-registers there ever runs. Here rather than in the activity because every entry
+        // point comes through `attach` — including the debug demo host, which never opens
+        // MainActivity and so had no image loader at all while this lived there.
+        //
+        // The factory is not called until the first image, so this costs nothing at startup and
+        // does not build the OkHttp client before something asks for it.
+        SingletonImageLoader.setSafe { platformContext: PlatformContext ->
+            ImageLoader.Builder(platformContext)
+                .components { add(OkHttpNetworkFetcherFactory(callFactory = { http })) }
+                .build()
+        }
+
         observePackageChanges()
     }
 
