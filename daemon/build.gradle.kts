@@ -16,6 +16,7 @@ val injectedPackageName: String by rootProject.extra
 val injectedPackageUid: Int by rootProject.extra
 val versionCodeProvider: Provider<String> by rootProject.extra
 val versionNameProvider: Provider<String> by rootProject.extra
+val versionHashProvider: Provider<String> by rootProject.extra
 
 plugins {
   alias(libs.plugins.agp.app)
@@ -34,6 +35,9 @@ android {
     buildConfigField("int", "MANAGER_INJECTED_UID", """$injectedPackageUid""")
     buildConfigField("String", "VERSION_NAME", """"${versionNameProvider.get()}"""")
     buildConfigField("long", "VERSION_CODE", versionCodeProvider.get())
+    // The version code is the commit count on origin/master, so it is identical for a branch
+    // build and a master build. The hash is what tells a bug report which one it came from.
+    buildConfigField("String", "VERSION_HASH", """"${versionHashProvider.get()}"""")
 
     val cliToken = UUID.randomUUID()
     // Inject the MSB and LSB as Long constants
@@ -107,10 +111,10 @@ androidComponents {
 
     val signInfoTask =
         tasks.register<GenerateSignInfoTask>("generate${variantCapped}SignInfo") {
-          dependsOn(":app:validateSigning${variantCapped}")
+          dependsOn(":manager:validateSigning${variantCapped}")
           val sign =
               rootProject
-                  .project(":app")
+                  .project(":manager")
                   .extensions
                   .getByType(ApplicationExtension::class.java)
                   .buildTypes

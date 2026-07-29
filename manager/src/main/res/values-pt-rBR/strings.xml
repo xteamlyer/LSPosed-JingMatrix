@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">Início</string>
+    <string name="nav_modules">Módulos</string>
+    <string name="nav_store">Catálogo</string>
+    <string name="nav_logs">Registros</string>
+
+    <string name="status_active">Ativo</string>
+    <string name="status_degraded">Verificar</string>
+    <string name="status_inactive">Não ativado</string>
+    <string name="status_checking">Verificando…</string>
+    <string name="status_open_details">Abrir o status do sistema</string>
+
+    <string name="issue_sepolicy_title">Política do SELinux não carregada</string>
+    <string name="issue_sepolicy_summary">Alguns recursos não vão funcionar. Isso costuma significar que a implementação de root não aplicou as regras do Vector.</string>
+    <string name="issue_system_server_title">Falha na injeção no framework do sistema</string>
+    <string name="issue_system_server_summary">Os módulos não conseguem fazer hook nos serviços do sistema. É raro, e normalmente é outro módulo root interferindo.</string>
+    <string name="issue_dex2oat_title">Wrapper do dex2oat indisponível</string>
+    <string name="issue_dex2oat_summary">Algumas propriedades do sistema foram removidas ou alteradas. Os módulos podem parar de se aplicar depois que um app for atualizado.</string>
+
+    <string name="system_status">Status do sistema</string>
+    <string name="info_api_version">API do Xposed</string>
+    <string name="info_framework_version">Framework</string>
+    <string name="info_manager_package">Pacote do gerenciador</string>
+    <string name="info_dex2oat">Wrapper do dex2oat</string>
+    <string name="info_selinux">Política do SELinux</string>
+    <string name="info_system_server">Framework do sistema</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Dispositivo</string>
+    <string name="info_abi">Arquitetura</string>
+    <string name="info_supported">Compatível</string>
+    <string name="info_unsupported">Incompatível</string>
+    <string name="info_loaded">Carregada</string>
+    <string name="info_not_loaded">Não carregada</string>
+    <string name="info_injected">Injetado</string>
+    <string name="info_not_injected">Não injetado</string>
+    <string name="status_notification">Notificação de status</string>
+    <string name="status_notification_summary">Uma notificação permanente mostrando que o Vector está em execução.</string>
+    <string name="action_copy_all">Copiar tudo</string>
+    <string name="copied">Copiado para a área de transferência</string>
+
+    <string name="home_quarter_title">Atividade recente</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commits</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">de %1$d pessoa</item>
+        <item quantity="other">de %1$d pessoas</item>
+    </plurals>
+    <string name="home_since">desde %1$s</string>
+    <string name="home_no_activity">Nenhum commit nos últimos seis meses.</string>
+    <string name="home_loading_activity">Carregando a atividade recente…</string>
+    <string name="home_offline">Mostrando a atividade salva — não foi possível acessar o GitHub.</string>
+    <string name="home_bumps">%1$d atualizações de dependências</string>
+    <string name="home_contribute">Participar</string>
+    <string name="home_test_canary">Testar canary</string>
+    <string name="home_open_issue">Relatar um problema</string>
+    <string name="home_discussions">Discussões</string>
+    <string name="home_review_prs">Revisar uma alteração</string>
+
+    <string name="github_sign_in">Entrar no GitHub</string>
+    <string name="github_sign_in_why">Opcional. Aumenta o limite por hora das atualizações de atividade e deixa o Vector mostrar o que está esperando por você. Somente leitura — nenhuma permissão é solicitada.</string>
+    <string name="github_sign_in_code">Digite este código em %1$s</string>
+    <string name="github_open_browser">Abrir o navegador</string>
+    <string name="github_copy_code">Copiar o código</string>
+    <string name="github_signed_in_as">Conectado como %1$s</string>
+    <string name="github_sign_out">Sair</string>
+    <string name="github_cancel">Cancelar</string>
+    <string name="github_unreachable">Não foi possível acessar o GitHub. Todo o resto continua funcionando.</string>
+    <string name="home_with_coauthor">%1$s e %2$s</string>
+    <string name="home_with_coauthors">%1$s e mais %2$d</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d pessoa</item>
+        <item quantity="other">%1$d pessoas</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">%1$d commit mais novo que o seu</item>
+        <item quantity="other">%1$d commits mais novos que o seu</item>
+    </plurals>
+    <string name="home_your_build">sua versão %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d dia parado</item>
+        <item quantity="other">%1$d dias parado</item>
+    </plurals>
+
+    <string name="time_yesterday">ontem</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">há %1$d dia</item>
+        <item quantity="other">há %1$d dias</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">há %1$d semana</item>
+        <item quantity="other">há %1$d semanas</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">há %1$d mês</item>
+        <item quantity="other">há %1$d meses</item>
+    </plurals>
+
+    <string name="appearance_title">Aparência</string>
+    <string name="appearance_theme">Tema</string>
+    <string name="appearance_theme_system">Seguir o sistema</string>
+    <string name="appearance_theme_light">Claro</string>
+    <string name="appearance_theme_dark">Escuro</string>
+    <string name="appearance_dynamic_color">Cores do papel de parede</string>
+    <string name="appearance_amoled">Preto puro no tema escuro</string>
+    <string name="appearance_amoled_summary">Economiza bateria em telas OLED.</string>
+    <string name="egg_two_more">Mais duas vezes…</string>
+    <string name="egg_one_more">Mais uma vez…</string>
+
+    <string name="modules_empty">Nenhum módulo instalado.</string>
+    <string name="modules_active_of">%1$d de %2$d ativos</string>
+    <string name="modules_no_match">Nenhum módulo corresponde a essa busca ou filtro.</string>
+    <string name="modules_backup">Fazer backup dos módulos</string>
+    <string name="modules_restore">Restaurar módulos</string>
+    <string name="modules_backup_done">Backup de %1$d módulos e seus escopos concluído.</string>
+    <string name="modules_backup_failed">Não foi possível gravar o backup.</string>
+    <string name="modules_restore_done">%1$d módulos restaurados, %2$d ignorados por não estarem instalados aqui.</string>
+    <string name="modules_restore_failed">Não foi possível ler esse backup.</string>
+    <string name="modules_search_hint">Buscar módulos</string>
+    <string name="modules_clear_search">Limpar a busca</string>
+    <string name="modules_filter">Filtrar</string>
+    <string name="modules_section_active">Em execução</string>
+    <string name="modules_section_inactive">Parados</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Em execução primeiro</string>
+    <string name="modules_sort_name">Por nome</string>
+    <string name="modules_sort_recent">Atualizados recentemente</string>
+    <string name="modules_sort_scope">Maior escopo</string>
+    <string name="modules_filter_all">Todos</string>
+    <string name="modules_filter_active">Ativos</string>
+    <string name="modules_filter_inactive">Inativos</string>
+    <string name="modules_incompatible">Precisa da API %1$d do libxposed, que este framework não fornece.</string>
+    <string name="modules_incompatible_legacy">Precisa da API %1$d do Xposed, que este framework não fornece.</string>
+    <string name="modules_api_behind">Compilado para a API %1$d do libxposed. A API %2$d mudou a interface, então este módulo pode não funcionar totalmente.</string>
+    <string name="modules_no_daemon">O Vector não está em execução, então a lista de módulos não está disponível. Abra o status do sistema pelo Início para ver por quê.</string>
+    <string name="module_toggle_failed">Não foi possível alterar %1$s. O framework recusou a alteração.</string>
+
+    <string name="web_open_external">Abrir no navegador</string>
+
+    <string name="settings_ambience">Superfície do cabeçalho</string>
+    <string name="ambience_snow">Neve</string>
+    <string name="ambience_maze">Labirinto</string>
+    <string name="ambience_circuit">Circuito</string>
+    <string name="ambience_matrix">Chuva de código</string>
+    <string name="ambience_none">Parada</string>
+
+    <string name="settings_activity">Feed de atividade</string>
+    <string name="settings_window">Histórico mostrado no Início</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">Último %1$d mês</item>
+        <item quantity="other">Últimos %1$d meses</item>
+    </plurals>
+    <string name="settings_open_externally">Abrir links em um navegador</string>
+    <string name="settings_open_externally_summary">Desligado: as páginas do GitHub abrem dentro do Vector.</string>
+
+    <string name="scope_use_recommended">Usar o que o módulo pede</string>
+    <string name="scope_select_visible">Selecionar tudo que está à mostra</string>
+    <string name="scope_clear_visible">Desmarcar tudo que está à mostra</string>
+    <string name="scope_backup_done">Escopo salvo.</string>
+    <string name="scope_backup_failed">Não foi possível ler nem gravar esse arquivo.</string>
+    <string name="scope_select">Seleção</string>
+    <string name="scope_sort">Ordenar</string>
+    <string name="scope_modules">Outros módulos</string>
+    <string name="scope_include_new_apps">Adicionar novos apps automaticamente</string>
+    <string name="scope_include_new_apps_summary">Apps instalados de agora em diante entram no escopo deste módulo.</string>
+    <string name="scope_backup">Fazer backup deste escopo</string>
+    <string name="scope_restore">Restaurar este escopo</string>
+    <string name="scope_sort_package">Por nome do pacote</string>
+    <string name="scope_sort_installed">Instalados recentemente</string>
+    <string name="scope_sort_updated">Atualizados recentemente</string>
+    <string name="scope_sort_reverse">Ordem inversa</string>
+    <string name="scope_sort_relevance">Selecionados primeiro</string>
+    <string name="scope_sort_name">Por nome</string>
+    <string name="scope_search_hint">Buscar apps</string>
+    <string name="scope_system_apps">Apps do sistema</string>
+    <string name="scope_games">Jogos</string>
+    <string name="scope_recommended">Pedido por este módulo</string>
+    <string name="scope_static">Este módulo declara um escopo fixo e não pode ser apontado para outros apps.</string>
+    <string name="scope_pending">%1$d a adicionar, %2$d a remover</string>
+    <string name="scope_apply">Aplicar</string>
+    <string name="scope_discard">Descartar</string>
+    <string name="scope_applied">Escopo aplicado.</string>
+    <string name="scope_apply_failed">O framework recusou o novo escopo.</string>
+    <string name="scope_toggle_failed">O framework recusou essa alteração.</string>
+    <string name="scope_empty_title">Nada para fazer hook</string>
+    <string name="scope_empty_message">Este módulo está ativado mas não tem nenhum app selecionado, então não vai fazer nada. Desative-o ou escolha alguns apps.</string>
+    <string name="scope_empty_disable">Desativar o módulo</string>
+    <string name="scope_empty_keep">Deixar ativado</string>
+
+    <string name="action_launch">Abrir</string>
+    <string name="action_app_info">Informações do app</string>
+    <string name="action_force_stop">Forçar parada</string>
+    <string name="action_optimize">Reotimizar</string>
+    <string name="action_uninstall">Desinstalar</string>
+    <string name="action_launched">Abrindo…</string>
+    <string name="action_no_launcher">Este app não tem nada para abrir.</string>
+    <string name="action_opened_info">Abrindo as informações do app…</string>
+    <string name="action_force_stopped">%1$s parado.</string>
+    <string name="action_optimizing">Reotimizando %1$s. Isso pode demorar um pouco.</string>
+    <string name="action_optimized">%1$s reotimizado. Os hooks perdidos no inlining devem funcionar agora.</string>
+    <string name="action_optimize_failed">Não foi possível reotimizar %1$s.</string>
+    <string name="action_uninstalled">%1$s desinstalado.</string>
+    <string name="action_uninstall_failed">Não foi possível desinstalar %1$s.</string>
+
+    <string name="settings">Configurações</string>
+    <string name="back">Voltar</string>
+    <string name="retry">Tentar de novo</string>
+
+    <string name="appearance_color">Cor</string>
+    <string name="appearance_custom_color">Escolher uma cor</string>
+    <string name="modules_expand">Mostrar a descrição completa</string>
+    <string name="modules_collapse">Mostrar menos</string>
+    <string name="action_optimize_summary">Recompila o app para que o ART pare de fazer inlining dos métodos em que um módulo precisa dar hook</string>
+    <string name="modules_scope_framework">Dá hook no framework do sistema</string>
+    <string name="scope_origin_locked">Fixado pelo módulo</string>
+    <string name="scope_origin_chosen">Escolha sua</string>
+    <string name="modules_selection_clear">Limpar a seleção</string>
+    <plurals name="modules_selected">
+        <item quantity="one">%1$d selecionado</item>
+        <item quantity="other">%1$d selecionados</item>
+    </plurals>
+    <string name="modules_batch_enable">Ativar todos os selecionados</string>
+    <string name="modules_batch_disable">Desativar todos os selecionados</string>
+    <string name="modules_batch_partial">Só %1$s deles funcionaram</string>
+    <string name="modules_uninstall_title">Desinstalar estes módulos?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">O módulo e tudo que ele configurou serão removidos. Isso não pode ser desfeito.</item>
+        <item quantity="other">Todos os %1$d módulos e tudo que eles configuraram serão removidos. Isso não pode ser desfeito.</item>
+    </plurals>
+    <string name="canary_open_actions">Abrir no GitHub</string>
+    <string name="canary_open_run">Abrir esta execução</string>
+    <string name="canary_install">Instalar</string>
+    <string name="canary_expired">Os artefatos desta versão expiraram.</string>
+    <string name="canary_none">Nenhuma versão canary publicada ainda.</string>
+    <string name="home_contributors_by_commits">Mais commits</string>
+    <string name="home_contributors_by_recent">Mais recentes</string>
+    <string name="scope_recommended_only">O que o módulo pede</string>
+    <string name="home_resting">Descansando — atividade salva. Puxe para atualizar.</string>
+    <string name="report_title">Antes de relatar</string>
+    <string name="report_step_canary">Teste primeiro a canary mais recente</string>
+    <string name="report_step_canary_body">Pode já estar corrigido, e uma versão de depuração é o que os mantenedores precisam para te ajudar. Fique na master — as versões de pull request são instáveis.</string>
+    <string name="report_step_zygisk">Não usa Magisk? Atualize o Zygisk</string>
+    <string name="report_step_zygisk_body">Instale a implementação mais recente do Zygisk, na versão de depuração se existir uma.</string>
+    <string name="report_step_logs">Anexe os registros</string>
+    <string name="report_step_logs_body">Um relato sem registros é uma conversa que começa do zero. Isto grava os dois registros em um zip que você pode anexar.</string>
+    <string name="report_step_crashed">Se o Zygisk travou</string>
+    <string name="report_step_crashed_body">Não dá mais para pedir o zip ao daemon, mas ele gravou os arquivos mesmo assim. O root consegue lê-los mesmo quando nada mais consegue.</string>
+    <string name="report_open_tracker">Abrir o rastreador de problemas</string>
+    <string name="report_save_with_root">Salvar a pasta de registros (precisa de root)</string>
+    <string name="report_saved_to">Salvo em %1$s</string>
+    <string name="report_see_guide">Guia completo na issue</string>
+    <string name="report_root_refused">Root recusado. Autorize o Vector no seu gerenciador de root e tente de novo%1$s</string>
+    <string name="home_custom_build">Versão própria — à frente da master</string>
+    <string name="github_device_code">Código de dispositivo do GitHub</string>
+    <string name="language_title">Idioma</string>
+    <string name="language_system">Padrão do sistema</string>
+    <string name="language_system_summary">Seguir o idioma configurado no telefone</string>
+
+    <string name="language_translated_by">Traduzido por %1$s</string>
+    <string name="language_help_short">Traduzir</string>
+    <string name="language_help">Ajude a traduzir o Vector</string>
+
+    <string name="update_title">Atualização do framework</string>
+    <string name="update_channel_canary">Versão canary</string>
+    <string name="update_channel_release">Versão estável</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_downloading">Baixados %1$s de %2$s</string>
+    <string name="update_flashing">Instalando…</string>
+    <string name="update_done">Instalado</string>
+    <string name="update_reboot">Reiniciar</string>
+    <string name="update_reboot_why">Passa a valer depois de reiniciar</string>
+    <string name="update_none">Nenhuma atualização disponível.</string>
+    <string name="update_no_notes">Esta versão não publicou notas.</string>
+    <string name="update_no_root">Nenhuma implementação de root foi encontrada, então não há como gravar nada.</string>
+    <string name="update_root_too_old">A implementação de root deste dispositivo é antiga demais para gravar.</string>
+    <string name="update_root_multiple">Foram encontradas duas implementações de root. O Vector não vai adivinhar qual delas cuida do módulo.</string>
+    <string name="update_failed_start">Não foi possível iniciar o instalador.</string>
+    <string name="update_failed_download">Não foi possível baixar a atualização.</string>
+    <string name="update_failed_exit">O instalador falhou (código %1$d).</string>
+    <string name="update_available">Atualização disponível</string>
+    <string name="store_mute_updates">Ignorar atualizações deste módulo</string>
+    <string name="store_mute_updates_summary">Ele deixa de contar como desatualizado, aqui e na lista de módulos</string>
+    <string name="store_options">Opções</string>
+    <string name="scope_framework_shared">Um único processo compartilhado por todos os usuários: isso afeta o aparelho inteiro</string>
+    <string name="update_no_output">O instalador não produziu nenhuma saída.</string>
+    <string name="update_variant_release">Estável</string>
+    <string name="update_variant_debug">Depuração</string>
+    <string name="update_variant_release_why">A versão para o dia a dia</string>
+    <string name="update_variant_debug_why">Registros detalhados, para relatar um erro</string>
+    <string name="update_versions">Todas as versões</string>
+    <string name="update_installed">Instalada</string>
+    <string name="update_older">Mais antiga</string>
+    <string name="update_rollback">Voltar</string>
+    <string name="update_reinstall">Reinstalar</string>
+    <string name="update_rollback_warning">Mais antiga que a instalada. Se o banco for anterior, voltar reinicia quais módulos estão ligados e o que eles hookeiam — faça um backup antes.</string>
+    <string name="settings_window_all">Desde o início</string>
+    <string name="update_diverged">Mesmo número de versão, build diferente — o que está rodando não veio desta versão</string>
+    <string name="home_filter_clear">Mostrar tudo</string>
+    <string name="home_filter_remove">Parar de mostrar apenas %1$s</string>
+    <string name="home_history_loading">Voltando mais no tempo…</string>
+    <string name="home_history_more">Carregar commits anteriores</string>
+    <string name="home_history_beginning">Onde tudo começou, %1$s</string>
+    <string name="home_scroll_top">Voltar ao topo</string>
+    <string name="home_scroll_down">Próxima tela</string>
+    <string name="action_not_in_store">Não está na loja</string>
+    <string name="action_not_in_store_summary">Não é possível verificar atualizações deste módulo</string>
+    <string name="action_update_to">Atualizar para %1$s</string>
+    <string name="action_update_from">De %1$s · %2$s</string>
+    <string name="action_update_running">Instalando…</string>
+    <string name="action_update_no_apk">Esta versão não traz nenhum APK</string>
+    <string name="action_update_choose">Várias builds — escolha uma na loja</string>
+    <string name="action_update_started">Atualização iniciada</string>
+    <string name="action_open_store">Abrir na loja</string>
+    <string name="modules_updating">Atualizando %1$s — %2$d de %3$d</string>
+    <string name="modules_updates_title">Módulos para atualizar</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ignorado</string>
+    <string name="modules_update_selected">Atualizar %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d módulo pode ser atualizado</item>
+        <item quantity="other">%1$d módulos podem ser atualizados</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">%1$d módulo atualizado</item>
+        <item quantity="other">%1$d módulos atualizados</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">%1$d módulo não pôde ser atualizado</item>
+        <item quantity="other">%1$d módulos não puderam ser atualizados</item>
+    </plurals>
+    <string name="home_window_changed">Mostrando atividade salva do novo intervalo — puxe para atualizar</string>
+    <string name="home_history_window_end">Isso é tudo neste intervalo</string>
+    <string name="update_same_number">Mesmo número, outra build</string>
+    <string name="modules_load_no_apk">Ativado, mas o framework não encontrou o APK para carregar.</string>
+    <string name="modules_load_unusable">Ativado, mas o framework não conseguiu carregá-lo. Não está em execução.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">%1$d módulo ativado</item>
+        <item quantity="other">%1$d módulos ativados</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">%1$d módulo desativado</item>
+        <item quantity="other">%1$d módulos desativados</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">%1$d módulo desinstalado</item>
+        <item quantity="other">%1$d módulos desinstalados</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d já estava ativo</item>
+        <item quantity="other">%1$d já estavam ativos</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d já estava inativo</item>
+        <item quantity="other">%1$d já estavam inativos</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Já estava ativo</item>
+        <item quantity="other">Todos os %1$d já estavam ativos</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Já estava inativo</item>
+        <item quantity="other">Todos os %1$d já estavam inativos</item>
+    </plurals>
+    <string name="info_manager_version">Gerenciador</string>
+    <string name="action_open_companion">Abrir o app complementar</string>
+    <string name="action_open_companion_summary">A tela que o autor escreveu para configurá-lo</string>
+    <string name="action_soft_reboot">Reinício suave</string>
+    <string name="action_soft_reboot_summary">Reiniciar o framework sem reiniciar o telefone</string>
+    <string name="action_soft_reboot_confirm">Todos os apps abertos fecham e a tela apaga por um instante. O telefone continua ligado.</string>
+    <string name="info_section_build">O que está em execução</string>
+    <string name="info_section_health">Se está funcionando</string>
+    <string name="info_section_device">Este dispositivo</string>
+    <string name="crash_recorded_title">O gerenciador fechou inesperadamente</string>
+    <string name="crash_recorded_summary">O rastreamento completo vai junto no zip dos registros, na pasta crash_manager.</string>
+    <string name="crash_recorded_clear">Descartar</string>
+    <string name="force_launcher_icons">Impedir que apps escondam o ícone do launcher</string>
+    <string name="force_launcher_icons_summary">Desde o Android 10, um app que esconde o próprio ícone do launcher recebe um de volta, que abre a página de informações do app. Desligue isto para deixá-lo continuar escondido — seu launcher pode seguir mostrando a lista antiga até reiniciar. Apps que nunca tiveram ícone no launcher, incluindo a maioria dos módulos, não são afetados.</string>
+    <string name="action_force_stop_failed">Não foi possível parar %1$s.</string>
+    <string name="modules_load_unsupported_api">Ativado, mas compilado para a API 100 do libxposed, que este framework não carrega mais.</string>
+    <string name="update_root_unknown">Esta versão do framework não informa qual implementação de root está instalada.</string>
+    <string name="scope_no_match">Nenhum app corresponde a essa busca ou filtro.</string>
+    <string name="scope_apply_effect">Cada app aplica isso na próxima vez que iniciar.</string>
+    <string name="info_dex2oat_crashed">Falhou</string>
+    <string name="info_dex2oat_mount_failed">Falha ao montar</string>
+    <string name="info_dex2oat_selinux_permissive">O SELinux está permissivo</string>
+    <string name="info_dex2oat_sepolicy_incorrect">Política do SELinux incorreta</string>
+    <string name="scope_framework_restart_title">O framework ainda não aplicou isso</string>
+    <string name="scope_framework_restart_body">O framework do sistema é carregado uma única vez, quando o Android inicia. Esta alteração só chega a ele quando o framework reinicia — todos os apps em execução fecham e o telefone continua ligado.</string>
+    <string name="scope_framework_restart_later">Mais tarde</string>
+    <string name="settings_network">Rede</string>
+    <string name="settings_doh">Resolver nomes por HTTPS</string>
+    <string name="settings_doh_summary">Resolve nomes pela Cloudflare em vez do resolvedor da rede. Para redes que bloqueiam ou adulteram o DNS.</string>
+</resources>

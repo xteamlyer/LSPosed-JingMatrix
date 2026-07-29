@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">Журнали</string>
+
+    <string name="logs_word_wrap">Переносити довгі рядки</string>
+    <string name="logs_save">Зберегти звіт про помилку…</string>
+    <string name="logs_rotate">Почати новий журнал…</string>
+
+    <string name="logs_search_hint">Пошук у цьому журналі</string>
+    <string name="logs_filter">Фільтр за рівнем і теґом</string>
+    <string name="logs_filter_levels">Рівень</string>
+    <string name="logs_filter_tags">Теґ</string>
+    <string name="logs_filter_clear">Очистити фільтр</string>
+    <string name="logs_filter_scanning">Читається весь файл, щоб фільтр бачив і те, чого немає на екрані.</string>
+
+    <string name="logs_level_verbose">Докладний</string>
+    <string name="logs_level_debug">Налагодження</string>
+    <string name="logs_level_info">Інформація</string>
+    <string name="logs_level_warn">Попередження</string>
+    <string name="logs_level_error">Помилка</string>
+    <string name="logs_level_fatal">Критична</string>
+    <string name="logs_level_other">Інше</string>
+
+    <string name="logs_window">Рядки %1$d–%2$d з %3$d</string>
+    <plurals name="logs_matches">
+        <item quantity="one">%1$d збіг у рядку</item>
+        <item quantity="few">%1$d рядки збігаються</item>
+        <item quantity="many">%1$d рядків збігаються</item>
+        <item quantity="other">%1$d рядка збігаються</item>
+    </plurals>
+    <string name="logs_dropped">Цей журнал довший, ніж може проіндексувати переглядач. Найдавніші %1$d рядків не показано; збережіть звіт про помилку, щоб їх зберегти.</string>
+    <string name="logs_line_truncated">рядок обрізано</string>
+    <plurals name="logs_frames">
+        <item quantity="one">%1$d кадр</item>
+        <item quantity="few">%1$d кадри</item>
+        <item quantity="many">%1$d кадрів</item>
+        <item quantity="other">%1$d кадра</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">Служба недоступна</string>
+    <string name="logs_state_daemon_body">Поки Vector не працює, про журнал нічого не відомо. Із тієї самої причини смужка стану на головній не зелена.</string>
+    <string name="logs_state_nofile_title">Файлу журналу ще немає</string>
+    <string name="logs_state_nofile_body">Служба працює, але цього журналу не відкривала. Для докладного журналу це зазвичай означає, що докладне журналювання вимкнено.</string>
+    <string name="logs_state_empty_title">Цей журнал порожній</string>
+    <string name="logs_state_empty_body">Файл існує, але в нього нічого не записано. Для журналу модулів саме так виглядає спокійна система.</string>
+    <string name="logs_state_nomatches_title">Збігів немає</string>
+    <string name="logs_state_nomatches_body">У файлі є вміст; поточний фільтр виключає його повністю.</string>
+    <string name="logs_state_failed_title">Не вдалося прочитати журнал</string>
+    <string name="logs_state_failed_body">Служба передала файл, який не вдалося прочитати: %1$s</string>
+    <string name="logs_loading">Індексування…</string>
+
+    <string name="logs_verbose_switch">Докладне журналювання</string>
+    <string name="logs_verbose_enforced">Запущена служба однаково тримає це ввімкненим.</string>
+
+    <string name="logs_jump_oldest">До найдавнішого рядка</string>
+    <string name="logs_jump_newest">До найновішого рядка</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">Почати новий журнал?</string>
+    <string name="logs_rotate_body">Нічого не видаляється. Служба закриває поточну частину й починає нову; закрита частина лишається на диску — за один змах звідси — доки не випаде з десяти найновіших, і збережений звіт про помилку все одно її містить.</string>
+    <string name="logs_rotate_confirm">Почати новий журнал</string>
+    <string name="logs_rotate_done">Розпочато новий журнал</string>
+    <string name="logs_rotate_failed">Служба відмовилася починати новий журнал</string>
+    <string name="logs_cancel">Скасувати</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">Збирання журналів, tombstone і dmesg…</string>
+    <string name="logs_saved">Звіт про помилку збережено</string>
+    <string name="logs_save_failed">Не вдалося зберегти звіт про помилку</string>
+    <string name="logs_save_failed_reason">Не вдалося зберегти звіт про помилку: %1$s</string>
+    <string name="logs_share">Поділитися</string>
+
+    <string name="logs_filter_clear_tag">Очистити фільтр за теґом</string>
+    <string name="logs_settings">Налаштування журналів</string>
+    <string name="logs_source_more">Показувати й рядки самого фреймворку</string>
+    <string name="logs_source_less">Показувати лише рядки модулів</string>
+    <string name="logs_verbose_summary">Увімкніть це перед тим, як повідомляти про помилку. Застосунки можуть читати власні журнали, тож постійно ввімкнене журналювання — один зі шляхів, якими застосунок помічає Vector.</string>
+    <string name="logs_save_summary">Записує обидва журнали в обраний вами zip</string>
+    <string name="logs_rotate_summary">Закриває поточну частину й починає нову</string>
+    <string name="logs_part">частина %1$d/%2$d</string>
+    <string name="logs_part_older">Давніша частина</string>
+    <string name="logs_part_newer">Новіша частина</string>
+</resources>

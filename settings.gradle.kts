@@ -19,7 +19,6 @@ dependencyResolutionManagement {
 rootProject.name = "Vector"
 
 include(
-    ":app",
     ":daemon",
     ":dex2oat",
     ":external:axml",
@@ -27,6 +26,7 @@ include(
     ":hiddenapi:stubs",
     ":hiddenapi:bridge",
     ":legacy",
+    ":manager",
     ":services:manager-service",
     ":services:daemon-service",
     ":xposed",

@@ -12,7 +12,7 @@ object PreferenceStore {
       packageName: String,
       userId: Int,
       group: String,
-      db: SQLiteDatabase = ConfigCache.dbHelper.readableDatabase
+      db: SQLiteDatabase = ModuleDatabase.dbHelper.readableDatabase
   ): Map<String, Any> {
     val result = mutableMapOf<String, Any>()
 
@@ -40,7 +40,7 @@ object PreferenceStore {
   }
 
   fun updateModulePrefs(moduleName: String, userId: Int, group: String, diff: Map<String, Any?>) {
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = ModuleDatabase.dbHelper.writableDatabase
     db.beginTransaction()
     try {
       for ((key, value) in diff) {
@@ -68,7 +68,7 @@ object PreferenceStore {
   }
 
   fun deleteModulePrefs(moduleName: String, userId: Int? = null, group: String? = null) {
-    val db = ConfigCache.dbHelper.writableDatabase
+    val db = ModuleDatabase.dbHelper.writableDatabase
     val whereClause = StringBuilder("module_pkg_name = ?")
     val whereArgs = mutableListOf(moduleName)
 

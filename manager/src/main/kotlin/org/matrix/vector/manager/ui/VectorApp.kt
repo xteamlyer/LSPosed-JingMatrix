@@ -1,0 +1,155 @@
+package org.matrix.vector.manager.ui
+
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import org.matrix.vector.manager.ui.navigation.FrameworkUpdate
+import org.matrix.vector.manager.ui.screens.update.FrameworkUpdateScreen
+import org.matrix.vector.manager.ui.navigation.Canary
+import org.matrix.vector.manager.ui.screens.canary.CanaryScreen
+import org.matrix.vector.manager.ui.navigation.Troubleshoot
+import org.matrix.vector.manager.ui.screens.report.TroubleshootScreen
+import org.matrix.vector.manager.ui.navigation.LocalNavigator
+import org.matrix.vector.manager.ui.navigation.Navigator
+import org.matrix.vector.manager.ui.navigation.Scope
+import org.matrix.vector.manager.ui.navigation.StoreDetail
+import org.matrix.vector.manager.ui.navigation.SystemStatus
+import org.matrix.vector.manager.ui.navigation.Web
+import org.matrix.vector.manager.ui.navigation.TOP_LEVEL_DESTINATIONS
+import org.matrix.vector.manager.ui.navigation.TopLevelRoute
+import org.matrix.vector.manager.ui.navigation.rememberNavigator
+import org.matrix.vector.manager.ui.screens.home.HomeScreen
+import org.matrix.vector.manager.ui.screens.home.SystemStatusScreen
+import org.matrix.vector.manager.ui.screens.logs.LogsScreen
+import org.matrix.vector.manager.ui.screens.modules.ModulesScreen
+import org.matrix.vector.manager.ui.screens.modules.ScopeScreen
+import org.matrix.vector.manager.ui.screens.repo.RepoDetailsScreen
+import org.matrix.vector.manager.ui.screens.repo.RepoScreen
+import org.matrix.vector.manager.ui.screens.web.WebScreen
+
+/**
+ * The app shell.
+ *
+ * [NavigationSuiteScaffold] picks the navigation container from the window size — a bottom bar on a
+ * phone, a rail when there is width to spare. That is not decoration: from targetSdk 37 an app may
+ * no longer lock itself to portrait or declare itself non-resizable on large screens, so the shell
+ * has to work unfolded and in landscape regardless. The scaffold also owns where that container
+ * sits, so the destinations below it are laid out beside or above it rather than under it.
+ */
+@Composable
+fun VectorApp() {
+    val navigator = rememberNavigator()
+
+    CompositionLocalProvider(LocalNavigator provides navigator) {
+        // The bar shows only at the root of a tab. On a detail screen none of the four items is
+        // the current destination, and a navigation bar highlighting nothing is worse than none.
+        val atRoot = !navigator.canGoBack
+
+        // Driving the scaffold's own state rather than dropping the items: hiding the items alone
+        // leaves the container laid out, so a detail screen — the in-app browser especially —
+        // keeps a dead strip of navigation-bar-sized space at the bottom.
+        val suiteState = rememberNavigationSuiteScaffoldState()
+        LaunchedEffect(atRoot) { if (atRoot) suiteState.show() else suiteState.hide() }
+
+        NavigationSuiteScaffold(
+            state = suiteState,
+            navigationSuiteItems = {
+                TOP_LEVEL_DESTINATIONS.forEach { destination ->
+                item(
+                    selected = navigator.currentTopLevel == destination.route,
+                    onClick = { navigator.switchTo(destination.route) },
+                    icon = { Icon(destination.icon, contentDescription = null) },
+                    // The label doubles as the item's accessibility name, so the icon above
+                    // carries no contentDescription of its own — otherwise TalkBack announces
+                    // every selected tab twice.
+                    label = { Text(stringResource(destination.labelRes)) },
+                )
+            }
+        },
+    ) {
+            NavDisplay(
+                backStack = navigator.backStack,
+                onBack = { navigator.back() },
+                // Naming any decorator replaces NavDisplay's default, which is the saveable-state
+                // one alone, so it is repeated here; the scene-setup decorator NavDisplay applies
+                // internally is untouched. The ViewModel one is what this list is for: it scopes a
+                // ViewModelStore per entry, so opening the scope editor for a second module builds
+                // a second ViewModel instead of reusing the first (they would otherwise share one
+                // default key under the activity's store).
+                entryDecorators =
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
+                entryProvider = entryProvider { registerRoutes(navigator) },
+            )
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
+    entry<TopLevelRoute.Home> {
+        HomeScreen(
+            onOpenStatus = { navigator.go(SystemStatus) },
+            onOpenUrl = { url -> navigator.go(Web(url)) },
+            onOpenCanary = { navigator.go(Canary) },
+            onOpenReport = { navigator.go(Troubleshoot) },
+            onOpenUpdate = { navigator.go(FrameworkUpdate()) },
+        )
+    }
+    entry<TopLevelRoute.Modules> {
+        ModulesScreen(
+            onModuleClick = { packageName, userId -> navigator.go(Scope(packageName, userId)) },
+            onOpenStore = { packageName -> navigator.go(StoreDetail(packageName)) },
+        )
+    }
+    entry<TopLevelRoute.Store> {
+        RepoScreen(onModuleClick = { packageName -> navigator.go(StoreDetail(packageName)) })
+    }
+    entry<TopLevelRoute.Logs> { LogsScreen() }
+
+    entry<Scope> { route ->
+        ScopeScreen(
+            packageName = route.packageName,
+            userId = route.userId,
+            onNavigateBack = { navigator.back() },
+        )
+    }
+    entry<StoreDetail> { route ->
+        RepoDetailsScreen(packageName = route.packageName, onNavigateBack = { navigator.back() })
+    }
+    entry<SystemStatus> { SystemStatusScreen(onNavigateBack = { navigator.back() }) }
+    entry<Troubleshoot> {
+        TroubleshootScreen(
+            onNavigateBack = { navigator.back() },
+            onOpenUrl = { url -> navigator.go(Web(url)) },
+            onOpenCanary = { navigator.go(Canary) },
+        )
+    }
+    entry<Canary> {
+        CanaryScreen(
+            onNavigateBack = { navigator.back() },
+            onOpenUrl = { url -> navigator.go(Web(url)) },
+            onInstall = { versionCode -> navigator.go(FrameworkUpdate(versionCode)) },
+        )
+    }
+    entry<FrameworkUpdate> { route ->
+        FrameworkUpdateScreen(
+            openOnVersionCode = route.versionCode.takeIf { it > 0 },
+            onNavigateBack = { navigator.back() },
+            onOpenUrl = { url -> navigator.go(Web(url)) },
+        )
+    }
+    entry<Web> { route -> WebScreen(url = route.url, onNavigateBack = { navigator.back() }) }
+}

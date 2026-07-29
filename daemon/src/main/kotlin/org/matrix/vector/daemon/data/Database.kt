@@ -30,6 +30,12 @@ class Database(context: Context? = FakeContext()) :
             module_pkg_name text NOT NULL UNIQUE,
             apk_path text NOT NULL,
             enabled BOOLEAN DEFAULT 0 CHECK (enabled IN (0, 1)),
+            -- `include new apps` everywhere else: when set, a package installed from now on is
+            -- added to this module's scope. The column keeps the older name on purpose. SQLite
+            -- gained ALTER TABLE RENAME COLUMN in 3.25 and this project supports API 27, whose
+            -- SQLite is older, so renaming means rebuilding the table behind a version bump —
+            -- and onDowngrade wipes the module configuration, so anyone who then flashed an
+            -- older build would lose theirs. That is a real cost for a name no user ever sees.
             auto_include BOOLEAN DEFAULT 0 CHECK (auto_include IN (0, 1))
         );
         """
