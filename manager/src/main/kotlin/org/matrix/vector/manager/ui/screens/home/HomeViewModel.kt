@@ -4,6 +4,8 @@ import org.matrix.vector.manager.Constants
 import kotlinx.coroutines.CancellationException
 
 import org.matrix.vector.manager.data.repository.FrameworkUpdateState
+import org.matrix.vector.manager.data.repository.LaunchShortcut
+import org.matrix.vector.manager.data.repository.ManagerInstallStep
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -45,17 +47,51 @@ data class FrameworkStatus(
     val sepolicyLoaded: Boolean = false,
     val systemServerInjected: Boolean = false,
     /**
-     * The commit the running framework was built from, short, `-dirty` when its tree was not clean.
+     * Which build the running framework is: where it came from and from what commit.
      *
      * The version code is a commit count, so it cannot tell a branch build from the official build
      * of the same depth — and the framework and the manager are flashed separately, so they are
      * not always the same build. Naming both is the difference between a bug report that can be
-     * placed and one that cannot.
+     * placed and one that cannot. A CI build reads `JingMatrix-Vector-93d66473`, a clean local one
+     * the bare hash, and a local build from a modified tree adds the machine that made it.
      */
     val commit: String? = null,
 ) {
     val versionLabel: String?
         get() = versionName?.let { if (versionCode > 0) "$it ($versionCode)" else it }
+}
+
+/**
+ * How the manager can be reached on this device.
+ *
+ * Parasitically it is not installed, so the launcher has nothing to show — which is what #815
+ * reported. Four routes lead back in: a pinned shortcut, an installed copy, the status
+ * notification, and the two that need no setup at all, the dialer code and the root manager's
+ * action button. The first three are what the status page offers, and the fields below decide
+ * which are worth offering — any one of them already solves it, and a launcher that refuses pin
+ * requests rules the first out entirely.
+ */
+data class ManagerPresence(
+    /** Injected into the host rather than installed. False leaves nothing here to offer. */
+    val parasitic: Boolean = true,
+    val shortcutSupported: Boolean = false,
+    val shortcutPinned: Boolean = false,
+    val installed: Boolean = false,
+    /**
+     * The status notification is a way in, not only a status.
+     *
+     * Its content intent opens the manager — see the daemon's NotificationManager — so a device
+     * showing it is a device with a tap-sized route back, and it is on by default. Leaving it out
+     * of this made the first-launch prompt claim there was no way back in to a reader who was
+     * looking at one.
+     */
+    val notificationEnabled: Boolean = false,
+    /** One of the ILSPManagerService.ROOT_* constants, for naming the action button's owner. */
+    val rootImplementation: Int = 0,
+) {
+    /** True when opening the manager currently depends on remembering how. */
+    val unreachable: Boolean
+        get() = parasitic && !shortcutPinned && !installed && !notificationEnabled
 }
 
 data class DeviceInfo(
@@ -103,7 +139,77 @@ class HomeViewModel(
 
     val device = DeviceInfo()
 
+    // --- how the manager can be reached -------------------------------------------------------
+    // Above `init` on purpose: a Kotlin class body initialises top to bottom, so the refresh in
+    // `init` would run against a `_presence` that does not exist yet.
+
+    private val _presence = MutableStateFlow(ManagerPresence())
+
+    /**
+     * How this manager can be opened, and how it currently is.
+     *
+     * Read from the launcher and the package manager rather than remembered, because both can
+     * change while the app is not running: a shortcut can be dragged off the home screen, and the
+     * manager can be installed or uninstalled from anywhere.
+     */
+    val presence: StateFlow<ManagerPresence> = _presence.asStateFlow()
+
+    val managerInstall: StateFlow<ManagerInstallStep> = ServiceLocator.managerInstaller.state
+
+    /** Set once the reader has said they do not want to be offered a launcher icon again. */
+    val launcherPromptDismissed: StateFlow<Boolean>
+        get() = ServiceLocator.settings.launcherPromptDismissed
+
+    fun refreshPresence() {
+        val context = ServiceLocator.context
+        _presence.update {
+            // Everything here is answered locally, so it stays synchronous and the first frame is
+            // already right. The notification and the root implementation come from the daemon and
+            // are folded in as they arrive, leaving whatever was last known in the meantime.
+            it.copy(
+                parasitic = LaunchShortcut.isParasitic(context),
+                shortcutSupported = LaunchShortcut.isSupported(context),
+                shortcutPinned = LaunchShortcut.isPinned(context),
+                installed = ServiceLocator.managerInstaller.isInstalled(),
+            )
+        }
+        viewModelScope.launch {
+            val root = daemon.getRootImplementation().getOrNull()
+            if (root != null) _presence.update { it.copy(rootImplementation = root) }
+        }
+    }
+
+    /** Removes the copy of the manager whose signature is refusing the install. */
+    fun removeConflictingManager() {
+        viewModelScope.launch {
+            ServiceLocator.managerInstaller.removeConflicting()
+            refreshPresence()
+        }
+    }
+
+    /**
+     * Asks the launcher to pin a Vector icon.
+     *
+     * Returns whether the request was accepted, not whether an icon appeared: the launcher puts its
+     * own confirmation in front of the user, and may never come back. When it does,
+     * [refreshPresence] runs and the row that offered this reports that it is done.
+     */
+    fun requestShortcut(): Boolean =
+        LaunchShortcut.request(ServiceLocator.context) { refreshPresence() }
+
+    fun installManagerApp() {
+        viewModelScope.launch {
+            ServiceLocator.managerInstaller.install()
+            refreshPresence()
+        }
+    }
+
+    fun acknowledgeManagerInstall() = ServiceLocator.managerInstaller.acknowledge()
+
+    fun dismissLauncherPrompt() = ServiceLocator.settings.dismissLauncherPrompt()
+
     init {
+        refreshPresence()
         // The binder may arrive after this ViewModel exists — injection order is not ours to
         // control — so status is re-derived whenever it changes rather than read once in init.
         viewModelScope.launch {
@@ -292,13 +398,19 @@ class HomeViewModel(
                     Log.w(Constants.TAG, "status: launcher-icon toggle unreadable, showing on", e)
                 }
                 .getOrDefault(true)
+        // The notification is one of the ways into the manager, so what the card offers has to
+        // follow the same value the switch above it shows.
+        _presence.update { it.copy(notificationEnabled = _statusNotification.value) }
     }
 
     fun setStatusNotification(enabled: Boolean) {
         viewModelScope.launch {
             daemon
                 .setEnableStatusNotification(enabled)
-                .onSuccess { _statusNotification.value = enabled }
+                .onSuccess {
+                    _statusNotification.value = enabled
+                    _presence.update { it.copy(notificationEnabled = enabled) }
+                }
                 .onFailure { e ->
                     Log.e(
                         Constants.TAG,

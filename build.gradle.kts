@@ -4,6 +4,7 @@ import com.android.build.gradle.api.AndroidBasePlugin
 import com.ncorti.ktfmt.gradle.tasks.KtfmtFormatTask
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.process.ExecOperations
@@ -60,46 +61,142 @@ abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParamete
 }
 
 /**
- * The commit a build actually came from, short, with a marker for uncommitted changes.
+ * Which build this is, in one string: where it was built and from what commit.
  *
  * The version code is the commit count on origin/master, so every branch build carries master's
  * number: a build flashed from a feature branch and one flashed from master both report "v2.0
  * (3052)" and cannot be told apart on the device. That is not hypothetical — it cost a real
  * investigation to establish which of the two was installed.
  *
- * The hash goes in module.prop's human-readable version only. BuildConfig.VERSION_NAME, which is
- * what the manager prints on Home, is deliberately left clean.
+ * Two shapes, because "where did this binary come from" has two different answers:
+ *
+ * *On GitHub Actions*, `JingMatrix-Vector-93d66473` — the repository the code came from, then the
+ * commit. Forks build the same code from the same commits, so the hash alone identifies a
+ * *revision* and not a *build*, and a fork's artifact was indistinguishable from ours.
+ *
+ * Both halves are the *head* ones, and neither is read from the environment GitHub sets by default,
+ * because on a pull request both defaults name something other than the code that was built:
+ *
+ * `GITHUB_REPOSITORY` is the repository that *ran* the workflow. A pull request from a fork is built
+ * here, so it would stamp `JingMatrix/Vector` onto a branch that has never been near it — which is
+ * exactly the artifact the name most needs to distinguish.
+ *
+ * `HEAD` is worse. For a pull request the runner checks out an ephemeral merge of the branch into
+ * the base, so `git rev-parse HEAD` names a commit that exists in no repository, cannot be looked up
+ * by anyone who reads it off a device, and is gone once the run is. The commit that was pushed is
+ * the one that identifies the build.
+ *
+ * So the workflow passes both in: `VECTOR_BUILD_REPOSITORY` and `VECTOR_BUILD_COMMIT`, each taken
+ * from `github.event.pull_request.head.*` when there is a pull request and from the ordinary default
+ * when there is not — outside a pull request the two agree anyway. Absent either, this falls back to
+ * what the environment says and to `HEAD`, which covers a workflow too old to set them.
+ *
+ * *Locally*, the bare `93d66473`, or `93d66473-thinkpad` when the tree has uncommitted changes.
+ * That build corresponds to no commit at all, so naming the commit alone would name something the
+ * binary does not match — and whoever is looking at it is far better served by the machine it was
+ * built on than by the word "dirty", since a device that has a hand-built framework on it usually
+ * has exactly one candidate author.
+ *
+ * The dirty check is deliberately not applied on CI. The workflow's own "Write key" step appends
+ * the signing credentials to the tracked `gradle.properties` before Gradle starts, so every master
+ * and tag build reports a modified tree — every published canary has said `-dirty` for that reason
+ * and no other, which sent at least one user looking for a fault that was not there (#815).
+ *
+ * The result goes in module.prop's human-readable version and in BuildConfig.VERSION_HASH, which
+ * the manager shows on the status page. BuildConfig.VERSION_NAME is deliberately left clean.
  */
-abstract class GitCommitHashValueSource : ValueSource<String, ValueSourceParameters.None> {
+abstract class GitCommitHashValueSource : ValueSource<String, GitCommitHashValueSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        /**
+         * `owner/repo` when GitHub Actions is building this, empty otherwise.
+         *
+         * Threaded in as parameters rather than read with `System.getenv` inside [obtain], which the
+         * configuration cache does not see and therefore does not invalidate on.
+         */
+        val buildRepository: Property<String>
+
+        /** The full SHA that was pushed, when CI knows one and it is not what is checked out. */
+        val buildCommit: Property<String>
+    }
+
     @get:Inject abstract val execOperations: ExecOperations
 
-    override fun obtain(): String {
-        val hash = ByteArrayOutputStream()
-        val hashResult = execOperations.exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = hash
-            isIgnoreExitValue = true
-        }
-        if (hashResult.exitValue != 0 || hash.toString().isBlank()) return "unknown"
+    /**
+     * Runs [command] and returns its trimmed output, or null if it failed or said nothing.
+     *
+     * `exec` *throws* when the executable cannot be started at all, which `isIgnoreExitValue` does
+     * not cover — `hostname` is not on every machine — so the whole call is wrapped rather than just
+     * its exit code inspected.
+     */
+    private fun capture(vararg command: String): String? =
+        runCatching {
+                val output = ByteArrayOutputStream()
+                val result = execOperations.exec {
+                    commandLine(command.toList())
+                    standardOutput = output
+                    errorOutput = ByteArrayOutputStream()
+                    isIgnoreExitValue = true
+                }
+                if (result.exitValue != 0) null else output.toString().trim().ifBlank { null }
+            }
+            .getOrNull()
 
-        // A dirty tree is the case worth naming: that build corresponds to no commit at all, so
-        // "which commit is this" has no answer and the version should say so rather than name a
-        // commit the binary does not match.
-        val dirty = ByteArrayOutputStream()
-        val dirtyResult = execOperations.exec {
-            commandLine("git", "status", "--porcelain", "--untracked-files=no")
-            standardOutput = dirty
-            isIgnoreExitValue = true
+    /**
+     * The machine's name, reduced to what is safe in a version string.
+     *
+     * A host name can carry anything the owner typed into it, and this value is interpolated into
+     * module.prop and a generated Kotlin string literal. Unknown hosts fall back to "local", which
+     * still reads correctly: not a CI build, and not a clean tree.
+     */
+    private fun hostname(): String {
+        val raw = capture("hostname") ?: System.getenv("HOSTNAME") ?: return "local"
+        // The short name only. A fully qualified host name is mostly domain, and the domain is the
+        // part that is identical across every machine that would ever build this.
+        val short = raw.substringBefore('.')
+        val safe = short.filter { it.isLetterOrDigit() || it == '-' || it == '_' }
+        return safe.ifBlank { "local" }
+    }
+
+    override fun obtain(): String {
+        // Abbreviated by git rather than by hand, so a CI build and a local build of the same commit
+        // read identically however long this repository's abbreviation happens to be.
+        val head = capture("git", "rev-parse", "--short", "HEAD") ?: return "unknown"
+
+        val repository = parameters.buildRepository.getOrElse("")
+        if (repository.isBlank()) {
+            val dirty = capture("git", "status", "--porcelain", "--untracked-files=no") != null
+            return if (dirty) "$head-${hostname()}" else head
         }
-        val suffix =
-            if (dirtyResult.exitValue == 0 && dirty.toString().isNotBlank()) "-dirty" else ""
-        return hash.toString().trim() + suffix
+
+        // The pushed commit is an ancestor of the merge that was checked out, so it is in the
+        // repository and git will abbreviate it. The truncation is only reached if it somehow is
+        // not, and a slightly odd length beats reporting the merge commit or nothing at all.
+        val pushed = parameters.buildCommit.getOrElse("").takeIf { it.isNotBlank() }
+        val short =
+            pushed?.let { capture("git", "rev-parse", "--short", it) ?: it.take(head.length) } ?: head
+        return repository.replace('/', '-') + "-" + short
     }
 }
 
 // This defers the execution of the git commands and allows Gradle to cache the results.
 val versionCodeProvider by extra(providers.of(GitCommitCountValueSource::class.java) {})
-val versionHashProvider by extra(providers.of(GitCommitHashValueSource::class.java) {})
+val versionHashProvider by
+    extra(
+        providers.of(GitCommitHashValueSource::class.java) {
+            // Set on every GitHub Actions runner and on nothing else, so the presence of either is
+            // the test for "this is a CI build". The workflow's own variables win because they name
+            // the branch that was pushed; GitHub's defaults name the run that built it.
+            parameters.buildRepository.set(
+                providers
+                    .environmentVariable("VECTOR_BUILD_REPOSITORY")
+                    .orElse(providers.environmentVariable("GITHUB_REPOSITORY"))
+                    .orElse("")
+            )
+            parameters.buildCommit.set(
+                providers.environmentVariable("VECTOR_BUILD_COMMIT").orElse("")
+            )
+        }
+    )
 val versionNameProvider by extra(providers.of(GitLatestTagValueSource::class.java) {})
 
 val injectedPackageName by extra("com.android.shell")

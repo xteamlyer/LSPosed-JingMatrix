@@ -15,6 +15,14 @@ jobs:
     permissions:
       contents: write
     env:
+      # Where this build's code came from, for the version string the manager and module.prop show.
+      # Both are the head of the pull request rather than GitHub's defaults, which on a pull request
+      # describe the run instead of the code: GITHUB_REPOSITORY is this repository even when the
+      # branch came from a fork, and the checked-out HEAD is an ephemeral merge commit that exists
+      # nowhere and cannot be looked up by anyone who reads it off a device. Both head.* values are
+      # null outside a pull request, where the defaults are already right.
+      VECTOR_BUILD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      VECTOR_BUILD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"

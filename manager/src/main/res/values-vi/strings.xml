@@ -392,4 +392,24 @@
     <string name="settings_doh_working">Đang hoạt động — %1$s được phân giải qua Cloudflare.</string>
     <string name="settings_doh_fell_back">Không kết nối được tới Cloudflare (%1$s), nên trình phân giải của mạng sẽ được dùng trong phần còn lại của phiên này.</string>
     <string name="settings_doh_retry">Thử lại</string>
+
+    <string name="launcher_title">Cách mở Vector</string>
+    <string name="launcher_body">Vector không được cài như một ứng dụng, nên trình khởi chạy không có gì để hiển thị. Đây là những cách quay lại.</string>
+    <string name="launcher_shortcut">Lối tắt trên màn hình chính</string>
+    <string name="launcher_shortcut_create">Tạo</string>
+    <string name="launcher_shortcut_unsupported">Trình khởi chạy này không nhận lối tắt được ghim.</string>
+    <string name="launcher_shortcut_refused">Trình khởi chạy đã từ chối lối tắt.</string>
+    <string name="launcher_turn_on">Bật</string>
+    <string name="launcher_install">Cài như một ứng dụng</string>
+    <string name="launcher_install_action">Cài đặt</string>
+    <string name="launcher_install_done">Đã cài Vector. Hãy mở nó từ trình khởi chạy.</string>
+    <string name="launcher_install_failed">Không thể cài Vector.</string>
+    <string name="launcher_install_conflict">Đã có một bản Vector ký bằng khóa khác được cài. Phải gỡ bản đó trước thì bản này mới vào được.</string>
+    <string name="launcher_install_remove">Gỡ bản đó</string>
+    <string name="launcher_route_available">Có sẵn</string>
+    <string name="launcher_note">Bạn cũng có thể quay số %1$s, hoặc mở Vector từ nút tác vụ trong %2$s.</string>
+    <string name="launcher_root_generic">trình quản lý root của bạn</string>
+    <string name="launcher_prompt_title">Vector vẫn chưa có biểu tượng</string>
+    <string name="launcher_prompt_body">Vector chạy bên trong một tiến trình khác thay vì được cài đặt, nên không có gì hiện ra trong trình khởi chạy và cũng không có cách quay lại rõ ràng. Hãy tạo cho nó một lối tắt trên màn hình chính, hoặc cài nó như một ứng dụng bình thường.</string>
+    <string name="launcher_prompt_never">Đừng hỏi lại</string>
 </resources>

@@ -17,8 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.AddToHomeScreen
 import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.InstallMobile
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -60,6 +65,7 @@ import org.matrix.vector.manager.R
 import org.matrix.vector.manager.ui.components.FrameworkState
 import org.matrix.vector.manager.data.log.CrashRecorder
 import org.matrix.vector.manager.data.model.XposedApi
+import org.matrix.vector.manager.data.repository.ManagerInstallStep
 import org.matrix.vector.manager.ui.components.SnackbarTone
 import org.matrix.vector.manager.ui.components.VectorSnackbarHost
 import org.matrix.vector.manager.ui.components.show
@@ -84,6 +90,13 @@ fun SystemStatusScreen(
     val context = LocalContext.current
     val statusNotification by viewModel.statusNotification.collectAsStateWithLifecycle()
     val hiddenIcon by viewModel.hiddenIcon.collectAsStateWithLifecycle()
+    val presence by viewModel.presence.collectAsStateWithLifecycle()
+    val managerInstall by viewModel.managerInstall.collectAsStateWithLifecycle()
+
+    // Both the shortcut and the install can be undone from outside the app while it is open —
+    // dragged off the home screen, uninstalled from Settings — so what the rows offer is re-read on
+    // arrival rather than trusted from whenever the ViewModel was built.
+    LaunchedEffect(Unit) { viewModel.refreshPresence() }
 
     val sections = buildSections(status, device, context)
     // The same page again, in English, for the clipboard.
@@ -111,6 +124,8 @@ fun SystemStatusScreen(
     val snackbars = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val copied = stringResource(R.string.copied)
+    val shortcutRefused = stringResource(R.string.launcher_shortcut_refused)
+    val installDone = stringResource(R.string.launcher_install_done)
 
     Scaffold(
         snackbarHost = { VectorSnackbarHost(snackbars) },
@@ -203,9 +218,261 @@ fun SystemStatusScreen(
                     onCheckedChange = viewModel::setForcedLauncherIcons,
                 )
             }
+
+            // How to get back in. Only parasitically: installed, the manager has a launcher icon
+            // like any other app and none of this means anything.
+            if (presence.parasitic) {
+                item {
+                    Spacer(Modifier.height(20.dp))
+                    OpeningVectorCard(
+                        presence = presence,
+                        install = managerInstall,
+                        daemonAlive = daemonAlive,
+                        onCreateShortcut = {
+                            if (!viewModel.requestShortcut()) {
+                                scope.launch {
+                                    snackbars.show(shortcutRefused, SnackbarTone.Failure)
+                                }
+                            }
+                        },
+                        onEnableNotification = { viewModel.setStatusNotification(true) },
+                        onInstall = viewModel::installManagerApp,
+                        onRemoveConflicting = viewModel::removeConflictingManager,
+                    )
+                }
+            }
+        }
+    }
+
+    // Success only. A failure stays on the card, where it can still be read by someone who was not
+    // looking at this screen when it happened — which is the common case, since the install runs
+    // while they are free to go elsewhere. Acknowledged first, and shown on the screen's own scope
+    // rather than this effect's: acknowledging changes the state this effect is keyed on and so
+    // cancels it, and `show` suspends for as long as the snackbar is up.
+    LaunchedEffect(managerInstall) {
+        if (managerInstall !is ManagerInstallStep.Done) return@LaunchedEffect
+        viewModel.acknowledgeManagerInstall()
+        scope.launch { snackbars.show(installDone, SnackbarTone.Success) }
+    }
+}
+
+/**
+ * The one card that answers "how do I open this again".
+ *
+ * A card rather than more rows, because these are not the settings the rows above are and did not
+ * read as them: a switch is always the same width, so a column of switches lines up, while these
+ * trailing controls were a long label, a spinner and a button — three different widths that left the
+ * right-hand edge ragged and squeezed each description into a narrow column with nothing beside it.
+ * The page already has this shape for "here is a situation, here is what to do about it": IssueCard
+ * and CrashCard.
+ *
+ * One card rather than one per remedy, because the reader's question is not "should I pin a
+ * shortcut" but "which of these do I have" — and each separate card would have to re-explain the
+ * same situation before getting to its own answer.
+ *
+ * The two routes that need no setup are a closing note rather than rows: nothing can be done to
+ * them, so a row with no control would be a row that only ever reports.
+ */
+@Composable
+private fun OpeningVectorCard(
+    presence: ManagerPresence,
+    install: ManagerInstallStep,
+    daemonAlive: Boolean,
+    onCreateShortcut: () -> Unit,
+    onEnableNotification: () -> Unit,
+    onInstall: () -> Unit,
+    onRemoveConflicting: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                stringResource(R.string.launcher_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.launcher_body),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(8.dp))
+
+            RouteRow(
+                icon = Icons.Rounded.AddToHomeScreen,
+                label = stringResource(R.string.launcher_shortcut),
+                done = presence.shortcutPinned,
+                action = stringResource(R.string.launcher_shortcut_create),
+                // A launcher that refuses pin requests would take the tap and do nothing visible,
+                // so the row says so rather than offering a button that cannot work.
+                enabled = presence.shortcutSupported,
+                onClick = onCreateShortcut,
+            )
+            RouteRow(
+                icon = Icons.Rounded.Notifications,
+                // The same setting as the switch above, named the same, because it is the same
+                // thing seen from the other question: there it is framework behaviour, here it is
+                // a way in. Both read and write the daemon, so they cannot disagree.
+                label = stringResource(R.string.status_notification),
+                done = presence.notificationEnabled,
+                action = stringResource(R.string.launcher_turn_on),
+                enabled = daemonAlive,
+                onClick = onEnableNotification,
+            )
+            RouteRow(
+                icon = Icons.Rounded.InstallMobile,
+                label = stringResource(R.string.launcher_install),
+                done = presence.installed,
+                action = stringResource(R.string.launcher_install_action),
+                // The APK comes from the daemon, so there is nothing to install without one.
+                enabled = daemonAlive,
+                busy = install is ManagerInstallStep.Installing,
+                onClick = onInstall,
+            )
+
+            // Anything a row cannot say in its one line goes below all three, so that saying it
+            // does not make one row taller than its neighbours.
+            if (!presence.shortcutSupported && !presence.shortcutPinned) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    stringResource(R.string.launcher_shortcut_unsupported),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                )
+            }
+            if (install is ManagerInstallStep.Failed) {
+                Spacer(Modifier.height(8.dp))
+                InstallFailure(install, onRemoveConflicting)
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.launcher_note, SECRET_CODE, rootManagerName(presence)),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
         }
     }
 }
+
+/**
+ * One way in: what it is, and whether this device has it.
+ *
+ * The state is an icon rather than a word. "Pinned", "on" and "installed" are three different words
+ * for one fact — that this route is already available — and reading them as a column made three
+ * identical answers look like three different ones.
+ *
+ * The height is fixed, and that is the whole point of the row existing as its own composable. What
+ * sits on the right changes as the reader acts — a button becomes a check, or a spinner — and a
+ * `TextButton` is 40dp tall against an icon's 20dp, so an unpinned row was visibly taller than a
+ * pinned one and the card jumped every time a state flipped. Nothing here may wrap or stack for the
+ * same reason: an explanation that needs a second line goes underneath all three rows instead.
+ */
+@Composable
+private fun RouteRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    done: Boolean,
+    action: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    busy: Boolean = false,
+) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth().height(ROUTE_ROW_HEIGHT),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = if (done) colors.primary else colors.onSurfaceVariant,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(8.dp))
+        // Every trailing slot is either a 20dp icon or a compact button, so the edge stays straight
+        // however the rows are filled in.
+        when {
+            done ->
+                Icon(
+                    Icons.Rounded.CheckCircle,
+                    contentDescription = stringResource(R.string.launcher_route_available),
+                    tint = colors.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+            busy -> CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            else -> TextButton(onClick = onClick, enabled = enabled) { Text(action) }
+        }
+    }
+}
+
+/**
+ * Why the install did not happen, on the card rather than in a snackbar.
+ *
+ * A snackbar is shown once, to whoever is looking at that screen at that moment. The install can
+ * finish while the reader is somewhere else — and parasitically the host process is killed often
+ * enough that they may not even be in the app — so the outcome has to survive on the row that
+ * offered it.
+ */
+@Composable
+private fun InstallFailure(failure: ManagerInstallStep.Failed, onRemoveConflicting: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Column {
+        Text(
+            stringResource(
+                if (failure.signatureConflict) R.string.launcher_install_conflict
+                else R.string.launcher_install_failed
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = colors.error,
+        )
+        // Offered only for the one failure that has an answer. The old copy has to go before the
+        // platform will accept this one, and it is removed for every user because a copy left in
+        // another profile refuses the install just as loudly as one in this profile.
+        if (failure.signatureConflict) {
+            TextButton(onClick = onRemoveConflicting) {
+                Text(stringResource(R.string.launcher_install_remove))
+            }
+        }
+    }
+}
+
+/**
+ * What to call the root manager in the closing note.
+ *
+ * Product names, so they are not translated. The generic fallback covers a daemon that does not
+ * report one and the two answers that name no single implementation — nothing installed, or two of
+ * them — where naming one would be a guess.
+ */
+@Composable
+private fun rootManagerName(presence: ManagerPresence): String =
+    when (presence.rootImplementation) {
+        ILSPManagerService.ROOT_MAGISK -> "Magisk"
+        ILSPManagerService.ROOT_KERNELSU -> "KernelSU"
+        ILSPManagerService.ROOT_APATCH -> "APatch"
+        else -> stringResource(R.string.launcher_root_generic)
+    }
+
+/** Must match `SECRET_CODE` in the daemon's VectorService, which is what actually answers it. */
+private const val SECRET_CODE = "*#*#832867#*#*"
+
+/**
+ * Every route row, whatever it currently shows.
+ *
+ * 48dp because that is the minimum touch target Material enforces on the button one of these rows
+ * carries — so it is the tallest state any of them can take, and pinning the rest to it is what
+ * stops the card resizing under the reader's finger.
+ */
+private val ROUTE_ROW_HEIGHT = 48.dp
 
 @Composable
 private fun IssueCard(issue: HealthIssue) {
@@ -387,9 +654,10 @@ private fun buildSections(
                     buildString {
                         append(status.versionLabel ?: unknown)
                         // The exact build, not just its number. Two builds share a version code
-                        // whenever they sit at the same depth on different branches, and a build
-                        // from a tree with uncommitted changes says so with `-dirty` — which is
-                        // what a bug report needs and what the number alone cannot give.
+                        // whenever they sit at the same depth on different branches, so this names
+                        // where the build came from as well as the commit: the repository for a CI
+                        // build, the machine for a local one from a modified tree. That is what a
+                        // bug report needs and what the number alone cannot give.
                         status.commit?.takeIf { it.isNotBlank() }?.let { append("  ·  ").append(it) }
                     },
                 ),
