@@ -207,8 +207,10 @@ class VectorNativeHooker<T : Executable>(private val method: T) {
         val thisObject = if (isStatic) null else args[0]
         val actualArgs = if (isStatic) args else args.sliceArray(1 until args.size)
 
-        // Retrieve the hook snapshots
-        val snapshots = HookBridge.callbackSnapshot(VectorHookRecord::class.java, method)
+        // Null means every hook was removed after this trampoline was entered.
+        val snapshots =
+            HookBridge.callbackSnapshot(VectorHookRecord::class.java, method)
+                ?: return invokeOriginalSafely(thisObject, actualArgs)
 
         @Suppress("UNCHECKED_CAST") val modernHooks = snapshots[0] as Array<VectorHookRecord>
         val legacyHooks = snapshots[1]
