@@ -54,8 +54,27 @@ object HookBridge {
 
     @JvmStatic @FastNative external fun setTrusted(cookie: Any?): Boolean
 
+    /** Returns null when [method] carries no hooks at all. */
     @JvmStatic
-    external fun callbackSnapshot(hooker_callback: Class<*>, method: Executable): Array<Array<Any?>>
+    external fun callbackSnapshot(
+        hooker_callback: Class<*>,
+        method: Executable,
+    ): Array<Array<Any?>>?
 
-    @JvmStatic external fun getStaticInitializer(clazz: Class<*>): Method?
+    /**
+     * Locates a class's static initializer without initializing it.
+     * [artMethods] must be the ArtMethod addresses of the class's declared constructors and
+     * methods, which reflection can supply without triggering initialization, and [artMethodSize]
+     * the size of one ArtMethod. One member is enough, which matters because a class whose only
+     * members are the static initializer and an implicit constructor shows just one to reflection.
+     *
+     * Returns null when the class has no static initializer or the method layout is not the one
+     * this relies on.
+     */
+    @JvmStatic
+    external fun findStaticInitializer(
+        clazz: Class<*>,
+        artMethods: LongArray,
+        artMethodSize: Long,
+    ): Executable?
 }

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">Головна</string>
+    <string name="nav_modules">Модулі</string>
+    <string name="nav_store">Каталог</string>
+    <string name="nav_logs">Журнали</string>
+
+    <string name="status_active">Активний</string>
+    <string name="status_degraded">Проблеми</string>
+    <string name="status_inactive">Не активовано</string>
+    <string name="status_checking">Перевірка…</string>
+    <string name="status_open_details">Відкрити стан системи</string>
+
+    <string name="issue_sepolicy_title">Політику SELinux не завантажено</string>
+    <string name="issue_sepolicy_summary">Частина можливостей не працюватиме. Зазвичай це означає, що реалізація root не застосувала правила Vector.</string>
+    <string name="issue_system_server_title">Не вдалося впровадитися в системний фреймворк</string>
+    <string name="issue_system_server_summary">Модулі не можуть перехоплювати системні служби. Це рідкість, і причиною зазвичай є інший root-модуль, який заважає.</string>
+    <string name="issue_dex2oat_title">Обгортку dex2oat недоступно</string>
+    <string name="issue_dex2oat_summary">Деякі системні властивості вилучено або змінено. Після оновлення застосунку модулі можуть перестати діяти.</string>
+
+    <string name="system_status">Стан системи</string>
+    <string name="info_api_version">API Xposed</string>
+    <string name="info_framework_version">Фреймворк</string>
+    <string name="info_manager_package">Пакет менеджера</string>
+    <string name="info_dex2oat">Обгортка dex2oat</string>
+    <string name="info_selinux">Політика SELinux</string>
+    <string name="info_system_server">Системний фреймворк</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Пристрій</string>
+    <string name="info_abi">Архітектура</string>
+    <string name="info_supported">Підтримується</string>
+    <string name="info_unsupported">Не підтримується</string>
+    <string name="info_loaded">Завантажено</string>
+    <string name="info_not_loaded">Не завантажено</string>
+    <string name="info_injected">Впроваджено</string>
+    <string name="info_not_injected">Не впроваджено</string>
+    <string name="status_notification">Сповіщення про стан</string>
+    <string name="status_notification_summary">Постійне сповіщення, яке показує, що Vector працює.</string>
+    <string name="action_copy_all">Копіювати все</string>
+    <string name="copied">Скопійовано в буфер обміну</string>
+
+    <string name="home_quarter_title">Нещодавня активність</string>
+    <plurals name="home_commit_count">
+        <item quantity="one">%1$d коміт</item>
+        <item quantity="few">%1$d коміти</item>
+        <item quantity="many">%1$d комітів</item>
+        <item quantity="other">%1$d коміта</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="one">від %1$d людини</item>
+        <item quantity="few">від %1$d людей</item>
+        <item quantity="many">від %1$d людей</item>
+        <item quantity="other">від %1$d людей</item>
+    </plurals>
+    <string name="home_since">від %1$s</string>
+    <string name="home_no_activity">За останні шість місяців комітів немає.</string>
+    <string name="home_loading_activity">Завантаження нещодавньої активності…</string>
+    <string name="home_offline">Показано збережену активність — GitHub недоступний.</string>
+    <string name="home_bumps">%1$d оновлень залежностей</string>
+    <string name="home_contribute">Долучитися</string>
+    <string name="home_test_canary">Спробувати canary</string>
+    <string name="home_open_issue">Повідомити про проблему</string>
+    <string name="home_discussions">Обговорення</string>
+    <string name="home_review_prs">Переглянути зміну</string>
+
+    <string name="github_sign_in">Увійти в GitHub</string>
+    <string name="github_sign_in_why">Необов\'язково. Підвищує погодинний ліміт на оновлення активності й дає Vector змогу показувати те, що чекає на вас. Лише читання — жодних дозволів не запитується.</string>
+    <string name="github_sign_in_code">Введіть цей код на %1$s</string>
+    <string name="github_open_browser">Відкрити браузер</string>
+    <string name="github_copy_code">Копіювати код</string>
+    <string name="github_signed_in_as">Ви ввійшли як %1$s</string>
+    <string name="github_sign_out">Вийти</string>
+    <string name="github_cancel">Скасувати</string>
+    <string name="github_unreachable">GitHub недоступний. Решта працює як звичайно.</string>
+    <string name="home_with_coauthor">%1$s і %2$s</string>
+    <string name="home_with_coauthors">%1$s і ще %2$d</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="one">%1$d людина</item>
+        <item quantity="few">%1$d людини</item>
+        <item quantity="many">%1$d людей</item>
+        <item quantity="other">%1$d людей</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="one">на %1$d коміт новіше за ваш</item>
+        <item quantity="few">на %1$d коміти новіше за ваш</item>
+        <item quantity="many">на %1$d комітів новіше за ваш</item>
+        <item quantity="other">на %1$d коміта новіше за ваш</item>
+    </plurals>
+    <string name="home_your_build">ваша збірка %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="one">%1$d день тиші</item>
+        <item quantity="few">%1$d дні тиші</item>
+        <item quantity="many">%1$d днів тиші</item>
+        <item quantity="other">%1$d дня тиші</item>
+    </plurals>
+
+    <string name="time_yesterday">учора</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%1$d день тому</item>
+        <item quantity="few">%1$d дні тому</item>
+        <item quantity="many">%1$d днів тому</item>
+        <item quantity="other">%1$d дня тому</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="one">%1$d тиждень тому</item>
+        <item quantity="few">%1$d тижні тому</item>
+        <item quantity="many">%1$d тижнів тому</item>
+        <item quantity="other">%1$d тижня тому</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="one">%1$d місяць тому</item>
+        <item quantity="few">%1$d місяці тому</item>
+        <item quantity="many">%1$d місяців тому</item>
+        <item quantity="other">%1$d місяця тому</item>
+    </plurals>
+
+    <string name="appearance_title">Вигляд</string>
+    <string name="appearance_theme">Тема</string>
+    <string name="appearance_theme_system">Як у системі</string>
+    <string name="appearance_theme_light">Світла</string>
+    <string name="appearance_theme_dark">Темна</string>
+    <string name="appearance_dynamic_color">Кольори зі шпалер</string>
+    <string name="appearance_amoled">Чистий чорний у темній темі</string>
+    <string name="appearance_amoled_summary">Заощаджує заряд на екранах OLED.</string>
+    <string name="egg_two_more">Ще два рази…</string>
+    <string name="egg_one_more">Ще раз…</string>
+
+    <string name="modules_empty">Модулів не встановлено.</string>
+    <string name="modules_active_of">%1$d з %2$d активні</string>
+    <string name="modules_no_match">Жоден модуль не відповідає цьому запиту чи фільтру.</string>
+    <string name="modules_backup">Створити копію модулів</string>
+    <string name="modules_restore">Відновити модулі</string>
+    <string name="modules_backup_done">Збережено %1$d модулів та їхні області дії.</string>
+    <string name="modules_backup_failed">Не вдалося записати копію.</string>
+    <string name="modules_restore_done">Відновлено %1$d модулів, пропущено %2$d, яких тут немає.</string>
+    <string name="modules_restore_failed">Не вдалося прочитати цю копію.</string>
+    <string name="modules_search_hint">Пошук модулів</string>
+    <string name="modules_clear_search">Очистити пошук</string>
+    <string name="modules_filter">Фільтр</string>
+    <string name="modules_section_active">Працюють</string>
+    <string name="modules_section_inactive">Не працюють</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Спершу ті, що працюють</string>
+    <string name="modules_sort_name">За назвою</string>
+    <string name="modules_sort_recent">Нещодавно оновлені</string>
+    <string name="modules_sort_scope">Найширша область дії</string>
+    <string name="modules_filter_all">Усі</string>
+    <string name="modules_filter_active">Активні</string>
+    <string name="modules_filter_inactive">Неактивні</string>
+    <string name="modules_incompatible">Потрібен libxposed API %1$d, якого цей фреймворк не надає.</string>
+    <string name="modules_incompatible_legacy">Потрібен Xposed API %1$d, якого цей фреймворк не надає.</string>
+    <string name="modules_api_behind">Зібрано під libxposed API %1$d. В API %2$d інтерфейс змінився, тож модуль може працювати не повністю.</string>
+    <string name="modules_no_daemon">Vector не працює, тож перелік модулів недоступний. Відкрийте стан системи з головної, щоб побачити причину.</string>
+    <string name="module_toggle_failed">Не вдалося змінити %1$s. Фреймворк відхилив зміну.</string>
+
+    <string name="web_open_external">Відкрити в браузері</string>
+
+    <string name="settings_ambience">Поверхня заголовка</string>
+    <string name="ambience_snow">Сніг</string>
+    <string name="ambience_maze">Лабіринт</string>
+    <string name="ambience_circuit">Схема</string>
+    <string name="ambience_matrix">Дощ із коду</string>
+    <string name="ambience_none">Нерухома</string>
+
+    <string name="settings_activity">Стрічка активності</string>
+    <string name="settings_window">Історія на головній</string>
+    <plurals name="settings_window_months">
+        <item quantity="one">Останній %1$d місяць</item>
+        <item quantity="few">Останні %1$d місяці</item>
+        <item quantity="many">Останні %1$d місяців</item>
+        <item quantity="other">Останні %1$d місяця</item>
+    </plurals>
+    <string name="settings_open_externally">Відкривати посилання в браузері</string>
+    <string name="settings_open_externally_summary">Вимкнено: сторінки GitHub відкриваються всередині Vector.</string>
+
+    <string name="scope_use_recommended">Узяти те, що просить модуль</string>
+    <string name="scope_select_visible">Вибрати все показане</string>
+    <string name="scope_clear_visible">Зняти вибір з усього показаного</string>
+    <string name="scope_backup_done">Область дії збережено.</string>
+    <string name="scope_backup_failed">Не вдалося прочитати або записати цей файл.</string>
+    <string name="scope_select">Вибір</string>
+    <string name="scope_sort">Сортування</string>
+    <string name="scope_modules">Інші модулі</string>
+    <string name="scope_include_new_apps">Додавати нові застосунки автоматично</string>
+    <string name="scope_include_new_apps_summary">Застосунки, встановлені відтепер, потраплять в область дії цього модуля.</string>
+    <string name="scope_backup">Зберегти цю область дії</string>
+    <string name="scope_restore">Відновити цю область дії</string>
+    <string name="scope_sort_package">За назвою пакета</string>
+    <string name="scope_sort_installed">Нещодавно встановлені</string>
+    <string name="scope_sort_updated">Нещодавно оновлені</string>
+    <string name="scope_sort_reverse">Зворотний порядок</string>
+    <string name="scope_sort_relevance">Спершу вибрані</string>
+    <string name="scope_sort_name">За назвою</string>
+    <string name="scope_search_hint">Пошук застосунків</string>
+    <string name="scope_system_apps">Системні застосунки</string>
+    <string name="scope_games">Ігри</string>
+    <string name="scope_recommended">Запитано цим модулем</string>
+    <string name="scope_static">Цей модуль оголошує сталу область дії, тож його не можна спрямувати на інші застосунки.</string>
+    <string name="scope_pending">додати %1$d, вилучити %2$d</string>
+    <string name="scope_apply">Застосувати</string>
+    <string name="scope_discard">Відкинути</string>
+    <string name="scope_applied">Область дії застосовано.</string>
+    <string name="scope_apply_failed">Фреймворк відхилив нову область дії.</string>
+    <string name="scope_toggle_failed">Фреймворк відхилив цю зміну.</string>
+    <string name="scope_empty_title">Нема чого перехоплювати</string>
+    <string name="scope_empty_message">Цей модуль увімкнено, але жодного застосунку не вибрано, тож він нічого не робитиме. Вимкніть його або виберіть застосунки.</string>
+    <string name="scope_empty_disable">Вимкнути модуль</string>
+    <string name="scope_empty_keep">Залишити ввімкненим</string>
+
+    <string name="action_launch">Відкрити</string>
+    <string name="action_app_info">Про застосунок</string>
+    <string name="action_force_stop">Примусово зупинити</string>
+    <string name="action_optimize">Переоптимізувати</string>
+    <string name="action_uninstall">Видалити</string>
+    <string name="action_launched">Відкривання…</string>
+    <string name="action_no_launcher">Цей застосунок нема чим відкрити.</string>
+    <string name="action_opened_info">Відкривання відомостей…</string>
+    <string name="action_force_stopped">%1$s зупинено.</string>
+    <string name="action_optimizing">Переоптимізація %1$s. Це може тривати якийсь час.</string>
+    <string name="action_optimized">%1$s переоптимізовано. Перехоплення, втрачені через вбудовування, мають запрацювати.</string>
+    <string name="action_optimize_failed">Не вдалося переоптимізувати %1$s.</string>
+    <string name="action_uninstalled">%1$s видалено.</string>
+    <string name="action_uninstall_failed">Не вдалося видалити %1$s.</string>
+
+    <string name="settings">Налаштування</string>
+    <string name="back">Назад</string>
+    <string name="retry">Повторити</string>
+
+    <string name="appearance_color">Колір</string>
+    <string name="appearance_custom_color">Вибрати колір</string>
+    <string name="modules_expand">Показати повний опис</string>
+    <string name="modules_collapse">Показати менше</string>
+    <string name="action_optimize_summary">Перекомпільовує застосунок, щоб ART перестав вбудовувати методи, які модулю потрібно перехопити</string>
+    <string name="modules_scope_framework">Перехоплює системний фреймворк</string>
+    <string name="scope_origin_locked">Задано модулем</string>
+    <string name="scope_origin_chosen">Ваш вибір</string>
+    <string name="modules_selection_clear">Зняти вибір</string>
+    <plurals name="modules_selected">
+        <item quantity="one">Вибрано %1$d</item>
+        <item quantity="few">Вибрано %1$d</item>
+        <item quantity="many">Вибрано %1$d</item>
+        <item quantity="other">Вибрано %1$d</item>
+    </plurals>
+    <string name="modules_batch_enable">Увімкнути всі вибрані</string>
+    <string name="modules_batch_disable">Вимкнути всі вибрані</string>
+    <string name="modules_batch_partial">Спрацювало лише %1$s із них</string>
+    <string name="modules_uninstall_title">Видалити ці модулі?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="one">Модуль і все, що він налаштував, буде вилучено. Скасувати це не можна.</item>
+        <item quantity="few">Усі %1$d модулі й усе, що вони налаштували, буде вилучено. Скасувати це не можна.</item>
+        <item quantity="many">Усі %1$d модулів і все, що вони налаштували, буде вилучено. Скасувати це не можна.</item>
+        <item quantity="other">Усі %1$d модуля й усе, що вони налаштували, буде вилучено. Скасувати це не можна.</item>
+    </plurals>
+    <string name="canary_open_actions">Відкрити на GitHub</string>
+    <string name="canary_open_run">Відкрити цей запуск</string>
+    <string name="canary_install">Встановити</string>
+    <string name="canary_expired">Артефакти цієї збірки застаріли.</string>
+    <string name="canary_none">Збірок canary ще не опубліковано.</string>
+    <string name="home_contributors_by_commits">Найбільше комітів</string>
+    <string name="home_contributors_by_recent">Найновіші</string>
+    <string name="scope_recommended_only">Те, що просить модуль</string>
+    <string name="home_resting">Перепочинок — збережена активність. Потягніть, щоб оновити.</string>
+    <string name="report_title">Перш ніж повідомляти</string>
+    <string name="report_step_canary">Спершу спробуйте найновіший canary</string>
+    <string name="report_step_canary_body">Можливо, це вже виправлено, а супровідникам для допомоги потрібна саме зневаджувальна збірка. Тримайтеся master — збірки з pull request нестабільні.</string>
+    <string name="report_step_zygisk">Не на Magisk? Оновіть Zygisk</string>
+    <string name="report_step_zygisk_body">Прошийте найновішу реалізацію Zygisk, у зневаджувальній збірці, якщо така є.</string>
+    <string name="report_step_logs">Додайте журнали</string>
+    <string name="report_step_logs_body">Повідомлення без журналів — це розмова, що починається спочатку. Тут обидва журнали записуються в zip, який можна прикріпити.</string>
+    <string name="report_step_crashed">Якщо Zygisk аварійно завершився</string>
+    <string name="report_step_crashed_body">Попросити zip у служби вже не вийде, але файли вона все одно записала. Root прочитає їх навіть тоді, коли більше ніщо не може.</string>
+    <string name="report_open_tracker">Відкрити трекер задач</string>
+    <string name="report_save_with_root">Зберегти теку журналів (потрібен root)</string>
+    <string name="report_saved_to">Збережено до %1$s</string>
+    <string name="report_see_guide">Повний посібник у задачі</string>
+    <string name="report_root_refused">Root відхилено. Дозвольте Vector у своєму root-менеджері й спробуйте ще раз%1$s</string>
+    <string name="home_custom_build">Власна збірка — попереду master</string>
+    <string name="github_device_code">Код пристрою GitHub</string>
+    <string name="language_title">Мова</string>
+    <string name="language_system">Як у системі</string>
+    <string name="language_system_summary">Використовувати мову, налаштовану на телефоні</string>
+
+    <string name="language_translated_by">Переклад: %1$s</string>
+    <string name="language_help_short">Перекласти</string>
+    <string name="language_help">Допомогти з перекладом Vector</string>
+
+    <string name="update_title">Оновлення фреймворку</string>
+    <string name="update_channel_canary">Збірка canary</string>
+    <string name="update_channel_release">Стабільний випуск</string>
+    <string name="update_install">Встановити</string>
+    <string name="update_downloading">Завантажено %1$s з %2$s</string>
+    <string name="update_flashing">Встановлення…</string>
+    <string name="update_done">Встановлено</string>
+    <string name="update_reboot">Перезавантажити</string>
+    <string name="update_reboot_why">Набуде чинності після перезавантаження</string>
+    <string name="update_none">Оновлень немає.</string>
+    <string name="update_no_notes">До цього випуску немає опису.</string>
+    <string name="update_no_root">Не знайдено жодної реалізації root, тож немає чим прошивати.</string>
+    <string name="update_root_too_old">Реалізація root на цьому пристрої застара для прошивання.</string>
+    <string name="update_root_multiple">Знайдено дві реалізації root. Vector не гадатиме, яка з них керує модулем.</string>
+    <string name="update_failed_start">Не вдалося запустити встановлювач.</string>
+    <string name="update_failed_download">Не вдалося завантажити оновлення.</string>
+    <string name="update_failed_exit">Встановлювач завершився помилкою (код %1$d).</string>
+    <string name="update_available">Є оновлення</string>
+    <string name="store_mute_updates">Ігнорувати оновлення цього модуля</string>
+    <string name="store_mute_updates_summary">Він перестане рахуватися застарілим — і тут, і в переліку модулів</string>
+    <string name="store_options">Параметри</string>
+    <string name="scope_framework_shared">Один процес, спільний для всіх користувачів, тож це стосується всього пристрою</string>
+    <string name="update_no_output">Встановлювач нічого не вивів.</string>
+    <string name="update_variant_release">Стабільна</string>
+    <string name="update_variant_debug">Зневаджувальна</string>
+    <string name="update_variant_release_why">Збірка на щодень</string>
+    <string name="update_variant_debug_why">Докладні журнали, для звіту про помилку</string>
+    <string name="update_versions">Усі версії</string>
+    <string name="update_installed">Встановлена</string>
+    <string name="update_older">Старіша</string>
+    <string name="update_rollback">Відкотити</string>
+    <string name="update_reinstall">Перевстановити</string>
+    <string name="update_rollback_warning">Старіша за встановлену. Якщо база даних старіша, відкат скине, які модулі увімкнені та що вони перехоплюють — спершу зробіть копію.</string>
+    <string name="settings_window_all">Від початку</string>
+    <string name="update_diverged">Той самий номер версії, але інша збірка — запущене зібрано не з цього випуску</string>
+    <string name="home_filter_clear">Показати всі</string>
+    <string name="home_filter_remove">Більше не показувати лише %1$s</string>
+    <string name="home_history_loading">Сягаємо далі в минуле…</string>
+    <string name="home_history_more">Завантажити давніші коміти</string>
+    <string name="home_history_beginning">Тут усе почалося, %1$s</string>
+    <string name="home_scroll_top">Догори</string>
+    <string name="home_scroll_down">Наступний екран</string>
+    <string name="action_not_in_store">Немає у сховищі</string>
+    <string name="action_not_in_store_summary">Оновлення цього модуля перевірити не можна</string>
+    <string name="action_update_to">Оновити до %1$s</string>
+    <string name="action_update_from">З %1$s · %2$s</string>
+    <string name="action_update_running">Встановлення…</string>
+    <string name="action_update_no_apk">У цьому випуску немає APK для встановлення</string>
+    <string name="action_update_choose">Кілька збірок — виберіть у сховищі</string>
+    <string name="action_update_started">Оновлення розпочато</string>
+    <string name="action_open_store">Відкрити у сховищі</string>
+    <string name="modules_updating">Оновлення %1$s — %2$d з %3$d</string>
+    <string name="modules_updates_title">Модулі для оновлення</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Ігнорується</string>
+    <string name="modules_update_selected">Оновити %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">%1$d модуль можна оновити</item>
+        <item quantity="other">%1$d модулів можна оновити</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">Оновлено %1$d модуль</item>
+        <item quantity="other">Оновлено %1$d модулів</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">Не вдалося оновити %1$d модуль</item>
+        <item quantity="other">Не вдалося оновити %1$d модулів</item>
+    </plurals>
+    <string name="home_window_changed">Показано збережену активність за новий період — потягніть, щоб оновити</string>
+    <string name="home_history_window_end">Це все за цей період</string>
+    <string name="update_same_number">Той самий номер, інша збірка</string>
+    <string name="modules_load_no_apk">Увімкнено, але фреймворк не знайшов його APK для завантаження.</string>
+    <string name="modules_load_unusable">Увімкнено, але фреймворк не зміг його завантажити. Він не працює.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Увімкнено %1$d модуль</item>
+        <item quantity="other">Увімкнено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Вимкнено %1$d модуль</item>
+        <item quantity="other">Вимкнено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Видалено %1$d модуль</item>
+        <item quantity="other">Видалено модулів: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d уже був увімкнений</item>
+        <item quantity="other">Уже були увімкнені: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d уже був вимкнений</item>
+        <item quantity="other">Уже були вимкнені: %1$d</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Він уже був увімкнений</item>
+        <item quantity="other">Усі %1$d уже були увімкнені</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Він уже був вимкнений</item>
+        <item quantity="other">Усі %1$d уже були вимкнені</item>
+    </plurals>
+    <string name="info_manager_version">Менеджер</string>
+    <string name="action_open_companion">Відкрити застосунок-компаньйон</string>
+    <string name="action_open_companion_summary">Екран, який автор модуля написав для його налаштування</string>
+    <string name="action_soft_reboot">М’яке перезавантаження</string>
+    <string name="action_soft_reboot_summary">Перезапустити фреймворк, не перезавантажуючи телефон</string>
+    <string name="action_soft_reboot_confirm">Усі запущені застосунки закриються, екран на мить згасне. Сам телефон лишиться увімкненим.</string>
+    <string name="info_section_build">Що запущено</string>
+    <string name="info_section_health">Чи це працює</string>
+    <string name="info_section_device">Цей пристрій</string>
+    <string name="crash_recorded_title">Менеджер несподівано завершив роботу</string>
+    <string name="crash_recorded_summary">Повне трасування стека потрапляє в експорт журналів, у теку crash_manager.</string>
+    <string name="crash_recorded_clear">Відкинути</string>
+    <string name="force_launcher_icons">Не дозволяти застосункам ховати свій значок у лаунчері</string>
+    <string name="force_launcher_icons_summary">Починаючи з Android 10, застосунок, який ховає свій значок у лаунчері, отримує його назад, і цей значок відкриває сторінку відомостей про застосунок. Вимкніть це, щоб значок лишався прихованим — лаунчер може оновити свій перелік лише після перезапуску. Застосунків, які ніколи не мали значка в лаунчері, зокрема більшість модулів, це не стосується.</string>
+    <string name="action_force_stop_failed">Не вдалося зупинити %1$s.</string>
+    <string name="modules_load_unsupported_api">Увімкнено, але зібрано під libxposed API 100, якого цей фреймворк більше не завантажує.</string>
+    <string name="update_root_unknown">Ця збірка фреймворку не повідомляє, яка реалізація root встановлена.</string>
+    <string name="scope_no_match">Жоден застосунок не відповідає цьому запиту чи фільтру.</string>
+    <string name="scope_apply_effect">Кожен застосунок застосує це під час наступного запуску.</string>
+    <string name="info_dex2oat_crashed">Аварійно завершився</string>
+    <string name="info_dex2oat_mount_failed">Не вдалося змонтувати</string>
+    <string name="info_dex2oat_selinux_permissive">SELinux у дозвільному режимі</string>
+    <string name="info_dex2oat_sepolicy_incorrect">Неправильна політика SELinux</string>
+    <string name="scope_framework_restart_title">Фреймворк ще не застосував це</string>
+    <string name="scope_framework_restart_body">Системний фреймворк завантажується один раз, коли запускається Android. Ця зміна дійде до нього лише після перезапуску фреймворка — усі запущені застосунки закриються, а телефон залишиться увімкненим.</string>
+    <string name="scope_framework_restart_later">Пізніше</string>
+    <string name="settings_network">Мережа</string>
+    <string name="settings_doh">Розвʼязувати імена через HTTPS</string>
+    <string name="settings_doh_summary">Розвʼязує імена через Cloudflare, а не через резолвер мережі. Для мереж, які блокують або підміняють DNS.</string>
+    <string name="settings_doh_untested">Поки жодне імʼя не розвʼязувалося.</string>
+    <string name="settings_doh_bypassed">Не використовується: налаштовано проксі, і розвʼязуванням імен займається він.</string>
+    <string name="settings_doh_working">Працює — %1$s розвʼязано через Cloudflare.</string>
+    <string name="settings_doh_fell_back">Cloudflare недоступний (%1$s), тому до кінця цього сеансу використовується резолвер мережі.</string>
+    <string name="settings_doh_retry">Повторити</string>
+</resources>

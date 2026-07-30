@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_modules">الوحدات</string>
+    <string name="nav_store">الفهرس</string>
+    <string name="nav_logs">السجلات</string>
+
+    <string name="status_active">نشط</string>
+    <string name="status_degraded">يحتاج فحصًا</string>
+    <string name="status_inactive">غير مُفعَّل</string>
+    <string name="status_checking">جارٍ الفحص…</string>
+    <string name="status_open_details">فتح حالة النظام</string>
+
+    <string name="issue_sepolicy_title">لم تُحمَّل سياسة SELinux</string>
+    <string name="issue_sepolicy_summary">لن تعمل بعض الميزات. يعني هذا عادةً أن تطبيق الروت لم يطبّق قواعد Vector.</string>
+    <string name="issue_system_server_title">فشل الحقن في إطار النظام</string>
+    <string name="issue_system_server_summary">لا تستطيع الوحدات ربط خدمات النظام. هذا نادر، وسببه عادةً وحدة روت أخرى تتداخل معه.</string>
+    <string name="issue_dex2oat_title">غلاف dex2oat غير متاح</string>
+    <string name="issue_dex2oat_summary">حُذفت بعض خصائص النظام أو غُيّرت. قد تتوقف الوحدات عن العمل بعد تحديث أي تطبيق.</string>
+
+    <string name="system_status">حالة النظام</string>
+    <string name="info_api_version">واجهة Xposed</string>
+    <string name="info_framework_version">الإطار</string>
+    <string name="info_manager_package">حزمة المدير</string>
+    <string name="info_dex2oat">غلاف dex2oat</string>
+    <string name="info_selinux">سياسة SELinux</string>
+    <string name="info_system_server">إطار النظام</string>
+    <string name="info_android">أندرويد</string>
+    <string name="info_device">الجهاز</string>
+    <string name="info_abi">المعمارية</string>
+    <string name="info_supported">مدعومة</string>
+    <string name="info_unsupported">غير مدعومة</string>
+    <string name="info_loaded">محمَّلة</string>
+    <string name="info_not_loaded">غير محمَّلة</string>
+    <string name="info_injected">محقون</string>
+    <string name="info_not_injected">غير محقون</string>
+    <string name="status_notification">إشعار الحالة</string>
+    <string name="status_notification_summary">إشعار دائم يبيّن أن Vector يعمل.</string>
+    <string name="action_copy_all">نسخ الكل</string>
+    <string name="copied">نُسخ إلى الحافظة</string>
+
+    <string name="home_quarter_title">النشاط الأخير</string>
+    <plurals name="home_commit_count">
+        <item quantity="zero">لا إيداعات</item>
+        <item quantity="one">إيداع واحد</item>
+        <item quantity="two">إيداعان</item>
+        <item quantity="few">%1$d إيداعات</item>
+        <item quantity="many">%1$d إيداعًا</item>
+        <item quantity="other">%1$d إيداع</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="zero">من لا أحد</item>
+        <item quantity="one">من شخص واحد</item>
+        <item quantity="two">من شخصين</item>
+        <item quantity="few">من %1$d أشخاص</item>
+        <item quantity="many">من %1$d شخصًا</item>
+        <item quantity="other">من %1$d شخص</item>
+    </plurals>
+    <string name="home_since">منذ %1$s</string>
+    <string name="home_no_activity">لا إيداعات في الأشهر الستة الأخيرة.</string>
+    <string name="home_loading_activity">جارٍ تحميل النشاط الأخير…</string>
+    <string name="home_offline">يُعرض النشاط المحفوظ — تعذّر الوصول إلى GitHub.</string>
+    <string name="home_bumps">%1$d تحديثات للاعتماديات</string>
+    <string name="home_contribute">شارِك</string>
+    <string name="home_test_canary">جرّب Canary</string>
+    <string name="home_open_issue">أبلغ عن مشكلة</string>
+    <string name="home_discussions">النقاشات</string>
+    <string name="home_review_prs">راجِع تغييرًا</string>
+
+    <string name="github_sign_in">تسجيل الدخول إلى GitHub</string>
+    <string name="github_sign_in_why">اختياري. يرفع الحد الساعي لتحديثات النشاط، ويتيح لـ Vector أن يعرض ما ينتظرك. للقراءة فقط — لا يُطلب أي إذن.</string>
+    <string name="github_sign_in_code">أدخل هذا الرمز في %1$s</string>
+    <string name="github_open_browser">فتح المتصفح</string>
+    <string name="github_copy_code">نسخ الرمز</string>
+    <string name="github_signed_in_as">سجّلت الدخول باسم %1$s</string>
+    <string name="github_sign_out">تسجيل الخروج</string>
+    <string name="github_cancel">إلغاء</string>
+    <string name="github_unreachable">تعذّر الوصول إلى GitHub. وكل ما عداه يعمل كالمعتاد.</string>
+    <string name="home_with_coauthor">%1$s و%2$s</string>
+    <string name="home_with_coauthors">%1$s و%2$d آخرين</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="zero">لا أحد</item>
+        <item quantity="one">شخص واحد</item>
+        <item quantity="two">شخصان</item>
+        <item quantity="few">%1$d أشخاص</item>
+        <item quantity="many">%1$d شخصًا</item>
+        <item quantity="other">%1$d شخص</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="zero">لا شيء أحدث من نسختك</item>
+        <item quantity="one">إيداع واحد أحدث من نسختك</item>
+        <item quantity="two">إيداعان أحدث من نسختك</item>
+        <item quantity="few">%1$d إيداعات أحدث من نسختك</item>
+        <item quantity="many">%1$d إيداعًا أحدث من نسختك</item>
+        <item quantity="other">%1$d إيداع أحدث من نسختك</item>
+    </plurals>
+    <string name="home_your_build">نسختك %1$d</string>
+    <plurals name="home_quiet_days">
+        <item quantity="zero">دون هدوء</item>
+        <item quantity="one">يوم هدوء</item>
+        <item quantity="two">يومان من الهدوء</item>
+        <item quantity="few">%1$d أيام هدوء</item>
+        <item quantity="many">%1$d يومًا من الهدوء</item>
+        <item quantity="other">%1$d يوم هدوء</item>
+    </plurals>
+
+    <string name="time_yesterday">أمس</string>
+    <plurals name="time_days_ago">
+        <item quantity="zero">اليوم</item>
+        <item quantity="one">قبل يوم</item>
+        <item quantity="two">قبل يومين</item>
+        <item quantity="few">قبل %1$d أيام</item>
+        <item quantity="many">قبل %1$d يومًا</item>
+        <item quantity="other">قبل %1$d يوم</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="zero">هذا الأسبوع</item>
+        <item quantity="one">قبل أسبوع</item>
+        <item quantity="two">قبل أسبوعين</item>
+        <item quantity="few">قبل %1$d أسابيع</item>
+        <item quantity="many">قبل %1$d أسبوعًا</item>
+        <item quantity="other">قبل %1$d أسبوع</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="zero">هذا الشهر</item>
+        <item quantity="one">قبل شهر</item>
+        <item quantity="two">قبل شهرين</item>
+        <item quantity="few">قبل %1$d أشهر</item>
+        <item quantity="many">قبل %1$d شهرًا</item>
+        <item quantity="other">قبل %1$d شهر</item>
+    </plurals>
+
+    <string name="appearance_title">المظهر</string>
+    <string name="appearance_theme">السمة</string>
+    <string name="appearance_theme_system">حسب النظام</string>
+    <string name="appearance_theme_light">فاتحة</string>
+    <string name="appearance_theme_dark">داكنة</string>
+    <string name="appearance_dynamic_color">ألوان من الخلفية</string>
+    <string name="appearance_amoled">أسود خالص في السمة الداكنة</string>
+    <string name="appearance_amoled_summary">يوفّر الطاقة على شاشات OLED.</string>
+    <string name="egg_two_more">مرتان أخريان…</string>
+    <string name="egg_one_more">مرة أخرى…</string>
+
+    <string name="modules_empty">لا وحدات مثبّتة.</string>
+    <string name="modules_active_of">%1$d من %2$d نشطة</string>
+    <string name="modules_no_match">لا وحدة تطابق هذا البحث أو هذه التصفية.</string>
+    <string name="modules_backup">نسخ الوحدات احتياطيًا</string>
+    <string name="modules_restore">استعادة الوحدات</string>
+    <string name="modules_backup_done">نُسخت %1$d وحدة ونطاقاتها.</string>
+    <string name="modules_backup_failed">تعذّرت كتابة النسخة الاحتياطية.</string>
+    <string name="modules_restore_done">استُعيدت %1$d وحدة، وتُخطّيت %2$d غير مثبّتة هنا.</string>
+    <string name="modules_restore_failed">تعذّرت قراءة تلك النسخة الاحتياطية.</string>
+    <string name="modules_search_hint">ابحث في الوحدات</string>
+    <string name="modules_clear_search">مسح البحث</string>
+    <string name="modules_filter">تصفية</string>
+    <string name="modules_section_active">تعمل</string>
+    <string name="modules_section_inactive">لا تعمل</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">العاملة أولًا</string>
+    <string name="modules_sort_name">حسب الاسم</string>
+    <string name="modules_sort_recent">المحدَّثة حديثًا</string>
+    <string name="modules_sort_scope">الأوسع نطاقًا</string>
+    <string name="modules_filter_all">الكل</string>
+    <string name="modules_filter_active">نشطة</string>
+    <string name="modules_filter_inactive">غير نشطة</string>
+    <string name="modules_incompatible">يحتاج إلى libxposed API %1$d، وهو غير متوفّر في هذا الإطار.</string>
+    <string name="modules_incompatible_legacy">تحتاج واجهة Xposed %1$d، وهذا الإطار لا يوفّرها.</string>
+    <string name="modules_api_behind">بُني على libxposed API %1$d. غيّر الإصدار %2$d الواجهة، لذا قد لا تعمل هذه الوحدة بالكامل.</string>
+    <string name="modules_no_daemon">‏Vector لا يعمل، لذا قائمة الوحدات غير متاحة. افتح حالة النظام من الرئيسية لمعرفة السبب.</string>
+    <string name="module_toggle_failed">تعذّر تغيير %1$s. رفض الإطار التغيير.</string>
+
+    <string name="web_open_external">فتح في المتصفح</string>
+
+    <string name="settings_ambience">سطح الترويسة</string>
+    <string name="ambience_snow">ثلج</string>
+    <string name="ambience_maze">متاهة</string>
+    <string name="ambience_circuit">دارة</string>
+    <string name="ambience_matrix">مطر الشيفرة</string>
+    <string name="ambience_none">ساكن</string>
+
+    <string name="settings_activity">تدفّق النشاط</string>
+    <string name="settings_window">التاريخ المعروض في الرئيسية</string>
+    <plurals name="settings_window_months">
+        <item quantity="zero">بلا أشهر</item>
+        <item quantity="one">آخر شهر</item>
+        <item quantity="two">آخر شهرين</item>
+        <item quantity="few">آخر %1$d أشهر</item>
+        <item quantity="many">آخر %1$d شهرًا</item>
+        <item quantity="other">آخر %1$d شهر</item>
+    </plurals>
+    <string name="settings_open_externally">فتح الروابط في المتصفح</string>
+    <string name="settings_open_externally_summary">عند الإيقاف: تُفتح صفحات GitHub داخل Vector.</string>
+
+    <string name="scope_use_recommended">استخدام ما تطلبه الوحدة</string>
+    <string name="scope_select_visible">تحديد كل ما هو ظاهر</string>
+    <string name="scope_clear_visible">إلغاء تحديد كل ما هو ظاهر</string>
+    <string name="scope_backup_done">حُفظ النطاق.</string>
+    <string name="scope_backup_failed">تعذّرت قراءة ذلك الملف أو كتابته.</string>
+    <string name="scope_select">التحديد</string>
+    <string name="scope_sort">الترتيب</string>
+    <string name="scope_modules">وحدات أخرى</string>
+    <string name="scope_include_new_apps">إضافة التطبيقات الجديدة تلقائيًا</string>
+    <string name="scope_include_new_apps_summary">التطبيقات التي تُثبَّت من الآن تنضم إلى نطاق هذه الوحدة.</string>
+    <string name="scope_backup">نسخ هذا النطاق احتياطيًا</string>
+    <string name="scope_restore">استعادة هذا النطاق</string>
+    <string name="scope_sort_package">حسب اسم الحزمة</string>
+    <string name="scope_sort_installed">المثبَّتة حديثًا</string>
+    <string name="scope_sort_updated">المحدَّثة حديثًا</string>
+    <string name="scope_sort_reverse">ترتيب معكوس</string>
+    <string name="scope_sort_relevance">المحدَّدة أولًا</string>
+    <string name="scope_sort_name">حسب الاسم</string>
+    <string name="scope_search_hint">ابحث في التطبيقات</string>
+    <string name="scope_system_apps">تطبيقات النظام</string>
+    <string name="scope_games">الألعاب</string>
+    <string name="scope_recommended">تطلبها هذه الوحدة</string>
+    <string name="scope_static">تعلن هذه الوحدة نطاقًا ثابتًا، ولا يمكن توجيهها إلى تطبيقات أخرى.</string>
+    <string name="scope_pending">%1$d للإضافة، %2$d للإزالة</string>
+    <string name="scope_apply">تطبيق</string>
+    <string name="scope_discard">تجاهل</string>
+    <string name="scope_applied">طُبِّق النطاق.</string>
+    <string name="scope_apply_failed">رفض الإطار النطاق الجديد.</string>
+    <string name="scope_toggle_failed">رفض الإطار ذلك التغيير.</string>
+    <string name="scope_empty_title">لا شيء لربطه</string>
+    <string name="scope_empty_message">هذه الوحدة مفعَّلة لكن لم يُحدَّد لها أي تطبيق، فلن تفعل شيئًا. عطّلها، أو اختر بعض التطبيقات.</string>
+    <string name="scope_empty_disable">تعطيل الوحدة</string>
+    <string name="scope_empty_keep">إبقاؤها مفعَّلة</string>
+
+    <string name="action_launch">فتح</string>
+    <string name="action_app_info">معلومات التطبيق</string>
+    <string name="action_force_stop">إيقاف إجباري</string>
+    <string name="action_optimize">إعادة التحسين</string>
+    <string name="action_uninstall">إلغاء التثبيت</string>
+    <string name="action_launched">جارٍ الفتح…</string>
+    <string name="action_no_launcher">لا شيء لفتحه في هذا التطبيق.</string>
+    <string name="action_opened_info">جارٍ فتح معلومات التطبيق…</string>
+    <string name="action_force_stopped">أُوقف %1$s.</string>
+    <string name="action_optimizing">جارٍ إعادة تحسين %1$s. قد يستغرق ذلك وقتًا.</string>
+    <string name="action_optimized">أُعيد تحسين %1$s. الروابط التي ضاعت بالتضمين ينبغي أن تعمل الآن.</string>
+    <string name="action_optimize_failed">تعذّرت إعادة تحسين %1$s.</string>
+    <string name="action_uninstalled">أُلغي تثبيت %1$s.</string>
+    <string name="action_uninstall_failed">تعذّر إلغاء تثبيت %1$s.</string>
+
+    <string name="settings">الإعدادات</string>
+    <string name="back">رجوع</string>
+    <string name="retry">إعادة المحاولة</string>
+
+    <string name="appearance_color">اللون</string>
+    <string name="appearance_custom_color">اختر لونًا</string>
+    <string name="modules_expand">عرض الوصف كاملًا</string>
+    <string name="modules_collapse">عرض أقل</string>
+    <string name="action_optimize_summary">يعيد ترجمة التطبيق كي يتوقف ART عن تضمين الدوال التي تحتاج الوحدة إلى ربطها</string>
+    <string name="modules_scope_framework">يربط إطار النظام</string>
+    <string name="scope_origin_locked">ثابت من الوحدة</string>
+    <string name="scope_origin_chosen">اختيارك</string>
+    <string name="modules_selection_clear">إلغاء التحديد</string>
+    <plurals name="modules_selected">
+        <item quantity="zero">لم يُحدَّد شيء</item>
+        <item quantity="one">حُدِّدت واحدة</item>
+        <item quantity="two">حُدِّدت اثنتان</item>
+        <item quantity="few">حُدِّدت %1$d</item>
+        <item quantity="many">حُدِّدت %1$d</item>
+        <item quantity="other">حُدِّدت %1$d</item>
+    </plurals>
+    <string name="modules_batch_enable">تفعيل كل ما هو محدَّد</string>
+    <string name="modules_batch_disable">تعطيل كل ما هو محدَّد</string>
+    <string name="modules_batch_partial">نجحت %1$s منها فقط</string>
+    <string name="modules_uninstall_title">إلغاء تثبيت هذه الوحدات؟</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="zero">لن يُحذف شيء.</item>
+        <item quantity="one">ستُحذف الوحدة وكل ما أعدّته. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="two">ستُحذف الوحدتان وكل ما أعدّتاه. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="few">ستُحذف الوحدات %1$d وكل ما أعدّته. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="many">ستُحذف %1$d وحدة وكل ما أعدّته. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="other">ستُحذف %1$d وحدة وكل ما أعدّته. لا يمكن التراجع عن ذلك.</item>
+    </plurals>
+    <string name="canary_open_actions">فتح على GitHub</string>
+    <string name="canary_open_run">فتح هذا التشغيل</string>
+    <string name="canary_install">تثبيت</string>
+    <string name="canary_expired">انتهت صلاحية مخرجات هذا الإصدار.</string>
+    <string name="canary_none">لم يُنشر أي إصدار canary بعد.</string>
+    <string name="home_contributors_by_commits">الأكثر إيداعًا</string>
+    <string name="home_contributors_by_recent">الأحدث</string>
+    <string name="scope_recommended_only">ما تطلبه الوحدة</string>
+    <string name="home_resting">استراحة — نشاط محفوظ. اسحب للتحديث.</string>
+    <string name="report_title">قبل أن تُبلِغ</string>
+    <string name="report_step_canary">جرّب أحدث canary أولًا</string>
+    <string name="report_step_canary_body">قد تكون المشكلة قد أُصلحت، وإصدار التنقيح هو ما يحتاجه المشرفون لمساعدتك. ابقَ على master — إصدارات طلبات السحب غير مستقرة.</string>
+    <string name="report_step_zygisk">لا تستخدم Magisk؟ حدِّث Zygisk</string>
+    <string name="report_step_zygisk_body">ثبّت أحدث تطبيق لـ Zygisk، بإصدار التنقيح إن وُجد.</string>
+    <string name="report_step_logs">أرفِق السجلات</string>
+    <string name="report_step_logs_body">البلاغ بلا سجلات محادثة تبدأ من الصفر. هذا يكتب السجلين في ملف zip يمكنك إرفاقه.</string>
+    <string name="report_step_crashed">إذا انهار Zygisk</string>
+    <string name="report_step_crashed_body">لم يعد بالإمكان طلب ملف zip من الخدمة، لكنها كتبت الملفات على أي حال. يستطيع الروت قراءتها حتى حين يعجز كل شيء آخر.</string>
+    <string name="report_open_tracker">فتح متتبّع المشكلات</string>
+    <string name="report_save_with_root">حفظ مجلد السجلات (يحتاج روت)</string>
+    <string name="report_saved_to">حُفظ في %1$s</string>
+    <string name="report_see_guide">الدليل الكامل في المشكلة</string>
+    <string name="report_root_refused">رُفض الروت. اسمح لـ Vector في مدير الروت لديك ثم أعد المحاولة%1$s</string>
+    <string name="home_custom_build">إصدار خاص — أحدث من master</string>
+    <string name="github_device_code">رمز جهاز GitHub</string>
+    <string name="language_title">اللغة</string>
+    <string name="language_system">لغة النظام</string>
+    <string name="language_system_summary">اتّباع اللغة المضبوطة على الهاتف</string>
+
+    <string name="language_translated_by">ترجمة: %1$s</string>
+    <string name="language_help_short">ترجمة</string>
+    <string name="language_help">ساعِد في ترجمة Vector</string>
+
+    <string name="update_title">تحديث الإطار</string>
+    <string name="update_channel_canary">إصدار canary</string>
+    <string name="update_channel_release">إصدار مستقر</string>
+    <string name="update_install">تثبيت</string>
+    <string name="update_downloading">تم تنزيل %1$s من %2$s</string>
+    <string name="update_flashing">جارٍ التثبيت…</string>
+    <string name="update_done">تم التثبيت</string>
+    <string name="update_reboot">إعادة التشغيل</string>
+    <string name="update_reboot_why">يسري بعد إعادة التشغيل</string>
+    <string name="update_none">لا يوجد تحديث متاح.</string>
+    <string name="update_no_notes">لم يَنشر هذا الإصدار أي ملاحظات.</string>
+    <string name="update_no_root">لم يُعثر على أي تطبيق للروت، فلا شيء يمكن التثبيت من خلاله.</string>
+    <string name="update_root_too_old">تطبيق الروت على هذا الجهاز أقدم من أن يُثبَّت من خلاله.</string>
+    <string name="update_root_multiple">عُثر على تطبيقَي روت. لن يخمّن Vector أيهما يدير الوحدة.</string>
+    <string name="update_failed_start">تعذّر بدء برنامج التثبيت.</string>
+    <string name="update_failed_download">تعذّر تنزيل التحديث.</string>
+    <string name="update_failed_exit">أخفق برنامج التثبيت (رمز الخروج %1$d).</string>
+    <string name="update_available">يتوفر تحديث</string>
+    <string name="store_mute_updates">تجاهل تحديثات هذه الوحدة</string>
+    <string name="store_mute_updates_summary">لن تُحتسب قديمة بعد الآن، لا هنا ولا في قائمة الوحدات</string>
+    <string name="store_options">خيارات</string>
+    <string name="scope_framework_shared">عملية واحدة يتشاركها جميع المستخدمين، لذا يؤثر هذا في الجهاز كله</string>
+    <string name="update_no_output">لم يُخرج برنامج التثبيت أي شيء.</string>
+    <string name="update_variant_release">نهائي</string>
+    <string name="update_variant_debug">تنقيح</string>
+    <string name="update_variant_release_why">الإصدار للاستعمال اليومي</string>
+    <string name="update_variant_debug_why">سجلات مفصّلة، للإبلاغ عن خلل</string>
+    <string name="update_versions">كل الإصدارات</string>
+    <string name="update_installed">المثبَّت</string>
+    <string name="update_older">أقدم</string>
+    <string name="update_rollback">الرجوع</string>
+    <string name="update_reinstall">إعادة التثبيت</string>
+    <string name="update_rollback_warning">أقدم من المثبَّت. إن كانت قاعدة بياناته أقدم، فالرجوع يعيد ضبط الوحدات المفعّلة ونطاقاتها — انسخ وحداتك احتياطيًا أولًا.</string>
+    <string name="settings_window_all">منذ البداية</string>
+    <string name="update_diverged">رقم الإصدار نفسه لكن البناء مختلف — ما يعمل الآن لم يُبنَ من هذا الإصدار</string>
+    <string name="home_filter_clear">عرض الكل</string>
+    <string name="home_filter_remove">إيقاف العرض المقتصر على %1$s</string>
+    <string name="home_history_loading">الرجوع إلى ما هو أقدم…</string>
+    <string name="home_history_more">تحميل الإيداعات الأقدم</string>
+    <string name="home_history_beginning">حيث بدأ كل شيء، %1$s</string>
+    <string name="home_scroll_top">العودة إلى الأعلى</string>
+    <string name="home_scroll_down">الشاشة التالية</string>
+    <string name="action_not_in_store">غير موجود في المتجر</string>
+    <string name="action_not_in_store_summary">لا يمكن التحقق من تحديثات هذه الوحدة</string>
+    <string name="action_update_to">التحديث إلى %1$s</string>
+    <string name="action_update_from">من %1$s · %2$s</string>
+    <string name="action_update_running">جارٍ التثبيت…</string>
+    <string name="action_update_no_apk">هذا الإصدار لا يحتوي على APK للتثبيت</string>
+    <string name="action_update_choose">عدة إصدارات — اختر واحدًا في المتجر</string>
+    <string name="action_update_started">بدأ التحديث</string>
+    <string name="action_open_store">الفتح في المتجر</string>
+    <string name="modules_updating">جارٍ تحديث %1$s — %2$d من %3$d</string>
+    <string name="modules_updates_title">وحدات للتحديث</string>
+    <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_ignored">مُتجاهَلة</string>
+    <string name="modules_update_selected">تحديث %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">يمكن تحديث وحدة %1$d</item>
+        <item quantity="other">يمكن تحديث %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">تم تحديث وحدة %1$d</item>
+        <item quantity="other">تم تحديث %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">تعذّر تحديث وحدة %1$d</item>
+        <item quantity="other">تعذّر تحديث %1$d وحدات</item>
+    </plurals>
+    <string name="home_window_changed">يتم عرض النشاط المحفوظ للنطاق الجديد — اسحب للتحديث</string>
+    <string name="home_history_window_end">هذا كل ما في هذا النطاق</string>
+    <string name="update_same_number">الرقم نفسه، إصدار آخر</string>
+    <string name="modules_load_no_apk">مفعّلة، لكن لم يعثر الإطار على حزمة APK لتحميلها.</string>
+    <string name="modules_load_unusable">مفعّلة، لكن تعذّر على الإطار تحميلها. إنها لا تعمل.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">تم تفعيل وحدة واحدة</item>
+        <item quantity="other">تم تفعيل %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">تم تعطيل وحدة واحدة</item>
+        <item quantity="other">تم تعطيل %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">تمت إزالة وحدة واحدة</item>
+        <item quantity="other">تمت إزالة %1$d وحدات</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d كانت مفعّلة أصلًا</item>
+        <item quantity="other">%1$d كانت مفعّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d كانت معطّلة أصلًا</item>
+        <item quantity="other">%1$d كانت معطّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">كانت مفعّلة أصلًا</item>
+        <item quantity="other">كل الـ %1$d كانت مفعّلة أصلًا</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">كانت معطّلة أصلًا</item>
+        <item quantity="other">كل الـ %1$d كانت معطّلة أصلًا</item>
+    </plurals>
+    <string name="info_manager_version">المدير</string>
+    <string name="action_open_companion">فتح التطبيق المرافق</string>
+    <string name="action_open_companion_summary">الشاشة التي كتبها مؤلف الوحدة لضبطها</string>
+    <string name="action_soft_reboot">إعادة تشغيل ناعمة</string>
+    <string name="action_soft_reboot_summary">إعادة تشغيل الإطار دون إعادة تشغيل الهاتف</string>
+    <string name="action_soft_reboot_confirm">تُغلق كل التطبيقات العاملة وتُظلم الشاشة للحظة. الهاتف نفسه يبقى قيد التشغيل.</string>
+    <string name="info_section_build">ما الذي يعمل</string>
+    <string name="info_section_health">هل يعمل بشكل صحيح</string>
+    <string name="info_section_device">هذا الجهاز</string>
+    <string name="crash_recorded_title">أُغلق المدير على نحو غير متوقع</string>
+    <string name="crash_recorded_summary">التتبّع الكامل يخرج ضمن ملف السجلات المُصدَّر، في مجلد crash_manager.</string>
+    <string name="crash_recorded_clear">تجاهل</string>
+    <string name="force_launcher_icons">منع التطبيقات من إخفاء أيقوناتها في المشغّل</string>
+    <string name="force_launcher_icons_summary">منذ Android 10، يستعيد التطبيق الذي يخفي أيقونته في المشغّل أيقونةً تفتح صفحة معلومات التطبيق. أوقف هذا الخيار ليبقى مخفيًا — وقد لا يلحق المشغّل بالتغيير حتى يُعاد تشغيله. أما التطبيقات التي لم تكن لها أيقونة أصلًا، ومنها معظم الوحدات، فلا يمسّها هذا.</string>
+    <string name="action_force_stop_failed">تعذّر إيقاف %1$s.</string>
+    <string name="modules_load_unsupported_api">مفعّلة، لكنها بُنيت على libxposed API 100، ولم يعد هذا الإطار يحمّل هذه الواجهة.</string>
+    <string name="update_root_unknown">لا يذكر هذا الإصدار من الإطار تطبيق الروت المثبَّت.</string>
+    <string name="scope_no_match">لا تطبيق يطابق هذا البحث أو هذه التصفية.</string>
+    <string name="scope_apply_effect">يسري هذا على كل تطبيق عند تشغيله في المرة القادمة.</string>
+    <string name="info_dex2oat_crashed">تعطّل</string>
+    <string name="info_dex2oat_mount_failed">فشل التركيب</string>
+    <string name="info_dex2oat_selinux_permissive">SELinux في الوضع المتساهل</string>
+    <string name="info_dex2oat_sepolicy_incorrect">سياسة SELinux غير صحيحة</string>
+    <string name="scope_framework_restart_title">لم يطبّق إطار النظام هذا بعد</string>
+    <string name="scope_framework_restart_body">يُحمَّل إطار النظام مرة واحدة، عند بدء تشغيل أندرويد. لن يصل هذا التغيير إليه إلا بعد إعادة تشغيل الإطار — تُغلق كل التطبيقات العاملة، ويبقى الهاتف نفسه قيد التشغيل.</string>
+    <string name="scope_framework_restart_later">لاحقًا</string>
+    <string name="settings_network">الشبكة</string>
+    <string name="settings_doh">تحليل الأسماء عبر HTTPS</string>
+    <string name="settings_doh_summary">يحلّل الأسماء عبر Cloudflare بدلاً من محلّل الشبكة. للشبكات التي تحجب الـ DNS أو تعبث به.</string>
+    <string name="settings_doh_untested">لم يُحلَّل أي اسم بعد.</string>
+    <string name="settings_doh_bypassed">غير مستخدَم: هناك وكيل مُهيَّأ، وهو الذي يحلّل الأسماء.</string>
+    <string name="settings_doh_working">يعمل — حُلّل %1$s عبر Cloudflare.</string>
+    <string name="settings_doh_fell_back">تعذّر الوصول إلى Cloudflare (%1$s)، لذا سيُستخدَم محلّل الشبكة لبقية هذه الجلسة.</string>
+    <string name="settings_doh_retry">إعادة المحاولة</string>
+</resources>

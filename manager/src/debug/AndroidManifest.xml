@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only additions.
+
+  Manifest merging is what makes the demo mode reachable without a single line in src/main: this
+  file contributes a second launcher activity to debug builds and contributes nothing at all to a
+  release build, because a release build never reads it. Together with the debug source set, that
+  means the demo code is not branched around in a release APK — it is not in one.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!--
+          A separate icon rather than an entry inside the app: reaching it must never be something
+          a user can do by accident, and it must not require the manager to be in a working state
+          to get to — several of the scenarios exist precisely because the app is not working.
+        -->
+        <activity
+            android:name="org.matrix.vector.manager.demo.DemoActivity"
+            android:exported="true"
+            android:label="Vector demo states"
+            android:taskAffinity="org.matrix.vector.manager.demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

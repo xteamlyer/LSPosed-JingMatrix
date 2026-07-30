@@ -4,6 +4,7 @@ import io.github.libxposed.api.XposedInterface.Chain
 import io.github.libxposed.api.XposedInterface.ExceptionMode
 import io.github.libxposed.api.XposedInterface.Hooker
 import java.lang.reflect.Executable
+import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.lsposed.lspd.util.Utils
@@ -72,7 +73,7 @@ private constructor(
 
     override fun getThisObject(): Any? = thisObj
 
-    override fun getArgs(): List<Any?> = args.toList()
+    override fun getArgs(): List<Any?> = Collections.unmodifiableList(args.toMutableList())
 
     override fun getArg(index: Int): Any? = args[index]
 
@@ -109,7 +110,16 @@ private constructor(
         return try {
             executeDownstream { hooker.intercept(nextChain) }
         } catch (t: Throwable) {
-            handleInterceptorException(t, hooker, exceptionMode, nextChain, thisObject, currentArgs)
+            executeDownstream {
+                handleInterceptorException(
+                    t,
+                    hooker,
+                    exceptionMode,
+                    nextChain,
+                    thisObject,
+                    currentArgs,
+                )
+            }
         }
     }
 
@@ -121,8 +131,10 @@ private constructor(
         return try {
             val result = block()
             downstreamResult = result
+            downstreamThrowable = null
             result
         } catch (t: Throwable) {
+            downstreamResult = null
             downstreamThrowable = t
             throw t
         }

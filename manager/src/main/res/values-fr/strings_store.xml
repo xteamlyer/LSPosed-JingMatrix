@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="store_search_hint">Rechercher dans le catalogue</string>
+    <string name="store_filter">Trier et filtrer</string>
+    <string name="store_sort_recent">Récemment mis à jour</string>
+    <string name="store_sort_name">Nom</string>
+    <string name="store_sort_stars">Plus d\'étoiles</string>
+    <string name="store_updates_first">Mises à jour d\'abord</string>
+    <string name="store_channel_stable">Versions stables seulement</string>
+    <string name="store_channel_prerelease">Inclure les préversions</string>
+
+    <plurals name="store_module_count">
+        <item quantity="one">%1$d module</item>
+        <item quantity="other">%1$d modules</item>
+    </plurals>
+    <plurals name="store_update_count">
+        <item quantity="one">%1$d mise à jour</item>
+        <item quantity="other">%1$d mises à jour</item>
+    </plurals>
+    <string name="store_all_current">tout ce que vous avez est à jour</string>
+    <string name="store_offline">Catalogue enregistré</string>
+
+    <string name="store_badge_update">Mettre à jour vers %1$s</string>
+    <string name="store_badge_installed">Installé</string>
+    <string name="store_badge_prerelease">Préversion</string>
+    <string name="store_updated_on">Mis à jour le %1$s</string>
+
+    <string name="store_unreachable">Le catalogue de modules était injoignable, et rien n\'est encore enregistré sur cet appareil.</string>
+    <string name="store_no_match">Aucun module ne correspond à cette recherche.</string>
+    <string name="store_empty">Le catalogue n\'a renvoyé aucun module.</string>
+
+    <string name="store_tab_readme">Readme</string>
+    <string name="store_tab_releases">Versions</string>
+    <string name="store_tab_information">Informations</string>
+
+    <string name="store_readme_missing">Ce module ne fournit pas de readme.</string>
+    <string name="store_detail_partial">Affichage de ce que la liste des modules savait déjà. Le readme et les versions plus anciennes nécessitent une connexion.</string>
+    <string name="store_releases_none">Ce module n\'a publié aucune version sur ce canal.</string>
+    <string name="store_release_notes">Notes de version</string>
+    <string name="store_open_release">Ouvrir sur GitHub</string>
+    <string name="store_open_module">Ouvrir la page du module</string>
+
+    <string name="store_install">Installer</string>
+    <string name="store_update">Mettre à jour</string>
+    <string name="store_reinstall">Réinstaller</string>
+    <string name="store_choose_asset">Choisir un fichier à installer</string>
+    <plurals name="store_asset_downloads">
+        <item quantity="one">%1$d téléchargement</item>
+        <item quantity="other">%1$d téléchargements</item>
+    </plurals>
+
+    <string name="store_confirm_title">Installer %1$s ?</string>
+    <string name="store_confirm_body">%1$s (%2$s) sera téléchargé depuis le catalogue de modules et installé en tant que %3$s.</string>
+    <string name="store_confirm_trust">Un module s\'exécute avec les privilèges du framework dans les applications qu\'il hooke. N\'en installez un que si vous faites confiance à son auteur.</string>
+    <string name="store_confirm_silent">Vector l\'installe lui-même et le système ne redemandera pas.</string>
+
+    <string name="store_downloading">Téléchargement de %1$s sur %2$s</string>
+    <string name="store_installing">Installation…</string>
+    <string name="store_confirming">En attente de la demande du système…</string>
+    <string name="store_install_failed">Impossible d\'installer %1$s</string>
+    <string name="store_install_failed_reason">Impossible d\'installer %1$s : %2$s</string>
+    <string name="store_cancel">Annuler</string>
+
+    <string name="store_info_summary">Résumé</string>
+    <string name="store_info_scope">Hooks</string>
+    <string name="store_info_scope_undeclared">Non déclaré. Ce module ne dit pas quelles applications il hooke.</string>
+    <string name="store_info_homepage">Page d\'accueil</string>
+    <string name="store_info_source">Code source</string>
+    <string name="store_info_collaborators">Mainteneurs</string>
+    <string name="store_info_stars">Étoiles</string>
+    <string name="store_info_updated">Dernière version</string>
+    <string name="store_info_created">Première publication</string>
+
+    <string name="store_release_notes_hide">Masquer les notes</string>
+    <string name="store_installed_first">Installés d\'abord</string>
+
+    <string name="store_group_sort">Tri</string>
+    <string name="store_group_priority">Priorité</string>
+    <string name="store_group_channel">Canal</string>
+    <string name="store_info_scope_installed">Cibles, d’après la copie installée</string>
+</resources>

@@ -125,7 +125,28 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
   override fun getFrameworkName() = ensureModule().let { BuildConfig.FRAMEWORK_NAME }
 
-  override fun getFrameworkVersion() = ensureModule().let { BuildConfig.VERSION_NAME }
+  /**
+   * The whole version, not just its name.
+   *
+   * The interface promises a module "the framework version" as a string, and what goes in it is
+   * this implementation's to decide. "2.0" was true and useless: the number that identifies a
+   * build is the commit count, and even that is shared by every branch built at the same depth, so
+   * a module author reading a bug report could not tell which framework produced it. The manager's
+   * status page grew the exact build for that reason; a module author receives bug reports too.
+   *
+   * The parenthesised group stays purely numeric and [getFrameworkVersionCode] still answers with
+   * the number on its own, so nothing that wants to *compare* versions has any reason to parse
+   * this string.
+   */
+  override fun getFrameworkVersion() =
+      ensureModule().let {
+        buildString {
+          append(BuildConfig.VERSION_NAME)
+          append(" (").append(BuildConfig.VERSION_CODE).append(")")
+          BuildConfig.VERSION_HASH.takeIf { hash -> hash.isNotBlank() }
+              ?.let { hash -> append(" ").append(hash) }
+        }
+      }
 
   override fun getFrameworkVersionCode() = ensureModule().let { BuildConfig.VERSION_CODE }
 
@@ -139,12 +160,30 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
   override fun getScope(): List<String> {
     ensureModule()
-    return ConfigCache.getModuleScope(loadedModule.packageName)?.map { it.packageName }
+    // The scope table has one row per (app, user), so a module enabled for several users saw the
+    // same package repeatedly. A scope is a set of package names.
+    return ModuleDatabase.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
         ?: emptyList()
   }
 
   override fun requestScope(packages: List<String>, callback: IXposedScopeCallback) {
     val userId = ensureModule()
+    if (packages.isEmpty()) {
+      // Nothing was asked for, so the request is trivially satisfied. Returning without touching
+      // the callback would leave the module waiting forever.
+      callback.onScopeRequestApproved(emptyList())
+      return
+    }
+    // A module that fixed its own scope in module.prop does not get to ask for more of it at
+    // runtime. Prompting the user here would make "fixed" mean nothing.
+    ConfigCache.staticScopeOf(loadedModule.packageName)?.let { claimed ->
+      val beyond = packages.filterNot { claimed.contains(it) }
+      if (beyond.isNotEmpty()) {
+        callback.onScopeRequestFailed(
+            "This module declares a static scope, so ${beyond.joinToString()} cannot be added")
+        return
+      }
+    }
     if (!PreferenceStore.isScopeRequestBlocked(loadedModule.packageName)) {
       packages.forEach { pkg ->
         NotificationManager.requestModuleScope(loadedModule.packageName, userId, pkg, callback)
@@ -284,6 +323,12 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     val userId = ensureModule()
     val values = mutableMapOf<String, Any?>()
 
+    // RemotePreferences.Editor always writes this key, and sets it for edit().clear(). Ignoring it
+    // left every key the module app just cleared in place.
+    if (diff.getBoolean("clear", false)) {
+      PreferenceStore.deleteModulePrefs(loadedModule.packageName, userId, group)
+    }
+
     diff.getSerializable("delete")?.let { deletes ->
       (deletes as Set<*>).forEach { values[it as String] = null }
     }
@@ -293,13 +338,19 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
     runCatching {
           PreferenceStore.updateModulePrefs(loadedModule.packageName, userId, group, values)
-          (loadedModule.service as? InjectedModuleService)?.onUpdateRemotePreferences(group, diff)
+          (loadedModule.service as? InjectedModuleService)
+              ?.onUpdateRemotePreferences(group, userId, diff)
         }
         .getOrElse { throw RemoteException(it.message) }
   }
 
   override fun deleteRemotePreferences(group: String) {
-    PreferenceStore.deleteModulePrefs(loadedModule.packageName, ensureModule(), group)
+    val userId = ensureModule()
+    PreferenceStore.deleteModulePrefs(loadedModule.packageName, userId, group)
+    // Hooked processes hold an in-process cache of the group; without this they keep serving the
+    // deleted values until their process restarts.
+    (loadedModule.service as? InjectedModuleService)
+        ?.onUpdateRemotePreferences(group, userId, Bundle().apply { putBoolean("clear", true) })
   }
 
   override fun listRemoteFiles(): Array<String> {

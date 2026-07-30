@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logs_title">Journaux</string>
+
+    <string name="logs_word_wrap">Retour à la ligne</string>
+    <string name="logs_save">Enregistrer un rapport de bug…</string>
+    <string name="logs_rotate">Commencer un nouveau journal…</string>
+
+    <string name="logs_search_hint">Rechercher dans ce journal</string>
+    <string name="logs_filter">Filtrer par niveau et par tag</string>
+    <string name="logs_filter_levels">Niveau</string>
+    <string name="logs_filter_tags">Tag</string>
+    <string name="logs_filter_clear">Effacer le filtre</string>
+    <string name="logs_filter_scanning">Lecture du fichier entier pour que le filtre voie au-delà de l\'écran.</string>
+
+    <string name="logs_level_verbose">Verbeux</string>
+    <string name="logs_level_debug">Débogage</string>
+    <string name="logs_level_info">Info</string>
+    <string name="logs_level_warn">Avertissement</string>
+    <string name="logs_level_error">Erreur</string>
+    <string name="logs_level_fatal">Fatal</string>
+    <string name="logs_level_other">Autre</string>
+
+    <string name="logs_window">Lignes %1$d–%2$d sur %3$d</string>
+    <plurals name="logs_matches">
+        <item quantity="one">%1$d ligne correspondante</item>
+        <item quantity="other">%1$d lignes correspondantes</item>
+    </plurals>
+    <string name="logs_dropped">Ce journal est plus long que ce que la visionneuse indexe. Les %1$d lignes les plus anciennes ne sont pas affichées ; enregistrez un rapport de bug pour les conserver.</string>
+    <string name="logs_line_truncated">ligne coupée</string>
+    <plurals name="logs_frames">
+        <item quantity="one">%1$d trame</item>
+        <item quantity="other">%1$d trames</item>
+    </plurals>
+
+    <string name="logs_state_daemon_title">Le démon est injoignable</string>
+    <string name="logs_state_daemon_body">Rien n\'est connu du journal tant que Vector ne fonctionne pas. C\'est la même raison pour laquelle le bandeau d\'état de l\'accueil n\'est pas vert.</string>
+    <string name="logs_state_nofile_title">Pas encore de fichier journal</string>
+    <string name="logs_state_nofile_body">Le démon fonctionne mais n\'a pas ouvert ce journal. Pour le journal verbeux, cela veut généralement dire que la journalisation verbeuse est désactivée.</string>
+    <string name="logs_state_empty_title">Ce journal est vide</string>
+    <string name="logs_state_empty_body">Le fichier existe et rien n\'y a été écrit. Pour le journal des modules, c\'est à quoi ressemble un système tranquille.</string>
+    <string name="logs_state_nomatches_title">Aucune correspondance</string>
+    <string name="logs_state_nomatches_body">Le fichier a du contenu ; le filtre actuel l\'exclut entièrement.</string>
+    <string name="logs_state_failed_title">Impossible de lire le journal</string>
+    <string name="logs_state_failed_body">Le démon a fourni un fichier illisible : %1$s</string>
+    <string name="logs_loading">Indexation…</string>
+
+    <string name="logs_verbose_switch">Journalisation verbeuse</string>
+    <string name="logs_verbose_enforced">Le démon en cours d\'exécution l\'impose de toute façon.</string>
+
+    <string name="logs_jump_oldest">Aller à la ligne la plus ancienne</string>
+    <string name="logs_jump_newest">Aller à la ligne la plus récente</string>
+
+    <string name="logs_row_detail">uid %1$d · pid %2$d · tid %3$d</string>
+
+    <string name="logs_rotate_title">Commencer un nouveau journal ?</string>
+    <string name="logs_rotate_body">Rien n\'est supprimé. Le démon ferme la partie en cours et en ouvre une neuve ; la partie fermée reste sur le disque — à un glissement d\'ici — jusqu\'à sortir des dix plus récentes, et un rapport de bug enregistré la contient toujours.</string>
+    <string name="logs_rotate_confirm">Commencer un nouveau journal</string>
+    <string name="logs_rotate_done">Un nouveau journal a été commencé</string>
+    <string name="logs_rotate_failed">Le démon a refusé de commencer un nouveau journal</string>
+    <string name="logs_cancel">Annuler</string>
+
+    <string name="logs_save_name">vector-logs-%1$s.zip</string>
+    <string name="logs_saving">Collecte des journaux, des tombstones et de dmesg…</string>
+    <string name="logs_saved">Rapport de bug enregistré</string>
+    <string name="logs_save_failed">Impossible d\'enregistrer le rapport de bug</string>
+    <string name="logs_save_failed_reason">Impossible d\'enregistrer le rapport de bug : %1$s</string>
+    <string name="logs_share">Partager</string>
+
+    <string name="logs_filter_clear_tag">Effacer le filtre de tag</string>
+    <string name="logs_settings">Paramètres des journaux</string>
+    <string name="logs_source_more">Inclure les lignes du framework</string>
+    <string name="logs_source_less">Afficher seulement les lignes des modules</string>
+    <string name="logs_verbose_summary">Activez ceci avant de signaler un bug. Les applications peuvent lire leurs propres journaux : le laisser activé est donc un moyen pour une application de repérer Vector.</string>
+    <string name="logs_save_summary">Écrit les deux journaux dans un zip de votre choix</string>
+    <string name="logs_rotate_summary">Ferme la partie en cours et en ouvre une neuve</string>
+    <string name="logs_part">partie %1$d/%2$d</string>
+    <string name="logs_part_older">Partie plus ancienne</string>
+    <string name="logs_part_newer">Partie plus récente</string>
+</resources>

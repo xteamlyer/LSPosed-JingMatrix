@@ -39,6 +39,30 @@ import org.matrix.vector.daemon.utils.ObfuscationManager
 
 private const val TAG = "VectorFileSystem"
 
+/**
+ * What came of trying to load a module APK.
+ *
+ * The loader used to answer every refusal with the same null, so a module built against libxposed
+ * API 100 — which this framework drops outright — reached the user as the same "the framework could
+ * not load it" as a zip that will not parse. That refusal is the one with somewhere to go: the
+ * module is not broken, it is old, and only a rebuild by its author moves it. The rest really are
+ * indistinguishable from here.
+ */
+sealed interface ModuleLoad {
+  /** Parsed, and ready to hand to a forking process. */
+  data class Loaded(val apk: PreLoadedApk) : ModuleLoad
+
+  /** Declares libxposed API 100, and carries nothing else this framework can load. */
+  data object UnsupportedApi : ModuleLoad
+
+  /** Will not parse, has no init files, or names no module classes. */
+  data object Unusable : ModuleLoad
+}
+
+/** The APK when it loaded and null when it did not, for callers with nothing to say about why. */
+val ModuleLoad.apkOrNull: PreLoadedApk?
+  get() = (this as? ModuleLoad.Loaded)?.apk
+
 object FileSystem {
   val basePath: Path = Paths.get("/data/adb/lspd")
   val logDirPath: Path = basePath.resolve("log")
@@ -161,20 +185,45 @@ object FileSystem {
     return memory
   }
 
-  // Matches ModuleUtil.extractIntPart in the manager, so the two cannot disagree on "101.0".
-  private fun leadingInt(value: String?): Int =
-      value?.trim()?.takeWhile { it.isDigit() }?.toIntOrNull() ?: 0
+  /**
+   * The packages a module claims, when its module.prop fixes the scope. Null when it does not, so
+   * a caller can tell "claims nothing" from "claims no restriction".
+   *
+   * staticScope is documented as "the module scope is fixed and users should not apply the module
+   * on apps outside the scope list". Enforcing that in the manager alone leaves the socket CLI, a
+   * backup restore and the module's own requestScope walking straight past it, so the daemon has
+   * to know about it too.
+   */
+  fun readStaticScope(apkPath: String): Set<String>? =
+      runCatching {
+            ZipFile(File(apkPath)).use { zip ->
+              val props =
+                  Properties().apply {
+                    zip.getEntry("META-INF/xposed/module.prop")?.let { entry ->
+                      runCatching { zip.getInputStream(entry).use { load(it) } }
+                    }
+                  }
+              if (!props.getProperty("staticScope").toBoolean()) return@use null
+              val entry = zip.getEntry("META-INF/xposed/scope.list") ?: return@use emptySet()
+              zip.getInputStream(entry).bufferedReader().useLines { lines ->
+                lines.filter { it.isNotEmpty() }.toSet()
+              }
+            }
+          }
+          .onFailure { Log.w(TAG, "Cannot read the scope list of $apkPath", it) }
+          .getOrNull()
 
   /** Parses the module APK, extracts init lists, and loads DEXes into SharedMemory. */
-  fun loadModule(apkPath: String, obfuscate: Boolean): PreLoadedApk? {
+  fun loadModule(apkPath: String, obfuscate: Boolean): ModuleLoad {
     val file = File(apkPath)
-    if (!file.exists()) return null
+    if (!file.exists()) return ModuleLoad.Unusable
 
     val preLoadedApk = PreLoadedApk()
     val preLoadedDexes = mutableListOf<SharedMemory>()
     val moduleClassNames = mutableListOf<String>()
     val moduleLibraryNames = mutableListOf<String>()
     var isLegacy = false
+    var exceptionPassthrough = false
     var targetApiVersion = 0
     var minApiVersion = 0
     var autoHotReload = false
@@ -200,6 +249,12 @@ object FileSystem {
             targetApiVersion = targetApi
             minApiVersion = leadingInt(props.getProperty("minApiVersion"))
             autoHotReload = props.getProperty("autoHotReload")?.trim().toBoolean()
+            // The module-wide mode ExceptionMode.DEFAULT resolves to. Anything that is not
+            // "passthrough" - absent, misspelled, or an explicit "protective" - keeps the
+            // protective default the API specifies.
+            exceptionPassthrough =
+                props.getProperty("exceptionMode")?.trim().equals("passthrough", true)
+
             val hasLegacyFile = zip.getEntry("assets/xposed_init") != null
 
             // Determine Loading Strategy based on Priority: API 101+ > Legacy > API 100
@@ -236,12 +291,12 @@ object FileSystem {
               }
               "UNSUPPORTED" -> {
                 Log.w(TAG, "Module $apkPath uses API 100 which is no longer supported.")
-                return null
+                return ModuleLoad.UnsupportedApi
               }
-              else -> return null // No valid init files found
+              else -> return ModuleLoad.Unusable // No valid init files found
             }
 
-            if (moduleClassNames.isEmpty()) return null
+            if (moduleClassNames.isEmpty()) return ModuleLoad.Unusable
 
             // Read DEX files
             var secondary = 1
@@ -255,10 +310,10 @@ object FileSystem {
         }
         .onFailure {
           Log.e(TAG, "Failed to load module $apkPath", it)
-          return null
+          return ModuleLoad.Unusable
         }
 
-    if (preLoadedDexes.isEmpty()) return null
+    if (preLoadedDexes.isEmpty()) return ModuleLoad.Unusable
 
     // Apply obfuscation
     if (obfuscate) {
@@ -276,12 +331,13 @@ object FileSystem {
       this.moduleClassNames = moduleClassNames
       this.moduleLibraryNames = moduleLibraryNames
       this.legacy = isLegacy
+      this.exceptionPassthrough = exceptionPassthrough
       this.targetApiVersion = targetApiVersion
       this.minApiVersion = minApiVersion
       this.autoHotReload = autoHotReload
     }
 
-    return preLoadedApk
+    return ModuleLoad.Loaded(preLoadedApk)
   }
 
   /** Safely creates the log directory. If a file exists with the same name, it deletes it first. */
@@ -464,6 +520,39 @@ object FileSystem {
     return "${prefix}_${formatter.format(Instant.now())}.log"
   }
 
+  /**
+   * The parts still on disk for one of the two logs, oldest first.
+   *
+   * Read from the directory rather than from LogcatMonitor's LRU so that a manager opened after a
+   * daemon restart still sees the history: the LRU is rebuilt empty, the files are not.
+   */
+  fun listLogParts(verbose: Boolean): List<String> {
+    val prefix = if (verbose) "verbose_" else "modules_"
+    return runCatching {
+          logDirPath
+              .toFile()
+              .listFiles { file -> file.isFile && file.name.startsWith(prefix) && file.name.endsWith(".log") }
+              ?.map { it.name }
+              // The names carry an ISO-8601 timestamp, so lexicographic order is chronological.
+              ?.sorted()
+              .orEmpty()
+        }
+        .getOrDefault(emptyList())
+  }
+
+  /**
+   * Opens one part by name.
+   *
+   * The name arrives from an unprivileged process and is used to build a path inside a directory
+   * only root can read, so it is never trusted: it has to be one of the names [listLogParts] just
+   * returned, which rules out traversal and anything outside the log directory by construction
+   * rather than by pattern-matching for "..".
+   */
+  fun openLogPart(verbose: Boolean, name: String): File? {
+    if (name !in listLogParts(verbose)) return null
+    return logDirPath.resolve(name).toFile().takeIf { it.isFile }
+  }
+
   fun getNewVerboseLogPath(): File {
     createLogDirPath()
     return logDirPath.resolve(getNewLogFileName("verbose")).toFile()
@@ -474,3 +563,6 @@ object FileSystem {
     return logDirPath.resolve(getNewLogFileName("modules")).toFile()
   }
 }
+  // Matches the manager's leading-integer parsing, including values such as "101.0".
+  private fun leadingInt(value: String?): Int =
+      value?.trim()?.takeWhile { it.isDigit() }?.toIntOrNull() ?: 0

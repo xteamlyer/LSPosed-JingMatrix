@@ -12,6 +12,7 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.util.UUID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.Module
 import org.matrix.vector.daemon.BuildConfig
@@ -34,14 +35,32 @@ object ConfigCache {
   var state = DaemonState()
     private set
 
-  val dbHelper = Database() // Kept public for PreferenceStore and ModuleDatabase
+
+  // Module package -> the packages it claims, for modules whose module.prop fixes the scope.
+  // Absent means the module places no restriction on its scope.
+  @Volatile private var staticScopes: Map<String, Set<String>> = emptyMap()
+
+  /** The packages [modulePackage] claims, or null when it does not fix its scope. */
+  fun staticScopeOf(modulePackage: String): Set<String>? = staticScopes[modulePackage]
 
   private val cacheUpdateChannel = Channel<Unit>(Channel.CONFLATED)
+
+  // Held for the whole of a rebuild, so that only one runs at a time. The channel serialises the
+  // requests that arrive through it, but not the rebuild the readiness latch starts directly on a
+  // binder thread — two could run at once, read the database in different orders, and whichever
+  // reached the swap last would publish a module set assembled from a half-written configuration.
+  private val rebuildLock = Any()
 
   init {
     VectorDaemon.scope.launch {
       for (request in cacheUpdateChannel) {
-        performCacheUpdate()
+        // Guarded, because the loop *is* the mechanism. A throw escaping here ends the `for`, the
+        // coroutine completes, and every later requestCacheUpdate() drops its request into a
+        // channel nobody is reading — the configuration silently stops taking effect for the life
+        // of the daemon, with one stack trace hours earlier as the only evidence. One bad APK
+        // reaching the parser is enough to cause it.
+        runCatching { performCacheUpdate() }
+            .onFailure { Log.e(TAG, "Cache update failed; the next request will try again", it) }
       }
     }
     applySqliteHelperWorkaround()
@@ -49,39 +68,47 @@ object ConfigCache {
 
   private fun ensureCacheReady() {
     if (!state.isCacheReady && packageManager?.asBinder()?.isBinderAlive == true) {
-      synchronized(this) {
+      // The rebuild lock, not `this`: this is the one place that starts a rebuild without going
+      // through the channel, so it has to queue behind a rebuild already in flight rather than
+      // merely behind the short swaps that publish one.
+      synchronized(rebuildLock) {
         if (!state.isCacheReady) {
           Log.i(TAG, "System services are ready. Mapping modules and scopes.")
           updateManager(false)
           setupMiscPath()
           performCacheUpdate()
-          state = state.copy(isCacheReady = true)
+          synchronized(this) { state = state.copy(isCacheReady = true) }
         }
       }
     }
   }
 
   fun updateManager(uninstalled: Boolean) {
-    if (uninstalled) {
-      state = state.copy(managerUid = -1)
-      return
-    }
-    runCatching {
-          val info =
-              packageManager?.getPackageInfoCompat(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME, 0, 0)
-          val uid = info?.applicationInfo?.uid
-          val installedApkPath = info?.applicationInfo?.sourceDir
-          if (uid == null || installedApkPath == null) {
-            Log.i(TAG, "Manager is not installed")
-            state = state.copy(managerUid = -1)
-            return
-          }
+    // Resolved and verified outside the lock, then written inside it. The verification opens the
+    // manager's APK and checks its signature, which is not work to do while a rebuild waits — but
+    // the assignment itself has to be atomic against that rebuild's swap, or whichever finishes
+    // last wins and this one silently loses.
+    val resolved =
+        if (uninstalled) null
+        else
+            runCatching {
+                  val info =
+                      packageManager?.getPackageInfoCompat(
+                          BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME, 0, 0)
+                  val uid = info?.applicationInfo?.uid
+                  val installedApkPath = info?.applicationInfo?.sourceDir
+                  if (uid == null || installedApkPath == null) {
+                    Log.i(TAG, "Manager is not installed")
+                    return@runCatching null
+                  }
 
-          InstallerVerifier.verifyInstallerSignature(installedApkPath)
-          Log.i(TAG, "Manager verified and found at UID: $uid")
-          state = state.copy(managerUid = uid)
-        }
-        .onFailure { state = state.copy(managerUid = -1) }
+                  InstallerVerifier.verifyInstallerSignature(installedApkPath)
+                  Log.i(TAG, "Manager verified and found at UID: $uid")
+                  uid
+                }
+                .getOrNull()
+
+    synchronized(this) { state = state.copy(managerUid = resolved ?: -1) }
   }
 
   private fun setupMiscPath() {
@@ -96,7 +123,7 @@ object ConfigCache {
         } else {
           Paths.get(pathStr)
         }
-    state = state.copy(miscPath = path)
+    synchronized(this) { state = state.copy(miscPath = path) }
 
     runCatching {
           val perms =
@@ -118,227 +145,209 @@ object ConfigCache {
 
   /** Builds a completely new Immutable State and atomically swaps it. */
   private fun performCacheUpdate() {
-    if (packageManager == null) return
+    synchronized(rebuildLock) {
+      if (packageManager == null) return
 
-    Log.d(TAG, "Executing Cache Update...")
-    val db = dbHelper.readableDatabase
-    val oldState = state
+      Log.d(TAG, "Executing Cache Update...")
+      val oldState = state
 
-    val newModules = mutableMapOf<String, Module>()
-    val obsoleteModules = mutableSetOf<String>()
-    val obsoletePaths = mutableMapOf<String, String>()
+      val newModules = mutableMapOf<String, Module>()
+      val newStaticScopes = mutableMapOf<String, Set<String>>()
+      // Deleted from the configuration: the package is not installed for any user, so what it was
+      // configured to do cannot mean anything.
+      val obsoleteModules = mutableSetOf<String>()
+      val obsoletePaths = mutableMapOf<String, String>()
+      // Kept in the configuration and reported: enabled, installed, and not loadable. The two
+      // used to be one set, so a module whose APK would not parse was quietly un-enabled — the
+      // user had asked for it, the switch went off by itself, and nothing said why.
+      val unloadable = mutableMapOf<String, Int>()
 
-    db.query(
-            "modules",
-            arrayOf("module_pkg_name", "apk_path"),
-            "enabled = 1",
-            null,
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(0)
-            var apkPath = cursor.getString(1)
-            if (pkgName == "lspd") continue
+      ModuleDatabase.enabledModuleRows().forEach { row ->
+        val pkgName = row.packageName
+        var apkPath = row.apkPath
+        if (pkgName == "lspd") return@forEach
 
-            val oldModule = oldState.modules[pkgName]
+        val oldModule = oldState.modules[pkgName]
 
-            var pkgInfo: android.content.pm.PackageInfo? = null
-            val users = userManager?.getRealUsers() ?: emptyList()
-            for (user in users) {
-              pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
-              if (pkgInfo?.applicationInfo != null) break
-            }
-
-            if (pkgInfo?.applicationInfo == null) {
-              Log.w(TAG, "Failed to find package info of $pkgName")
-              obsoleteModules.add(pkgName)
-              continue
-            }
-
-            val appInfo = pkgInfo.applicationInfo
-
-            if (oldModule != null &&
-                appInfo?.sourceDir != null &&
-                apkPath != null &&
-                oldModule.apkPath != null &&
-                FileSystem.toGlobalNamespace(apkPath).exists() &&
-                apkPath == oldModule.apkPath &&
-                File(appInfo.sourceDir).parent == File(apkPath).parent) {
-
-              if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
-              newModules[pkgName] = oldModule
-              continue
-            }
-
-            val realApkPath = getModuleApkPath(appInfo!!)
-            if (realApkPath == null) {
-              Log.w(TAG, "Failed to find path of $pkgName")
-              obsoleteModules.add(pkgName)
-              continue
-            } else {
-              apkPath = realApkPath
-              obsoletePaths[pkgName] = realApkPath
-            }
-
-            val preLoadedApk = FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)
-            if (preLoadedApk != null) {
-              val module =
-                  Module().apply {
-                    packageName = pkgName
-                    this.apkPath = apkPath
-                    appId = appInfo.uid
-                    versionCode = pkgInfo?.longVersionCode ?: 0L
-                    applicationInfo = appInfo
-                    service = oldModule?.service ?: InjectedModuleService(pkgName)
-                    file = preLoadedApk
-                  }
-              newModules[pkgName] = module
-            } else {
-              Log.w(TAG, "Failed to parse DEX/ZIP for $pkgName, skipping.")
-              obsoleteModules.add(pkgName)
-            }
-          }
+        var pkgInfo: android.content.pm.PackageInfo? = null
+        val users = userManager?.getRealUsers() ?: emptyList()
+        // No users means the question could not be asked, not that the answer is no. `getRealUsers`
+        // swallows a null binder and any failure of `IUserManager.getUsers` into an empty list, and
+        // an empty list here sends *every* enabled module down the not-installed path below — which
+        // deletes its row, its scope and its preferences. A transient failure to reach the user
+        // service would wipe the configuration of every module on the device.
+        if (users.isEmpty()) {
+          Log.w(
+              TAG, "No users available; skipping this rebuild rather than assuming nothing exists")
+          return
+        }
+        for (user in users) {
+          pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
+          if (pkgInfo?.applicationInfo != null) break
         }
 
-    if (packageManager?.asBinder()?.isBinderAlive == true) {
-      obsoleteModules.forEach { ModuleDatabase.removeModule(it) }
-      obsoletePaths.forEach { (pkg, path) -> ModuleDatabase.updateModuleApkPath(pkg, path, true) }
-    }
+        // Gone, not broken. No user has this package any more, so the configuration for it is
+        // meaningless and is cleaned up. This is the only case that deletes anything.
+        if (pkgInfo?.applicationInfo == null) {
+          Log.w(TAG, "Failed to find package info of $pkgName")
+          obsoleteModules.add(pkgName)
+          return@forEach
+        }
 
-    val newScopes = mutableMapOf<ProcessScope, MutableList<Module>>()
-    db.query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("app_pkg_name", "module_pkg_name", "user_id"),
-            "enabled = 1",
-            null,
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val appPkg = cursor.getString(0)
-            val modPkg = cursor.getString(1)
-            val userId = cursor.getInt(2)
+        val appInfo = pkgInfo.applicationInfo
 
-            val module = newModules[modPkg] ?: continue
+        if (oldModule != null &&
+            appInfo?.sourceDir != null &&
+            apkPath != null &&
+            oldModule.apkPath != null &&
+            FileSystem.toGlobalNamespace(apkPath).exists() &&
+            apkPath == oldModule.apkPath &&
+            File(appInfo.sourceDir).parent == File(apkPath).parent) {
 
-            if (appPkg == "system") {
-              newScopes
-                  .getOrPut(ProcessScope("system_server", 1000)) { mutableListOf() }
-                  .add(module)
-              continue
-            }
+          if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
+          // This path skips re-reading the APK, so what the module claims has to be carried
+          // over; the new map replaces the old one wholesale and would otherwise lose it.
+          staticScopes[pkgName]?.let { newStaticScopes[pkgName] = it }
+          newModules[pkgName] = oldModule
+          return@forEach
+        }
 
-            val pkgInfo =
-                packageManager?.getPackageInfoWithComponents(appPkg, MATCH_ALL_FLAGS, userId)
-            if (pkgInfo?.applicationInfo == null) continue
+        val realApkPath = getModuleApkPath(appInfo!!)
+        if (realApkPath == null) {
+          // Installed, enabled, and not loadable. Deleting the row here would silently un-enable a
+          // module the user did enable, and they would find the switch off with no reason given.
+          // The configuration stands; what could not be done is recorded and reported instead.
+          Log.w(TAG, "Failed to find path of $pkgName")
+          unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_NO_APK
+          return@forEach
+        }
+        apkPath = realApkPath
+        obsoletePaths[pkgName] = realApkPath
 
-            val processNames = pkgInfo.fetchProcesses()
-            if (processNames.isEmpty()) continue
+        FileSystem.readStaticScope(apkPath)?.let { newStaticScopes[pkgName] = it }
 
-            val appUid = pkgInfo.applicationInfo!!.uid
-
-            for (processName in processNames) {
-              val processScope = ProcessScope(processName, appUid)
-              newScopes.getOrPut(processScope) { mutableListOf() }.add(module)
-
-              if (modPkg == appPkg) {
-                val appId = appUid % PER_USER_RANGE
-                userManager?.getRealUsers()?.forEach { user ->
-                  val moduleUid = user.id * PER_USER_RANGE + appId
-                  if (moduleUid != appUid) {
-                    val moduleSelf = ProcessScope(processName, moduleUid)
-                    newScopes.getOrPut(moduleSelf) { mutableListOf() }.add(module)
-                  }
+        when (val loaded = FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)) {
+          is ModuleLoad.Loaded -> {
+            val module =
+                Module().apply {
+                  packageName = pkgName
+                  this.apkPath = apkPath
+                  appId = appInfo.uid
+                  versionCode = pkgInfo.longVersionCode
+                  applicationInfo = appInfo
+                  service = oldModule?.service ?: InjectedModuleService(pkgName)
+                  file = loaded.apk
                 }
+            newModules[pkgName] = module
+          }
+          // As above: a module the framework will not load is broken, not unwanted.
+          //
+          // And of the reasons it will not load, one is not brokenness at all: a module built
+          // against libxposed API 100, which this framework refuses outright, is simply old and
+          // needs its author to rebuild it. That one the loader names, so it is passed on rather
+          // than reported as "the framework could not load it" alongside a zip that will not parse.
+          ModuleLoad.UnsupportedApi -> {
+            Log.w(TAG, "Could not load $pkgName: it targets libxposed API 100; skipping.")
+            unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_UNSUPPORTED_API
+          }
+          ModuleLoad.Unusable -> {
+            Log.w(TAG, "Could not load $pkgName; skipping.")
+            unloadable[pkgName] = ILSPManagerService.MODULE_LOAD_UNUSABLE
+          }
+        }
+      }
+
+      if (packageManager?.asBinder()?.isBinderAlive == true) {
+        obsoleteModules.forEach { ModuleDatabase.removeModule(it) }
+        obsoletePaths.forEach { (pkg, path) -> ModuleDatabase.updateModuleApkPath(pkg, path, true) }
+      }
+
+      // Rows can predate the module declaring a fixed scope, or come from an older build that let
+      // them in. Dropping them here is what makes the scope actually fixed rather than merely
+      // unreachable through the manager, and it runs before the scope table is read below.
+      newStaticScopes.forEach { (modulePkg, claimed) ->
+        val dropped = ModuleDatabase.pruneScopeToClaimed(modulePkg, claimed)
+        if (dropped > 0) {
+          Log.i(TAG, "Dropped $dropped app(s) outside the static scope of $modulePkg")
+        }
+      }
+
+      val newScopes = mutableMapOf<ProcessScope, MutableList<Module>>()
+      ModuleDatabase.enabledScopeRows().forEach { scopeRow ->
+        val appPkg = scopeRow.appPackage
+        val modPkg = scopeRow.modulePackage
+        val userId = scopeRow.userId
+
+        val module = newModules[modPkg] ?: return@forEach
+
+        if (appPkg == "system") {
+          newScopes.getOrPut(ProcessScope("system_server", 1000)) { mutableListOf() }.add(module)
+          return@forEach
+        }
+
+        val pkgInfo = packageManager?.getPackageInfoWithComponents(appPkg, MATCH_ALL_FLAGS, userId)
+        if (pkgInfo?.applicationInfo == null) return@forEach
+
+        val processNames = pkgInfo.fetchProcesses()
+        if (processNames.isEmpty()) return@forEach
+
+        val appUid = pkgInfo.applicationInfo!!.uid
+
+        for (processName in processNames) {
+          val processScope = ProcessScope(processName, appUid)
+          newScopes.getOrPut(processScope) { mutableListOf() }.add(module)
+
+          if (modPkg == appPkg) {
+            val appId = appUid % PER_USER_RANGE
+            userManager?.getRealUsers()?.forEach { user ->
+              val moduleUid = user.id * PER_USER_RANGE + appId
+              if (moduleUid != appUid) {
+                val moduleSelf = ProcessScope(processName, moduleUid)
+                newScopes.getOrPut(moduleSelf) { mutableListOf() }.add(module)
               }
             }
           }
         }
+      }
 
-    // --- ATOMIC STATE SWAP ---
-    state = oldState.copy(modules = newModules, scopes = newScopes)
+      // --- ATOMIC STATE SWAP ---
+      //
+      // Against the *current* state, not against the copy taken at the top of this function. A
+      // rebuild takes tens of milliseconds and makes binder calls throughout, and the other three
+      // writers — updateManager, setupMiscPath, the readiness latch — mutate the same field from
+      // other threads meanwhile. Writing `oldState.copy(...)` back would revert whichever of them
+      // landed during the rebuild: a manager reinstalled mid-rebuild would stop being recognised as
+      // the manager, having been recognised a moment earlier.
+      //
+      // `oldState` is still the right thing to *read* from above: reusing an already-parsed module
+      // is a decision about what was loaded when the rebuild started.
+      synchronized(this) {
+        state = state.copy(modules = newModules, scopes = newScopes, unloadable = unloadable)
+        // Swapped here rather than sixty lines earlier, so that the claims and the modules they
+        // belong to become visible together. Between the two assignments a reader could see the new
+        // static scopes against the old module set.
+        staticScopes = newStaticScopes
+      }
 
-    Log.d(TAG, "Cache Update Complete. Map Swap successful.")
+      Log.d(TAG, "Cache Update Complete. Map Swap successful.")
 
-    // After the swap, so a target is only dropped once the module is really gone.
-    (oldState.modules.keys - newModules.keys).forEach {
-      ApplicationService.forgetHotReloadTargets(it)
+      // Targets are removed only after the module set has been published.
+      (oldState.modules.keys - newModules.keys).forEach {
+        ApplicationService.forgetHotReloadTargets(it)
+      }
+      ApplicationService.backfillLoadedVersions()
+
+      // Ask stale opt-in targets to load the generation that was just installed.
+      newModules.values.forEach { ModuleService.autoHotReload(it) }
+      // Log.d(TAG, "cached modules:")
+      // newModules.forEach { (pkg, mod) -> Log.d(TAG, "$pkg ${mod.apkPath}") }
+
+      // Log.d(TAG, "cached scopes:")
+      // newScopes.forEach { (ps, modules) ->
+      //   Log.d(TAG, "${ps.processName}/${ps.uid}")
+      //   modules.forEach { mod -> Log.d(TAG, "\t${mod.packageName}") }
+      // }
     }
-
-    ApplicationService.backfillLoadedVersions()
-
-    // After the swap, so targets are asked to load the generation that was just installed.
-    newModules.values.forEach { ModuleService.autoHotReload(it) }
-    // Log.d(TAG, "cached modules:")
-    // newModules.forEach { (pkg, mod) -> Log.d(TAG, "$pkg ${mod.apkPath}") }
-
-    // Log.d(TAG, "cached scopes:")
-    // newScopes.forEach { (ps, modules) ->
-    //   Log.d(TAG, "${ps.processName}/${ps.uid}")
-    //   modules.forEach { mod -> Log.d(TAG, "\t${mod.packageName}") }
-    // }
-  }
-
-  fun getModuleScope(packageName: String): MutableList<Application>? {
-    if (packageName == "lspd") return null
-    val result = mutableListOf<Application>()
-    dbHelper.readableDatabase
-        .query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("app_pkg_name", "user_id"),
-            "modules.module_pkg_name = ?",
-            arrayOf(packageName),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            result.add(
-                Application().apply {
-                  this.packageName = cursor.getString(0)
-                  this.userId = cursor.getInt(1)
-                })
-          }
-        }
-    return result
-  }
-
-  fun getAutoInclude(packageName: String): Boolean {
-    if (packageName == "lspd") return false
-
-    var isAutoInclude = false
-    dbHelper.readableDatabase
-        .query(
-            "modules",
-            arrayOf("auto_include"),
-            "module_pkg_name = ?",
-            arrayOf(packageName),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          if (cursor.moveToFirst()) {
-            isAutoInclude = cursor.getInt(0) == 1
-          }
-        }
-    return isAutoInclude
-  }
-
-  fun getAutoIncludeModules(): List<String> {
-    val result = mutableListOf<String>()
-    ConfigCache.dbHelper.readableDatabase
-        .query("modules", arrayOf("module_pkg_name"), "auto_include = 1", null, null, null, null)
-        .use { cursor ->
-          val idx = cursor.getColumnIndexOrThrow("module_pkg_name")
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(idx)
-            if (pkgName != "lspd") result.add(pkgName)
-          }
-        }
-    return result
   }
 
   fun getModulesForProcess(processName: String, uid: Int): List<Module> {
@@ -363,24 +372,17 @@ object ConfigCache {
 
     val currentState = state
 
-    dbHelper.readableDatabase
-        .query(
-            "scope INNER JOIN modules ON scope.mid = modules.mid",
-            arrayOf("module_pkg_name", "apk_path"),
-            "app_pkg_name=? AND enabled=1",
-            arrayOf("system"),
-            null,
-            null,
-            null)
-        .use { cursor ->
-          while (cursor.moveToNext()) {
-            val pkgName = cursor.getString(0)
-            val apkPath = cursor.getString(1)
+    ModuleDatabase.systemServerModuleRows().forEach { row ->
+          run {
+            val pkgName = row.packageName
+            // A row with no recorded path has never been resolved; the rebuild will fill it in,
+            // and injecting from a null path is not something to attempt in the meantime.
+            val apkPath = row.apkPath ?: return@forEach
 
             val cached = currentState.modules[pkgName]
             if (cached != null) {
               modules.add(cached)
-              continue
+              return@forEach
             }
 
             val statPath = FileSystem.toGlobalNamespace("/data/user_de/0/$pkgName").absolutePath
@@ -392,7 +394,7 @@ object ConfigCache {
                   service = InjectedModuleService(pkgName)
                 }
 
-            runCatching {
+                runCatching {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
                   // A raw parse carries no version; backfillLoadedVersions supplies it later.
@@ -413,7 +415,7 @@ object ConfigCache {
               uid = module.appId
             }
 
-            FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)?.let {
+            FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled).apkOrNull?.let {
               module.file = it
               modules.add(module)
               // We intentionally don't mutate state.modules here. Cache update will catch it.

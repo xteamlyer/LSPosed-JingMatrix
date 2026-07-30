@@ -6,6 +6,7 @@ import io.github.libxposed.api.XposedInterface.HookBuilder
 import io.github.libxposed.api.XposedInterface.HookHandle
 import io.github.libxposed.api.XposedInterface.Hooker
 import io.github.libxposed.api.error.HookFailedError
+import java.lang.reflect.Constructor
 import java.lang.reflect.Executable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -23,6 +24,7 @@ class VectorHookBuilder(
     private val origin: Executable,
     private val moduleId: Any? = null,
     private val frozen: (() -> Boolean)? = null,
+    private val defaultExceptionMode: ExceptionMode = ExceptionMode.PROTECTIVE,
 ) : HookBuilder {
 
     private var priority = XposedInterface.PRIORITY_DEFAULT
@@ -53,14 +55,22 @@ class VectorHookBuilder(
                 origin.name == "invoke"
         ) {
             throw IllegalArgumentException("Cannot hook Method.invoke")
+        } else if (
+            origin is Method &&
+                origin.declaringClass == Constructor::class.java &&
+                origin.name == "newInstance"
+        ) {
+            throw IllegalArgumentException("Cannot hook Constructor.newInstance")
         }
 
+        val resolvedMode =
+            if (exceptionMode == ExceptionMode.DEFAULT) defaultExceptionMode else exceptionMode
         val id = this.id
         if (id != null) {
             val key = IdKey(moduleId, origin, id)
             // putIfAbsent is the only atomic point: a check-then-act would let two threads install
             // two records for one id, which is the duplication this design exists to avoid.
-            val candidate = VectorHookRecord(hooker, priority, exceptionMode, id)
+            val candidate = VectorHookRecord(hooker, priority, resolvedMode, id)
             while (true) {
                 val existing = idRegistry.putIfAbsent(key, candidate) ?: break
                 if (existing.installed.get()) {
@@ -89,7 +99,7 @@ class VectorHookBuilder(
             return handleFor(candidate, candidate.epoch.get())
         }
 
-        val record = VectorHookRecord(hooker, priority, exceptionMode, null)
+        val record = VectorHookRecord(hooker, priority, resolvedMode, null)
 
         // Register natively. HookBridge now stores VectorHookRecord instead of HookerCallback.
         if (

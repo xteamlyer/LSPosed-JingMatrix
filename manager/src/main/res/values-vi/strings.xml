@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_home">Trang chính</string>
+    <string name="nav_modules">Mô-đun</string>
+    <string name="nav_store">Kho mô-đun</string>
+    <string name="nav_logs">Nhật ký</string>
+
+    <string name="status_active">Đang hoạt động</string>
+    <string name="status_degraded">Cần kiểm tra</string>
+    <string name="status_inactive">Chưa kích hoạt</string>
+    <string name="status_checking">Đang kiểm tra…</string>
+    <string name="status_open_details">Mở trạng thái hệ thống</string>
+
+    <string name="issue_sepolicy_title">Chưa nạp chính sách SELinux</string>
+    <string name="issue_sepolicy_summary">Một số tính năng sẽ không chạy. Thường là do bản root không áp dụng các quy tắc chính sách của Vector.</string>
+    <string name="issue_system_server_title">Tiêm vào framework hệ thống thất bại</string>
+    <string name="issue_system_server_summary">Mô-đun không thể hook các dịch vụ hệ thống. Hiếm gặp, và thường do một mô-đun root khác gây nhiễu.</string>
+    <string name="issue_dex2oat_title">Không dùng được lớp bọc dex2oat</string>
+    <string name="issue_dex2oat_summary">Một số thuộc tính hệ thống đã bị xoá hoặc thay đổi. Mô-đun có thể ngừng tác dụng sau khi một ứng dụng cập nhật.</string>
+
+    <string name="system_status">Trạng thái hệ thống</string>
+    <string name="info_api_version">API Xposed</string>
+    <string name="info_framework_version">Framework</string>
+    <string name="info_manager_package">Gói của trình quản lý</string>
+    <string name="info_dex2oat">Lớp bọc dex2oat</string>
+    <string name="info_selinux">Chính sách SELinux</string>
+    <string name="info_system_server">Framework hệ thống</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Thiết bị</string>
+    <string name="info_abi">Kiến trúc</string>
+    <string name="info_supported">Được hỗ trợ</string>
+    <string name="info_unsupported">Không được hỗ trợ</string>
+    <string name="info_loaded">Đã nạp</string>
+    <string name="info_not_loaded">Chưa nạp</string>
+    <string name="info_injected">Đã tiêm</string>
+    <string name="info_not_injected">Chưa tiêm</string>
+    <string name="status_notification">Thông báo trạng thái</string>
+    <string name="status_notification_summary">Một thông báo thường trực cho biết Vector đang chạy.</string>
+    <string name="action_copy_all">Sao chép tất cả</string>
+    <string name="copied">Đã sao chép vào bộ nhớ tạm</string>
+
+    <string name="home_quarter_title">Hoạt động gần đây</string>
+    <plurals name="home_commit_count">
+        <item quantity="other">%1$d commit</item>
+    </plurals>
+    <plurals name="home_people_count">
+        <item quantity="other">bởi %1$d người</item>
+    </plurals>
+    <string name="home_since">từ %1$s</string>
+    <string name="home_no_activity">Không có commit nào trong sáu tháng qua.</string>
+    <string name="home_loading_activity">Đang tải hoạt động gần đây…</string>
+    <string name="home_offline">Đang hiện hoạt động đã lưu — không kết nối được GitHub.</string>
+    <string name="home_bumps">%1$d bản cập nhật phụ thuộc</string>
+    <string name="home_contribute">Tham gia</string>
+    <string name="home_test_canary">Thử bản canary</string>
+    <string name="home_open_issue">Báo lỗi</string>
+    <string name="home_discussions">Thảo luận</string>
+    <string name="home_review_prs">Xem lại một thay đổi</string>
+
+    <string name="github_sign_in">Đăng nhập GitHub</string>
+    <string name="github_sign_in_why">Không bắt buộc. Nâng giới hạn theo giờ cho việc cập nhật hoạt động, và cho phép Vector hiện những gì đang chờ bạn. Chỉ đọc — không yêu cầu quyền nào.</string>
+    <string name="github_sign_in_code">Nhập mã này tại %1$s</string>
+    <string name="github_open_browser">Mở trình duyệt</string>
+    <string name="github_copy_code">Sao chép mã</string>
+    <string name="github_signed_in_as">Đã đăng nhập với %1$s</string>
+    <string name="github_sign_out">Đăng xuất</string>
+    <string name="github_cancel">Huỷ</string>
+    <string name="github_unreachable">Không kết nối được GitHub. Mọi thứ khác vẫn chạy.</string>
+    <string name="home_with_coauthor">%1$s và %2$s</string>
+    <string name="home_with_coauthors">%1$s và %2$d người khác</string>
+
+    <string name="home_month_stats">%1$s · %2$s</string>
+    <plurals name="home_people_count_plain">
+        <item quantity="other">%1$d người</item>
+    </plurals>
+
+    <plurals name="home_commits_ahead">
+        <item quantity="other">%1$d commit mới hơn bản của bạn</item>
+    </plurals>
+    <string name="home_your_build">bản dựng %1$d của bạn</string>
+    <plurals name="home_quiet_days">
+        <item quantity="other">%1$d ngày yên ắng</item>
+    </plurals>
+
+    <string name="time_yesterday">hôm qua</string>
+    <plurals name="time_days_ago">
+        <item quantity="other">%1$d ngày trước</item>
+    </plurals>
+    <plurals name="time_weeks_ago">
+        <item quantity="other">%1$d tuần trước</item>
+    </plurals>
+    <plurals name="time_months_ago">
+        <item quantity="other">%1$d tháng trước</item>
+    </plurals>
+
+    <string name="appearance_title">Giao diện</string>
+    <string name="appearance_theme">Chủ đề</string>
+    <string name="appearance_theme_system">Theo hệ thống</string>
+    <string name="appearance_theme_light">Sáng</string>
+    <string name="appearance_theme_dark">Tối</string>
+    <string name="appearance_dynamic_color">Lấy màu từ hình nền</string>
+    <string name="appearance_amoled">Đen tuyền ở chủ đề tối</string>
+    <string name="appearance_amoled_summary">Tiết kiệm pin trên màn hình OLED.</string>
+    <string name="egg_two_more">Hai lần nữa…</string>
+    <string name="egg_one_more">Một lần nữa…</string>
+
+    <string name="modules_empty">Chưa cài mô-đun nào.</string>
+    <string name="modules_active_of">%1$d trong %2$d đang bật</string>
+    <string name="modules_no_match">Không có mô-đun nào khớp với tìm kiếm hoặc bộ lọc đó.</string>
+    <string name="modules_backup">Sao lưu mô-đun</string>
+    <string name="modules_restore">Khôi phục mô-đun</string>
+    <string name="modules_backup_done">Đã sao lưu %1$d mô-đun cùng phạm vi của chúng.</string>
+    <string name="modules_backup_failed">Không ghi được bản sao lưu.</string>
+    <string name="modules_restore_done">Đã khôi phục %1$d mô-đun, bỏ qua %2$d mô-đun chưa cài ở đây.</string>
+    <string name="modules_restore_failed">Không đọc được bản sao lưu đó.</string>
+    <string name="modules_search_hint">Tìm mô-đun</string>
+    <string name="modules_clear_search">Xoá tìm kiếm</string>
+    <string name="modules_filter">Lọc</string>
+    <string name="modules_section_active">Đang chạy</string>
+    <string name="modules_section_inactive">Không chạy</string>
+    <string name="modules_scope_more">+%1$d</string>
+    <string name="modules_sort_enabled">Đang chạy trước</string>
+    <string name="modules_sort_name">Theo tên</string>
+    <string name="modules_sort_recent">Cập nhật gần đây</string>
+    <string name="modules_sort_scope">Phạm vi rộng nhất</string>
+    <string name="modules_filter_all">Tất cả</string>
+    <string name="modules_filter_active">Đang bật</string>
+    <string name="modules_filter_inactive">Đang tắt</string>
+    <string name="modules_incompatible">Cần libxposed API %1$d, mà framework này không cung cấp.</string>
+    <string name="modules_incompatible_legacy">Cần API Xposed %1$d, framework này không cung cấp.</string>
+    <string name="modules_api_behind">Được dựng cho libxposed API %1$d. API %2$d đã đổi giao diện nên mô-đun này có thể không chạy đầy đủ.</string>
+    <string name="modules_no_daemon">Vector không chạy nên không lấy được danh sách mô-đun. Mở trạng thái hệ thống ở trang chính để xem vì sao.</string>
+    <string name="module_toggle_failed">Không đổi được %1$s. Framework đã từ chối thay đổi.</string>
+
+    <string name="web_open_external">Mở bằng trình duyệt</string>
+
+    <string name="settings_ambience">Nền phần đầu</string>
+    <string name="ambience_snow">Tuyết</string>
+    <string name="ambience_maze">Mê cung</string>
+    <string name="ambience_circuit">Mạch điện</string>
+    <string name="ambience_matrix">Mưa mã</string>
+    <string name="ambience_none">Đứng yên</string>
+
+    <string name="settings_activity">Dòng hoạt động</string>
+    <string name="settings_window">Lịch sử hiện ở trang chính</string>
+    <plurals name="settings_window_months">
+        <item quantity="other">%1$d tháng gần nhất</item>
+    </plurals>
+    <string name="settings_open_externally">Mở liên kết bằng trình duyệt</string>
+    <string name="settings_open_externally_summary">Tắt: các trang GitHub mở ngay trong Vector.</string>
+
+    <string name="scope_use_recommended">Dùng đúng những gì mô-đun yêu cầu</string>
+    <string name="scope_select_visible">Chọn hết những mục đang hiện</string>
+    <string name="scope_clear_visible">Bỏ chọn hết những mục đang hiện</string>
+    <string name="scope_backup_done">Đã lưu phạm vi.</string>
+    <string name="scope_backup_failed">Không đọc hoặc ghi được tệp đó.</string>
+    <string name="scope_select">Chọn</string>
+    <string name="scope_sort">Sắp xếp</string>
+    <string name="scope_modules">Mô-đun khác</string>
+    <string name="scope_include_new_apps">Tự động thêm ứng dụng mới</string>
+    <string name="scope_include_new_apps_summary">Ứng dụng cài từ nay sẽ vào phạm vi của mô-đun này.</string>
+    <string name="scope_backup">Sao lưu phạm vi này</string>
+    <string name="scope_restore">Khôi phục phạm vi này</string>
+    <string name="scope_sort_package">Theo tên gói</string>
+    <string name="scope_sort_installed">Cài gần đây</string>
+    <string name="scope_sort_updated">Cập nhật gần đây</string>
+    <string name="scope_sort_reverse">Đảo thứ tự</string>
+    <string name="scope_sort_relevance">Đã chọn trước</string>
+    <string name="scope_sort_name">Theo tên</string>
+    <string name="scope_search_hint">Tìm ứng dụng</string>
+    <string name="scope_system_apps">Ứng dụng hệ thống</string>
+    <string name="scope_games">Trò chơi</string>
+    <string name="scope_recommended">Mô-đun này yêu cầu</string>
+    <string name="scope_static">Mô-đun này khai báo phạm vi cố định và không thể hướng sang ứng dụng khác.</string>
+    <string name="scope_pending">Thêm %1$d, bỏ %2$d</string>
+    <string name="scope_apply">Áp dụng</string>
+    <string name="scope_discard">Bỏ</string>
+    <string name="scope_applied">Đã áp dụng phạm vi.</string>
+    <string name="scope_apply_failed">Framework đã từ chối phạm vi mới.</string>
+    <string name="scope_toggle_failed">Framework đã từ chối thay đổi đó.</string>
+    <string name="scope_empty_title">Không có gì để hook</string>
+    <string name="scope_empty_message">Mô-đun này đang bật nhưng chưa chọn ứng dụng nào, nên sẽ chẳng làm gì. Hãy tắt nó, hoặc chọn vài ứng dụng.</string>
+    <string name="scope_empty_disable">Tắt mô-đun</string>
+    <string name="scope_empty_keep">Cứ để bật</string>
+
+    <string name="action_launch">Mở</string>
+    <string name="action_app_info">Thông tin ứng dụng</string>
+    <string name="action_force_stop">Buộc dừng</string>
+    <string name="action_optimize">Tối ưu lại</string>
+    <string name="action_uninstall">Gỡ cài đặt</string>
+    <string name="action_launched">Đang mở…</string>
+    <string name="action_no_launcher">Ứng dụng này không có gì để mở.</string>
+    <string name="action_opened_info">Đang mở thông tin ứng dụng…</string>
+    <string name="action_force_stopped">Đã dừng %1$s.</string>
+    <string name="action_optimizing">Đang tối ưu lại %1$s. Việc này có thể lâu.</string>
+    <string name="action_optimized">Đã tối ưu lại %1$s. Những hook bị nội tuyến làm mất giờ sẽ chạy được.</string>
+    <string name="action_optimize_failed">Không tối ưu lại được %1$s.</string>
+    <string name="action_uninstalled">Đã gỡ %1$s.</string>
+    <string name="action_uninstall_failed">Không gỡ được %1$s.</string>
+
+    <string name="settings">Cài đặt</string>
+    <string name="back">Quay lại</string>
+    <string name="retry">Thử lại</string>
+
+    <string name="appearance_color">Màu</string>
+    <string name="appearance_custom_color">Chọn một màu</string>
+    <string name="modules_expand">Xem mô tả đầy đủ</string>
+    <string name="modules_collapse">Thu gọn</string>
+    <string name="action_optimize_summary">Biên dịch lại ứng dụng để ART thôi nội tuyến những phương thức mà mô-đun cần hook</string>
+    <string name="modules_scope_framework">Hook framework hệ thống</string>
+    <string name="scope_origin_locked">Do mô-đun cố định</string>
+    <string name="scope_origin_chosen">Bạn chọn</string>
+    <string name="modules_selection_clear">Bỏ chọn</string>
+    <plurals name="modules_selected">
+        <item quantity="other">Đã chọn %1$d</item>
+    </plurals>
+    <string name="modules_batch_enable">Bật tất cả mục đã chọn</string>
+    <string name="modules_batch_disable">Tắt tất cả mục đã chọn</string>
+    <string name="modules_batch_partial">Chỉ %1$s trong số đó thành công</string>
+    <string name="modules_uninstall_title">Gỡ những mô-đun này?</string>
+    <plurals name="modules_uninstall_body">
+        <item quantity="other">Toàn bộ %1$d mô-đun và mọi thứ chúng đã cấu hình sẽ bị xoá. Không thể hoàn tác.</item>
+    </plurals>
+    <string name="canary_open_actions">Mở trên GitHub</string>
+    <string name="canary_open_run">Mở lần chạy này</string>
+    <string name="canary_install">Cài đặt</string>
+    <string name="canary_expired">Sản phẩm của bản dựng này đã hết hạn.</string>
+    <string name="canary_none">Chưa có bản canary nào được phát hành.</string>
+    <string name="home_contributors_by_commits">Nhiều commit nhất</string>
+    <string name="home_contributors_by_recent">Gần đây nhất</string>
+    <string name="scope_recommended_only">Những gì mô-đun yêu cầu</string>
+    <string name="home_resting">Đang nghỉ — hoạt động đã lưu. Kéo xuống để làm mới.</string>
+    <string name="report_title">Trước khi báo lỗi</string>
+    <string name="report_step_canary">Hãy thử bản canary mới nhất trước</string>
+    <string name="report_step_canary_body">Có thể lỗi đã được sửa rồi, và người bảo trì cần bản gỡ lỗi mới giúp được bạn. Hãy dùng bản từ master — bản dựng của pull request không ổn định.</string>
+    <string name="report_step_zygisk">Không dùng Magisk? Cập nhật Zygisk</string>
+    <string name="report_step_zygisk_body">Nạp bản Zygisk mới nhất, chọn bản gỡ lỗi nếu có.</string>
+    <string name="report_step_logs">Đính kèm nhật ký</string>
+    <string name="report_step_logs_body">Một báo cáo không có nhật ký là cuộc trò chuyện bắt đầu lại từ đầu. Thao tác này ghi cả hai nhật ký vào một tệp zip để bạn đính kèm.</string>
+    <string name="report_step_crashed">Nếu Zygisk đã sập</string>
+    <string name="report_step_crashed_body">Không thể xin tệp zip từ tiến trình nền nữa, nhưng nó vẫn đã ghi các tệp. Quyền root đọc được chúng ngay cả khi không còn cách nào khác.</string>
+    <string name="report_open_tracker">Mở trang theo dõi lỗi</string>
+    <string name="report_save_with_root">Lưu thư mục nhật ký (cần root)</string>
+    <string name="report_saved_to">Đã lưu vào %1$s</string>
+    <string name="report_see_guide">Hướng dẫn đầy đủ ở issue</string>
+    <string name="report_root_refused">Root bị từ chối. Hãy cho phép Vector trong trình quản lý root rồi thử lại%1$s</string>
+    <string name="home_custom_build">Bản dựng riêng — mới hơn master</string>
+    <string name="github_device_code">Mã thiết bị GitHub</string>
+    <string name="language_title">Ngôn ngữ</string>
+    <string name="language_system">Theo hệ thống</string>
+    <string name="language_system_summary">Dùng ngôn ngữ đã đặt trên điện thoại</string>
+
+    <string name="language_translated_by">Dịch bởi %1$s</string>
+    <string name="language_help_short">Dịch</string>
+    <string name="language_help">Giúp dịch Vector</string>
+
+    <string name="update_title">Cập nhật framework</string>
+    <string name="update_channel_canary">Bản canary</string>
+    <string name="update_channel_release">Bản chính thức</string>
+    <string name="update_install">Cài đặt</string>
+    <string name="update_downloading">Đã tải %1$s trên %2$s</string>
+    <string name="update_flashing">Đang cài…</string>
+    <string name="update_done">Đã cài</string>
+    <string name="update_reboot">Khởi động lại</string>
+    <string name="update_reboot_why">Có hiệu lực sau khi khởi động lại</string>
+    <string name="update_none">Không có bản cập nhật nào.</string>
+    <string name="update_no_notes">Bản phát hành này không có ghi chú.</string>
+    <string name="update_no_root">Không tìm thấy bản cài root nào nên không nạp được gì.</string>
+    <string name="update_root_too_old">Bản cài root trên thiết bị này quá cũ để nạp.</string>
+    <string name="update_root_multiple">Tìm thấy hai bản cài root. Vector sẽ không đoán bản nào đang quản lý mô-đun.</string>
+    <string name="update_failed_start">Không khởi chạy được trình cài đặt.</string>
+    <string name="update_failed_download">Không tải được bản cập nhật.</string>
+    <string name="update_failed_exit">Trình cài đặt thất bại (mã %1$d).</string>
+    <string name="update_available">Có bản cập nhật</string>
+    <string name="store_mute_updates">Bỏ qua cập nhật của mô-đun này</string>
+    <string name="store_mute_updates_summary">Nó thôi bị tính là cũ, ở đây và trong danh sách mô-đun</string>
+    <string name="store_options">Tuỳ chọn</string>
+    <string name="scope_framework_shared">Một tiến trình dùng chung cho mọi người dùng, nên việc này ảnh hưởng toàn thiết bị</string>
+    <string name="update_no_output">Trình cài đặt không xuất ra gì cả.</string>
+    <string name="update_variant_release">Chính thức</string>
+    <string name="update_variant_debug">Gỡ lỗi</string>
+    <string name="update_variant_release_why">Bản dùng hằng ngày</string>
+    <string name="update_variant_debug_why">Nhật ký chi tiết, để báo lỗi</string>
+    <string name="update_versions">Tất cả phiên bản</string>
+    <string name="update_installed">Đang dùng</string>
+    <string name="update_older">Cũ hơn</string>
+    <string name="update_rollback">Quay lại</string>
+    <string name="update_reinstall">Cài lại</string>
+    <string name="update_rollback_warning">Cũ hơn bản đang dùng. Nếu cơ sở dữ liệu cũ hơn, quay lại sẽ đặt lại mô-đun nào đang bật và chúng hook gì — hãy sao lưu trước.</string>
+    <string name="settings_window_all">Từ đầu</string>
+    <string name="update_diverged">Cùng số phiên bản nhưng khác bản dựng — thứ đang chạy không dựng từ bản phát hành này</string>
+    <string name="home_filter_clear">Hiện tất cả</string>
+    <string name="home_filter_remove">Ngừng chỉ hiện %1$s</string>
+    <string name="home_history_loading">Đang lần về quá khứ…</string>
+    <string name="home_history_more">Tải các commit cũ hơn</string>
+    <string name="home_history_beginning">Nơi mọi thứ bắt đầu, %1$s</string>
+    <string name="home_scroll_top">Về đầu trang</string>
+    <string name="home_scroll_down">Màn hình tiếp theo</string>
+    <string name="action_not_in_store">Không có trong kho</string>
+    <string name="action_not_in_store_summary">Không thể kiểm tra bản cập nhật cho mô-đun này</string>
+    <string name="action_update_to">Cập nhật lên %1$s</string>
+    <string name="action_update_from">Từ %1$s · %2$s</string>
+    <string name="action_update_running">Đang cài đặt…</string>
+    <string name="action_update_no_apk">Bản phát hành này không có APK</string>
+    <string name="action_update_choose">Có nhiều bản dựng — chọn trong kho</string>
+    <string name="action_update_started">Đã bắt đầu cập nhật</string>
+    <string name="action_open_store">Mở trong kho</string>
+    <string name="modules_updating">Đang cập nhật %1$s — %2$d trên %3$d</string>
+    <string name="modules_updates_title">Mô-đun cần cập nhật</string>
+    <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_ignored">Đang bỏ qua</string>
+    <string name="modules_update_selected">Cập nhật %1$d</string>
+    <plurals name="modules_updates">
+        <item quantity="one">Có thể cập nhật %1$d mô-đun</item>
+        <item quantity="other">Có thể cập nhật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_updated">
+        <item quantity="one">Đã cập nhật %1$d mô-đun</item>
+        <item quantity="other">Đã cập nhật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_update_failed">
+        <item quantity="one">Không thể cập nhật %1$d mô-đun</item>
+        <item quantity="other">Không thể cập nhật %1$d mô-đun</item>
+    </plurals>
+    <string name="home_window_changed">Đang hiện hoạt động đã lưu cho khoảng mới — kéo để làm mới</string>
+    <string name="home_history_window_end">Đó là tất cả trong khoảng này</string>
+    <string name="update_same_number">Cùng số, bản dựng khác</string>
+    <string name="modules_load_no_apk">Đã bật, nhưng framework không tìm thấy APK để nạp.</string>
+    <string name="modules_load_unusable">Đã bật, nhưng framework không nạp được. Mô-đun không chạy.</string>
+    <plurals name="modules_batch_enabled">
+        <item quantity="one">Đã bật %1$d mô-đun</item>
+        <item quantity="other">Đã bật %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_disabled">
+        <item quantity="one">Đã tắt %1$d mô-đun</item>
+        <item quantity="other">Đã tắt %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_uninstalled">
+        <item quantity="one">Đã gỡ %1$d mô-đun</item>
+        <item quantity="other">Đã gỡ %1$d mô-đun</item>
+    </plurals>
+    <plurals name="modules_batch_already_on">
+        <item quantity="one">%1$d đã bật sẵn</item>
+        <item quantity="other">%1$d đã bật sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_already_off">
+        <item quantity="one">%1$d đã tắt sẵn</item>
+        <item quantity="other">%1$d đã tắt sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_on">
+        <item quantity="one">Vốn đã bật</item>
+        <item quantity="other">Cả %1$d đều đã bật sẵn</item>
+    </plurals>
+    <plurals name="modules_batch_all_already_off">
+        <item quantity="one">Vốn đã tắt</item>
+        <item quantity="other">Cả %1$d đều đã tắt sẵn</item>
+    </plurals>
+    <string name="info_manager_version">Trình quản lý</string>
+    <string name="action_open_companion">Mở ứng dụng đồng hành</string>
+    <string name="action_open_companion_summary">Màn hình tác giả viết để cấu hình mô-đun</string>
+    <string name="action_soft_reboot">Khởi động mềm</string>
+    <string name="action_soft_reboot_summary">Khởi động lại framework mà không khởi động lại điện thoại</string>
+    <string name="action_soft_reboot_confirm">Mọi ứng dụng đang chạy sẽ đóng và màn hình tối đi một lát. Bản thân điện thoại vẫn bật.</string>
+    <string name="info_section_build">Đang chạy những gì</string>
+    <string name="info_section_health">Có hoạt động không</string>
+    <string name="info_section_device">Thiết bị này</string>
+    <string name="crash_recorded_title">Trình quản lý đã đóng đột ngột</string>
+    <string name="crash_recorded_summary">Toàn bộ vết lỗi nằm trong bản xuất nhật ký, ở thư mục crash_manager.</string>
+    <string name="crash_recorded_clear">Xoá</string>
+    <string name="force_launcher_icons">Không cho ứng dụng ẩn biểu tượng trên trình khởi chạy</string>
+    <string name="force_launcher_icons_summary">Từ Android 10, ứng dụng tự ẩn biểu tượng của mình trên trình khởi chạy sẽ được cấp lại một biểu tượng mở trang thông tin ứng dụng. Tắt mục này để nó vẫn được ẩn — trình khởi chạy có thể chưa cập nhật cho tới khi nó khởi động lại. Những ứng dụng vốn không có biểu tượng khởi chạy, gồm hầu hết mô-đun, không bị ảnh hưởng.</string>
+    <string name="action_force_stop_failed">Không dừng được %1$s.</string>
+    <string name="modules_load_unsupported_api">Đã bật, nhưng được dựng cho libxposed API 100, mà framework này không còn nạp nữa.</string>
+    <string name="update_root_unknown">Bản dựng framework này không cho biết đang có bản cài root nào.</string>
+    <string name="scope_no_match">Không có ứng dụng nào khớp với tìm kiếm hoặc bộ lọc đó.</string>
+    <string name="scope_apply_effect">Mỗi ứng dụng sẽ áp dụng điều này trong lần khởi động tiếp theo.</string>
+    <string name="info_dex2oat_crashed">Đã gặp sự cố</string>
+    <string name="info_dex2oat_mount_failed">Gắn kết thất bại</string>
+    <string name="info_dex2oat_selinux_permissive">SELinux đang ở chế độ permissive</string>
+    <string name="info_dex2oat_sepolicy_incorrect">Chính sách SELinux không đúng</string>
+    <string name="scope_framework_restart_title">Framework chưa tiếp nhận thay đổi này</string>
+    <string name="scope_framework_restart_body">Framework hệ thống chỉ được nạp một lần, khi Android khởi động. Thay đổi này chỉ tới được nó khi framework khởi động lại — mọi ứng dụng đang chạy sẽ đóng, còn điện thoại vẫn bật.</string>
+    <string name="scope_framework_restart_later">Để sau</string>
+    <string name="settings_network">Mạng</string>
+    <string name="settings_doh">Phân giải tên qua HTTPS</string>
+    <string name="settings_doh_summary">Phân giải tên qua Cloudflare thay vì trình phân giải của mạng. Dành cho mạng chặn hoặc can thiệp DNS.</string>
+    <string name="settings_doh_untested">Chưa phân giải tên nào.</string>
+    <string name="settings_doh_bypassed">Không dùng: đã cấu hình proxy nên proxy đang phân giải tên.</string>
+    <string name="settings_doh_working">Đang hoạt động — %1$s được phân giải qua Cloudflare.</string>
+    <string name="settings_doh_fell_back">Không kết nối được tới Cloudflare (%1$s), nên trình phân giải của mạng sẽ được dùng trong phần còn lại của phiên này.</string>
+    <string name="settings_doh_retry">Thử lại</string>
+</resources>

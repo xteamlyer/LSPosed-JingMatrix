@@ -3,6 +3,8 @@ package org.matrix.vector
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.os.Build
+import java.lang.reflect.Field
 import org.lsposed.lspd.util.Utils
 import org.matrix.vector.impl.hookers.HandleSystemServerProcessHooker
 import org.matrix.vector.impl.hooks.VectorHookBuilder
@@ -28,6 +30,11 @@ class ParasiticManagerSystemHooker : HandleSystemServerProcessHooker.Callback {
 
     @SuppressLint("PrivateApi")
     override fun onSystemServerLoaded(classLoader: ClassLoader) {
+        hookActivityResolution(classLoader)
+        hookSplashScreenSuppression(classLoader)
+    }
+
+    private fun hookActivityResolution(classLoader: ClassLoader) {
         runCatching {
                 // Android versions change the name of the internal class responsible for activity
                 // tracking.
@@ -113,5 +120,76 @@ class ParasiticManagerSystemHooker : HandleSystemServerProcessHooker.Callback {
                 Utils.logD("Successfully hooked Activity Supervisor for Manager redirection.")
             }
             .onFailure { Utils.logE("Failed to hook system server activity resolution", it) }
+    }
+
+    private fun hookSplashScreenSuppression(classLoader: ClassLoader) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // ---------------------------------------------------------
+            // Android 12+ (API 31+) - StartingSurfaceController
+            // ---------------------------------------------------------
+            runCatching {
+                    val controllerClass =
+                        Class.forName(
+                            "com.android.server.wm.StartingSurfaceController",
+                            false,
+                            classLoader,
+                        )
+                    val createMethod =
+                        controllerClass.declaredMethods.first {
+                            it.name == "createSplashScreenStartingSurface"
+                        }
+
+                    val activityRecordClass =
+                        Class.forName("com.android.server.wm.ActivityRecord", false, classLoader)
+
+                    // Cache the field to avoid overhead during hook execution
+                    val infoField: Field =
+                        activityRecordClass.getDeclaredField("info").apply { isAccessible = true }
+
+                    VectorHookBuilder(createMethod).intercept { chain ->
+                        val activityRecord = chain.args[0]
+                        val info = infoField.get(activityRecord) as ActivityInfo
+
+                        if (info.processName == BuildConfig.ManagerPackageName) {
+                            Utils.logD("Suppressing Android 12+ Splash Screen for Vector Manager.")
+                            return@intercept null
+                        }
+                        chain.proceed()
+                    }
+                }
+                .onFailure { Utils.logE("Failed to hook StartingSurfaceController", it) }
+        } else {
+            // ---------------------------------------------------------
+            // Android 8.1 - 11 (API 27 - 30) - ActivityRecord
+            // ---------------------------------------------------------
+            runCatching {
+                    val recordClassName =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            "com.android.server.wm.ActivityRecord" // API 29-30
+                        } else {
+                            "com.android.server.am.ActivityRecord" // API 27-28
+                        }
+
+                    val recordClass = Class.forName(recordClassName, false, classLoader)
+                    val showMethod =
+                        recordClass.declaredMethods.first { it.name == "showStartingWindow" }
+
+                    // Cache the field
+                    val infoField: Field =
+                        recordClass.getDeclaredField("info").apply { isAccessible = true }
+
+                    VectorHookBuilder(showMethod).intercept { chain ->
+                        val activityRecord = chain.thisObject
+                        val info = infoField.get(activityRecord) as ActivityInfo
+
+                        if (info.processName == BuildConfig.ManagerPackageName) {
+                            Utils.logD("Suppressing Legacy Starting Window for Vector Manager.")
+                            return@intercept null
+                        }
+                        chain.proceed()
+                    }
+                }
+                .onFailure { Utils.logE("Failed to hook Legacy ActivityRecord", it) }
+        }
     }
 }

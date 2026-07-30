@@ -13,6 +13,7 @@ import android.content.pm.VersionedPackage
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.os.SELinux
@@ -23,10 +24,12 @@ import hidden.HiddenApiBridge
 import io.github.libxposed.service.IXposedService
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import org.lsposed.lspd.IFrameworkInstallCallback
 import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.UserInfo
 import org.matrix.vector.daemon.BuildConfig
+import org.matrix.vector.daemon.VectorDaemon
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.data.ModuleDatabase
@@ -35,6 +38,7 @@ import org.matrix.vector.daemon.env.Dex2OatServer
 import org.matrix.vector.daemon.env.LogcatMonitor
 import org.matrix.vector.daemon.system.*
 import org.matrix.vector.daemon.utils.PackageOptimizer
+import org.matrix.vector.daemon.utils.RootImplementation
 import org.matrix.vector.daemon.utils.applyXspaceWorkaround
 import org.matrix.vector.daemon.utils.getRealUsers
 import rikka.parcelablelist.ParcelableListSlice
@@ -42,6 +46,10 @@ import rikka.parcelablelist.ParcelableListSlice
 private const val TAG = "VectorManagerService"
 
 object ManagerService : ILSPManagerService.Stub() {
+
+  /** AOSP's switch for the synthesised launcher entries Android 10 introduced. */
+  private const val SHOW_HIDDEN_ICON_APPS = "show_hidden_icon_apps_enabled"
+
 
   private var managerPid = -1
   private var pendingManager = false
@@ -147,7 +155,7 @@ object ManagerService : ILSPManagerService.Stub() {
           }
 
           intent.categories?.clear()
-          intent.addCategory("org.lsposed.manager.LAUNCH_MANAGER")
+          intent.addCategory("${BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME}.LAUNCH_MANAGER")
           intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME)
           managerIntent = Intent(intent)
         }
@@ -158,22 +166,9 @@ object ManagerService : ILSPManagerService.Stub() {
   fun openManager(withData: Uri?) {
     val intent = getManagerIntent() ?: return
     val launchIntent = Intent(intent).apply { data = withData }
-    runCatching {
-          activityManager?.startActivityAsUserWithFeature(
-              SystemContext.appThread,
-              "android",
-              null,
-              launchIntent,
-              launchIntent.type,
-              null,
-              null,
-              0,
-              0,
-              null,
-              null,
-              0)
-        }
-        .onFailure { Log.e(TAG, "Failed to open manager", it) }
+    // Negative results are `ActivityManager.START_*` errors, the positive ones are all successes.
+    val result = activityManager?.startActivityAsUserCompat(launchIntent, 0) ?: -1
+    if (result < 0) Log.e(TAG, "Failed to open manager: $result")
   }
 
   /** Fixes permissions for the WebView cache. */
@@ -227,6 +222,8 @@ object ManagerService : ILSPManagerService.Stub() {
 
   override fun getXposedVersionName() = BuildConfig.VERSION_NAME
 
+  override fun getFrameworkCommit(): String? = BuildConfig.VERSION_HASH.takeIf { it.isNotBlank() }
+
   override fun getInstalledPackagesFromAllUsers(
       flags: Int,
       filterNoProcess: Boolean
@@ -235,7 +232,12 @@ object ManagerService : ILSPManagerService.Stub() {
         packageManager?.getInstalledPackagesFromAllUsers(flags, filterNoProcess) ?: emptyList())
   }
 
-  override fun enabledModules() = ConfigCache.state.modules.keys.toTypedArray()
+  override fun enabledModules() = ModuleDatabase.enabledModules()
+
+  override fun getUnloadableModules() = ConfigCache.state.unloadable.keys.toTypedArray()
+
+  override fun getModuleLoadState(packageName: String) =
+      ConfigCache.state.unloadable[packageName] ?: ILSPManagerService.MODULE_LOAD_OK
 
   override fun enableModule(packageName: String) = ModuleDatabase.enableModule(packageName)
 
@@ -244,14 +246,26 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun setModuleScope(packageName: String, scope: MutableList<Application>) =
       ModuleDatabase.setModuleScope(packageName, scope)
 
-  override fun getModuleScope(packageName: String) = ConfigCache.getModuleScope(packageName)
+  override fun getModuleScope(packageName: String) = ModuleDatabase.getModuleScope(packageName)
 
-  override fun isVerboseLog() = PreferenceStore.isVerboseLogEnabled() || BuildConfig.DEBUG
+  // Reports the setting, not the setting OR'd with the build type. It used to be
+  // `|| BuildConfig.DEBUG`, which made the value unwritable on a debug daemon: the manager could
+  // never read false, so its switch snapped back on every tap and had to be greyed out. The OR was
+  // redundant anyway — `isVerboseLogEnabled()` already defaults to true — so a debug build still
+  // logs verbosely out of the box, and now a developer can also turn it off.
+  override fun isVerboseLog() = PreferenceStore.isVerboseLogEnabled()
 
   override fun setVerboseLog(enabled: Boolean) {
     PreferenceStore.setVerboseLog(enabled)
     if (isVerboseLog()) LogcatMonitor.startVerbose() else LogcatMonitor.stopVerbose()
   }
+
+  override fun getLogParts(verbose: Boolean): List<String> = FileSystem.listLogParts(verbose)
+
+  override fun getLogPart(verbose: Boolean, name: String): ParcelFileDescriptor? =
+      FileSystem.openLogPart(verbose, name)?.let {
+        ParcelFileDescriptor.open(it, ParcelFileDescriptor.MODE_READ_ONLY)
+      }
 
   override fun getVerboseLog() =
       LogcatMonitor.getVerboseLog()?.let {
@@ -276,6 +290,8 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun forceStopPackage(packageName: String, userId: Int) {
     activityManager?.forceStopPackage(packageName, userId)
   }
+
+  override fun softReboot() = VectorDaemon.softReboot()
 
   override fun reboot() {
     powerManager?.reboot(false, null, false)
@@ -376,19 +392,7 @@ object ManagerService : ILSPManagerService.Stub() {
         wm?.lockNow(null)
       }
     }
-    return activityManager?.startActivityAsUserWithFeature(
-        SystemContext.appThread,
-        "android",
-        null,
-        intent,
-        intent.type,
-        null,
-        null,
-        0,
-        0,
-        null,
-        null,
-        userId) ?: -1
+    return activityManager?.startActivityAsUserCompat(intent, userId) ?: -1
   }
 
   override fun queryIntentActivitiesAsUser(
@@ -404,20 +408,51 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun dex2oatFlagsLoaded() =
       SystemProperties.get("dalvik.vm.dex2oat-flags").contains("--inline-max-code-units=0")
 
-  override fun setHiddenIcon(hide: Boolean) {
-    val args =
-        Bundle().apply {
-          putString("value", if (hide) "0" else "1")
-          putString("_user", "0")
-        }
-    runCatching {
-          val provider =
-              activityManager
-                  ?.getContentProviderExternal("settings", 0, SystemContext.token, null)
-                  ?.provider
-          provider?.call("android", "settings", "PUT_global", "show_hidden_icon_apps_enabled", args)
-        }
-        .onFailure { Log.w(TAG, "setHiddenIcon failed", it) }
+  /**
+   * Android 10 and later synthesise a launcher entry for an installed app that declares none, and
+   * `show_hidden_icon_apps_enabled` is the switch for that: 1 shows them, 0 leaves them hidden.
+   *
+   * Read and written by running `settings`, which is neither laziness nor a shortcut. Two in-process
+   * routes were tried on a Pixel 6 running Android 17 and both are closed to this process:
+   *
+   *  * The original code called `IContentProvider.call` with the pre-Android-12 signature, the one
+   *    without an `AttributionSource`. That method has not existed since Android 12, so every press
+   *    threw `NoSuchMethodError` — logged at warning level, swallowed, and the switch moved anyway.
+   *  * Going through `ActivityThread.getSystemContext().getContentResolver()` then fails at the
+   *    other end: `SecurityException: Unable to find app for caller … when getting content provider
+   *    settings`. The daemon has an ActivityThread but no application record, so the system will
+   *    not hand it a provider.
+   *
+   * The command is stable across versions in a way that the hidden binder interface demonstrably is
+   * not, and the daemon is root, so it is entitled to run it. This codebase already shells out for
+   * module installs and for dex2oat.
+   */
+  override fun setForcedLauncherIcons(force: Boolean) {
+    runCatching { settingsCommand("put", if (force) "1" else "0") }
+        .onFailure { Log.w(TAG, "setForcedLauncherIcons failed", it) }
+  }
+
+  override fun forcedLauncherIcons(): Boolean =
+      runCatching {
+            // Unset must read as the platform default of 1, not as "off" — otherwise the switch
+            // shows the opposite of what the system is doing on every device where nobody has
+            // touched it.
+            settingsCommand("get")?.trim().let { it.isNullOrEmpty() || it == "null" || it == "1" }
+          }
+          .getOrDefault(true)
+
+  private fun settingsCommand(verb: String, value: String? = null): String? {
+    val command = buildList {
+      add("settings")
+      add(verb)
+      add("global")
+      add(SHOW_HIDDEN_ICON_APPS)
+      value?.let { add(it) }
+    }
+    val process = ProcessBuilder(command).redirectErrorStream(true).start()
+    val output = process.inputStream.bufferedReader().use { it.readText() }
+    process.waitFor()
+    return output.ifBlank { null }
   }
 
   override fun getLogs(zipFd: ParcelFileDescriptor) {
@@ -444,8 +479,36 @@ object ManagerService : ILSPManagerService.Stub() {
   override fun getDex2OatWrapperCompatibility() =
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) Dex2OatServer.compatibility else 0
 
-  override fun setAutoInclude(packageName: String, enabled: Boolean) =
-      ModuleDatabase.setAutoInclude(packageName, enabled)
+  override fun setIncludeNewApps(packageName: String, enabled: Boolean) =
+      ModuleDatabase.setIncludeNewApps(packageName, enabled)
 
-  override fun getAutoInclude(packageName: String) = ConfigCache.getAutoInclude(packageName)
+  override fun getIncludeNewApps(packageName: String) = ModuleDatabase.getIncludeNewApps(packageName)
+
+  override fun getRootImplementation() = RootImplementation.implementation
+
+  override fun getRootImplementationVersion() = RootImplementation.version
+
+  override fun installFrameworkZip(zipPath: String, callback: IFrameworkInstallCallback) {
+    // Off the binder thread: a flash takes seconds to minutes, and holding a binder thread for its
+    // duration starves everything else the manager asks of the daemon meanwhile — including the
+    // log reads the install screen is doing to show what is happening.
+    Thread {
+          val exit =
+              RootImplementation.install(zipPath) { line ->
+                runCatching { callback.onLine(line) }
+                    .onFailure {
+                      // The manager went away mid-flash. Keep installing — stopping now would
+                      // leave the module tree half-written — and keep logging, which is the only
+                      // record left.
+                      Log.w(TAG, "Install callback is gone; continuing", it)
+                    }
+              }
+          runCatching { callback.onFinished(exit) }
+              .onFailure { Log.w(TAG, "Could not report install result", it) }
+        }
+        .apply {
+          name = "vector-framework-install"
+          start()
+        }
+  }
 }
