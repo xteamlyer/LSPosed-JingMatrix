@@ -169,6 +169,17 @@ object LoadedApkCreateCLHooker : XposedInterface.Hooker {
 
             val ctx = PackageContextHelper.resolve(loadedApk, apkPackageName)
 
+            // Android 9 has no usable createAppFactory callback for the API 101 package-loaded
+            // phase. Dispatch it from the initial class-loader update instead.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && isInitialLoad) {
+                VectorLifecycleManager.dispatchPackageLoaded(
+                    ctx.packageName,
+                    appInfo,
+                    ctx.isFirstPackage,
+                    defaultClassLoader,
+                )
+            }
+
             // Dispatch Modern Lifecycle: onPackageReady
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val appComponentFactory = loadedApk.getFieldValue<Any>("mAppComponentFactory")
