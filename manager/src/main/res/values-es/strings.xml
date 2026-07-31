@@ -220,6 +220,7 @@
     <string name="modules_scope_framework">Hookea el framework del sistema</string>
     <string name="scope_origin_locked">Fijada por el módulo</string>
     <string name="scope_origin_chosen">Tu elección</string>
+    <string name="scope_origin_derived">Siempre en el ámbito</string>
     <string name="modules_selection_clear">Borrar la selección</string>
     <plurals name="modules_selected">
         <item quantity="one">%1$d seleccionado</item>
@@ -288,6 +289,7 @@
     <string name="store_mute_updates_summary">Deja de contar como desactualizado, aquí y en la lista de módulos</string>
     <string name="store_options">Opciones</string>
     <string name="scope_framework_shared">Un único proceso compartido por todos los usuarios: afecta a todo el dispositivo</string>
+    <string name="scope_self_hook">Este módulo se carga en su propia app: así es como informa de que está activo</string>
     <string name="update_no_output">El instalador no produjo ninguna salida.</string>
     <string name="update_variant_release">Estable</string>
     <string name="update_variant_debug">Depuración</string>
@@ -401,4 +403,24 @@
     <string name="settings_doh_working">Funciona: %1$s se resolvió a través de Cloudflare.</string>
     <string name="settings_doh_fell_back">No se pudo contactar con Cloudflare (%1$s), así que se usará el resolutor de la red durante el resto de esta sesión.</string>
     <string name="settings_doh_retry">Reintentar</string>
+
+    <string name="launcher_title">Cómo abrir Vector</string>
+    <string name="launcher_body">Vector no está instalado como app, así que tu launcher no tiene nada que mostrar. Estas son las formas de volver.</string>
+    <string name="launcher_shortcut">Acceso directo en la pantalla de inicio</string>
+    <string name="launcher_shortcut_create">Crear</string>
+    <string name="launcher_shortcut_unsupported">Tu launcher no acepta accesos directos anclados.</string>
+    <string name="launcher_shortcut_refused">Tu launcher rechazó el acceso directo.</string>
+    <string name="launcher_turn_on">Activar</string>
+    <string name="launcher_install">Instalar como app</string>
+    <string name="launcher_install_action">Instalar</string>
+    <string name="launcher_install_done">Vector está instalado. Ábrelo desde tu launcher.</string>
+    <string name="launcher_install_failed">No se pudo instalar Vector.</string>
+    <string name="launcher_install_conflict">Ya hay instalada una copia de Vector firmada con otra clave. Hay que quitarla antes de que quepa esta.</string>
+    <string name="launcher_install_remove">Quitarla</string>
+    <string name="launcher_route_available">Disponible</string>
+    <string name="launcher_note">También puedes marcar %1$s, o abrir Vector desde el botón de acción de %2$s.</string>
+    <string name="launcher_root_generic">tu gestor de root</string>
+    <string name="launcher_prompt_title">Vector todavía no tiene icono</string>
+    <string name="launcher_prompt_body">Vector se ejecuta dentro de otro proceso en lugar de estar instalado, así que no aparece nada en tu launcher y no hay una forma evidente de volver. Dale un acceso directo en la pantalla de inicio, o instálalo como una app normal.</string>
+    <string name="launcher_prompt_never">No volver a preguntar</string>
 </resources>

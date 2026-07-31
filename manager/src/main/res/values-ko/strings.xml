@@ -211,6 +211,7 @@
     <string name="modules_scope_framework">시스템 프레임워크를 후킹함</string>
     <string name="scope_origin_locked">모듈이 고정함</string>
     <string name="scope_origin_chosen">직접 선택함</string>
+    <string name="scope_origin_derived">항상 적용 범위에 포함</string>
     <string name="modules_selection_clear">선택 해제</string>
     <plurals name="modules_selected">
         <item quantity="other">%1$d개 선택됨</item>
@@ -277,6 +278,7 @@
     <string name="store_mute_updates_summary">여기서도 모듈 목록에서도 더 이상 오래된 것으로 세지 않습니다</string>
     <string name="store_options">옵션</string>
     <string name="scope_framework_shared">모든 사용자가 함께 쓰는 하나의 프로세스라, 기기 전체에 영향을 줍니다</string>
+    <string name="scope_self_hook">이 모듈은 자기 앱에 로드되며, 그렇게 해서 활성 상태임을 알립니다</string>
     <string name="update_no_output">설치 프로그램이 아무것도 출력하지 않았습니다.</string>
     <string name="update_variant_release">정식</string>
     <string name="update_variant_debug">디버그</string>
@@ -390,4 +392,24 @@
     <string name="settings_doh_working">작동 중 — %1$s을(를) Cloudflare로 확인했습니다.</string>
     <string name="settings_doh_fell_back">Cloudflare에 연결할 수 없어(%1$s) 이 세션의 나머지 동안 네트워크의 확인자를 사용합니다.</string>
     <string name="settings_doh_retry">다시 시도</string>
+
+    <string name="launcher_title">Vector를 여는 방법</string>
+    <string name="launcher_body">Vector는 앱으로 설치되지 않으므로 런처에 보여줄 것이 없습니다. 다시 들어오는 방법은 다음과 같습니다.</string>
+    <string name="launcher_shortcut">홈 화면 바로가기</string>
+    <string name="launcher_shortcut_create">만들기</string>
+    <string name="launcher_shortcut_unsupported">이 런처는 바로가기 고정을 받아들이지 않습니다.</string>
+    <string name="launcher_shortcut_refused">런처가 바로가기를 거부했습니다.</string>
+    <string name="launcher_turn_on">켜기</string>
+    <string name="launcher_install">앱으로 설치</string>
+    <string name="launcher_install_action">설치</string>
+    <string name="launcher_install_done">Vector가 설치되었습니다. 런처에서 열 수 있습니다.</string>
+    <string name="launcher_install_failed">Vector를 설치할 수 없습니다.</string>
+    <string name="launcher_install_conflict">다른 키로 서명된 Vector가 이미 설치되어 있습니다. 이것을 넣으려면 먼저 지워야 합니다.</string>
+    <string name="launcher_install_remove">지우기</string>
+    <string name="launcher_route_available">사용 가능</string>
+    <string name="launcher_note">%1$s를 눌러 걸거나, %2$s의 액션 버튼에서도 열 수 있습니다.</string>
+    <string name="launcher_root_generic">루트 관리자</string>
+    <string name="launcher_prompt_title">Vector에 아직 아이콘이 없습니다</string>
+    <string name="launcher_prompt_body">Vector는 설치되는 대신 다른 프로세스 안에서 실행되므로 런처에 아무것도 나타나지 않고 다시 들어올 뚜렷한 방법도 없습니다. 홈 화면 바로가기를 만들거나, 일반 앱으로 설치하세요.</string>
+    <string name="launcher_prompt_never">다시 묻지 않기</string>
 </resources>

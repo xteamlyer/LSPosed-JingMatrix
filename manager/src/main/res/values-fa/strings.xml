@@ -220,6 +220,7 @@
     <string name="modules_scope_framework">به چارچوب سامانه قلاب می‌زند</string>
     <string name="scope_origin_locked">ثابت‌شده از سوی ماژول</string>
     <string name="scope_origin_chosen">گزینش شما</string>
+    <string name="scope_origin_derived">همیشه در دامنه</string>
     <string name="modules_selection_clear">برداشتن گزینش</string>
     <plurals name="modules_selected">
         <item quantity="one">%1$d گزیده</item>
@@ -288,6 +289,7 @@
     <string name="store_mute_updates_summary">دیگر نه اینجا و نه در فهرست ماژول‌ها قدیمی شمرده نمی‌شود</string>
     <string name="store_options">گزینه‌ها</string>
     <string name="scope_framework_shared">یک فرایند که همهٔ کاربران در آن شریک‌اند، پس این کل دستگاه را تحت تأثیر می‌گذارد</string>
+    <string name="scope_self_hook">این ماژول در برنامهٔ خودش بارگذاری می‌شود و به همین شکل فعال‌بودنش را گزارش می‌کند</string>
     <string name="update_no_output">نصب‌کننده چیزی چاپ نکرد.</string>
     <string name="update_variant_release">نهایی</string>
     <string name="update_variant_debug">اشکال‌زدایی</string>
@@ -401,4 +403,24 @@
     <string name="settings_doh_working">کار می‌کند — %1$s از راه Cloudflare تحلیل شد.</string>
     <string name="settings_doh_fell_back">دسترسی به Cloudflare ممکن نشد (%1$s)، بنابراین تا پایان این نشست از تحلیل‌گر شبکه استفاده می‌شود.</string>
     <string name="settings_doh_retry">تلاش دوباره</string>
+
+    <string name="launcher_title">چگونه Vector را باز کنیم</string>
+    <string name="launcher_body">Vector به‌عنوان برنامه نصب نشده است، پس لانچر چیزی برای نشان دادن ندارد. اینها راه‌های بازگشت به آن هستند.</string>
+    <string name="launcher_shortcut">میان‌بر در صفحهٔ اصلی</string>
+    <string name="launcher_shortcut_create">ساختن</string>
+    <string name="launcher_shortcut_unsupported">لانچر شما میان‌بر سنجاق‌شده نمی‌پذیرد.</string>
+    <string name="launcher_shortcut_refused">لانچر شما میان‌بر را نپذیرفت.</string>
+    <string name="launcher_turn_on">روشن کردن</string>
+    <string name="launcher_install">نصب به‌عنوان برنامه</string>
+    <string name="launcher_install_action">نصب</string>
+    <string name="launcher_install_done">Vector نصب شد. آن را از لانچر باز کنید.</string>
+    <string name="launcher_install_failed">نصب Vector ممکن نشد.</string>
+    <string name="launcher_install_conflict">نسخه‌ای از Vector که با کلیدی دیگر امضا شده از پیش نصب است. پیش از آنکه این یکی جا بگیرد باید حذف شود.</string>
+    <string name="launcher_install_remove">حذف آن</string>
+    <string name="launcher_route_available">در دسترس</string>
+    <string name="launcher_note">می‌توانید %1$s را هم شماره‌گیری کنید، یا Vector را از دکمهٔ کنش در %2$s باز کنید.</string>
+    <string name="launcher_root_generic">مدیر روت شما</string>
+    <string name="launcher_prompt_title">Vector هنوز نمادی ندارد</string>
+    <string name="launcher_prompt_body">Vector به‌جای آنکه نصب شده باشد درون فرایندی دیگر اجرا می‌شود، پس چیزی در لانچر پیدا نمی‌شود و راه روشنی برای بازگشت به آن نیست. به آن میان‌بری در صفحهٔ اصلی بدهید، یا آن را مانند برنامه‌ای معمولی نصب کنید.</string>
+    <string name="launcher_prompt_never">دیگر پرسیده نشود</string>
 </resources>

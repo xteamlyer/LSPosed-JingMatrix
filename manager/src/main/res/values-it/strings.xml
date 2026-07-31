@@ -220,6 +220,7 @@
     <string name="modules_scope_framework">Aggancia il framework di sistema</string>
     <string name="scope_origin_locked">Fissata dal modulo</string>
     <string name="scope_origin_chosen">Scelta tua</string>
+    <string name="scope_origin_derived">Sempre nell\'ambito</string>
     <string name="modules_selection_clear">Annulla la selezione</string>
     <plurals name="modules_selected">
         <item quantity="one">%1$d selezionato</item>
@@ -288,6 +289,7 @@
     <string name="store_mute_updates_summary">Smette di contare come non aggiornato, qui e nell\'elenco dei moduli</string>
     <string name="store_options">Opzioni</string>
     <string name="scope_framework_shared">Un solo processo condiviso da tutti gli utenti: riguarda l\'intero dispositivo</string>
+    <string name="scope_self_hook">Questo modulo viene caricato nella sua stessa app: è così che segnala di essere attivo</string>
     <string name="update_no_output">Il programma di installazione non ha prodotto output.</string>
     <string name="update_variant_release">Stabile</string>
     <string name="update_variant_debug">Debug</string>
@@ -401,4 +403,24 @@
     <string name="settings_doh_working">Funziona — %1$s è stato risolto tramite Cloudflare.</string>
     <string name="settings_doh_fell_back">Cloudflare non è raggiungibile (%1$s), quindi per il resto di questa sessione viene usato il resolver della rete.</string>
     <string name="settings_doh_retry">Riprova</string>
+
+    <string name="launcher_title">Come aprire Vector</string>
+    <string name="launcher_body">Vector non è installato come app, quindi il tuo launcher non ha nulla da mostrare. Questi sono i modi per tornarci.</string>
+    <string name="launcher_shortcut">Scorciatoia nella schermata Home</string>
+    <string name="launcher_shortcut_create">Crea</string>
+    <string name="launcher_shortcut_unsupported">Il tuo launcher non accetta scorciatoie aggiunte.</string>
+    <string name="launcher_shortcut_refused">Il tuo launcher ha rifiutato la scorciatoia.</string>
+    <string name="launcher_turn_on">Attiva</string>
+    <string name="launcher_install">Installa come app</string>
+    <string name="launcher_install_action">Installa</string>
+    <string name="launcher_install_done">Vector è installato. Aprilo dal tuo launcher.</string>
+    <string name="launcher_install_failed">Non è stato possibile installare Vector.</string>
+    <string name="launcher_install_conflict">È già installata una copia di Vector firmata con un\'altra chiave. Va rimossa prima che questa possa entrare.</string>
+    <string name="launcher_install_remove">Rimuovila</string>
+    <string name="launcher_route_available">Disponibile</string>
+    <string name="launcher_note">Puoi anche comporre %1$s, oppure aprire Vector dal pulsante azione di %2$s.</string>
+    <string name="launcher_root_generic">il tuo gestore root</string>
+    <string name="launcher_prompt_title">Vector non ha ancora un\'icona</string>
+    <string name="launcher_prompt_body">Vector gira dentro un altro processo invece di essere installato, quindi nel launcher non compare nulla e non c\'è un modo evidente per tornarci. Dagli una scorciatoia nella schermata Home, oppure installalo come una normale app.</string>
+    <string name="launcher_prompt_never">Non chiedere più</string>
 </resources>

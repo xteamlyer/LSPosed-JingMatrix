@@ -211,6 +211,7 @@
     <string name="modules_scope_framework">システムフレームワークをフック</string>
     <string name="scope_origin_locked">モジュールが固定</string>
     <string name="scope_origin_chosen">あなたの選択</string>
+    <string name="scope_origin_derived">常に適用範囲内</string>
     <string name="modules_selection_clear">選択を解除</string>
     <plurals name="modules_selected">
         <item quantity="other">%1$d 個選択中</item>
@@ -277,6 +278,7 @@
     <string name="store_mute_updates_summary">ここでもモジュール一覧でも、古いものとして数えられなくなります</string>
     <string name="store_options">オプション</string>
     <string name="scope_framework_shared">すべてのユーザーが共有する 1 つのプロセスなので、端末全体に影響します</string>
+    <string name="scope_self_hook">このモジュールは自分自身のアプリに読み込まれ、そうやって有効であることを伝えます</string>
     <string name="update_no_output">インストーラーは何も出力しませんでした。</string>
     <string name="update_variant_release">正式版</string>
     <string name="update_variant_debug">デバッグ版</string>
@@ -390,4 +392,24 @@
     <string name="settings_doh_working">動作中 — %1$s を Cloudflare 経由で解決しました。</string>
     <string name="settings_doh_fell_back">Cloudflare に接続できませんでした (%1$s)。このセッションの残りはネットワークのリゾルバを使用します。</string>
     <string name="settings_doh_retry">再試行</string>
+
+    <string name="launcher_title">Vector の開き方</string>
+    <string name="launcher_body">Vector はアプリとしてインストールされていないため、ランチャーには表示するものがありません。戻ってくる手段は次のとおりです。</string>
+    <string name="launcher_shortcut">ホーム画面のショートカット</string>
+    <string name="launcher_shortcut_create">作成</string>
+    <string name="launcher_shortcut_unsupported">このランチャーはショートカットの固定を受け付けません。</string>
+    <string name="launcher_shortcut_refused">ランチャーがショートカットを拒否しました。</string>
+    <string name="launcher_turn_on">オンにする</string>
+    <string name="launcher_install">アプリとしてインストール</string>
+    <string name="launcher_install_action">インストール</string>
+    <string name="launcher_install_done">Vector をインストールしました。ランチャーから開けます。</string>
+    <string name="launcher_install_failed">Vector をインストールできませんでした。</string>
+    <string name="launcher_install_conflict">別の鍵で署名された Vector が既にインストールされています。こちらを入れるには先に削除してください。</string>
+    <string name="launcher_install_remove">削除する</string>
+    <string name="launcher_route_available">利用できます</string>
+    <string name="launcher_note">%1$s をダイヤルするか、%2$s のアクションボタンからも開けます。</string>
+    <string name="launcher_root_generic">root マネージャー</string>
+    <string name="launcher_prompt_title">Vector にはまだアイコンがありません</string>
+    <string name="launcher_prompt_body">Vector はインストールされるのではなく別のプロセスの中で動くため、ランチャーには何も現れず、戻ってくる分かりやすい手段がありません。ホーム画面にショートカットを作るか、通常のアプリとしてインストールしてください。</string>
+    <string name="launcher_prompt_never">今後表示しない</string>
 </resources>

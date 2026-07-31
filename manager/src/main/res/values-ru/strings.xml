@@ -220,6 +220,7 @@
     <string name="modules_scope_framework">Перехватывает системный фреймворк</string>
     <string name="scope_origin_locked">Задано модулем</string>
     <string name="scope_origin_chosen">Ваш выбор</string>
+    <string name="scope_origin_derived">Всегда в области действия</string>
     <string name="modules_selection_clear">Снять выделение</string>
     <plurals name="modules_selected">
         <item quantity="one">Выбран %1$d</item>
@@ -291,6 +292,7 @@
     <string name="store_mute_updates_summary">Он перестанет считаться устаревшим и здесь, и в списке модулей</string>
     <string name="store_options">Параметры</string>
     <string name="scope_framework_shared">Один процесс на всех пользователей — это затрагивает всё устройство</string>
+    <string name="scope_self_hook">Модуль загружается в собственное приложение — так он и сообщает, что активен</string>
     <string name="update_no_output">Установщик ничего не вывел.</string>
     <string name="update_variant_release">Стабильная</string>
     <string name="update_variant_debug">Отладочная</string>
@@ -404,4 +406,24 @@
     <string name="settings_doh_working">Работает — %1$s разрешено через Cloudflare.</string>
     <string name="settings_doh_fell_back">Cloudflare недоступен (%1$s), поэтому до конца этого сеанса используется резолвер сети.</string>
     <string name="settings_doh_retry">Повторить</string>
+
+    <string name="launcher_title">Как открыть Vector</string>
+    <string name="launcher_body">Vector не установлен как приложение, поэтому лаунчеру нечего показывать. Вот как в него вернуться.</string>
+    <string name="launcher_shortcut">Ярлык на главном экране</string>
+    <string name="launcher_shortcut_create">Создать</string>
+    <string name="launcher_shortcut_unsupported">Ваш лаунчер не принимает закреплённые ярлыки.</string>
+    <string name="launcher_shortcut_refused">Лаунчер отклонил ярлык.</string>
+    <string name="launcher_turn_on">Включить</string>
+    <string name="launcher_install">Установить как приложение</string>
+    <string name="launcher_install_action">Установить</string>
+    <string name="launcher_install_done">Vector установлен. Откройте его из лаунчера.</string>
+    <string name="launcher_install_failed">Не удалось установить Vector.</string>
+    <string name="launcher_install_conflict">Уже установлена копия Vector, подписанная другим ключом. Её нужно удалить, прежде чем встанет эта.</string>
+    <string name="launcher_install_remove">Удалить её</string>
+    <string name="launcher_route_available">Доступно</string>
+    <string name="launcher_note">Ещё можно набрать %1$s или открыть Vector кнопкой действия в %2$s.</string>
+    <string name="launcher_root_generic">вашем root-менеджере</string>
+    <string name="launcher_prompt_title">У Vector пока нет значка</string>
+    <string name="launcher_prompt_body">Vector работает внутри чужого процесса, а не установлен, поэтому в лаунчере ничего не появляется и очевидного пути обратно нет. Добавьте ярлык на главный экран или установите Vector как обычное приложение.</string>
+    <string name="launcher_prompt_never">Больше не спрашивать</string>
 </resources>

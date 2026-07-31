@@ -220,6 +220,7 @@
     <string name="modules_scope_framework">Hooke le framework système</string>
     <string name="scope_origin_locked">Fixé par le module</string>
     <string name="scope_origin_chosen">Votre choix</string>
+    <string name="scope_origin_derived">Toujours dans la portée</string>
     <string name="modules_selection_clear">Effacer la sélection</string>
     <plurals name="modules_selected">
         <item quantity="one">%1$d sélectionné</item>
@@ -288,6 +289,7 @@
     <string name="store_mute_updates_summary">Il ne comptera plus comme obsolète, ici comme dans la liste des modules</string>
     <string name="store_options">Options</string>
     <string name="scope_framework_shared">Un seul processus partagé par tous les utilisateurs : cela concerne tout l\'appareil</string>
+    <string name="scope_self_hook">Ce module est chargé dans sa propre application : c\'est ainsi qu\'il signale qu\'il est actif</string>
     <string name="update_no_output">L\'installateur n\'a rien affiché.</string>
     <string name="update_variant_release">Version finale</string>
     <string name="update_variant_debug">Débogage</string>
@@ -401,4 +403,24 @@
     <string name="settings_doh_working">Fonctionne — %1$s a été résolu via Cloudflare.</string>
     <string name="settings_doh_fell_back">Cloudflare est injoignable (%1$s) ; le résolveur du réseau est utilisé pour le reste de cette session.</string>
     <string name="settings_doh_retry">Réessayer</string>
+
+    <string name="launcher_title">Comment ouvrir Vector</string>
+    <string name="launcher_body">Vector n\'est pas installé comme application, votre lanceur n\'a donc rien à afficher. Voici les moyens d\'y revenir.</string>
+    <string name="launcher_shortcut">Raccourci sur l\'écran d\'accueil</string>
+    <string name="launcher_shortcut_create">Créer</string>
+    <string name="launcher_shortcut_unsupported">Votre lanceur n\'accepte pas les raccourcis épinglés.</string>
+    <string name="launcher_shortcut_refused">Votre lanceur a refusé le raccourci.</string>
+    <string name="launcher_turn_on">Activer</string>
+    <string name="launcher_install">Installer comme application</string>
+    <string name="launcher_install_action">Installer</string>
+    <string name="launcher_install_done">Vector est installé. Ouvrez-le depuis votre lanceur.</string>
+    <string name="launcher_install_failed">Vector n\'a pas pu être installé.</string>
+    <string name="launcher_install_conflict">Une copie de Vector signée avec une autre clé est déjà installée. Il faut la supprimer avant que celle-ci puisse tenir.</string>
+    <string name="launcher_install_remove">La supprimer</string>
+    <string name="launcher_route_available">Disponible</string>
+    <string name="launcher_note">Vous pouvez aussi composer %1$s, ou ouvrir Vector depuis le bouton d\'action de %2$s.</string>
+    <string name="launcher_root_generic">votre gestionnaire root</string>
+    <string name="launcher_prompt_title">Vector n\'a pas encore d\'icône</string>
+    <string name="launcher_prompt_body">Vector s\'exécute dans un autre processus au lieu d\'être installé : rien n\'apparaît dans votre lanceur et il n\'y a pas de moyen évident d\'y revenir. Donnez-lui un raccourci sur l\'écran d\'accueil, ou installez-le comme une application ordinaire.</string>
+    <string name="launcher_prompt_never">Ne plus demander</string>
 </resources>

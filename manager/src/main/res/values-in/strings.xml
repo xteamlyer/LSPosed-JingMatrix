@@ -215,6 +215,7 @@
     <string name="modules_scope_framework">Meng-hook framework sistem</string>
     <string name="scope_origin_locked">Ditetapkan oleh modul</string>
     <string name="scope_origin_chosen">Pilihan Anda</string>
+    <string name="scope_origin_derived">Selalu dalam cakupan</string>
     <string name="modules_selection_clear">Batalkan pilihan</string>
     <plurals name="modules_selected">
         <item quantity="other">%1$d dipilih</item>
@@ -281,6 +282,7 @@
     <string name="store_mute_updates_summary">Ia berhenti dihitung usang, di sini maupun di daftar modul</string>
     <string name="store_options">Opsi</string>
     <string name="scope_framework_shared">Satu proses yang dipakai bersama semua pengguna, jadi ini memengaruhi seluruh perangkat</string>
+    <string name="scope_self_hook">Modul ini dimuat ke dalam aplikasinya sendiri, begitulah cara ia melaporkan bahwa dirinya aktif</string>
     <string name="update_no_output">Pemasang tidak mengeluarkan apa pun.</string>
     <string name="update_variant_release">Rilis</string>
     <string name="update_variant_debug">Debug</string>
@@ -394,4 +396,24 @@
     <string name="settings_doh_working">Berfungsi — %1$s diselesaikan lewat Cloudflare.</string>
     <string name="settings_doh_fell_back">Cloudflare tidak dapat dihubungi (%1$s), jadi resolver jaringan dipakai untuk sisa sesi ini.</string>
     <string name="settings_doh_retry">Coba lagi</string>
+
+    <string name="launcher_title">Cara membuka Vector</string>
+    <string name="launcher_body">Vector tidak dipasang sebagai aplikasi, jadi launcher Anda tidak punya apa pun untuk ditampilkan. Ini jalan-jalan untuk kembali.</string>
+    <string name="launcher_shortcut">Pintasan di layar utama</string>
+    <string name="launcher_shortcut_create">Buat</string>
+    <string name="launcher_shortcut_unsupported">Launcher Anda tidak menerima pintasan yang disematkan.</string>
+    <string name="launcher_shortcut_refused">Launcher Anda menolak pintasan tersebut.</string>
+    <string name="launcher_turn_on">Nyalakan</string>
+    <string name="launcher_install">Pasang sebagai aplikasi</string>
+    <string name="launcher_install_action">Pasang</string>
+    <string name="launcher_install_done">Vector sudah terpasang. Buka dari launcher Anda.</string>
+    <string name="launcher_install_failed">Vector tidak bisa dipasang.</string>
+    <string name="launcher_install_conflict">Sudah ada salinan Vector yang ditandatangani dengan kunci berbeda. Salinan itu harus dihapus sebelum yang ini bisa masuk.</string>
+    <string name="launcher_install_remove">Hapus</string>
+    <string name="launcher_route_available">Tersedia</string>
+    <string name="launcher_note">Anda juga bisa memutar %1$s, atau membuka Vector dari tombol aksi di %2$s.</string>
+    <string name="launcher_root_generic">pengelola root Anda</string>
+    <string name="launcher_prompt_title">Vector belum punya ikon</string>
+    <string name="launcher_prompt_body">Vector berjalan di dalam proses lain alih-alih dipasang, jadi tidak ada yang muncul di launcher Anda dan tidak ada jalan kembali yang jelas. Beri dia pintasan di layar utama, atau pasang sebagai aplikasi biasa.</string>
+    <string name="launcher_prompt_never">Jangan tanya lagi</string>
 </resources>

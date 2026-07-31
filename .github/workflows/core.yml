@@ -15,6 +15,14 @@ jobs:
     permissions:
       contents: write
     env:
+      # Where this build's code came from, for the version string the manager and module.prop show.
+      # Both are the head of the pull request rather than GitHub's defaults, which on a pull request
+      # describe the run instead of the code: GITHUB_REPOSITORY is this repository even when the
+      # branch came from a fork, and the checked-out HEAD is an ephemeral merge commit that exists
+      # nowhere and cannot be looked up by anyone who reads it off a device. Both head.* values are
+      # null outside a pull request, where the defaults are already right.
+      VECTOR_BUILD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      VECTOR_BUILD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
@@ -26,6 +34,15 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      # Before anything is built, because it needs nothing but Python and a translator's mistake
+      # should not wait twenty minutes to surface. Crowdin owns the content of these files, so what
+      # this catches is a bad merge or a line pasted into the wrong language -- both of which have
+      # happened, and neither of which any other check in this repository looks for.
+      - name: Check translations
+        run: |
+          python3 manager/tools/check_translations.py manager/src/main/res
+          python3 manager/tools/check_translations.py daemon/src/main/res
 
       # A missing secret used to be skipped over in silence, and the build carried on to publish a
       # canary or a tag signed with the debug key — which the daemon's InstallerVerifier rejects,
@@ -126,19 +143,28 @@ jobs:
           name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}
           path: "./Vector-Debug/*"
 
+      # One entry per module that minifies. `app` was the old manager and has not existed since
+      # #796, so the manager's mapping — the one an obfuscated stack trace from a user actually
+      # needs — has been missing from every run since.
       - name: Upload mappings
         uses: actions/upload-artifact@v7
         with:
           name: mappings
           path: |
             zygisk/build/outputs/mapping
-            app/build/outputs/mapping
+            manager/build/outputs/mapping
+            daemon/build/outputs/mapping
 
+      # DEBUG_SYMBOLS_PATH is set from `layout.buildDirectory` inside the root `subprojects` block,
+      # so each module writes its own build/symbols and nothing ever lands in the root one.
       - name: Upload symbols
         uses: actions/upload-artifact@v7
         with:
           name: symbols
-          path: build/symbols
+          path: |
+            zygisk/build/symbols
+            daemon/build/symbols
+            dex2oat/build/symbols
 
       # --- canary distribution ---------------------------------------------------------------
       #

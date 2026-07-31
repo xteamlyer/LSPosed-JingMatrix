@@ -148,10 +148,17 @@ interface ILSPManagerService {
     void installFrameworkZip(String zipPath, IFrameworkInstallCallback callback) = 57;
 
     /**
-     * The commit this daemon was built from, short, or null when it was not recorded.
+     * Which build this daemon is, or null when it was not recorded.
      *
      * The version code is the commit count on origin/master, so a branch build and the official
      * build of the same count are indistinguishable by number alone. This is what tells them apart.
+     *
+     * Not a bare hash, despite the name: it is the build stamp, which names where the build came
+     * from as well as what commit it was made from — `93d66473-JingMatrix-Vector` from CI,
+     * `93d66473` from a clean local tree, `93d66473+thinkpad` from a modified one. The commit
+     * always leads, so a caller that wants it takes the head and not the whole string; `-` is
+     * followed by the repository that holds that commit, `+` by the machine holding changes that
+     * no repository does.
      */
     String getFrameworkCommit() = 58;
 
@@ -203,4 +210,15 @@ interface ILSPManagerService {
      * for it. Every app on screen goes with it.
      */
     void softReboot() = 62;
+
+    /**
+     * The manager APK the module was flashed with, opened read-only, or null when it cannot be.
+     *
+     * For installing the manager as an ordinary app. The manager cannot read this file itself:
+     * parasitically it runs as the host, whose UID has no business in the module directory, and
+     * standalone it is the very thing being replaced. The daemon verifies the signature before
+     * handing the descriptor over, so what comes back is the APK this framework would accept as its
+     * own manager and not whatever happens to sit at that path.
+     */
+    ParcelFileDescriptor getManagerApk() = 63;
 }
