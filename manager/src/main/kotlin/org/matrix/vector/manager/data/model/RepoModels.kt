@@ -137,9 +137,28 @@ data class ReleaseAsset(
  */
 data class RepoVersion(val versionCode: Long, val versionName: String) {
 
+    /** The tag this was read from, which is also how [StoreInstall] writes one back down. */
+    val tag: String
+        get() = "$versionCode-$versionName"
+
     fun upgradableOver(installedCode: Long, installedName: String): Boolean =
         versionCode > installedCode ||
             (versionCode == installedCode && installedName.replace(' ', '_') != versionName)
+
+    /**
+     * Whether installing this would leave the reader on the version they already have, by name.
+     *
+     * Which is all the offer can be worded as when it is true. Two different things reach here — a
+     * rebuild of the same version under a higher code, and a tag whose code is simply not the APK's
+     * — and nothing in either number tells them apart, so the wording has to be true of both. What
+     * is certain in both is where the reader ends up: on this version name again.
+     *
+     * The underscores are the same normalisation [upgradableOver] applies, and for the same reason:
+     * a git tag cannot carry a space, so an author whose versionName has one writes it with an
+     * underscore.
+     */
+    fun sameVersionAs(installed: RepoVersion?): Boolean =
+        installed != null && installed.versionName.replace(' ', '_') == versionName
 
     companion object {
         fun parse(raw: String?): RepoVersion? {
@@ -150,6 +169,35 @@ data class RepoVersion(val versionCode: Long, val versionName: String) {
             return RepoVersion(code, split[1])
         }
     }
+}
+
+/**
+ * A release this manager installed, and what the device said the module was afterwards.
+ *
+ * Two versions, because they are not the same kind of fact and need not be the same number:
+ * [release] is what a tag claimed, [installed] is what the APK inside it turned out to be.
+ *
+ * That difference is the whole reason this is recorded. The comparison above believes the tag, and
+ * nothing obliges an author to tag a release with the version their manifest actually states. Where
+ * the two disagree the offer cannot be satisfied by taking it: installing leaves the device on a
+ * version the tag still claims to beat, so the row asks again, and again, for ever.
+ *
+ * Nor can it be settled by reading the two numbers harder, because both halves of the comparison
+ * are load-bearing for someone: a module that never changes its tag code is only ever seen to
+ * update through the name clause, and one that reuses a versionName across several codes only
+ * through the code clause. Any rule over `(code, name)` is wrong for one of them.
+ *
+ * So the Store stops inferring and records instead. An offer it has already installed, on a device
+ * still reporting what that install produced, is one the reader has taken.
+ *
+ * [installed] is what makes the record expire on its own: it is checked against what the device
+ * reports now, so a module replaced from anywhere else stops matching and the offer comes back.
+ */
+data class StoreInstall(val release: RepoVersion, val installed: RepoVersion) {
+
+    /** Whether this note says [latest] is already here, as [current]. */
+    fun satisfies(latest: RepoVersion?, current: RepoVersion?): Boolean =
+        release == latest && installed == current
 }
 
 /**
@@ -164,9 +212,29 @@ data class StoreEntry(
     val installed: RepoVersion?,
     /** The reader asked not to be told about this one again. */
     val updatesMuted: Boolean = false,
+    /** What this manager last installed here, if this manager is what installed it. */
+    val storeInstall: StoreInstall? = null,
 ) {
+
+    /** The newest release is one we installed, and the device still reports what it left behind. */
+    private val alreadyInstalled: Boolean
+        get() = storeInstall?.satisfies(latest, installed) == true
+
+    /**
+     * The offer would not change which version this device says it has. See [sameVersionAs].
+     *
+     * Read by everything that *words* an offer, because `1.1.1 → 1.1.1` is a sentence the app cannot
+     * mean. [upgradable] deliberately does not consult it: whether to offer at all is a different
+     * question from what to call it, and a rebuild is worth offering.
+     */
+    val sameVersion: Boolean
+        get() = latest?.sameVersionAs(installed) == true
+
     /**
      * There is a newer version *and* the reader wants to hear about it.
+     *
+     * A release this manager itself installed is not a newer version, whatever the two numbers say;
+     * see [StoreInstall].
      *
      * Muting is folded in here rather than at each place that reads this, because every list and
      * count that mentions updates reads it — the Store's header count, its updates filter, its row
@@ -184,6 +252,7 @@ data class StoreEntry(
             !updatesMuted &&
                 installed != null &&
                 latest != null &&
+                !alreadyInstalled &&
                 latest.upgradableOver(installed.versionCode, installed.versionName)
 }
 
