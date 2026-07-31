@@ -16,14 +16,26 @@ plugins {
 }
 
 /** A ValueSource that executes 'git rev-list --count' to get the total commit count. */
-abstract class GitCommitCountValueSource : ValueSource<String, ValueSourceParameters.None> {
+interface GitRepositoryParameters : ValueSourceParameters {
+    val repositoryDirectory: Property<String>
+}
+
+abstract class GitCommitCountValueSource : ValueSource<String, GitRepositoryParameters> {
     @get:Inject abstract val execOperations: ExecOperations
 
     override fun obtain(): String {
         val output = ByteArrayOutputStream()
         val result = execOperations.exec {
-            commandLine("git", "rev-list", "--count", "refs/remotes/origin/master")
+            commandLine(
+                "git",
+                "-C",
+                parameters.repositoryDirectory.get(),
+                "rev-list",
+                "--count",
+                "refs/remotes/origin/master",
+            )
             standardOutput = output
+            errorOutput = ByteArrayOutputStream()
             isIgnoreExitValue = true
         }
         // Return the count if successful, otherwise a default of "1".
@@ -36,14 +48,22 @@ abstract class GitCommitCountValueSource : ValueSource<String, ValueSourceParame
 }
 
 /** A ValueSource that executes 'git tag' to get the latest version tag. */
-abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParameters.None> {
+abstract class GitLatestTagValueSource : ValueSource<String, GitRepositoryParameters> {
     @get:Inject abstract val execOperations: ExecOperations
 
     override fun obtain(): String {
         val output = ByteArrayOutputStream()
         val result = execOperations.exec {
-            commandLine("git", "tag", "--list", "--sort=-v:refname")
+            commandLine(
+                "git",
+                "-C",
+                parameters.repositoryDirectory.get(),
+                "tag",
+                "--list",
+                "--sort=-v:refname",
+            )
             standardOutput = output
+            errorOutput = ByteArrayOutputStream()
             isIgnoreExitValue = true
         }
         // If successful, parse the first line. Provide a default if no tags are found.
@@ -115,7 +135,7 @@ abstract class GitLatestTagValueSource : ValueSource<String, ValueSourceParamete
  * the manager shows on the status page. BuildConfig.VERSION_NAME is deliberately left clean.
  */
 abstract class GitCommitHashValueSource : ValueSource<String, GitCommitHashValueSource.Parameters> {
-    interface Parameters : ValueSourceParameters {
+    interface Parameters : GitRepositoryParameters {
         /**
          * `owner/repo` when GitHub Actions is building this, empty otherwise.
          *
@@ -150,6 +170,9 @@ abstract class GitCommitHashValueSource : ValueSource<String, GitCommitHashValue
             }
             .getOrNull()
 
+    private fun captureGit(vararg command: String): String? =
+        capture("git", "-C", parameters.repositoryDirectory.get(), *command)
+
     /**
      * The machine's name, reduced to what is safe in a version string.
      *
@@ -169,11 +192,11 @@ abstract class GitCommitHashValueSource : ValueSource<String, GitCommitHashValue
     override fun obtain(): String {
         // Abbreviated by git rather than by hand, so a CI build and a local build of the same commit
         // read identically however long this repository's abbreviation happens to be.
-        val head = capture("git", "rev-parse", "--short", "HEAD") ?: return "unknown"
+        val head = captureGit("rev-parse", "--short", "HEAD") ?: return "unknown"
 
         val repository = parameters.buildRepository.getOrElse("")
         if (repository.isBlank()) {
-            val dirty = capture("git", "status", "--porcelain", "--untracked-files=no") != null
+            val dirty = captureGit("status", "--porcelain", "--untracked-files=no") != null
             return if (dirty) "$head+${hostname()}" else head
         }
 
@@ -182,13 +205,21 @@ abstract class GitCommitHashValueSource : ValueSource<String, GitCommitHashValue
         // not, and a slightly odd length beats reporting the merge commit or nothing at all.
         val pushed = parameters.buildCommit.getOrElse("").takeIf { it.isNotBlank() }
         val short =
-            pushed?.let { capture("git", "rev-parse", "--short", it) ?: it.take(head.length) } ?: head
+            pushed?.let {
+                captureGit("rev-parse", "--short", it) ?: it.take(head.length)
+            } ?: head
         return short + "-" + repository.replace('/', '-')
     }
 }
 
 // This defers the execution of the git commands and allows Gradle to cache the results.
-val versionCodeProvider by extra(providers.of(GitCommitCountValueSource::class.java) {})
+val coreRepositoryDirectory = projectDir.absolutePath
+val versionCodeProvider by
+    extra(
+        providers.of(GitCommitCountValueSource::class.java) {
+            parameters.repositoryDirectory.set(coreRepositoryDirectory)
+        }
+    )
 val versionHashProvider by
     extra(
         providers.of(GitCommitHashValueSource::class.java) {
@@ -204,9 +235,15 @@ val versionHashProvider by
             parameters.buildCommit.set(
                 providers.environmentVariable("VECTOR_BUILD_COMMIT").orElse("")
             )
+            parameters.repositoryDirectory.set(coreRepositoryDirectory)
         }
     )
-val versionNameProvider by extra(providers.of(GitLatestTagValueSource::class.java) {})
+val versionNameProvider by
+    extra(
+        providers.of(GitLatestTagValueSource::class.java) {
+            parameters.repositoryDirectory.set(coreRepositoryDirectory)
+        }
+    )
 
 val injectedPackageName by extra("com.android.shell")
 val injectedPackageUid by extra(2000)
