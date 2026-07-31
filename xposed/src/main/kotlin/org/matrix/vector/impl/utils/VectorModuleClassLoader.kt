@@ -123,6 +123,9 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         return null
     }
 
+    override fun getLdLibraryPath(): String =
+        nativeLibraryDirs.joinToString(File.pathSeparator) { it.path }
+
     override fun findResource(name: String): URL? {
         return try {
             val urlHandler = VectorURLStreamHandler(apkPath)
@@ -138,6 +141,20 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         return Collections.enumeration(result)
     }
 
+    override fun getResource(name: String): URL? {
+        Any::class.java.classLoader?.getResource(name)?.let { return it }
+        findResource(name)?.let { return it }
+        return parent?.getResource(name)
+    }
+
+    override fun getResources(name: String): Enumeration<URL> {
+        val resources = LinkedHashSet<URL>()
+        appendResources(resources, Any::class.java.classLoader?.getResources(name))
+        appendResources(resources, findResources(name))
+        appendResources(resources, parent?.getResources(name))
+        return Collections.enumeration(resources)
+    }
+
     override fun toString(): String {
         return "VectorModuleClassLoader[module=$apkPath, ${super.toString()}]"
     }
@@ -146,11 +163,27 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         private const val TAG = "VectorModuleClassLoader"
         private const val ZIP_SEPARATOR = "!/"
         private const val LEGACY_API_PREFIX = "de.robv.android.xposed."
-        private val SYSTEM_NATIVE_LIBRARY_DIRS = splitPaths(System.getProperty("java.library.path"))
+        private val SYSTEM_NATIVE_LIBRARY_DIRS =
+            splitPaths(System.getProperty("java.library.path")).filter { file ->
+                val path = file.path
+                path.startsWith("/apex/") ||
+                    path.startsWith("/system/") ||
+                    path.startsWith("/system_ext/") ||
+                    path.startsWith("/product/") ||
+                    path.startsWith("/vendor/") ||
+                    path.startsWith("/odm/")
+            }
 
         private fun splitPaths(searchPath: String?): List<File> {
             if (searchPath.isNullOrEmpty()) return emptyList()
             return searchPath.split(File.pathSeparator).map { File(it) }
+        }
+
+        private fun appendResources(resources: MutableSet<URL>, entries: Enumeration<URL>?) {
+            if (entries == null) return
+            while (entries.hasMoreElements()) {
+                resources.add(entries.nextElement())
+            }
         }
 
         /**
