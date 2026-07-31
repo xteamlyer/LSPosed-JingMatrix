@@ -112,6 +112,14 @@ bool InstallNativeAPI(const lsplant::HookHandler &handler);
 void RegisterNativeLib(const std::string &library_name);
 
 /**
+ * Eagerly loads a registered native module from an exact filesystem or APK zip path.
+ *
+ * Rootless loaders cannot rely on observing a later dlopen, because a module may call JNI from its
+ * Java entrypoint immediately.
+ */
+bool EagerInitializeNativeLib(const std::string &library_name, const std::string &library_path);
+
+/**
  * @brief A wrapper around DobbyHook.
  */
 inline int HookInline(void *original, void *replace, void **backup) {

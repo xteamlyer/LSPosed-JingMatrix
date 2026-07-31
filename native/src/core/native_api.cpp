@@ -6,6 +6,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <unordered_set>
 
 #include "common/logging.h"
 #include "elf/elf_image.h"
@@ -87,6 +88,7 @@ std::mutex g_module_registry_mutex;
 std::list<NativeOnModuleLoaded> g_module_loaded_callbacks;
 // List of native library filenames that are registered as modules.
 std::list<std::string> g_module_native_libs;
+std::unordered_set<void *> g_seen_module_handles;
 
 // A smart pointer to a memory page that will hold the NativeAPIEntries struct.
 std::unique_ptr<void, std::function<void(void *)>> g_api_page(
@@ -146,6 +148,20 @@ void RegisterNativeLib(const std::string &library_name) {
     LOGD("Native module library '{}' has been registered.", library_name.c_str());
 }
 
+void *HandleLibraryLoaded(void *handle, const char *name);
+
+bool EagerInitializeNativeLib(const std::string &library_name, const std::string &library_path) {
+    RegisterNativeLib(library_name);
+    void *handle = dlopen(library_path.c_str(), RTLD_NOW);
+    if (handle == nullptr) {
+        LOGW("Failed to eagerly load '{}' from '{}': {}", library_name.c_str(),
+             library_path.c_str(), dlerror());
+        return false;
+    }
+    HandleLibraryLoaded(handle, library_path.c_str());
+    return true;
+}
+
 bool HasEnding(std::string_view fullString, std::string_view ending) {
     if (fullString.length() >= ending.length()) {
         return (fullString.compare(fullString.length() - ending.length(), std::string_view::npos,
@@ -154,17 +170,14 @@ bool HasEnding(std::string_view fullString, std::string_view ending) {
     return false;
 }
 
-inline static auto do_dlopen_hook =
-    "__dl__Z9do_dlopenPKciPK17android_dlextinfoPKv"_sym.hook->*
-    []<lsplant::Backup auto backup>(const char *name, int flags, const void *extinfo,
-                                    const void *caller_addr) static -> void * {
-    void *handle = backup(name, flags, extinfo, caller_addr);
+void *HandleLibraryLoaded(void *handle, const char *name) {
     const std::string lib_name = (name != nullptr) ? name : "null";
-    LOGV("do_dlopen hook triggered for library: '{}'", lib_name.c_str());
+    LOGV("native loader hook triggered for library: '{}'", lib_name.c_str());
 
     if (handle == nullptr) return nullptr;
 
     std::lock_guard<std::mutex> lock(g_module_registry_mutex);
+    if (!g_seen_module_handles.emplace(handle).second) return handle;
 
     for (std::string_view module_lib : g_module_native_libs) {
         if (HasEnding(lib_name, module_lib)) {
@@ -190,8 +203,27 @@ inline static auto do_dlopen_hook =
     }
 
     return handle;
+}
+
+inline static auto do_dlopen_hook =
+    "__dl__Z9do_dlopenPKciPK17android_dlextinfoPKv"_sym.hook->*
+    []<lsplant::Backup auto backup>(const char *name, int flags, const void *extinfo,
+                                    const void *caller_addr) static -> void * {
+    return HandleLibraryLoaded(backup(name, flags, extinfo, caller_addr), name);
 };
 
-bool InstallNativeAPI(const lsplant::HookHandler &handler) { return handler(do_dlopen_hook); }
+inline static auto loader_dlopen_hook =
+    "__loader_dlopen"_sym.hook->*
+    []<lsplant::Backup auto backup>(const char *name, int flags,
+                                    const void *caller_addr) static -> void * {
+    return HandleLibraryLoaded(backup(name, flags, caller_addr), name);
+};
+
+bool InstallNativeAPI(const lsplant::HookHandler &handler) {
+    bool installed = false;
+    installed = handler(do_dlopen_hook) || installed;
+    installed = handler(loader_dlopen_hook) || installed;
+    return installed;
+}
 
 }  // namespace vector::native
