@@ -196,12 +196,6 @@ class VectorContext(
     override fun log(priority: Int, tag: String?, msg: String, tr: Throwable?) {
         val finalTag = tag ?: "VectorContext"
         val prefix = if (packageName.isNotEmpty()) "$packageName: " else ""
-        val fullMsg = buildString {
-            append(prefix).append(msg)
-            if (tr != null) {
-                append("\n").append(android.util.Log.getStackTraceString(tr))
-            }
-        }
-        Log.println(priority, finalTag, fullMsg)
+        VectorLogBridge.log(priority, finalTag, prefix + msg, tr)
     }
 }

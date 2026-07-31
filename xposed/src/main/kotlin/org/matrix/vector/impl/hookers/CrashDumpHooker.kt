@@ -1,7 +1,8 @@
 package org.matrix.vector.impl.hookers
 
+import android.util.Log
 import io.github.libxposed.api.XposedInterface
-import org.lsposed.lspd.util.Utils
+import org.matrix.vector.impl.VectorLogBridge
 
 /**
  * Intercepts uncaught exceptions in the framework to provide diagnostic logging before the process
@@ -12,7 +13,12 @@ object CrashDumpHooker : XposedInterface.Hooker {
         try {
             val throwable = chain.args.firstOrNull() as? Throwable
             if (throwable != null) {
-                Utils.logE("Crash unexpectedly", throwable)
+                VectorLogBridge.log(
+                    Log.ERROR,
+                    "NPatchCrash",
+                    "Uncaught exception in ${Thread.currentThread().name}",
+                    throwable,
+                )
             }
         } catch (ignored: Throwable) {}
         return chain.proceed()
