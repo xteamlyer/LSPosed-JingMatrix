@@ -3,9 +3,11 @@ package org.matrix.vector.impl
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.os.ParcelFileDescriptor
+import android.os.RemoteException
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedInterface.ExceptionMode
 import io.github.libxposed.api.XposedModuleInterface.*
+import io.github.libxposed.api.error.XposedFrameworkError
 import java.io.FileNotFoundException
 import java.lang.reflect.Constructor
 import java.lang.reflect.Executable
@@ -82,7 +84,11 @@ class VectorContext(
     override fun getFrameworkVersionCode(): Long = BuildConfig.VERSION_CODE
 
     override fun getFrameworkProperties(): Long {
-        return service.getFrameworkProperties()
+        return try {
+            service.getFrameworkProperties()
+        } catch (_: RemoteException) {
+            0L
+        }
     }
 
     override fun hook(origin: Executable): XposedInterface.HookBuilder {
@@ -167,12 +173,20 @@ class VectorContext(
     }
 
     override fun listRemoteFiles(): Array<String> {
-        return service.remoteFileList
+        return try {
+            service.remoteFileList
+        } catch (error: RemoteException) {
+            throw XposedFrameworkError("Remote file IPC failure", error)
+        }
     }
 
     override fun openRemoteFile(name: String): ParcelFileDescriptor {
-        return service.openRemoteFile(name)
-            ?: throw FileNotFoundException("Cannot open remote file: $name")
+        return try {
+            service.openRemoteFile(name)
+                ?: throw FileNotFoundException("Cannot open remote file: $name")
+        } catch (error: RemoteException) {
+            throw FileNotFoundException(error.message).apply { initCause(error) }
+        }
     }
 
     override fun log(priority: Int, tag: String?, msg: String) {
