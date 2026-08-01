@@ -27,13 +27,17 @@ import org.matrix.vector.manager.ui.navigation.LocalNavigator
 import org.matrix.vector.manager.ui.navigation.Navigator
 import org.matrix.vector.manager.ui.navigation.Scope
 import org.matrix.vector.manager.ui.navigation.StoreDetail
+import org.matrix.vector.manager.ui.navigation.CrashTrace
+import org.matrix.vector.manager.ui.navigation.LogTrace
 import org.matrix.vector.manager.ui.navigation.SystemStatus
 import org.matrix.vector.manager.ui.navigation.Web
 import org.matrix.vector.manager.ui.navigation.TOP_LEVEL_DESTINATIONS
 import org.matrix.vector.manager.ui.navigation.TopLevelRoute
 import org.matrix.vector.manager.ui.navigation.rememberNavigator
 import org.matrix.vector.manager.ui.screens.home.HomeScreen
+import org.matrix.vector.manager.ui.screens.home.CrashTraceScreen
 import org.matrix.vector.manager.ui.screens.home.SystemStatusScreen
+import org.matrix.vector.manager.ui.screens.logs.LogTraceScreen
 import org.matrix.vector.manager.ui.screens.logs.LogsScreen
 import org.matrix.vector.manager.ui.screens.modules.ModulesScreen
 import org.matrix.vector.manager.ui.screens.modules.ScopeScreen
@@ -143,7 +147,7 @@ private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
     entry<TopLevelRoute.Store> {
         RepoScreen(onModuleClick = { packageName -> navigator.go(StoreDetail(packageName)) })
     }
-    entry<TopLevelRoute.Logs> { LogsScreen() }
+    entry<TopLevelRoute.Logs> { LogsScreen(onOpenTrace = { text -> navigator.go(LogTrace(text)) }) }
 
     entry<Scope> { route ->
         ScopeScreen(
@@ -155,7 +159,16 @@ private fun EntryProviderScope<NavKey>.registerRoutes(navigator: Navigator) {
     entry<StoreDetail> { route ->
         RepoDetailsScreen(packageName = route.packageName, onNavigateBack = { navigator.back() })
     }
-    entry<SystemStatus> { SystemStatusScreen(onNavigateBack = { navigator.back() }) }
+    entry<SystemStatus> {
+        SystemStatusScreen(
+            onNavigateBack = { navigator.back() },
+            onOpenCrash = { navigator.go(CrashTrace) },
+        )
+    }
+    entry<CrashTrace> { CrashTraceScreen(onNavigateBack = { navigator.back() }) }
+    entry<LogTrace> { route ->
+        LogTraceScreen(text = route.text, onNavigateBack = { navigator.back() })
+    }
     entry<Troubleshoot> {
         TroubleshootScreen(
             onNavigateBack = { navigator.back() },

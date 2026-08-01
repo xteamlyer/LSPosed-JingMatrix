@@ -93,25 +93,45 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
         val rows = ArrayList<LogRow>(lines.size + 8)
         var lastDate: String? = null
         var traceOwner = -1
-        var trace: ArrayList<String>? = null
+        var continuation: ArrayList<String>? = null
+        // Set when a line folded into the entry above had been cut. The flag belongs on the row a
+        // reader can see, and after a join the cut line may no longer be one of them.
+        var continuationCut = false
 
-        fun flushTrace() {
-            val frames = trace
-            if (traceOwner >= 0 && frames != null) {
-                rows[traceOwner] = (rows[traceOwner] as LogRow.Entry).copy(trace = frames)
+        fun flushContinuation() {
+            val lines = continuation
+            if (traceOwner >= 0 && lines != null) {
+                val owner = rows[traceOwner] as LogRow.Entry
+                rows[traceOwner] =
+                    owner.copy(continuation = lines, truncated = owner.truncated || continuationCut)
             }
-            trace = null
+            continuation = null
+            continuationCut = false
             traceOwner = -1
         }
 
+        fun addContinuation(text: String, cut: Boolean) {
+            (continuation ?: ArrayList<String>(8).also { continuation = it }).add(text)
+            if (cut) continuationCut = true
+        }
+
         forEachLine(index, lines, null) { lineIndex, text, truncated ->
-            if (traceOwner >= 0 && isContinuationLine(text)) {
-                // A multi-line message reaches the file as one writev, so its continuation lines
-                // carry no prefix. They are frames of the entry above, not entries of their own.
-                (trace ?: ArrayList<String>(8).also { trace = it }).add(text)
+            // Parsed first, always. A multi-line message reaches the file as one writev, so its
+            // continuation lines carry no prefix — but *carrying* one is what makes a line an entry
+            // of its own, and asking only whether a line could be a continuation swallows the whole
+            // log into whichever entry happens to be first.
+            val row = parseLogLine(lineIndex, text, truncated)
+            val owner = if (traceOwner >= 0) rows[traceOwner] as LogRow.Entry else null
+            if (owner != null && row !is LogRow.Entry && isContinuationLine(text)) {
+                addContinuation(text, truncated)
+            } else if (owner != null && row is LogRow.Entry && isSplitChunk(owner, row)) {
+                // A tail the writer was forced to cut off. Its prefix is dropped and its message
+                // rejoins the entry above, which is where it was written; the lines after it need
+                // no special case, because [traceOwner] never moved.
+                addContinuation(row.message, truncated)
             } else {
-                flushTrace()
-                when (val row = parseLogLine(lineIndex, text, truncated)) {
+                flushContinuation()
+                when (row) {
                     is LogRow.Entry -> {
                         if (row.date != lastDate) {
                             lastDate = row.date
@@ -124,16 +144,32 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
                 }
             }
         }
-        flushTrace()
+        flushContinuation()
         return rows
     }
 
     /**
      * Walks back from [line] to the entry that owns it.
      *
-     * Without this a window boundary landing between an entry and its stack trace opens the page
-     * on orphan frames with nothing to attach them to. Only the first byte of each candidate line
-     * is read — up to [TRACE_LOOKBACK] single-byte positional reads, all of them page-cache hits.
+     * Without this a window boundary landing inside a multi-line message opens the page on its tail
+     * with nothing to attach it to. It stops on the first line that is an entry — the owner — or on
+     * one of the daemon's raw banners, which own nothing.
+     *
+     * Indented lines, which are most of them, still cost one byte: nothing else in the format
+     * begins with a space or a tab, so they are continuations without being read. Anything else
+     * costs a capped read of the line's head, which is what the general rule needs — a continuation
+     * is no longer recognisable from its first character, and pretending otherwise is what left the
+     * `Caused by:` and the `--- Parsed Mount Argument ---` lines stranded.
+     *
+     * A line that is *neither* is also where the walk has to stop: it is a marker the scanner could
+     * not read, and stepping over it would hand the window a start belonging to some earlier
+     * entry.
+     *
+     * An entry that [looksLikeSplitChunk] is stepped over too, since [readRows] is about to fold it
+     * into the entry above and stopping on it would open the page on half a trace again. Only the
+     * message is examined, not [isSplitChunk]'s full test: the entry this one would be compared
+     * against is further back than the line above, and walking one line too far only widens the
+     * window, which is free — whereas stopping one line too early is the bug.
      */
     fun entryStart(index: LogIndex, line: Int): Int {
         if (line >= index.lineCount) return line
@@ -141,7 +177,13 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
         var steps = 0
         while (at > 0 && steps < TRACE_LOOKBACK) {
             val first = firstByte(index, at)
-            if (first != SPACE && first != TAB) break
+            if (first != SPACE && first != TAB) {
+                val text = lineText(index, at)
+                val row = parseLogLine(at, text)
+                if (row is LogRow.Entry) {
+                    if (!looksLikeSplitChunk(row.message)) break
+                } else if (!isContinuationLine(text)) break
+            }
             at--
             steps++
         }
@@ -165,19 +207,33 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
         val tags = HashMap<String, Int>()
         val levels = HashMap<LogLevel, Int>()
         var previousMatched = false
+        // The last row that was an entry, which is what lets a line be read as part of its message
+        // here exactly as [readRows] reads it — both the unprefixed kind and the split-off tail.
+        // Without it the two passes disagree, and a filtered view drops the half of a trace the
+        // unfiltered one keeps. It is the row rather than a flag because [isSplitChunk] compares
+        // against the entry itself.
+        var lastEntry: LogRow.Entry? = null
 
         forEachLine(index, null, onProgress) { lineIndex, text, truncated ->
-            if (isContinuationLine(text)) {
+            // Parsed before the continuation test, for the reason given in [readRows]: a line that
+            // carries a prefix is an entry whatever precedes it.
+            val row = parseLogLine(lineIndex, text, truncated)
+            val owner = lastEntry
+            val joins =
+                owner != null &&
+                    if (row is LogRow.Entry) isSplitChunk(owner, row) else isContinuationLine(text)
+            if (joins) {
                 // Frames follow their entry into the filtered view; a stack trace whose header
-                // matched and whose body vanished is a filter actively hiding the answer.
+                // matched and whose body vanished is a filter actively hiding the answer. A joined
+                // tail counts for neither facet, because the row it belongs to was counted once.
                 if (previousMatched) matches?.add(lineIndex)
                 return@forEachLine
             }
-            val row = parseLogLine(lineIndex, text, truncated)
             if (row is LogRow.Entry) {
                 tags[row.tag] = (tags[row.tag] ?: 0) + 1
                 levels[row.level] = (levels[row.level] ?: 0) + 1
             }
+            lastEntry = row as? LogRow.Entry
             previousMatched = query.matches(row)
             if (previousMatched) matches?.add(lineIndex)
         }
@@ -267,6 +323,23 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
         return total
     }
 
+    /**
+     * The head of a line, decoded — enough of it to tell an entry and a banner from a continuation.
+     *
+     * Only the head is needed: [parseLogLine] decides on the prefix, which is fixed-width and far
+     * shorter than this, and [isContinuationLine] on a banner, which is shorter still. So the read
+     * is capped rather than following a line of unbounded length. It borrows [block], which is safe
+     * only because the one caller, [entryStart], runs between block iterations and never during
+     * one.
+     */
+    private fun lineText(index: LogIndex, line: Int): String {
+        val from = index.bounds[line]
+        val length = min(index.bounds[line + 1] - from, HEADER_PROBE.toLong()).toInt()
+        if (length <= 0) return ""
+        val read = readAt(from, length)
+        return if (read <= 0) "" else String(block, 0, read, Charsets.UTF_8).trimEnd('\n', '\r')
+    }
+
     private fun firstByte(index: LogIndex, line: Int): Int {
         if (index.bounds[line + 1] <= index.bounds[line]) return -1
         oneByte.clear()
@@ -288,6 +361,9 @@ class LogFile(pfd: ParcelFileDescriptor) : Closeable {
 
         /** How far back a window start may walk to find the entry that owns a stack frame. */
         private const val TRACE_LOOKBACK = 64
+
+        /** Comfortably past the longest throwable type name anyone has written. */
+        private const val HEADER_PROBE = 512
 
         private const val NEWLINE = '\n'.code.toByte()
         private const val RETURN = '\r'.code.toByte()
