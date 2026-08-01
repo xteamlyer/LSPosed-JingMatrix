@@ -94,6 +94,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
@@ -224,6 +225,14 @@ fun ScopeScreen(
             )
             viewModel.consumeMessage()
         }
+    }
+
+    // The view model is scoped to the navigation entry, so it survives leaving the app entirely,
+    // and nothing else re-reads the scope after `init`. Without this the screen would go on showing
+    // what the table held when it opened. See `refreshSavedScope` for who else writes it.
+    LifecycleResumeEffect(packageName, userId) {
+        viewModel.refreshSavedScope()
+        onPauseOrDispose {}
     }
 
     // Leaving a module enabled with nothing to hook does nothing at all but looks like it works.
@@ -427,7 +436,15 @@ fun ScopeScreen(
                 items(apps, key = { "${it.packageName}:${it.userId}" }) { app ->
                     AppRow(
                         app = app,
-                        enabled = !state.recommended.staticScope && !app.isImplicitInScope,
+                        // A static scope fixes *which apps may be listed*, not which of them the
+                        // user wants. "Users should not apply the module on apps outside the scope
+                        // list" is the whole of what module.prop claims, the list above is already
+                        // narrowed to that set, and the daemon refuses only targets beyond it — a
+                        // subset is accepted. Disabling every row here went further than any of
+                        // that and made the declared scope all or nothing: a module naming three
+                        // apps could be given all three from the selection menu or none, and one
+                        // of them never, with no way to drop one afterwards either.
+                        enabled = !app.isImplicitInScope,
                         origin =
                             when {
                                 app.isImplicitInScope -> ScopeOrigin.Derived
@@ -802,9 +819,9 @@ private fun ScopeEmptyState() {
  * How a row came to be in the scope, which decides the ring around its icon.
  *
  * Different mechanisms can put an app in a module's scope and they behave differently when the
- * world changes — one is fixed forever, one is the module's suggestion, one is only ever what you
- * ticked. Rendered as an identical checkbox, a scope the module controls looks exactly like a
- * scope the user controls.
+ * world changes — two are the module naming a target, one is only ever what you ticked, and one is
+ * the framework's own doing. Rendered as an identical checkbox, a row the module asked for looks
+ * exactly like a row someone went and found for themselves.
  *
  * There is deliberately no "auto-included" origin. The include-new-apps setting reacts to packages
  * installed *from now on*, and nothing records how an app already in the scope got there, so any
@@ -812,9 +829,13 @@ private fun ScopeEmptyState() {
  * rather than a claim about a row.
  */
 private enum class ScopeOrigin {
-    /** The module fixed this scope; the user cannot change it. */
+    /**
+     * The module asked for it and fixed the list it came from: no app it did not name reaches this
+     * screen. Which of the ones it did name are in the scope is still the user's — the daemon
+     * refuses only targets beyond the declared set, and takes any subset of it.
+     */
     Locked,
-    /** The module asked for it, but it is the user's choice. */
+    /** The module asked for it, and it is the user's choice. */
     Requested,
     /** Nothing asked for it; it is in the scope because someone ticked it. */
     Chosen,
@@ -830,13 +851,20 @@ private enum class ScopeOrigin {
 @Composable
 private fun ScopeOrigin.color(): Color =
     when (this) {
-        // Locked reads as "not yours to change", so it borrows the disabled-ish outline rather
-        // than a colour that invites a tap.
-        ScopeOrigin.Locked -> MaterialTheme.colorScheme.outline
+        // Locked and Requested are the same claim by the module — it named this app — and the tick
+        // beside either is the reader's to give or to take back, so they share the colour that
+        // invites a tap. It matters most under a static scope, where the list is the declared set
+        // and so every row of it is Locked: an outline meaning "not yours to change" would be
+        // saying that about every row of a list the reader is expected to work through. What is
+        // fixed there is which apps may be listed at all, which is a property of the list and not
+        // of any row in it — the caption says so, and the dead filter button and its snackbar say
+        // it in full.
+        ScopeOrigin.Locked,
         ScopeOrigin.Requested -> MaterialTheme.colorScheme.primary
         ScopeOrigin.Chosen -> Color.Transparent
-        // The same outline as Locked, and for the same reason: it is a tick nobody on this screen
-        // owns. The caption below it says which of the two kinds of "not yours" this one is.
+        // The one ring that does mean "not yours": a derived row is the only row on this screen
+        // that refuses a tap, because nothing here writes it and nothing here can take it away. The
+        // disabled-ish outline says so before the caption below it does.
         ScopeOrigin.Derived -> MaterialTheme.colorScheme.outline
     }
 

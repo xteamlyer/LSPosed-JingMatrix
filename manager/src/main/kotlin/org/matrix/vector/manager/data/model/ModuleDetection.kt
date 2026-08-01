@@ -26,7 +26,15 @@ data class ModuleManifest(
     val targetApiVersion: Int = 0,
     /** Packages the module asks to hook. */
     val scope: List<String> = emptyList(),
-    /** True when [scope] is the whole of it and the user cannot widen it. */
+    /**
+     * True when [scope] is the outer limit of what may be hooked, not merely what is asked for.
+     *
+     * It fixes the set the scope is drawn from and nothing more: which of those packages end up
+     * in the scope is still the user's answer, and the daemon's `ModuleDatabase.setModuleScope`
+     * refuses only targets beyond the claimed set, so any subset of it is stored.
+     *
+     * Never true while [scope] is empty, whatever module.prop says: see [ModuleDetection.inspect].
+     */
     val staticScope: Boolean = false,
     /** The module's own description, which the two generations store in different places. */
     val description: String = "",
@@ -102,6 +110,25 @@ object ModuleDetection {
                                         .map { it.trim() }
                                         .filter { it.isNotEmpty() }
                                 } ?: emptyList()
+
+                            // A module that fixes its scope and then names nothing has fixed it at
+                            // "no apps at all": the picker narrows its list to the declared set, so
+                            // the reader would be left with the empty-list state blaming a search
+                            // they never typed, and
+                            // the daemon would refuse every write and prune away the rows the user
+                            // already has. It is a packaging mistake — staticScope=true with a
+                            // scope.list that was never generated — so the flag is dropped and the
+                            // scope stays the user's. FileSystem.readStaticScope ignores the same
+                            // declaration, so the two sides agree on what such a module is allowed
+                            // to hook.
+                            if (static && scope.isEmpty()) {
+                                Log.w(
+                                    Constants.TAG,
+                                    "modules: ${info.packageName} fixes its scope but names " +
+                                        "nothing; ignoring staticScope and leaving the scope open",
+                                )
+                                static = false
+                            }
 
                             ModuleManifest(
                                 isModule = true,
@@ -216,8 +243,11 @@ object ModuleDetection {
 /**
  * What a module says it wants to hook.
  *
- * [staticScope] means the module only ever applies to [packages] and the user cannot widen it —
- * the scope editor shows the list read-only rather than pretending the choice is theirs.
+ * [staticScope] means the module fixes *which apps may be listed*, not which of them are hooked:
+ * [packages] is the outer limit and the user cannot widen it, but which of those packages are in
+ * the scope remains theirs to choose. The editor narrows its list to [packages] and leaves the
+ * checkboxes live for exactly that reason, and the daemon agrees — `setModuleScope` refuses only
+ * targets beyond the claimed set, so any subset of it is accepted.
  */
 data class RecommendedScope(val packages: List<String>, val staticScope: Boolean) {
     val isEmpty: Boolean
