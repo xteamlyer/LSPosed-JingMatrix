@@ -87,7 +87,13 @@ class ScopeViewModel(
 
     private val allApps = MutableStateFlow<List<AppInfo>>(emptyList())
 
-    /** What the daemon currently holds. */
+    /**
+     * What the daemon held when this screen last looked.
+     *
+     * The baseline the draft is measured against, and not an oracle: the scope table has writers
+     * other than this screen, so it goes stale the moment one of them runs. That is why
+     * [refreshSavedScope] exists, and why [apply] re-reads instead of trusting it.
+     */
     private val savedScope = MutableStateFlow<Set<ScopeTarget>>(emptySet())
 
     /**
@@ -99,6 +105,27 @@ class ScopeViewModel(
      * accumulate here and go out as one write.
      */
     private val draftScope = MutableStateFlow<Set<ScopeTarget>>(emptySet())
+
+    /**
+     * Every target whose tick this visit has actually changed and could otherwise be filtered away
+     * — one at a time from [toggle], in a batch from [clearAllVisible].
+     *
+     * [selectAllVisible] changes ticks too and deliberately marks nothing: a row it ticks is in the
+     * draft, and the draft already exempts a row from every filter. Only unticking can drop a row
+     * out of the list, so only unticking has anything to record here.
+     *
+     * Only the list's own filters read it, and only to keep a row present. Unticking is an edit
+     * like any other and the row has to survive it — an app that vanishes the moment it is
+     * unticked cannot be re-ticked, so a slip becomes permanent for as long as the reader does not
+     * think to go and turn a filter on. It never shrinks: a row put in play stays in play until
+     * the screen is left, which is the point.
+     *
+     * Which is also why nothing may go in that was not really changed. A row the reader merely
+     * *saw* would be exempted from the system, game and module filters for the rest of the visit,
+     * and since this never shrinks there would be no way back: turning system apps off again would
+     * hide nothing.
+     */
+    private val touched = MutableStateFlow<Set<ScopeTarget>>(emptySet())
 
     private val _uiState = MutableStateFlow(ScopeUiState())
     val uiState: StateFlow<ScopeUiState> = _uiState.asStateFlow()
@@ -213,6 +240,7 @@ class ScopeViewModel(
             // The saved set as well as the draft: the difference between them is what "newly
             // ticked" means, and the order below leads with it.
             .combine(savedScope) { filters, saved -> filters.copy(saved = saved) }
+            .combine(touched) { filters, t -> filters.copy(touched = t) }
             // Two typed halves rather than one list of Any. The inputs outnumber the arities
             // `combine` provides, and carrying them positionally through a `List<Any>` and casting
             // each one back out lets a rename or a reorder compile and then fail at runtime.
@@ -231,9 +259,10 @@ class ScopeViewModel(
                 val order = view.sort
                 val reverse = view.reverse
                 val recommended = view.state.recommended.packages.toSet()
-                // A static scope is the module's whole answer, so the list *is* that set. Showing
-                // the other few hundred apps beneath uncheckable checkboxes offered a choice that
-                // does not exist. This one stays absolute: there is no choice to preserve.
+                // A static scope fixes which apps may be *listed*, so the list is exactly that set.
+                // The daemon refuses every target beyond it, so a row for one of the other few
+                // hundred apps would offer a choice that does not exist. Absolute, unlike the
+                // filters below: this is not a view of the list the reader chose, it is the list.
                 val locked = view.state.recommended.staticScope
                 // The row the daemon hooks whether or not the table names it. Matched on the user
                 // as well as the package: the same module in a work profile is another copy with
@@ -251,35 +280,41 @@ class ScopeViewModel(
                             filters.query.isBlank() ||
                                 app.appName.contains(filters.query, ignoreCase = true) ||
                                 app.packageName.contains(filters.query, ignoreCase = true)
-                        // An app already in the scope is never filtered away. Otherwise a default
-                        // filter can hide a target the user deliberately chose, and the list then
-                        // disagrees with what the module is actually hooking.
-                        // Derived counts as chosen throughout, so the module's own row survives
-                        // every filter — including the module filter, which is off by default and
-                        // would otherwise hide the row this whole exemption exists to show.
-                        val chosen =
+                        // A row the reader is working with is never filtered away — and unticking
+                        // it is working with it. Keying this on the draft alone meant that
+                        // unticking a system app dropped it through the default filter and out of
+                        // the list mid-edit, taking with it the only tick that could undo the
+                        // mistake. So a row counts as in play if it was in force when this screen
+                        // opened, is in the draft now, or has been touched during this visit.
+                        // Derived counts throughout, so the module's own row survives every filter
+                        // — including the module filter, which is off by default and would
+                        // otherwise hide the row this whole exemption exists to show.
+                        val target = ScopeTarget(app.packageName, app.userId)
+                        val inPlay =
                             implicit(app) ||
-                                ScopeTarget(app.packageName, app.userId) in filters.draft
-                        if (filters.recommendedOnly) {
-                            // Answers one question — what does this module want, and what have I
-                            // given it — and the other filters have no say in it. Chrome is a
-                            // system app, so letting them apply would show nothing at all for a
+                                target in filters.draft ||
+                                target in filters.saved ||
+                                target in filters.touched
+                        if (locked || filters.recommendedOnly) {
+                            // Both answer one question — what does this module want, and what have
+                            // I given it — and the other filters have no say in either. Chrome is
+                            // a system app, so letting them apply would show nothing at all for a
                             // module asking for Chrome unless the reader had also thought to turn
-                            // system apps on. The screen greys the other three out while this is
-                            // on, and this is the code that makes that honest rather than
-                            // decorative.
-                            return@filter matchesQuery &&
-                                (chosen || app.packageName in recommended)
+                            // system apps on; a module that fixes its scope on system packages,
+                            // which is most of them, showed an empty list for exactly that reason.
+                            // The screen greys the other three out in both cases, and this is the
+                            // code that makes that honest rather than decorative.
+                            return@filter matchesQuery && (inPlay || app.packageName in recommended)
                         }
                         // The framework is a system target and is filtered like one. It needs no
                         // exemption of its own: once it is in the scope the line above puts it
                         // beyond every filter, and before it is chosen it is simply the most
                         // system of system apps, so someone who has asked not to see those has
                         // asked not to see it.
-                        val matchesSys = chosen || filters.showSystem || !app.isSystemApp
-                        val matchesGame = chosen || filters.showGames || !app.isGame
+                        val matchesSys = inPlay || filters.showSystem || !app.isSystemApp
+                        val matchesGame = inPlay || filters.showGames || !app.isGame
                         val matchesModule =
-                            chosen || showMods || modules == null || app.packageName !in modules
+                            inPlay || showMods || modules == null || app.packageName !in modules
                         matchesQuery && matchesSys && matchesGame && matchesModule
                     }
                     .map { app ->
@@ -356,6 +391,7 @@ class ScopeViewModel(
         val showGames: Boolean,
         val recommendedOnly: Boolean,
         val saved: Set<ScopeTarget> = emptySet(),
+        val touched: Set<ScopeTarget> = emptySet(),
     )
 
     private fun comparatorFor(order: ScopeSort): Comparator<AppInfo> =
@@ -417,21 +453,10 @@ class ScopeViewModel(
             val userCount =
                 withContext(Dispatchers.IO) { daemonClient.getUsers().getOrNull()?.size ?: 1 }
 
-            val savedResult = daemonClient.getModuleScope(modulePackageName)
-            // Keyed on the exception, not on a null: a fresh module with nothing ticked is a
-            // success carrying an empty list and must stay silent.
-            savedResult.exceptionOrNull()?.let { e ->
-                Log.e(
-                    Constants.TAG,
-                    "scope: reading the saved scope of $modulePackageName failed, showing none",
-                    e,
-                )
-            }
-            val saved =
-                savedResult
-                    .getOrNull()
-                    ?.map { ScopeTarget(it.packageName, it.userId) }
-                    ?.toSet() ?: emptySet()
+            // A scope the daemon will not hand over shows as none rather than keeping the screen
+            // shut; [readSavedScope] logs why, and keeps that case apart from the empty list a
+            // module with nothing ticked legitimately has.
+            val saved = readSavedScope() ?: emptySet()
             savedScope.value = saved
             draftScope.value = saved
 
@@ -483,6 +508,67 @@ class ScopeViewModel(
     }
 
     /**
+     * What the daemon holds for this module right now, or null when it would not say.
+     *
+     * Null and empty are different answers and every caller here has to tell them apart: a fresh
+     * module with nothing ticked is a success carrying an empty list, and treating a refused read
+     * as "no rows" would turn a broken connection into an erased scope.
+     */
+    private suspend fun readSavedScope(): Set<ScopeTarget>? {
+        val result = daemonClient.getModuleScope(modulePackageName)
+        result.exceptionOrNull()?.let { e ->
+            Log.e(Constants.TAG, "scope: reading the saved scope of $modulePackageName failed", e)
+        }
+        val rows = result.getOrNull() ?: return null
+        return rows.map { ScopeTarget(it.packageName, it.userId) }.toSet().asStored()
+    }
+
+    /**
+     * The set spelled the way the daemon stores it, so two readings of it can be subtracted.
+     *
+     * `ModuleDatabase.setModuleScope` files the framework under user 0 whoever asked for it, so it
+     * always comes back as user 0 — while a scope restored from a backup written by an older
+     * manager still names it under the module's own user, and this screen's own row for it is
+     * user 0. Comparing the two spellings without this makes the framework look added and removed
+     * at once, and a merge built on that difference would act on both.
+     */
+    private fun Set<ScopeTarget>.asStored(): Set<ScopeTarget> =
+        mapTo(mutableSetOf()) {
+            if (it.packageName == SYSTEM_FRAMEWORK_PACKAGE) it.copy(userId = 0) else it
+        }
+
+    /**
+     * Re-reads the stored scope and folds whatever arrived from elsewhere into the draft.
+     *
+     * Called every time the screen comes back to the front, because this editor is not the only
+     * writer of that table and the other writer is one tap away: the button in the corner opens
+     * the module, a libxposed module asks for a target while it runs, and the user approves it
+     * from the notification shade. Nothing here would ever notice — the load runs once, from
+     * `init` — so the list would go on drawing an empty box beside a target the module is already
+     * being loaded into, and the apply bar would count a removal nobody asked for.
+     *
+     * Additive on purpose. What the user has ticked here is theirs and survives untouched; a row
+     * that appeared outside joins both the baseline and the draft, so it reads as in force rather
+     * than as a pending change. A row that *vanished* outside is left in the draft, where it shows
+     * honestly as something applying would put back — unticking it here would undo a choice on the
+     * user's behalf and say nothing.
+     */
+    fun refreshSavedScope() {
+        // The screen's first resume lands while the load started in `init` is still in flight, and
+        // that load is this same read: running both races two answers into the same field for no
+        // gain, and the stale one can win. An apply is likewise mid-write and publishes its own
+        // result, which this would only be able to contradict.
+        if (_uiState.value.loading || _applying.value) return
+        viewModelScope.launch {
+            val current = readSavedScope() ?: return@launch
+            val baseline = savedScope.value.asStored()
+            if (current == baseline) return@launch
+            savedScope.value = current
+            draftScope.value = draftScope.value + (current - baseline)
+        }
+    }
+
+    /**
      * A stand-in for the system server.
      *
      * Borrows an existing entry's [android.content.pm.ApplicationInfo] purely so the row has
@@ -511,6 +597,8 @@ class ScopeViewModel(
         // unticking it would draw an empty box beside a process the module is still loaded into.
         if (app.isImplicitInScope) return
         val target = ScopeTarget(app.packageName, app.userId)
+        // Before the draft changes, so the row cannot be filtered out by the very edit being made.
+        touched.value = touched.value + target
         draftScope.value =
             if (selected) draftScope.value + target else draftScope.value - target
     }
@@ -527,12 +615,22 @@ class ScopeViewModel(
     }
 
     fun clearAllVisible() {
-        draftScope.value =
-            draftScope.value -
-                filteredApps.value
-                    .filterNot { it.isImplicitInScope }
-                    .map { ScopeTarget(it.packageName, it.userId) }
-                    .toSet()
+        val draft = draftScope.value
+        // The rows this call really unticks, which is only the visible part of the draft — the rest
+        // of the list is already clear and nothing is being done to it.
+        val cleared =
+            filteredApps.value
+                .filterNot { it.isImplicitInScope }
+                .map { ScopeTarget(it.packageName, it.userId) }
+                .filterTo(mutableSetOf()) { it in draft }
+        // Unticking everything visible must not empty the list as well. Without this, clearing a
+        // list of system apps removes the rows along with the ticks and leaves the reader looking
+        // at nothing, with no way to put any of it back. Marking the whole visible list instead of
+        // the part that changed would buy that at the price of the filters: [touched] never
+        // shrinks, so every row that happened to be on screen would stay on screen however the
+        // filters were set for the rest of the visit.
+        touched.value = touched.value + cleared
+        draftScope.value = draft - cleared
     }
 
     /** Replace the draft with exactly what the module asked for. */
@@ -683,10 +781,23 @@ class ScopeViewModel(
     }
 
     /**
-     * Writes the draft, once.
+     * Writes what the user did, once.
      *
-     * The whole draft goes out as one `setModuleScope`, which replaces every scope row of the
-     * module and triggers one configuration rebuild. The new scope reaches an app when its process
+     * Not the draft as it stands, deliberately. One `setModuleScope` replaces *every* scope row of
+     * the module, so sending a draft built when the screen opened sends a set that has never heard
+     * of anything written since — and a row can arrive while this screen sits in the background,
+     * because the user approving a module's own `requestScope` from the notification shade adds
+     * one. This screen's own button for opening the module is exactly how a module gets to run and
+     * ask. The approval would then be deleted by the next apply, minutes after the module had
+     * already been told it was granted, and nothing anywhere would say so.
+     *
+     * So the edit is what travels: the targets ticked and unticked here, applied to whatever the
+     * daemon holds at the moment of writing rather than to what the user was shown. When the fresh
+     * read fails there is nothing better than the picture on screen — falling back to the baseline
+     * reduces the expression below to exactly the draft, which is the behaviour this replaces, and
+     * refusing to apply at all would leave an edit that can never be committed.
+     *
+     * One write means one configuration rebuild. The new scope reaches an app when its process
      * next starts; nothing running is restarted here.
      *
      * The daemon enables the module as a side effect of storing a scope.
@@ -695,9 +806,22 @@ class ScopeViewModel(
         if (_applying.value) return
         viewModelScope.launch {
             _applying.value = true
-            val draft = draftScope.value
+            // The snapshot the draft was built from, so the difference between the two is exactly
+            // what was done on this screen and nothing else.
+            val baseline = savedScope.value.asStored()
+            val draft = draftScope.value.asStored()
+            val current = readSavedScope()
+            if (current == null) {
+                Log.w(
+                    Constants.TAG,
+                    "scope: could not re-read the scope of $modulePackageName before writing; " +
+                        "applying the draft as it stands",
+                )
+            }
+            val before = current ?: baseline
+            val merged = before + (draft - baseline) - (baseline - draft)
             val aidl =
-                draft.map { target ->
+                merged.map { target ->
                     Application().apply {
                         packageName = target.packageName
                         userId = target.userId
@@ -706,23 +830,30 @@ class ScopeViewModel(
             daemonClient
                 .setModuleScope(modulePackageName, aidl)
                 .onSuccess { stored ->
-                    // The daemon's answer, not merely the fact that it answered: it refuses a
-                    // draft that reaches beyond a scope the module fixes for itself, and keeping
-                    // the draft on a refusal would show a scope the framework never took.
+                    // The daemon's answer, not merely the fact that it answered: it refuses a set
+                    // that reaches beyond a scope the module fixes for itself, and moving the saved
+                    // set on a refusal would show a scope the framework never took.
                     if (!stored) {
                         Log.e(
                             Constants.TAG,
-                            "scope: daemon refused ${draft.size} targets for $modulePackageName",
+                            "scope: daemon refused ${merged.size} targets for $modulePackageName",
                         )
                         _message.value = ScopeMessage.ApplyFailed
                     } else {
                         // Whether the framework itself just joined or left this scope. Compared
-                        // against what was stored before the write, so it is the change that is
-                        // reported and not the mere presence of the row.
+                        // against what the daemon actually held a moment ago rather than against
+                        // the picture the screen was showing, so it is the change this write made
+                        // that is reported — not the mere presence of the row, and not a change
+                        // somebody else had already made.
                         val framework = ScopeTarget(SYSTEM_FRAMEWORK_PACKAGE, 0)
-                        val wasThere = framework in savedScope.value
-                        val isThere = framework in draft
-                        savedScope.value = draft
+                        val wasThere = framework in before
+                        val isThere = framework in merged
+                        savedScope.value = merged
+                        // The draft moves with it. What went out is now what is stored, and a row
+                        // that arrived from elsewhere and has just been written would otherwise sit
+                        // in the saved set but not the draft — the apply bar would come straight
+                        // back up offering to remove it.
+                        draftScope.value = merged
                         // Storing a scope enables the module, so applying one to a disabled
                         // module would leave the switch here and the row in the module list
                         // both saying it is off. Followed through the switch's own path, so
@@ -747,7 +878,7 @@ class ScopeViewModel(
                 .onFailure { e ->
                     Log.e(
                         Constants.TAG,
-                        "scope: apply of ${draft.size} targets to $modulePackageName failed",
+                        "scope: apply of ${merged.size} targets to $modulePackageName failed",
                         e,
                     )
                     _message.value = ScopeMessage.ApplyFailed

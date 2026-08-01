@@ -261,6 +261,7 @@
     <string name="update_channel_release">Bản chính thức</string>
     <string name="update_install">Cài đặt</string>
     <string name="update_downloading">Đã tải %1$s trên %2$s</string>
+    <string name="update_cancel_download">Huỷ tải xuống</string>
     <string name="update_flashing">Đang cài…</string>
     <string name="update_done">Đã cài</string>
     <string name="update_reboot">Khởi động lại</string>
@@ -303,6 +304,7 @@
     <string name="action_not_in_store_summary">Không thể kiểm tra bản cập nhật cho mô-đun này</string>
     <string name="action_update_to">Cập nhật lên %1$s</string>
     <string name="action_update_from">Từ %1$s · %2$s</string>
+    <string name="action_reinstall_same">Cùng phiên bản · %1$s</string>
     <string name="action_update_running">Đang cài đặt…</string>
     <string name="action_update_no_apk">Bản phát hành này không có APK</string>
     <string name="action_update_choose">Có nhiều bản dựng — chọn trong kho</string>
@@ -311,6 +313,7 @@
     <string name="modules_updating">Đang cập nhật %1$s — %2$d trên %3$d</string>
     <string name="modules_updates_title">Mô-đun cần cập nhật</string>
     <string name="modules_update_versions">%1$s → %2$s · %3$s</string>
+    <string name="modules_update_reinstall">Cài lại %1$s · %2$s</string>
     <string name="modules_update_ignored">Đang bỏ qua</string>
     <string name="modules_update_selected">Cập nhật %1$d</string>
     <plurals name="modules_updates">

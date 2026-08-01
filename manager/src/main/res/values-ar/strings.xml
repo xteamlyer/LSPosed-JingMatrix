@@ -316,6 +316,7 @@
     <string name="update_channel_release">إصدار مستقر</string>
     <string name="update_install">تثبيت</string>
     <string name="update_downloading">تم تنزيل %1$s من %2$s</string>
+    <string name="update_cancel_download">إلغاء التنزيل</string>
     <string name="update_flashing">جارٍ التثبيت…</string>
     <string name="update_done">تم التثبيت</string>
     <string name="update_reboot">إعادة التشغيل</string>
@@ -358,6 +359,7 @@
     <string name="action_not_in_store_summary">لا يمكن التحقق من تحديثات هذه الوحدة</string>
     <string name="action_update_to">التحديث إلى %1$s</string>
     <string name="action_update_from">من %1$s · %2$s</string>
+    <string name="action_reinstall_same">الإصدار نفسه · %1$s</string>
     <string name="action_update_running">جارٍ التثبيت…</string>
     <string name="action_update_no_apk">هذا الإصدار لا يحتوي على APK للتثبيت</string>
     <string name="action_update_choose">عدة إصدارات — اختر واحدًا في المتجر</string>
@@ -366,6 +368,7 @@
     <string name="modules_updating">جارٍ تحديث %1$s — %2$d من %3$d</string>
     <string name="modules_updates_title">وحدات للتحديث</string>
     <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_reinstall">إعادة تثبيت %1$s · %2$s</string>
     <string name="modules_update_ignored">مُتجاهَلة</string>
     <string name="modules_update_selected">تحديث %1$d</string>
     <plurals name="modules_updates">

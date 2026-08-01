@@ -272,6 +272,7 @@
     <string name="update_channel_release">نسخهٔ پایدار</string>
     <string name="update_install">نصب</string>
     <string name="update_downloading">‏%1$s از %2$s بارگیری شد</string>
+    <string name="update_cancel_download">لغو بارگیری</string>
     <string name="update_flashing">در حال نصب…</string>
     <string name="update_done">نصب شد</string>
     <string name="update_reboot">راه‌اندازی دوباره</string>
@@ -314,6 +315,7 @@
     <string name="action_not_in_store_summary">به‌روزرسانی‌های این ماژول بررسی‌شدنی نیست</string>
     <string name="action_update_to">به‌روزرسانی به %1$s</string>
     <string name="action_update_from">از %1$s · %2$s</string>
+    <string name="action_reinstall_same">همان نسخه · %1$s</string>
     <string name="action_update_running">در حال نصب…</string>
     <string name="action_update_no_apk">این انتشار APK قابل نصبی ندارد</string>
     <string name="action_update_choose">چند ساخت — یکی را در فروشگاه انتخاب کنید</string>
@@ -322,6 +324,7 @@
     <string name="modules_updating">به‌روزرسانی %1$s — %2$d از %3$d</string>
     <string name="modules_updates_title">ماژول‌های قابل به‌روزرسانی</string>
     <string name="modules_update_versions">%1$s ← %2$s · %3$s</string>
+    <string name="modules_update_reinstall">نصب دوباره %1$s · %2$s</string>
     <string name="modules_update_ignored">نادیده‌گرفته</string>
     <string name="modules_update_selected">به‌روزرسانی %1$d</string>
     <plurals name="modules_updates">
