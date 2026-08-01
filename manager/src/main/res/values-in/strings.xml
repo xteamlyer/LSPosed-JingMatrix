@@ -70,15 +70,6 @@
     <string name="home_discussions">Diskusi</string>
     <string name="home_review_prs">Tinjau sebuah perubahan</string>
 
-    <string name="github_sign_in">Masuk ke GitHub</string>
-    <string name="github_sign_in_why">Opsional. Menaikkan batas per jam untuk pembaruan aktivitas, dan membuat Vector bisa menampilkan apa yang menunggu Anda. Hanya baca — tidak ada izin yang diminta.</string>
-    <string name="github_sign_in_code">Masukkan kode ini di %1$s</string>
-    <string name="github_open_browser">Buka peramban</string>
-    <string name="github_copy_code">Salin kode</string>
-    <string name="github_signed_in_as">Masuk sebagai %1$s</string>
-    <string name="github_sign_out">Keluar</string>
-    <string name="github_cancel">Batal</string>
-    <string name="github_unreachable">GitHub tidak dapat dihubungi. Selebihnya tetap berjalan.</string>
     <string name="home_with_coauthor">%1$s &amp; %2$s</string>
     <string name="home_with_coauthors">%1$s &amp; %2$d lainnya</string>
 
@@ -93,17 +84,6 @@
     <string name="home_your_build">build Anda %1$d</string>
     <plurals name="home_quiet_days">
         <item quantity="other">%1$d hari sepi</item>
-    </plurals>
-
-    <string name="time_yesterday">kemarin</string>
-    <plurals name="time_days_ago">
-        <item quantity="other">%1$d hari lalu</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="other">%1$d minggu lalu</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="other">%1$d bulan lalu</item>
     </plurals>
 
     <string name="appearance_title">Tampilan</string>
@@ -143,7 +123,6 @@
     <string name="modules_incompatible_legacy">Butuh API Xposed %1$d, yang tidak disediakan framework ini.</string>
     <string name="modules_api_behind">Dibuat untuk libxposed API %1$d. API %2$d mengubah antarmukanya, jadi modul ini mungkin tidak berfungsi penuh.</string>
     <string name="modules_no_daemon">Vector tidak berjalan, jadi daftar modul tidak tersedia. Buka status sistem dari Beranda untuk melihat sebabnya.</string>
-    <string name="module_toggle_failed">%1$s tidak bisa diubah. Framework menolak perubahan itu.</string>
 
     <string name="web_open_external">Buka di peramban</string>
 
@@ -161,7 +140,6 @@
     <string name="settings_rearrange_panels_summary">Ubah urutannya, atau sembunyikan yang tidak pernah dibuka.</string>
 
     <string name="settings_activity">Umpan aktivitas</string>
-    <string name="settings_window">Riwayat yang ditampilkan di Beranda</string>
     <plurals name="settings_window_months">
         <item quantity="other">%1$d bulan terakhir</item>
     </plurals>
@@ -217,7 +195,6 @@
     <string name="action_uninstalled">%1$s dicopot.</string>
     <string name="action_uninstall_failed">%1$s tidak bisa dicopot.</string>
 
-    <string name="settings">Setelan</string>
     <string name="back">Kembali</string>
     <string name="retry">Coba lagi</string>
 
@@ -265,7 +242,6 @@
     <string name="report_see_guide">Panduan lengkap ada di isu</string>
     <string name="report_root_refused">Root ditolak. Izinkan Vector di pengelola root Anda, lalu coba lagi%1$s</string>
     <string name="home_custom_build">Build sendiri — lebih maju dari master</string>
-    <string name="github_device_code">Kode perangkat GitHub</string>
     <string name="language_title">Bahasa</string>
     <string name="language_system">Bawaan sistem</string>
     <string name="language_system_summary">Ikuti bahasa yang disetel di ponsel</string>
@@ -292,7 +268,6 @@
     <string name="update_failed_start">Pemasang tidak bisa dijalankan.</string>
     <string name="update_failed_download">Pembaruan tidak bisa diunduh.</string>
     <string name="update_failed_exit">Pemasang gagal (kode %1$d).</string>
-    <string name="update_available">Pembaruan tersedia</string>
     <string name="store_mute_updates">Abaikan pembaruan untuk modul ini</string>
     <string name="store_mute_updates_summary">Ia berhenti dihitung usang, di sini maupun di daftar modul</string>
     <string name="store_options">Opsi</string>

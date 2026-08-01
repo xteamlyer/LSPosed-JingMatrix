@@ -23,11 +23,6 @@ import org.matrix.vector.manager.logW
 class GitHubRepository(
     private val client: OkHttpClient,
     cacheDir: File,
-    /**
-     * Supplies the optional sign-in token. Anonymous access is a fully supported mode — this only
-     * ever raises the rate limit from 60 to 5000 requests an hour.
-     */
-    private val tokenProvider: () -> String? = { null },
     /** How far back to reach, in months. User-configurable; see SettingsRepository. */
     private val windowMonthsProvider: () -> Int = { DEFAULT_WINDOW_MONTHS },
 ) {
@@ -458,7 +453,6 @@ class GitHubRepository(
             Request.Builder()
                 .url("$API/$REPO/commits?per_page=1")
                 .header("Accept", "application/vnd.github+json")
-                .apply { tokenProvider()?.let { header("Authorization", "Bearer $it") } }
                 .build()
         client.newCall(request).execute().use { response ->
             val link = response.header("Link") ?: return 0L
@@ -483,7 +477,6 @@ class GitHubRepository(
                 .url(url)
                 .header("Accept", "application/vnd.github+json")
                 .header("X-GitHub-Api-Version", "2022-11-28")
-                .apply { tokenProvider()?.let { header("Authorization", "Bearer $it") } }
                 .apply {
                     // OkHttp replays the stored ETag as If-None-Match on its own. A 304 costs
                     // nothing against GitHub's 60/hour budget, so revalidation stays cheap.
@@ -929,14 +922,7 @@ class GitHubRepository(
         const val ISSUES_URL = "$REPO_URL/issues"
         const val PULLS_URL = "$REPO_URL/pulls"
         const val DISCUSSIONS_URL = "$REPO_URL/discussions"
-        const val GOOD_FIRST_ISSUE_URL = "$REPO_URL/issues?q=is%3Aopen+label%3A%22good+first+issue%22"
 
-        /**
-         * The workflow's own run list, filtered to master.
-         *
-         * The way out of the app for anyone who wants a build log, or a commit older than the five
-         * canaries CI keeps published. [canaryBuilds] itself reads prereleases, not this page.
-         */
         /**
          * The Actions page, filtered the way the project README's build badge filters it.
          *

@@ -76,15 +76,6 @@
     <string name="home_discussions">النقاشات</string>
     <string name="home_review_prs">راجِع تغييرًا</string>
 
-    <string name="github_sign_in">تسجيل الدخول إلى GitHub</string>
-    <string name="github_sign_in_why">اختياري. يرفع الحد الساعي لتحديثات النشاط، ويتيح لـ Vector أن يعرض ما ينتظرك. للقراءة فقط — لا يُطلب أي إذن.</string>
-    <string name="github_sign_in_code">أدخل هذا الرمز في %1$s</string>
-    <string name="github_open_browser">فتح المتصفح</string>
-    <string name="github_copy_code">نسخ الرمز</string>
-    <string name="github_signed_in_as">سجّلت الدخول باسم %1$s</string>
-    <string name="github_sign_out">تسجيل الخروج</string>
-    <string name="github_cancel">إلغاء</string>
-    <string name="github_unreachable">تعذّر الوصول إلى GitHub. وكل ما عداه يعمل كالمعتاد.</string>
     <string name="home_with_coauthor">%1$s و%2$s</string>
     <string name="home_with_coauthors">%1$s و%2$d آخرين</string>
 
@@ -114,32 +105,6 @@
         <item quantity="few">%1$d أيام هدوء</item>
         <item quantity="many">%1$d يومًا من الهدوء</item>
         <item quantity="other">%1$d يوم هدوء</item>
-    </plurals>
-
-    <string name="time_yesterday">أمس</string>
-    <plurals name="time_days_ago">
-        <item quantity="zero">اليوم</item>
-        <item quantity="one">قبل يوم</item>
-        <item quantity="two">قبل يومين</item>
-        <item quantity="few">قبل %1$d أيام</item>
-        <item quantity="many">قبل %1$d يومًا</item>
-        <item quantity="other">قبل %1$d يوم</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="zero">هذا الأسبوع</item>
-        <item quantity="one">قبل أسبوع</item>
-        <item quantity="two">قبل أسبوعين</item>
-        <item quantity="few">قبل %1$d أسابيع</item>
-        <item quantity="many">قبل %1$d أسبوعًا</item>
-        <item quantity="other">قبل %1$d أسبوع</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="zero">هذا الشهر</item>
-        <item quantity="one">قبل شهر</item>
-        <item quantity="two">قبل شهرين</item>
-        <item quantity="few">قبل %1$d أشهر</item>
-        <item quantity="many">قبل %1$d شهرًا</item>
-        <item quantity="other">قبل %1$d شهر</item>
     </plurals>
 
     <string name="appearance_title">المظهر</string>
@@ -179,7 +144,6 @@
     <string name="modules_incompatible_legacy">تحتاج واجهة Xposed %1$d، وهذا الإطار لا يوفّرها.</string>
     <string name="modules_api_behind">بُني على libxposed API %1$d. غيّر الإصدار %2$d الواجهة، لذا قد لا تعمل هذه الوحدة بالكامل.</string>
     <string name="modules_no_daemon">‏Vector لا يعمل، لذا قائمة الوحدات غير متاحة. افتح حالة النظام من الرئيسية لمعرفة السبب.</string>
-    <string name="module_toggle_failed">تعذّر تغيير %1$s. رفض الإطار التغيير.</string>
 
     <string name="web_open_external">فتح في المتصفح</string>
 
@@ -197,7 +161,6 @@
     <string name="settings_rearrange_panels_summary">غيّر ترتيبها، أو أخفِ ما لا تفتحه أبدًا.</string>
 
     <string name="settings_activity">تدفّق النشاط</string>
-    <string name="settings_window">التاريخ المعروض في الرئيسية</string>
     <plurals name="settings_window_months">
         <item quantity="zero">بلا أشهر</item>
         <item quantity="one">آخر شهر</item>
@@ -258,7 +221,6 @@
     <string name="action_uninstalled">أُلغي تثبيت %1$s.</string>
     <string name="action_uninstall_failed">تعذّر إلغاء تثبيت %1$s.</string>
 
-    <string name="settings">الإعدادات</string>
     <string name="back">رجوع</string>
     <string name="retry">إعادة المحاولة</string>
 
@@ -316,7 +278,6 @@
     <string name="report_see_guide">الدليل الكامل في المشكلة</string>
     <string name="report_root_refused">رُفض الروت. اسمح لـ Vector في مدير الروت لديك ثم أعد المحاولة%1$s</string>
     <string name="home_custom_build">إصدار خاص — أحدث من master</string>
-    <string name="github_device_code">رمز جهاز GitHub</string>
     <string name="language_title">اللغة</string>
     <string name="language_system">لغة النظام</string>
     <string name="language_system_summary">اتّباع اللغة المضبوطة على الهاتف</string>
@@ -343,7 +304,6 @@
     <string name="update_failed_start">تعذّر بدء برنامج التثبيت.</string>
     <string name="update_failed_download">تعذّر تنزيل التحديث.</string>
     <string name="update_failed_exit">أخفق برنامج التثبيت (رمز الخروج %1$d).</string>
-    <string name="update_available">يتوفر تحديث</string>
     <string name="store_mute_updates">تجاهل تحديثات هذه الوحدة</string>
     <string name="store_mute_updates_summary">لن تُحتسب قديمة بعد الآن، لا هنا ولا في قائمة الوحدات</string>
     <string name="store_options">خيارات</string>

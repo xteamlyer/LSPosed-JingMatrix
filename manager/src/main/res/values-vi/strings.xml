@@ -66,15 +66,6 @@
     <string name="home_discussions">Thảo luận</string>
     <string name="home_review_prs">Xem lại một thay đổi</string>
 
-    <string name="github_sign_in">Đăng nhập GitHub</string>
-    <string name="github_sign_in_why">Không bắt buộc. Nâng giới hạn theo giờ cho việc cập nhật hoạt động, và cho phép Vector hiện những gì đang chờ bạn. Chỉ đọc — không yêu cầu quyền nào.</string>
-    <string name="github_sign_in_code">Nhập mã này tại %1$s</string>
-    <string name="github_open_browser">Mở trình duyệt</string>
-    <string name="github_copy_code">Sao chép mã</string>
-    <string name="github_signed_in_as">Đã đăng nhập với %1$s</string>
-    <string name="github_sign_out">Đăng xuất</string>
-    <string name="github_cancel">Huỷ</string>
-    <string name="github_unreachable">Không kết nối được GitHub. Mọi thứ khác vẫn chạy.</string>
     <string name="home_with_coauthor">%1$s và %2$s</string>
     <string name="home_with_coauthors">%1$s và %2$d người khác</string>
 
@@ -89,17 +80,6 @@
     <string name="home_your_build">bản dựng %1$d của bạn</string>
     <plurals name="home_quiet_days">
         <item quantity="other">%1$d ngày yên ắng</item>
-    </plurals>
-
-    <string name="time_yesterday">hôm qua</string>
-    <plurals name="time_days_ago">
-        <item quantity="other">%1$d ngày trước</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="other">%1$d tuần trước</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="other">%1$d tháng trước</item>
     </plurals>
 
     <string name="appearance_title">Giao diện</string>
@@ -139,7 +119,6 @@
     <string name="modules_incompatible_legacy">Cần API Xposed %1$d, framework này không cung cấp.</string>
     <string name="modules_api_behind">Được dựng cho libxposed API %1$d. API %2$d đã đổi giao diện nên mô-đun này có thể không chạy đầy đủ.</string>
     <string name="modules_no_daemon">Vector không chạy nên không lấy được danh sách mô-đun. Mở trạng thái hệ thống ở trang chính để xem vì sao.</string>
-    <string name="module_toggle_failed">Không đổi được %1$s. Framework đã từ chối thay đổi.</string>
 
     <string name="web_open_external">Mở bằng trình duyệt</string>
 
@@ -157,7 +136,6 @@
     <string name="settings_rearrange_panels_summary">Đổi thứ tự, hoặc ẩn những mục bạn không bao giờ mở.</string>
 
     <string name="settings_activity">Dòng hoạt động</string>
-    <string name="settings_window">Lịch sử hiện ở trang chính</string>
     <plurals name="settings_window_months">
         <item quantity="other">%1$d tháng gần nhất</item>
     </plurals>
@@ -213,7 +191,6 @@
     <string name="action_uninstalled">Đã gỡ %1$s.</string>
     <string name="action_uninstall_failed">Không gỡ được %1$s.</string>
 
-    <string name="settings">Cài đặt</string>
     <string name="back">Quay lại</string>
     <string name="retry">Thử lại</string>
 
@@ -261,7 +238,6 @@
     <string name="report_see_guide">Hướng dẫn đầy đủ ở issue</string>
     <string name="report_root_refused">Root bị từ chối. Hãy cho phép Vector trong trình quản lý root rồi thử lại%1$s</string>
     <string name="home_custom_build">Bản dựng riêng — mới hơn master</string>
-    <string name="github_device_code">Mã thiết bị GitHub</string>
     <string name="language_title">Ngôn ngữ</string>
     <string name="language_system">Theo hệ thống</string>
     <string name="language_system_summary">Dùng ngôn ngữ đã đặt trên điện thoại</string>
@@ -288,7 +264,6 @@
     <string name="update_failed_start">Không khởi chạy được trình cài đặt.</string>
     <string name="update_failed_download">Không tải được bản cập nhật.</string>
     <string name="update_failed_exit">Trình cài đặt thất bại (mã %1$d).</string>
-    <string name="update_available">Có bản cập nhật</string>
     <string name="store_mute_updates">Bỏ qua cập nhật của mô-đun này</string>
     <string name="store_mute_updates_summary">Nó thôi bị tính là cũ, ở đây và trong danh sách mô-đun</string>
     <string name="store_options">Tuỳ chọn</string>

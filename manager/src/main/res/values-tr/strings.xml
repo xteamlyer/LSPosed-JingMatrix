@@ -68,15 +68,6 @@
     <string name="home_discussions">Tartışmalar</string>
     <string name="home_review_prs">Bir değişikliği incele</string>
 
-    <string name="github_sign_in">GitHub\'a giriş yap</string>
-    <string name="github_sign_in_why">İsteğe bağlı. Hareket güncellemelerinin saatlik sınırını yükseltir ve Vector\'ün sizi bekleyenleri göstermesini sağlar. Yalnızca okuma — hiçbir izin istenmez.</string>
-    <string name="github_sign_in_code">Bu kodu %1$s adresine girin</string>
-    <string name="github_open_browser">Tarayıcıyı aç</string>
-    <string name="github_copy_code">Kodu kopyala</string>
-    <string name="github_signed_in_as">%1$s olarak giriş yapıldı</string>
-    <string name="github_sign_out">Çıkış yap</string>
-    <string name="github_cancel">Vazgeç</string>
-    <string name="github_unreachable">GitHub\'a ulaşılamadı. Diğer her şey çalışmaya devam ediyor.</string>
     <string name="home_with_coauthor">%1$s ve %2$s</string>
     <string name="home_with_coauthors">%1$s ve %2$d kişi daha</string>
 
@@ -94,20 +85,6 @@
     <plurals name="home_quiet_days">
         <item quantity="one">%1$d gün sessizlik</item>
         <item quantity="other">%1$d gün sessizlik</item>
-    </plurals>
-
-    <string name="time_yesterday">dün</string>
-    <plurals name="time_days_ago">
-        <item quantity="one">%1$d gün önce</item>
-        <item quantity="other">%1$d gün önce</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="one">%1$d hafta önce</item>
-        <item quantity="other">%1$d hafta önce</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="one">%1$d ay önce</item>
-        <item quantity="other">%1$d ay önce</item>
     </plurals>
 
     <string name="appearance_title">Görünüm</string>
@@ -147,7 +124,6 @@
     <string name="modules_incompatible_legacy">Xposed API %1$d gerekiyor; bu çatı onu sağlamıyor.</string>
     <string name="modules_api_behind">libxposed API %1$d için derlendi. API %2$d arayüzü değiştirdi; bu modül tam çalışmayabilir.</string>
     <string name="modules_no_daemon">Vector çalışmıyor, bu yüzden modül listesi alınamıyor. Nedenini görmek için Ana sayfadan sistem durumunu açın.</string>
-    <string name="module_toggle_failed">%1$s değiştirilemedi. Çatı değişikliği reddetti.</string>
 
     <string name="web_open_external">Tarayıcıda aç</string>
 
@@ -165,7 +141,6 @@
     <string name="settings_rearrange_panels_summary">Sıralarını değiştirin ya da hiç açmadıklarınızı gizleyin.</string>
 
     <string name="settings_activity">Hareket akışı</string>
-    <string name="settings_window">Ana sayfada gösterilen geçmiş</string>
     <plurals name="settings_window_months">
         <item quantity="one">Son %1$d ay</item>
         <item quantity="other">Son %1$d ay</item>
@@ -222,7 +197,6 @@
     <string name="action_uninstalled">%1$s kaldırıldı.</string>
     <string name="action_uninstall_failed">%1$s kaldırılamadı.</string>
 
-    <string name="settings">Ayarlar</string>
     <string name="back">Geri</string>
     <string name="retry">Yeniden dene</string>
 
@@ -272,7 +246,6 @@
     <string name="report_see_guide">Tam kılavuz sorunda</string>
     <string name="report_root_refused">Root reddedildi. Root yöneticinizde Vector\'e izin verip yeniden deneyin%1$s</string>
     <string name="home_custom_build">Özel derleme — master\'ın ilerisinde</string>
-    <string name="github_device_code">GitHub cihaz kodu</string>
     <string name="language_title">Dil</string>
     <string name="language_system">Sistem varsayılanı</string>
     <string name="language_system_summary">Telefonda ayarlı dili izle</string>
@@ -299,7 +272,6 @@
     <string name="update_failed_start">Kurulum programı başlatılamadı.</string>
     <string name="update_failed_download">Güncelleme indirilemedi.</string>
     <string name="update_failed_exit">Kurulum programı başarısız oldu (çıkış %1$d).</string>
-    <string name="update_available">Güncelleme var</string>
     <string name="store_mute_updates">Bu modülün güncellemelerini yok say</string>
     <string name="store_mute_updates_summary">Ne burada ne de modül listesinde artık eski sayılır</string>
     <string name="store_options">Seçenekler</string>

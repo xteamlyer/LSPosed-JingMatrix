@@ -66,15 +66,6 @@
     <string name="home_discussions">토론</string>
     <string name="home_review_prs">변경 사항 검토</string>
 
-    <string name="github_sign_in">GitHub에 로그인</string>
-    <string name="github_sign_in_why">선택 사항입니다. 활동 갱신의 시간당 한도가 올라가고, 나를 기다리는 항목을 Vector가 보여줄 수 있습니다. 읽기 전용이며 어떤 권한도 요청하지 않습니다.</string>
-    <string name="github_sign_in_code">%1$s 에서 이 코드를 입력하세요</string>
-    <string name="github_open_browser">브라우저 열기</string>
-    <string name="github_copy_code">코드 복사</string>
-    <string name="github_signed_in_as">%1$s(으)로 로그인함</string>
-    <string name="github_sign_out">로그아웃</string>
-    <string name="github_cancel">취소</string>
-    <string name="github_unreachable">GitHub에 연결하지 못했습니다. 나머지는 그대로 동작합니다.</string>
     <string name="home_with_coauthor">%1$s 및 %2$s</string>
     <string name="home_with_coauthors">%1$s 외 %2$d명</string>
 
@@ -89,17 +80,6 @@
     <string name="home_your_build">내 빌드 %1$d</string>
     <plurals name="home_quiet_days">
         <item quantity="other">%1$d일간 잠잠</item>
-    </plurals>
-
-    <string name="time_yesterday">어제</string>
-    <plurals name="time_days_ago">
-        <item quantity="other">%1$d일 전</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="other">%1$d주 전</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="other">%1$d개월 전</item>
     </plurals>
 
     <string name="appearance_title">모양</string>
@@ -139,7 +119,6 @@
     <string name="modules_incompatible_legacy">Xposed API %1$d이(가) 필요하지만 이 프레임워크는 제공하지 않습니다.</string>
     <string name="modules_api_behind">libxposed API %1$d용으로 빌드되었습니다. API %2$d에서 인터페이스가 바뀌어 이 모듈이 완전히 작동하지 않을 수 있습니다.</string>
     <string name="modules_no_daemon">Vector가 실행 중이 아니라 모듈 목록을 가져올 수 없습니다. 이유는 홈의 시스템 상태에서 확인하세요.</string>
-    <string name="module_toggle_failed">%1$s을(를) 변경하지 못했습니다. 프레임워크가 변경을 거부했습니다.</string>
 
     <string name="web_open_external">브라우저에서 열기</string>
 
@@ -157,7 +136,6 @@
     <string name="settings_rearrange_panels_summary">순서를 바꾸거나, 열지 않는 패널을 숨깁니다.</string>
 
     <string name="settings_activity">활동 피드</string>
-    <string name="settings_window">홈에 표시할 기간</string>
     <plurals name="settings_window_months">
         <item quantity="other">최근 %1$d개월</item>
     </plurals>
@@ -213,7 +191,6 @@
     <string name="action_uninstalled">%1$s을(를) 제거했습니다.</string>
     <string name="action_uninstall_failed">%1$s을(를) 제거하지 못했습니다.</string>
 
-    <string name="settings">설정</string>
     <string name="back">뒤로</string>
     <string name="retry">다시 시도</string>
 
@@ -261,7 +238,6 @@
     <string name="report_see_guide">전체 안내는 이슈에</string>
     <string name="report_root_refused">루트가 거부되었습니다. 루트 관리자에서 Vector를 허용한 뒤 다시 시도하세요%1$s</string>
     <string name="home_custom_build">직접 만든 빌드 — master보다 앞섬</string>
-    <string name="github_device_code">GitHub 기기 코드</string>
     <string name="language_title">언어</string>
     <string name="language_system">시스템 기본값</string>
     <string name="language_system_summary">휴대전화에 설정된 언어를 따릅니다</string>
@@ -288,7 +264,6 @@
     <string name="update_failed_start">설치 프로그램을 시작하지 못했습니다.</string>
     <string name="update_failed_download">업데이트를 내려받지 못했습니다.</string>
     <string name="update_failed_exit">설치 프로그램이 실패했습니다(종료 코드 %1$d).</string>
-    <string name="update_available">업데이트 있음</string>
     <string name="store_mute_updates">이 모듈의 업데이트 무시</string>
     <string name="store_mute_updates_summary">여기서도 모듈 목록에서도 더 이상 오래된 것으로 세지 않습니다</string>
     <string name="store_options">옵션</string>

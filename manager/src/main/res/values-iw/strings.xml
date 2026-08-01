@@ -76,15 +76,6 @@
     <string name="home_discussions">דיונים</string>
     <string name="home_review_prs">סקירת שינוי</string>
 
-    <string name="github_sign_in">התחברות ל-GitHub</string>
-    <string name="github_sign_in_why">רשות. מעלה את המגבלה השעתית על עדכוני פעילות, ומאפשר ל-Vector להראות מה מחכה לכם. קריאה בלבד — לא מתבקשות שום הרשאות.</string>
-    <string name="github_sign_in_code">הזינו את הקוד הזה ב-%1$s</string>
-    <string name="github_open_browser">פתיחת דפדפן</string>
-    <string name="github_copy_code">העתקת הקוד</string>
-    <string name="github_signed_in_as">מחוברים בתור %1$s</string>
-    <string name="github_sign_out">התנתקות</string>
-    <string name="github_cancel">ביטול</string>
-    <string name="github_unreachable">לא הייתה גישה ל-GitHub. כל השאר עדיין עובד.</string>
     <string name="home_with_coauthor">%1$s ו-%2$s</string>
     <string name="home_with_coauthors">%1$s ועוד %2$d</string>
 
@@ -108,26 +99,6 @@
         <item quantity="two">יומיים של שקט</item>
         <item quantity="many">%1$d ימי שקט</item>
         <item quantity="other">%1$d ימי שקט</item>
-    </plurals>
-
-    <string name="time_yesterday">אתמול</string>
-    <plurals name="time_days_ago">
-        <item quantity="one">לפני יום</item>
-        <item quantity="two">לפני יומיים</item>
-        <item quantity="many">לפני %1$d ימים</item>
-        <item quantity="other">לפני %1$d ימים</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="one">לפני שבוע</item>
-        <item quantity="two">לפני שבועיים</item>
-        <item quantity="many">לפני %1$d שבועות</item>
-        <item quantity="other">לפני %1$d שבועות</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="one">לפני חודש</item>
-        <item quantity="two">לפני חודשיים</item>
-        <item quantity="many">לפני %1$d חודשים</item>
-        <item quantity="other">לפני %1$d חודשים</item>
     </plurals>
 
     <string name="appearance_title">מראה</string>
@@ -167,7 +138,6 @@
     <string name="modules_incompatible_legacy">דורש ממשק Xposed %1$d, שהמסגרת הזאת לא מספקת.</string>
     <string name="modules_api_behind">נבנה עבור libxposed API %1$d. גרסה %2$d שינתה את הממשק, ולכן ייתכן שהמודול לא יעבוד במלואו.</string>
     <string name="modules_no_daemon">‏Vector לא פועל, ולכן רשימת המודולים לא זמינה. פתחו את מצב המערכת מהבית כדי לראות למה.</string>
-    <string name="module_toggle_failed">לא ניתן היה לשנות את %1$s. המסגרת דחתה את השינוי.</string>
 
     <string name="web_open_external">פתיחה בדפדפן</string>
 
@@ -185,7 +155,6 @@
     <string name="settings_rearrange_panels_summary">אפשר לשנות את סדרם, או להסתיר את מה שאף פעם לא נפתח.</string>
 
     <string name="settings_activity">זרם הפעילות</string>
-    <string name="settings_window">ההיסטוריה שמוצגת בבית</string>
     <plurals name="settings_window_months">
         <item quantity="one">החודש האחרון</item>
         <item quantity="two">החודשיים האחרונים</item>
@@ -244,7 +213,6 @@
     <string name="action_uninstalled">‏%1$s הוסרה.</string>
     <string name="action_uninstall_failed">לא ניתן היה להסיר את %1$s.</string>
 
-    <string name="settings">הגדרות</string>
     <string name="back">חזרה</string>
     <string name="retry">ניסיון נוסף</string>
 
@@ -298,7 +266,6 @@
     <string name="report_see_guide">המדריך המלא בתקלה</string>
     <string name="report_root_refused">‏root נדחה. אשרו את Vector במנהל ה-root שלכם ונסו שוב%1$s</string>
     <string name="home_custom_build">גרסה עצמאית — מקדימה את master</string>
-    <string name="github_device_code">קוד מכשיר של GitHub</string>
     <string name="language_title">שפה</string>
     <string name="language_system">ברירת המחדל של המערכת</string>
     <string name="language_system_summary">לפי השפה שמוגדרת בטלפון</string>
@@ -325,7 +292,6 @@
     <string name="update_failed_start">לא ניתן היה להפעיל את תוכנית ההתקנה.</string>
     <string name="update_failed_download">לא ניתן היה להוריד את העדכון.</string>
     <string name="update_failed_exit">תוכנית ההתקנה נכשלה (קוד %1$d).</string>
-    <string name="update_available">יש עדכון</string>
     <string name="store_mute_updates">התעלמות מעדכונים של המודול הזה</string>
     <string name="store_mute_updates_summary">הוא יפסיק להיחשב מיושן, כאן וברשימת המודולים</string>
     <string name="store_options">אפשרויות</string>
