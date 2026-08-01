@@ -94,6 +94,15 @@ object VectorModuleManager {
 
             // Construct the native library search path
             val librarySearchPath = buildString {
+                // In system_server the in-APK entries below can only ever be refused: /data/app is
+                // apk_data_file, which that domain may read and map but never execute. The daemon
+                // stages a copy under a label we own for exactly this reason, and it has to come
+                // first, because findLibrary answers with the first candidate it can open.
+                if (isSystemServer) {
+                    module.file.nativeLibraryDir?.let {
+                        append(it).append(File.pathSeparator)
+                    }
+                }
                 val abis =
                     if (Process.is64Bit()) Build.SUPPORTED_64_BIT_ABIS
                     else Build.SUPPORTED_32_BIT_ABIS
@@ -132,6 +141,14 @@ object VectorModuleManager {
                         if (module.file.exceptionPassthrough) ExceptionMode.PASSTHROUGH
                         else ExceptionMode.PROTECTIVE,
                 )
+
+            // Register any native JNI entrypoints declared by the module. This has to happen before
+            // the entry classes run: a module is free to load its libraries from its constructor or
+            // from onModuleLoaded, and an entrypoint recorded afterwards is one the dlopen hook has
+            // already missed. The legacy loader has always done it in this order.
+            module.file.moduleLibraryNames.forEach { libraryName ->
+                NativeAPI.recordNativeEntrypoint(libraryName)
+            }
 
             // Instantiate the module entry classes
             val entries = mutableListOf<XposedModule>()
