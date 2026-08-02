@@ -1,16 +1,20 @@
-🎉 **Release: Vector 2.0** 🎉
+Vector 2.1 is the first release built on **libxposed API 101**, the newly published standard, and it ships with a manager rebuilt from scratch and support for the latest Android platforms.
 
-Welcome to Vector 2.0! As part of our ongoing transition, the project has officially been renamed from `LSPosed` to `Vector`. While our major internal refactoring is still underway, we are releasing 2.0 now to provide a stable, feature-complete environment for those relying on legacy libxposed APIs.
+Where 2.0 was the definitive close of the API 100 era, 2.1 opens the next one: the framework, the daemon, and the manager have all moved to API 101.
 
-### 📚 libxposed API 100 & 101
-With the recent publication of libxposed API 101, the ecosystem is moving toward a new standard with significant breaking changes. Because API 100 was never officially published, **Vector 2.0 serves as the definitive implementation of the API 100 era**, built from the exact commit prior to the API 101 jump.
+### 🧩 libxposed API 101
+With API 101 now published, the ecosystem's new standard brings significant breaking changes. Vector 2.1 migrates the entire framework onto it, adapting to the changed package-query and reflection contracts so modules written against the current API behave as their authors intend.
 
-### 🏗️ Architecture & API Updates
-*   **Vector & Zygisk Overhaul:** Officially renamed and modularized the project, featuring a completely rewritten, modern Zygisk architecture.
-*   **API 100 Finalization:** Completed all remaining libxposed API 100 features, including comprehensive support for static initializers, constructor hooking, and centralized logging.
+### 🎨 A New Manager, Rebuilt in Compose
+The manager has been rewritten from the ground up in Jetpack Compose, and its design is community-centred: an interface built to take the everyday experience to the next level, shaped by my own aesthetic taste and open to yours.
 
+Our mascot is *[The Winged Victory of Samothrace](https://en.wikipedia.org/wiki/Winged_Victory_of_Samothrace)* — because Vector and Victory are never far apart. We warmly welcome feedback on the new design so we can keep refining this front end together.
 
-### ⚙️ Core Engine & System Enhancements
-*   🔓 **Bypassed Bionic `LD_PRELOAD` Restrictions:** Resolved fatal namespace errors on Android 10 by loading the `dex2oat` hook library via a `memfd_create` tmpfs-backed file descriptor, bypassing the linker's namespace checks.
-*   🛡️ **Reflection Parity Overhaul:** Completely rebuilt the `invokeSpecialMethod` backend to improve performance, enhance robustness, and mirror standard Java reflection behavior.
-*   ⏱️ **Late Injection Standalone Launch:** Added native support for manual late injection (triggered by NeoZygisk), without relying on Magisk's early-init phase—highly useful for AOSP debug builds.
+### 📱 Expanded Platform Support
+*   🤖 **Android 17:** Full support for the latest Android release, extending Vector's range to Android 8.1 through 17.
+*   🛡️ **GrapheneOS:** The parasitic manager now loads correctly under GrapheneOS's hardened dynamic-code-loading restrictions.
+*   💾 **16 KB Page Sizes:** Native support for devices that ship with 16 KB memory pages.
+
+---
+
+*A personal note: I, JingMatrix, have founded my own consultancy, **[Matrix Transformation](https://www.linkedin.com/in/jingmatrix/)**, and now work as a full-time entrepreneur. Nurturing this community is one of the company's most important goals — it is how I realize my own long-held pursuit of serving you — and so all of my open-source projects, Vector included, are funded by the company. Thank you for being part of this journey.*
