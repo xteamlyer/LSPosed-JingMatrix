@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.matrix.vector.manager.data.model.AppInfo
 import org.matrix.vector.manager.data.model.ModuleDetectionCache
+import org.matrix.vector.manager.data.model.versionCodeCompat
 import org.matrix.vector.manager.ipc.DaemonClient
 import org.matrix.vector.manager.logW
 
@@ -54,6 +55,9 @@ class AppRepository(
                 packages.mapNotNull { pkg ->
                     val appInfo = pkg.applicationInfo ?: return@mapNotNull null
                     val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                    // FLAG_IS_GAME was replaced by the category in API 26 and is deprecated, but an
+                    // app built before that still ships it and sets no category, so both are read.
+                    @Suppress("DEPRECATION")
                     val isGame =
                         appInfo.category == ApplicationInfo.CATEGORY_GAME ||
                             (appInfo.flags and ApplicationInfo.FLAG_IS_GAME) != 0
@@ -70,7 +74,7 @@ class AppRepository(
                         isRecommended = false,
                         lastUpdateTime = pkg.lastUpdateTime,
                         firstInstallTime = pkg.firstInstallTime,
-                        versionCode = pkg.longVersionCode,
+                        versionCode = pkg.versionCodeCompat,
                         applicationInfo = appInfo,
                     )
                 }
