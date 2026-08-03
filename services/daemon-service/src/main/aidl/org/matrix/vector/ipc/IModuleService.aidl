@@ -29,5 +29,5 @@ interface IModuleService {
     @nullable ParcelFileDescriptor openRemoteFile(String path);
 
     /** Names of the module's remote files. */
-    String[] getRemoteFileList();
+    String[] getRemoteFileNames();
 }

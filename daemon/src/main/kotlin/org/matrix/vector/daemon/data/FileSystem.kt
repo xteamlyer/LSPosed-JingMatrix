@@ -608,10 +608,10 @@ object FileSystem {
                     os.write("${scope.processName}/${scope.uid}\n".toByteArray())
                     modules.forEach { mod ->
                       os.write("\t${mod.packageName}\n".toByteArray())
-                      mod.file?.moduleClassNames?.forEach { cn ->
+                      mod.code?.moduleClassNames?.forEach { cn ->
                         os.write("\t\t$cn\n".toByteArray())
                       }
-                      mod.file?.moduleLibraryNames?.forEach { ln ->
+                      mod.code?.moduleLibraryNames?.forEach { ln ->
                         os.write("\t\t$ln\n".toByteArray())
                       }
                     }

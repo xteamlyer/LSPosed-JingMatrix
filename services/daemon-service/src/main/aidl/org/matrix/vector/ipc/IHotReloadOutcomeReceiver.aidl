@@ -9,6 +9,6 @@ import org.matrix.vector.ipc.HotReloadOutcome;
  * arbitrary module code - {@code onHotReloading} is allowed to take as long as it likes - and
  * neither a daemon thread nor a target's RELOADING state should be held for that long.</p>
  */
-interface IHotReloadResultReceiver {
-    oneway void onHotReloadOutcome(in HotReloadOutcome outcome) = 1;
+interface IHotReloadOutcomeReceiver {
+    oneway void onOutcome(in HotReloadOutcome outcome) = 1;
 }

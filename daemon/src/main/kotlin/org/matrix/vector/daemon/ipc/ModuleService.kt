@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.matrix.vector.ipc.HotReloadOutcome
 import org.matrix.vector.ipc.LoadedModule
-import org.matrix.vector.ipc.IHotReloadResultReceiver
+import org.matrix.vector.ipc.IHotReloadOutcomeReceiver
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
@@ -56,7 +56,7 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
     fun uidStarts(uid: Int) {
       if (uidSet.add(uid)) {
         val module = ConfigCache.getModuleByUid(uid)
-        if (module?.file?.legacy == false) {
+        if (module?.code?.legacy == false) {
           val service = serviceMap.getOrPut(module) { ModuleService(module) }
           service.sendBinder(uid)
         }
@@ -69,7 +69,7 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
 
     // Drives the same cycle as a service request, so onHotReloading can still refuse it.
     fun autoHotReload(module: LoadedModule) {
-      if (!module.file.autoHotReload) return
+      if (!module.code.autoHotReload) return
       val service = serviceMap.getOrPut(module) { ModuleService(module) }
       ApplicationService.staleHotReloadTargets(module.packageName).forEach { target ->
         if (target.hotReloadable && ApplicationService.beginHotReload(target)) {
@@ -283,8 +283,8 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
       }
 
       val callbackStub =
-          object : IHotReloadResultReceiver.Stub() {
-            override fun onHotReloadOutcome(result: HotReloadOutcome?) {
+          object : IHotReloadOutcomeReceiver.Stub() {
+            override fun onOutcome(result: HotReloadOutcome?) {
               outcome = result
               answered.countDown()
             }

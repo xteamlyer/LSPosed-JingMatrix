@@ -32,7 +32,7 @@ parcelable LoadedModule {
     String apkPath;
 
     /** The generation of code to load. */
-    ModuleCode file;
+    ModuleCode code;
 
     ApplicationInfo applicationInfo;
 

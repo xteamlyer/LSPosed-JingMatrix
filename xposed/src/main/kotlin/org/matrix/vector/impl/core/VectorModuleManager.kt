@@ -99,7 +99,7 @@ object VectorModuleManager {
                 // stages a copy under a label we own for exactly this reason, and it has to come
                 // first, because findLibrary answers with the first candidate it can open.
                 if (isSystemServer) {
-                    module.file.nativeLibraryDir?.let {
+                    module.code.nativeLibraryDir?.let {
                         append(it).append(File.pathSeparator)
                     }
                 }
@@ -116,10 +116,10 @@ object VectorModuleManager {
             val moduleClassLoader =
                 VectorModuleClassLoader.loadApk(
                     module.apkPath,
-                    module.file.preLoadedDexes,
+                    module.code.preLoadedDexes,
                     librarySearchPath,
                     initLoader,
-                    blockLegacyApi = module.file.targetApiVersion >= 102,
+                    blockLegacyApi = module.code.targetApiVersion >= 102,
                 )
 
             // Security/Integrity Check: Ensure the module isn't bundling its own API classes
@@ -138,7 +138,7 @@ object VectorModuleManager {
                     applicationInfo = module.applicationInfo,
                     service = module.service, // Our IPC client
                     defaultExceptionMode =
-                        if (module.file.exceptionPassthrough) ExceptionMode.PASSTHROUGH
+                        if (module.code.exceptionPassthrough) ExceptionMode.PASSTHROUGH
                         else ExceptionMode.PROTECTIVE,
                 )
 
@@ -146,13 +146,13 @@ object VectorModuleManager {
             // the entry classes run: a module is free to load its libraries from its constructor or
             // from onModuleLoaded, and an entrypoint recorded afterwards is one the dlopen hook has
             // already missed. The legacy loader has always done it in this order.
-            module.file.moduleLibraryNames.forEach { libraryName ->
+            module.code.moduleLibraryNames.forEach { libraryName ->
                 NativeAPI.recordNativeEntrypoint(libraryName)
             }
 
             // Instantiate the module entry classes
             val entries = mutableListOf<XposedModule>()
-            for (className in module.file.moduleClassNames) {
+            for (className in module.code.moduleClassNames) {
                 runCatching {
                         val moduleClass = moduleClassLoader.loadClass(className)
                         Log.v(TAG, "Loading class $moduleClass")
@@ -222,7 +222,7 @@ object VectorModuleManager {
                 ?: return unsupported(
                     "$packageName is not loaded in ${VectorServiceClient.processName}"
                 )
-        if (newModule.file.moduleClassNames.size != 1) {
+        if (newModule.code.moduleClassNames.size != 1) {
             return unsupported("$packageName does not declare exactly one Java entry class")
         }
 

@@ -30,7 +30,7 @@ internal class VectorRemotePreferences(service: IModuleService, group: String) :
     private val callback =
         object : IRemotePreferenceCallback.Stub() {
             @Synchronized
-            override fun onUpdate(bundle: Bundle) {
+            override fun onRemotePreferencesChanged(bundle: Bundle) {
                 val changes = ArraySet<String>()
 
                 // Sent for edit().clear() and for deleteRemotePreferences. Without this the cache
