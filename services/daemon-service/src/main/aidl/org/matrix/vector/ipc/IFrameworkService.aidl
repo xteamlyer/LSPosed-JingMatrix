@@ -61,6 +61,13 @@ interface IFrameworkService {
      * That dependency is exactly what stopped system_server becoming a hot reload target before.
      * The daemon files the channel against the (uid, pid) it authenticated, so a process can only
      * ever attach its own.</p>
+     *
+     * <p><b>Not oneway, and must not become oneway.</b> The binder driver only records the sending
+     * thread for synchronous transactions - {@code binder_transaction()} sets {@code t->from} only
+     * when {@code TF_ONE_WAY} is clear - so an async call arrives with the caller's euid but a
+     * {@code getCallingPid()} of <b>0</b>. The daemon keys its process registry on (uid, pid), so
+     * making this oneway makes every attach fail authentication, and the only symptom is that
+     * every later hot reload answers UNSUPPORTED with "no hot reload entry point".</p>
      */
-    oneway void attachProcessChannel(IProcessChannel channel);
+    void attachProcessChannel(IProcessChannel channel);
 }

@@ -193,10 +193,12 @@ object ApplicationService : IFrameworkService.Stub() {
   fun getHotReloadBinder(target: HotReloadTarget): IProcessChannel? =
       processes[ProcessKey(target.uid, target.pid)]?.hotReloadBinder
 
-  override fun attachProcessChannel(target: IProcessChannel) {
+  override fun attachProcessChannel(channel: IProcessChannel) {
+    // Synchronous on purpose: a oneway transaction arrives with getCallingPid() == 0, and this
+    // registry is keyed on (uid, pid). See the note on the AIDL.
     val info = ensureRegistered()
-    info.hotReloadBinder = target
-    Log.d(TAG, "Hot reload target registered for ${info.processName} (pid=${info.key.pid})")
+    info.hotReloadBinder = channel
+    Log.d(TAG, "Process channel attached for ${info.processName} (pid=${info.key.pid})")
   }
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
