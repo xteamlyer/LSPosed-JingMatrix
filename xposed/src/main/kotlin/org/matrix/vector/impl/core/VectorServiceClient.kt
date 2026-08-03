@@ -58,20 +58,24 @@ object VectorServiceClient : IFrameworkService, IBinder.DeathRecipient {
         return runCatching { service?.isLogMuted == true }.getOrDefault(false)
     }
 
-    override fun getLegacyModulesList(): List<LoadedModule> {
-        return runCatching { service?.legacyModulesList }.getOrNull() ?: emptyList()
+    override fun getLegacyModules(): List<LoadedModule> {
+        return runCatching { service?.legacyModules }.getOrNull() ?: emptyList()
     }
 
-    override fun getModulesList(): List<LoadedModule> {
-        return runCatching { service?.modulesList }.getOrNull() ?: emptyList()
+    override fun getModules(): List<LoadedModule> {
+        return runCatching { service?.modules }.getOrNull() ?: emptyList()
     }
 
     override fun getPrefsPath(packageName: String): String? {
         return runCatching { service?.getPrefsPath(packageName) }.getOrNull()
     }
 
-    override fun requestInjectedManagerBinder(binder: List<IBinder>): ParcelFileDescriptor? {
-        return runCatching { service?.requestInjectedManagerBinder(binder) }.getOrNull()
+    override fun openManagerApk(): ParcelFileDescriptor? {
+        return runCatching { service?.openManagerApk() }.getOrNull()
+    }
+
+    override fun requestManagerService(): IBinder? {
+        return runCatching { service?.requestManagerService() }.getOrNull()
     }
 
     override fun asBinder(): IBinder? {

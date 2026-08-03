@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.Process
 import java.util.concurrent.Executors
 import org.matrix.vector.ipc.LoadedModule
-import org.matrix.vector.ipc.IHotReloadResultReceiver
+import org.matrix.vector.ipc.IHotReloadOutcomeReceiver
 import org.matrix.vector.ipc.IProcessChannel
 import org.lsposed.lspd.util.Utils.Log
 
@@ -32,7 +32,7 @@ object VectorProcessChannel : IProcessChannel.Stub() {
         modulePackageName: String?,
         extras: Bundle?,
         module: LoadedModule?,
-        receiver: IHotReloadResultReceiver?,
+        receiver: IHotReloadOutcomeReceiver?,
     ) {
         // The daemon is the only caller this binder was ever handed to, but it runs as the system
         // uid rather than as root, and this object lives in an app process - so the check is worth
@@ -45,7 +45,7 @@ object VectorProcessChannel : IProcessChannel.Stub() {
 
         worker.execute {
             val outcome = VectorModuleManager.hotReload(modulePackageName, extras, module)
-            runCatching { receiver?.onHotReloadOutcome(outcome) }
+            runCatching { receiver?.onOutcome(outcome) }
                 .onFailure { Log.w(TAG, "Cannot report the hot reload outcome", it) }
         }
     }

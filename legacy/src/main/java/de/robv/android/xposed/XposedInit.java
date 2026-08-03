@@ -204,11 +204,11 @@ public final class XposedInit {
     }
 
     public static void loadLegacyModules() {
-        var moduleList = VectorServiceClient.INSTANCE.getLegacyModulesList();
+        var moduleList = VectorServiceClient.INSTANCE.getLegacyModules();
         moduleList.forEach(module -> {
             var apk = module.apkPath;
             var name = module.packageName;
-            var file = module.file;
+            var file = module.code;
             loadedModules.put(name, Optional.of(apk)); // temporarily add it for XSharedPreference
             if (!loadModule(name, apk, file)) {
                 loadedModules.remove(name);
@@ -225,7 +225,7 @@ public final class XposedInit {
             return;
         }
         var packages = (ArrayMap<?, ?>) XposedHelpers.getObjectField(at, "mPackages");
-        VectorServiceClient.INSTANCE.getModulesList().forEach(module -> {
+        VectorServiceClient.INSTANCE.getModules().forEach(module -> {
             loadedModules.put(module.packageName, Optional.empty());
             if (!VectorModuleManager.INSTANCE.loadModule(module, startsSystemServer, VectorServiceClient.INSTANCE.getProcessName())) {
                 loadedModules.remove(module.packageName);

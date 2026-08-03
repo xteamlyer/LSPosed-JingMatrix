@@ -8,6 +8,9 @@ package org.matrix.vector.ipc;
  * the process restarts.</p>
  */
 interface IRemotePreferenceCallback {
-    /** @param map the diff, in the shape RemotePreferences.Editor writes: put / delete / clear */
-    oneway void onUpdate(in Bundle map);
+    /**
+     * @param diff what changed, in the shape RemotePreferences.Editor writes it: a "put" map, a
+     *             "delete" set, and a "clear" flag - not the whole group
+     */
+    oneway void onRemotePreferencesChanged(in Bundle diff);
 }

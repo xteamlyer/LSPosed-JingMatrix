@@ -1,7 +1,7 @@
 package org.matrix.vector.ipc;
 
 import org.matrix.vector.ipc.LoadedModule;
-import org.matrix.vector.ipc.IHotReloadResultReceiver;
+import org.matrix.vector.ipc.IHotReloadOutcomeReceiver;
 
 /**
  * The one thing the daemon calls <i>into</i> an injected process for.
@@ -11,7 +11,7 @@ import org.matrix.vector.ipc.IHotReloadResultReceiver;
  * would be reachable by the app itself. The process side additionally checks that the caller is the
  * daemon.</p>
  *
- * <p>Handed to the daemon by {@code IFrameworkService#attachProcessChannel} while the framework
+ * <p>Handed to the daemon by {@link IFrameworkService#attachProcessChannel} while the framework
  * bootstraps, before any module has loaded and carrying no module identity at all - which is what
  * makes it work for system_server, whose modules load before the daemon's module cache exists.</p>
  */
@@ -33,5 +33,5 @@ interface IProcessChannel {
      * @param module            the generation to load
      */
     oneway void hotReload(String modulePackageName, in Bundle extras, in LoadedModule module,
-                          IHotReloadResultReceiver receiver) = 1;
+                          IHotReloadOutcomeReceiver receiver) = 1;
 }

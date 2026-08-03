@@ -84,7 +84,7 @@ object ApplicationService : IFrameworkService.Stub() {
                 pid = info.key.pid,
                 loadedVersionCode = module.versionCode,
                 // Hot reload is specified only for modules with exactly one Java entry class.
-                hotReloadable = module.file.moduleClassNames.size == 1,
+                hotReloadable = module.code.moduleClassNames.size == 1,
             )
         id
       }
@@ -254,10 +254,10 @@ object ApplicationService : IFrameworkService.Stub() {
     return ConfigCache.getModulesForProcess(info.processName, info.key.uid)
   }
 
-  override fun getModulesList() =
-      getAllModules().filter { !it.file.legacy }.also { recordHotReloadTargets(ensureRegistered(), it) }
+  override fun getModules() =
+      getAllModules().filter { !it.code.legacy }.also { recordHotReloadTargets(ensureRegistered(), it) }
 
-  override fun getLegacyModulesList() = getAllModules().filter { it.file.legacy }
+  override fun getLegacyModules() = getAllModules().filter { it.code.legacy }
 
   override fun isLogMuted(): Boolean = !ManagerService.isVerboseLog
 
@@ -266,17 +266,8 @@ object ApplicationService : IFrameworkService.Stub() {
     return ConfigCache.getPrefsPath(packageName, info.key.uid)
   }
 
-  override fun requestInjectedManagerBinder(
-      binderList: MutableList<IBinder>
-  ): ParcelFileDescriptor? {
-    val info = ensureRegistered()
-    val pid = info.key.pid
-    val uid = info.key.uid
-
-    if (ManagerService.postStartManager(pid) || ConfigCache.isManager(uid)) {
-      binderList.add(ManagerService.obtainManagerBinder(info.heartBeat, pid, uid))
-    }
-
+  override fun openManagerApk(): ParcelFileDescriptor? {
+    ensureRegistered()
     return runCatching {
           // Verify the APK signature before serving it
           InstallerVerifier.verifyInstallerSignature(FileSystem.managerApkPath.toString())
@@ -285,5 +276,16 @@ object ApplicationService : IFrameworkService.Stub() {
         }
         .onFailure { Log.e(TAG, "Failed to open or verify manager APK", it) }
         .getOrNull()
+  }
+
+  override fun requestManagerService(): IBinder? {
+    val info = ensureRegistered()
+    val pid = info.key.pid
+    val uid = info.key.uid
+    // postStartManager decides here that this process hosts the manager, so this is a claim rather
+    // than a query - which is why it is its own call now instead of a hidden out-parameter on the
+    // one that opens the APK.
+    if (!ManagerService.postStartManager(pid) && !ConfigCache.isManager(uid)) return null
+    return ManagerService.obtainManagerBinder(info.heartBeat, pid, uid)
   }
 }

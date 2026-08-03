@@ -236,7 +236,7 @@ object ConfigCache {
                   versionCode = pkgInfo.longVersionCode
                   applicationInfo = appInfo
                   service = oldModule?.service ?: InjectedModuleService(pkgName)
-                  file = loaded.apk
+                  code = loaded.apk
                 }
             newModules[pkgName] = module
           }
@@ -324,7 +324,7 @@ object ConfigCache {
       // repair and nothing that replaces the scope table can drop it again. Legacy is the
       // loader's own verdict, so a module built against API 101 keeps its own process to itself.
       newModules.values
-          .filter { it.file?.legacy == true }
+          .filter { it.code?.legacy == true }
           .forEach { module ->
             userManager?.getRealUsers()?.forEach { user ->
               val pkgInfo =
@@ -444,7 +444,7 @@ object ConfigCache {
             }
 
             FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled).apkOrNull?.let {
-              module.file = it
+              module.code = it
               stageNativeLibrariesFor(module)
               modules.add(module)
               // We intentionally don't mutate state.modules here. Cache update will catch it.
@@ -465,7 +465,7 @@ object ConfigCache {
    * exactly as it did before.
    */
   private fun stageNativeLibrariesFor(module: LoadedModule) {
-    val file = module.file ?: return
+    val file = module.code ?: return
     // system_server asks for its modules early enough that the cache may not have been built yet,
     // and this is the same reason getPrefsPath does not trust the field either.
     setupMiscPath()

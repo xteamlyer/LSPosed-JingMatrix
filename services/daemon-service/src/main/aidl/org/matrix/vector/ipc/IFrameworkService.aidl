@@ -18,7 +18,7 @@ interface IFrameworkService {
     boolean isLogMuted();
 
     /** The legacy (de.robv) modules in scope for this process. */
-    List<LoadedModule> getLegacyModulesList();
+    List<LoadedModule> getLegacyModules();
 
     /**
      * The libxposed modules in scope for this process.
@@ -32,17 +32,26 @@ interface IFrameworkService {
      * reload: system_server loads its modules before the daemon's module cache exists, so any
      * registration that had to look a module up there failed and was swallowed.</p>
      */
-    List<LoadedModule> getModulesList();
+    List<LoadedModule> getModules();
 
     /** Where this process should look for a module's XSharedPreferences files. */
     String getPrefsPath(String packageName);
 
     /**
-     * Asks for the manager APK, and for the manager binder if this process is the manager.
-     *
-     * <p>Both directions in one call: {@code binder} is an out-parameter the daemon appends to.</p>
+     * The manager APK, opened read-only once its signature has been verified against the one this
+     * framework was built with. Null when it is missing or does not verify.
      */
-    ParcelFileDescriptor requestInjectedManagerBinder(out List<IBinder> binder);
+    @nullable ParcelFileDescriptor openManagerApk();
+
+    /**
+     * The manager's service binder, if this process is the one that should host the manager.
+     *
+     * <p>Null for every other process, which is nearly all of them. Asking is how a process finds
+     * out, and asking is not free of consequence: the daemon decides <i>here</i> that this process
+     * is the host, so a process that asks and then does not go on to host the manager has taken
+     * the slot from whichever one would have.</p>
+     */
+    @nullable IBinder requestManagerService();
 
     /**
      * Hands the daemon the channel it needs to call back into this process.

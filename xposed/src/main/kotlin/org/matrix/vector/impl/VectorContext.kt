@@ -167,7 +167,7 @@ class VectorContext(
     }
 
     override fun listRemoteFiles(): Array<String> {
-        return service.remoteFileList
+        return service.remoteFileNames
     }
 
     override fun openRemoteFile(name: String): ParcelFileDescriptor {

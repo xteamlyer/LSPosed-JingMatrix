@@ -474,10 +474,12 @@ object ParasiticManagerHooker {
     /** Entry point. Checks if the current process should host the parasitic manager. */
     @JvmStatic
     fun start(): Boolean {
-        val binderList = mutableListOf<IBinder>()
         return try {
-            VectorServiceClient.requestInjectedManagerBinder(binderList)!!.use { pfd ->
-                val managerService = ILSPManagerService.Stub.asInterface(binderList[0])
+            // Claimed first, because asking for it is what makes this process the manager's host;
+            // there is no point opening the APK for a process that was not given the service.
+            val managerBinder = VectorServiceClient.requestManagerService() ?: return false
+            VectorServiceClient.openManagerApk()!!.use { pfd ->
+                val managerService = ILSPManagerService.Stub.asInterface(managerBinder)
 
                 if (isParasitic) {
                     managerFd = pfd.detachFd()

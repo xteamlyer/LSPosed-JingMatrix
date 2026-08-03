@@ -66,7 +66,7 @@ class InjectedModuleService(private val packageName: String) : IModuleService.St
         .getOrNull()
   }
 
-  override fun getRemoteFileList(): Array<String> {
+  override fun getRemoteFileNames(): Array<String> {
     val userId = Binder.getCallingUid() / PER_USER_RANGE
     return runCatching {
           val dir = FileSystem.resolveModuleDir(packageName, "files", userId, -1)
@@ -80,7 +80,7 @@ class InjectedModuleService(private val packageName: String) : IModuleService.St
     val groupCallbacks = callbacks[group] ?: return
     for (subscriber in groupCallbacks) {
       if (subscriber.userId != userId) continue
-      runCatching { subscriber.callback.onUpdate(diff) }
+      runCatching { subscriber.callback.onRemotePreferencesChanged(diff) }
           .onFailure { groupCallbacks.remove(subscriber) }
     }
   }
