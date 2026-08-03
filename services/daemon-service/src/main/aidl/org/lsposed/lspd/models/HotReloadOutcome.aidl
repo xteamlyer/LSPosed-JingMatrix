@@ -18,4 +18,14 @@ parcelable HotReloadOutcome {
      * message for a genuine refusal while supplying one for every other failure.
      */
     boolean refused;
+
+    /**
+     * True once the process has actually swapped generations, whatever the status says.
+     *
+     * onHotReloaded is called after the swap is committed, because the interface releases the old
+     * generation "after this callback returns or throws". So a throw from it reports FAILED while
+     * the process is running the new code, and the daemon has to record the new version anyway -
+     * otherwise getRunningTargets() would keep naming a generation that is no longer loaded.
+     */
+    boolean generationChanged;
 }

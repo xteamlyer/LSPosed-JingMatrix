@@ -270,9 +270,6 @@ object VectorModuleManager {
 
         // Captured after the freeze and after old code had its chance to unhook.
         val oldHandles = VectorHookBuilder.snapshotHandles(packageName)
-        // replaceHook swaps the hooker inside an installed record, so tracking must survive the
-        // reload; the rollback below undoes only what the new generation adds on top of this.
-        val inherited = VectorHookBuilder.trackedRecords(packageName)
 
         oldEntries.forEach { VectorLifecycleManager.activeModules.remove(it) }
         // Active before the callback, so an entry detaching from inside it is honoured.
@@ -291,26 +288,31 @@ object VectorModuleManager {
                 override fun getOldHookHandles(): List<XposedInterface.HookHandle> = oldHandles
             }
 
-        try {
-            // The default onHotReloaded already unhooks these; doing both would double-unhook.
-            newEntries.filter { VectorLifecycleManager.isActive(it) }.forEach {
-                it.onHotReloaded(reloadedParam)
+        // Committed before the callback runs, because the interface releases the old generation
+        // "after this callback returns or throws" - there is no rollback. A throw here leaves the
+        // process running new code that has migrated some of its hooks and not others, and says so
+        // through the result; rolling back could not undo the replaceHook calls the new code had
+        // already made anyway, and would restore old entries whose hooks now run new hookers.
+        generations[packageName] = newGeneration
+
+        var failure: Throwable? = null
+        // The default onHotReloaded already unhooks these; doing both would double-unhook.
+        newEntries
+            .filter { VectorLifecycleManager.isActive(it) }
+            .forEach {
+                if (failure != null) return@forEach
+                runCatching { it.onHotReloaded(reloadedParam) }.onFailure { t -> failure = t }
             }
-        } catch (t: Throwable) {
-            // Nothing has been committed yet, so the old generation is still the live one.
-            VectorHookBuilder.unhookSince(packageName, inherited)
-            newEntries.forEach { VectorLifecycleManager.activeModules.remove(it) }
-            oldEntries.forEach { VectorLifecycleManager.activeModules.add(it) }
-            old.context.unfreeze()
-            Log.e(TAG, "onHotReloaded of $packageName threw; kept the previous generation", t)
-            return failed(describe(t))
+
+        // The last framework-owned reference to the old generation goes with this frame: its map
+        // entry is gone, its entries are out of activeModules, and oldEntries dies on return.
+        failure?.let {
+            Log.e(TAG, "onHotReloaded of $packageName threw", it)
+            return failed(describe(it), generationChanged = true)
         }
 
-        // Commit only now that the new code has taken over. Replacing the map entry drops the last
-        // framework-owned reference to the old generation; oldEntries dies with this frame.
-        generations[packageName] = newGeneration
         Log.d(TAG, "Hot reloaded $packageName")
-        return outcome(IXposedService.HOT_RELOAD_SUCCEEDED, null)
+        return outcome(IXposedService.HOT_RELOAD_SUCCEEDED, null, generationChanged = true)
     }
 
     /**
@@ -351,16 +353,24 @@ object VectorModuleManager {
         return false
     }
 
-    private fun outcome(status: Int, message: String?, refused: Boolean = false) =
+    private fun outcome(
+        status: Int,
+        message: String?,
+        refused: Boolean = false,
+        generationChanged: Boolean = false,
+    ) =
         HotReloadOutcome().apply {
             this.status = status
             this.message = message
             this.refused = refused
+            this.generationChanged = generationChanged
         }
 
-    private fun unsupported(message: String) = outcome(IXposedService.HOT_RELOAD_UNSUPPORTED, message)
+    private fun unsupported(message: String) =
+        outcome(IXposedService.HOT_RELOAD_UNSUPPORTED, message)
 
-    private fun failed(message: String) = outcome(IXposedService.HOT_RELOAD_FAILED, message)
+    private fun failed(message: String, generationChanged: Boolean = false) =
+        outcome(IXposedService.HOT_RELOAD_FAILED, message, generationChanged = generationChanged)
 
     private fun refusal() = outcome(IXposedService.HOT_RELOAD_FAILED, null, refused = true)
 

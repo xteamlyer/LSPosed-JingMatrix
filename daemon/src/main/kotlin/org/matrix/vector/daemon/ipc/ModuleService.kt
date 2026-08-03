@@ -272,7 +272,11 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
       val outcome = binder.hotReload(loadedModule.packageName, data, newModule)
       status = outcome.status
-      if (status == IXposedService.HOT_RELOAD_SUCCEEDED) loadedVersion = newModule.versionCode
+      // Whether the generation was swapped is not the same question as whether the reload
+      // succeeded: onHotReloaded runs after the swap is committed, so a throw from it leaves the
+      // process on the new code and still reports FAILED. Recording the version the target is
+      // actually running is what keeps getRunningTargets() honest about it.
+      if (outcome.generationChanged) loadedVersion = newModule.versionCode
       // A null message is reserved for a refusal, so anything else gets one supplied.
       message =
           outcome.message
