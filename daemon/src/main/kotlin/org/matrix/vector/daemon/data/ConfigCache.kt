@@ -190,19 +190,37 @@ object ConfigCache {
               TAG, "No users available; skipping this rebuild rather than assuming nothing exists")
           return
         }
-        // Every user, not the first one that answers. Which users hold the module is what the
-        // scope expansion needs to keep a module out of a user that never installed it, and
-        // stopping at the first match cannot tell one user from all of them.
+        // Every user, not the first one that answers, because which users hold the module is what
+        // keeps it out of a user that never installed it.
         //
-        // The lowest user id wins the ApplicationInfo, so the data directory a module is handed
-        // stays put as other users come and go. It is only the paths that this picks: [appId] is
-        // taken modulo the user below and is the same whichever copy answers.
+        // Whether the query answered is not whether this user holds the package. [MATCH_ALL_FLAGS]
+        // carries MATCH_ANY_USER and MATCH_UNINSTALLED_PACKAGES, deliberately - answering for
+        // every user is what tells "no user has this any more", which deletes the configuration,
+        // from "not in this user", which must not. So asking about user 0 for a module only user
+        // 11 holds returns the package, and a boundary built on that admitted every user and
+        // enforced nothing.
+        //
+        // What it returns is the *holder's* uid, so that is the discriminator: the package manager
+        // hands back user 11's 1110136 whichever user was asked about, and only a user that holds
+        // the package answers with a uid in its own range. This is the same test
+        // `getInstalledPackagesFromAllUsers` uses to build the manager's per-user app list, and it
+        // does not depend on hidden state - a locked private space profile hides its apps without
+        // ceasing to hold them.
+        //
+        // A holder wins the ApplicationInfo, so the data directory the module is handed is one
+        // that exists; the lowest user id among them, so it stays put as other users come and go.
+        var anyPkgInfo: android.content.pm.PackageInfo? = null
         for (user in users.sortedBy { it.id }) {
           val info = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
-          if (info?.applicationInfo == null) continue
+          val infoUid = info?.applicationInfo?.uid ?: continue
+          if (anyPkgInfo == null) anyPkgInfo = info
+          if (infoUid / PER_USER_RANGE != user.id) continue
           moduleUsers[pkgName] = moduleUsers[pkgName].orEmpty() + user.id
           if (pkgInfo == null) pkgInfo = info
         }
+        // Nothing held it, but something answered: still installed somewhere as far as the package
+        // manager is concerned, so it is not obsolete and must not have its configuration deleted.
+        if (pkgInfo == null) pkgInfo = anyPkgInfo
 
         // Gone, not broken. No user has this package any more, so the configuration for it is
         // meaningless and is cleaned up. This is the only case that deletes anything.
