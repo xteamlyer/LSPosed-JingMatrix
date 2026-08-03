@@ -74,10 +74,10 @@ object VectorModuleManager {
                 }
         }
 
-        // Register any native JNI entrypoints declared by the module
-        module.file.moduleLibraryNames.forEach { libraryName ->
-            NativeAPI.recordNativeEntrypoint(libraryName)
-        }
+        // Native entry points are recorded by buildGeneration, which has to do it before the entry
+        // classes run. Doing it again here would put every library name in the dlopen hook's list
+        // twice, and that list is walked without a break - a matching library would have its
+        // native_init called once per duplicate.
 
         Log.d(TAG, "Loaded module ${module.packageName} successfully.")
         return true
