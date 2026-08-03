@@ -123,9 +123,6 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         return null
     }
 
-    override fun getLdLibraryPath(): String =
-        nativeLibraryDirs.joinToString(File.pathSeparator) { it.path }
-
     override fun findResource(name: String): URL? {
         return try {
             val urlHandler = VectorURLStreamHandler(apkPath)

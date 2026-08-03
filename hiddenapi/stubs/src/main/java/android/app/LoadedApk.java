@@ -14,4 +14,8 @@ public final class LoadedApk {
 	public String getPackageName() {
 		throw new UnsupportedOperationException("STUB");
 	}
+
+	public String getResDir() {
+		throw new UnsupportedOperationException("STUB");
+	}
 }

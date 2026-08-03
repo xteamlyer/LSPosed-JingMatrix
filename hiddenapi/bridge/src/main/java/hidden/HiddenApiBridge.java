@@ -28,6 +28,7 @@ import android.content.res.Resources;
 import android.content.res.ResourcesImpl;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.system.ErrnoException;
@@ -38,8 +39,13 @@ import android.util.MutableInt;
 import androidx.annotation.RequiresApi;
 
 import java.io.FileDescriptor;
+import java.io.File;
 
 public class HiddenApiBridge {
+    public static File Environment_getDataProfilesDePackageDirectory(int userId, String packageName) {
+        return Environment.getDataProfilesDePackageDirectory(userId, packageName);
+    }
+
     public static int AssetManager_addAssetPath(AssetManager am, String path) {
         return am.addAssetPath(path);
     }
