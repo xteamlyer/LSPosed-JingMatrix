@@ -26,6 +26,7 @@ import java.util.zip.ZipEntry
 class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
     private val apkPath: String
+    private val blockLegacyApi: Boolean
     private val nativeLibraryDirs = mutableListOf<File>()
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -34,8 +35,10 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         librarySearchPath: String?,
         parent: ClassLoader?,
         apkPath: String,
+        blockLegacyApi: Boolean,
     ) : super(dexBuffers, librarySearchPath, parent) {
         this.apkPath = apkPath
+        this.blockLegacyApi = blockLegacyApi
         initNativeDirs(librarySearchPath)
     }
 
@@ -44,8 +47,10 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         parent: ClassLoader?,
         apkPath: String,
         librarySearchPath: String?,
+        blockLegacyApi: Boolean,
     ) : super(dexBuffers, parent) {
         this.apkPath = apkPath
+        this.blockLegacyApi = blockLegacyApi
         initNativeDirs(librarySearchPath)
     }
 
@@ -57,6 +62,16 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
     @Throws(ClassNotFoundException::class)
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
+        // API 102 forbids libxposed modules from calling the legacy de.robv APIs. This loader's
+        // parent is the framework's own loader, which carries the legacy bridge, so refusing to
+        // resolve the package here is what actually enforces it - reflective lookups against this
+        // loader included.
+        if (blockLegacyApi && name.startsWith(LEGACY_API_PREFIX)) {
+            throw ClassNotFoundException(
+                "$name is unavailable to modules targeting Xposed API 102 or higher"
+            )
+        }
+
         findLoadedClass(name)?.let {
             return it
         }
@@ -130,6 +145,7 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
     companion object {
         private const val TAG = "VectorModuleClassLoader"
         private const val ZIP_SEPARATOR = "!/"
+        private const val LEGACY_API_PREFIX = "de.robv.android.xposed."
         private val SYSTEM_NATIVE_LIBRARY_DIRS = splitPaths(System.getProperty("java.library.path"))
 
         private fun splitPaths(searchPath: String?): List<File> {
@@ -143,11 +159,13 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
          * fully instantiated.
          */
         @JvmStatic
+        @JvmOverloads
         fun loadApk(
             apk: String,
             dexes: List<SharedMemory>,
             librarySearchPath: String,
             parent: ClassLoader?,
+            blockLegacyApi: Boolean = false,
         ): ClassLoader {
             val dexBuffers =
                 dexes
@@ -166,9 +184,21 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
             val cl =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    VectorModuleClassLoader(dexBuffers, librarySearchPath, parent, apk)
+                    VectorModuleClassLoader(
+                        dexBuffers,
+                        librarySearchPath,
+                        parent,
+                        apk,
+                        blockLegacyApi,
+                    )
                 } else {
-                    VectorModuleClassLoader(dexBuffers, parent, apk, librarySearchPath)
+                    VectorModuleClassLoader(
+                        dexBuffers,
+                        parent,
+                        apk,
+                        librarySearchPath,
+                        blockLegacyApi,
+                    )
                 }
 
             dexBuffers.toList().parallelStream().forEach { SharedMemory.unmap(it) }

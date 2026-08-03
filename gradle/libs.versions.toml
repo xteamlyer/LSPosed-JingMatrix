@@ -68,6 +68,10 @@ okhttp-dnsoverhttps = { group = "com.squareup.okhttp3", name = "okhttp-dnsoverht
 
 agp-apksig = { group = "com.android.tools.build", name = "apksig", version.ref = "agp" }
 gson = { module = "com.google.code.gson:gson", version = "2.14.0" }
+# The libxposed API sources vendored under xposed/libxposed and services/libxposed carry
+# @SinceApi and @InternalApi from API 102 onwards. Both are CLASS-retained metadata with no
+# runtime behaviour, so this is compileOnly everywhere and never reaches a device.
+libxposed-annotation = { module = "io.github.libxposed:annotation", version = "1.0.0" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 picocli = { module = "info.picocli:picocli", version = "4.7.7" }

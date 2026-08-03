@@ -17,7 +17,9 @@ import org.lsposed.lspd.models.Application
 import org.lsposed.lspd.models.Module
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.VectorDaemon
+import org.matrix.vector.daemon.ipc.ApplicationService
 import org.matrix.vector.daemon.ipc.InjectedModuleService
+import org.matrix.vector.daemon.ipc.ModuleService
 import org.matrix.vector.daemon.system.*
 import org.matrix.vector.daemon.utils.InstallerVerifier
 import org.matrix.vector.daemon.utils.applySqliteHelperWorkaround
@@ -231,6 +233,7 @@ object ConfigCache {
                   packageName = pkgName
                   this.apkPath = apkPath
                   appId = appInfo.uid
+                  versionCode = pkgInfo.longVersionCode
                   applicationInfo = appInfo
                   service = oldModule?.service ?: InjectedModuleService(pkgName)
                   file = loaded.apk
@@ -354,6 +357,15 @@ object ConfigCache {
       }
 
       Log.d(TAG, "Cache Update Complete. Map Swap successful.")
+
+      // Targets are removed only after the module set has been published.
+      (oldState.modules.keys - newModules.keys).forEach {
+        ApplicationService.forgetHotReloadTargets(it)
+      }
+      ApplicationService.backfillLoadedVersions()
+
+      // Ask stale opt-in targets to load the generation that was just installed.
+      newModules.values.forEach { ModuleService.autoHotReload(it) }
       // Log.d(TAG, "cached modules:")
       // newModules.forEach { (pkg, mod) -> Log.d(TAG, "$pkg ${mod.apkPath}") }
 
@@ -410,9 +422,10 @@ object ConfigCache {
                   service = InjectedModuleService(pkgName)
                 }
 
-            runCatching {
+                runCatching {
                   @Suppress("DEPRECATION")
                   val pkg = PackageParser().parsePackage(File(apkPath), 0, false)
+                  // A raw parse carries no version; backfillLoadedVersions supplies it later.
                   module.applicationInfo = pkg.applicationInfo
                 }
                 .onFailure {
