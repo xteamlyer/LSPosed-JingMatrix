@@ -273,8 +273,8 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       // Thawing first is what keeps that case from being reported as a refusal. A device with no
       // app freezer at all - anything before the cgroup v2 freezer - is the ordinary path, not a
       // failure, so a null here only means "nothing to do".
-      refreeze = ProcessFreezer.thaw(target.uid, target.pid)
-      if (ProcessFreezer.isFrozen(target.uid, target.pid)) {
+      refreeze = ProcessFreezer.thaw(target.pid)
+      if (ProcessFreezer.isFrozen(target.pid)) {
         // Say so now rather than spending the timeout on a transaction that will not be delivered.
         // Not a refusal either: the message is what tells the two apart.
         status = IXposedService.HOT_RELOAD_FAILED
