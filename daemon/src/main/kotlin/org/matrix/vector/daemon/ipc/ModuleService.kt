@@ -167,11 +167,19 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
   }
 
   override fun getScope(): List<String> {
-    ensureModule()
-    // The scope table has one row per (app, user), so a module enabled for several users saw the
-    // same package repeatedly. A scope is a set of package names.
-    return ModuleDatabase.getModuleScope(loadedModule.packageName)?.map { it.packageName }?.distinct()
-        ?: emptyList()
+    val userId = ensureModule()
+    // The caller's own user, and the framework row that belongs to none. The scope set is one set
+    // for the whole module, but the other two calls on this interface are not: [requestScope] asks
+    // for the caller's user and [removeScope] gives back the caller's user. Returning every row
+    // meant a copy in user 11 was shown user 0's packages, which it could neither have asked for
+    // nor give back - the removal is keyed on its own user and would match nothing.
+    //
+    // The scope table has one row per (app, user), so a module held by several users saw the same
+    // package repeatedly. A scope is a set of package names.
+    return ModuleDatabase.getModuleScope(loadedModule.packageName)
+        ?.filter { it.userId == userId || it.packageName == "system" }
+        ?.map { it.packageName }
+        ?.distinct() ?: emptyList()
   }
 
   override fun requestScope(packages: List<String>, callback: IXposedScopeCallback) {
@@ -216,8 +224,10 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
 
   override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
     // The user id matters as much as the app id here: ensureModule only proves the caller shares
-    // the module's appId, and the same module installed for two users is two separate module apps.
-    // Without this, the copy in user 10 could reload user 0's processes.
+    // the module's app id, which every copy of it does. The copies are one module and one APK, but
+    // they are separate apps with separate uids and separate preferences, and the boundary that
+    // keeps a module out of a user that never installed it applies to reloading too. Without this,
+    // the copy in user 11 could reload user 0's processes.
     val userId = ensureModule()
     // SecurityException is reserved by the AIDL for exactly these two conditions, so it must not be
     // raised for anything else on this path - a module-thrown SecurityException in particular has

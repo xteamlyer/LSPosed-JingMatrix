@@ -95,8 +95,10 @@ object ApplicationService : IFrameworkService.Stub() {
   /**
    * Whether [userId]'s copy of the module may address [target].
    *
-   * The same module installed for two users is two module apps with two sets of preferences, and
-   * neither has any business reloading the other's processes.
+   * One module is one package and one APK, but the copies installed for two users are two apps with
+   * two uids and two sets of preferences, and neither has any business reloading the other's
+   * processes. `ConfigCache` draws the same line when it decides where a module may be injected at
+   * all; this is that boundary applied to reloading what is already there.
    *
    * The carve-out is for the AID_* uids below [FIRST_APPLICATION_UID], and it has to be: a module in
    * any user may take the framework into its scope, and `ModuleDatabase.setModuleScope` stores that
