@@ -216,8 +216,10 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
 
   override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
     // The user id matters as much as the app id here: ensureModule only proves the caller shares
-    // the module's appId, and the same module installed for two users is two separate module apps.
-    // Without this, the copy in user 10 could reload user 0's processes.
+    // the module's app id, which every copy of it does. The copies are one module and one APK, but
+    // they are separate apps with separate uids and separate preferences, and the boundary that
+    // keeps a module out of a user that never installed it applies to reloading too. Without this,
+    // the copy in user 11 could reload user 0's processes.
     val userId = ensureModule()
     // SecurityException is reserved by the AIDL for exactly these two conditions, so it must not be
     // raised for anything else on this path - a module-thrown SecurityException in particular has

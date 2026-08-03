@@ -72,9 +72,13 @@ data class ScopeUiState(
 class ScopeViewModel(
     private val modulePackageName: String,
     /**
-     * The user the module is installed for. It has to travel with the package name: the same
-     * module in a work profile is a different copy with a different scope, and resolving it
-     * against the owner would edit the wrong one.
+     * The user whose copy of the module was opened, and so whose apps this screen offers.
+     *
+     * Not a second scope. A module is one package and one APK for the whole device and has one
+     * scope set; what varies per user is which apps exist to point at, and the daemon will not
+     * expand a row for a user that does not hold the module. So this selects the half of the
+     * device being edited — [apply] merges into the whole stored set rather than replacing it,
+     * which is what leaves another user's rows alone.
      */
     private val userId: Int,
     private val daemonClient: DaemonClient,

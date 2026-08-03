@@ -269,9 +269,16 @@ object ModuleDatabase {
 
       val values = ContentValues().apply { put("mid", mid) }
       for (app in scope) {
-        // The system server is one process for the whole device, so it is stored against user 0
-        // whoever asked for it — a module in a work profile hooking the framework is hooking the
-        // same system_server as everyone else.
+        // A module is one package, one APK and one scope set for the whole device — Android cannot
+        // hold two different builds under one package name, so there is nothing here to key by
+        // user. What [Application.userId] names is the *target*: which installed instance of
+        // [Application.packageName] this row points at. `ConfigCache` refuses to expand a row whose
+        // user does not hold the module, which is what keeps a module installed for one user out of
+        // another user's processes.
+        //
+        // The system server is the exception and is stored against user 0 whoever asked for it: it
+        // is one process for the whole device belonging to no user, so a module in a work profile
+        // hooking the framework is hooking the same system_server as everyone else.
         //
         // Normalised rather than dropped, which is what this used to do. Dropping meant restoring
         // a backup written by an older manager, which recorded the framework under the module's

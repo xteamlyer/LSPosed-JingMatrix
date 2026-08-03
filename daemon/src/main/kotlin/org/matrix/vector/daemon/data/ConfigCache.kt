@@ -153,6 +153,15 @@ object ConfigCache {
 
       val newModules = mutableMapOf<String, LoadedModule>()
       val newStaticScopes = mutableMapOf<String, Set<String>>()
+
+      // Which users actually hold each module, which is what bounds where it may be injected.
+      //
+      // A module is one package and one APK for the whole device — Android has no way to hold two
+      // different builds under one package name — so the configuration keys it by package alone:
+      // one enabled flag, one scope set. What genuinely varies per user is whether that package is
+      // installed at all, and its uid and data directory when it is. This map is that dimension,
+      // and the scope expansion below refuses to cross it.
+      val moduleUsers = mutableMapOf<String, Set<Int>>()
       // Deleted from the configuration: the package is not installed for any user, so what it was
       // configured to do cannot mean anything.
       val obsoleteModules = mutableSetOf<String>()
@@ -181,9 +190,18 @@ object ConfigCache {
               TAG, "No users available; skipping this rebuild rather than assuming nothing exists")
           return
         }
-        for (user in users) {
-          pkgInfo = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
-          if (pkgInfo?.applicationInfo != null) break
+        // Every user, not the first one that answers. Which users hold the module is what the
+        // scope expansion needs to keep a module out of a user that never installed it, and
+        // stopping at the first match cannot tell one user from all of them.
+        //
+        // The lowest user id wins the ApplicationInfo, so the data directory a module is handed
+        // stays put as other users come and go. It is only the paths that this picks: [appId] is
+        // taken modulo the user below and is the same whichever copy answers.
+        for (user in users.sortedBy { it.id }) {
+          val info = packageManager?.getPackageInfoCompat(pkgName, MATCH_ALL_FLAGS, user.id)
+          if (info?.applicationInfo == null) continue
+          moduleUsers[pkgName] = moduleUsers[pkgName].orEmpty() + user.id
+          if (pkgInfo == null) pkgInfo = info
         }
 
         // Gone, not broken. No user has this package any more, so the configuration for it is
@@ -204,7 +222,14 @@ object ConfigCache {
             apkPath == oldModule.apkPath &&
             File(appInfo.sourceDir).parent == File(apkPath).parent) {
 
-          if (oldModule.appId == -1) oldModule.applicationInfo = appInfo
+          // -1 is what `getModulesForSystemServer` leaves behind when it could not stat the
+          // module's data directory before the package manager existed. This is the first point at
+          // which the real answer is available, so both halves of it are filled in — the appId as
+          // well as the ApplicationInfo, which is what identifies the module to itself.
+          if (oldModule.appId == -1) {
+            oldModule.applicationInfo = appInfo
+            oldModule.appId = appInfo.uid % PER_USER_RANGE
+          }
           // This path skips re-reading the APK, so what the module claims has to be carried
           // over; the new map replaces the old one wholesale and would otherwise lose it.
           staticScopes[pkgName]?.let { newStaticScopes[pkgName] = it }
@@ -232,7 +257,13 @@ object ConfigCache {
                 LoadedModule().apply {
                   packageName = pkgName
                   this.apkPath = apkPath
-                  appId = appInfo.uid
+                  // An app id, as the name says, not the uid it is read from. Every reader
+                  // compares it against `someUid % PER_USER_RANGE`, so storing the uid made this
+                  // agree only for a module whose ApplicationInfo came from user 0 — and the
+                  // resolution above takes whichever user has the package. A module installed for
+                  // user 11 alone gave 1110136 here against a caller's 10136, so it failed its own
+                  // authentication in `ModuleService.ensureModule` and was never sent its binder.
+                  appId = appInfo.uid % PER_USER_RANGE
                   versionCode = pkgInfo.longVersionCode
                   applicationInfo = appInfo
                   service = oldModule?.service ?: InjectedModuleService(pkgName)
@@ -288,11 +319,26 @@ object ConfigCache {
         val userId = scopeRow.userId
 
         val module = newModules[modPkg] ?: return@forEach
+        val holders = moduleUsers[modPkg].orEmpty()
 
         if (appPkg == "system") {
-          addToScope("system_server", 1000, module)
+          // system_server is one process for the whole device and belongs to no user, so any user
+          // holding the module may hook it and the row is stored under user 0 whoever asked. It is
+          // the one target the boundary below does not apply to, because there is no second copy
+          // of it to keep a module out of.
+          if (holders.isNotEmpty()) addToScope("system_server", 1000, module)
           return@forEach
         }
+
+        // The user boundary. A row names one app instance, and reaching it means running the
+        // module's code in that user — so a user that never installed the module is not somewhere
+        // its rows may take it. A module held only by user 11 stays out of user 0's processes even
+        // when a row points at one.
+        //
+        // Nothing enforced this before. The row was expanded on the strength of the *target*
+        // resolving for that user, and the module followed wherever it pointed; a module installed
+        // for user 11 alone was observed loading into and hooking a user 0 app.
+        if (userId !in holders) return@forEach
 
         val pkgInfo = packageManager?.getPackageInfoWithComponents(appPkg, MATCH_ALL_FLAGS, userId)
         if (pkgInfo?.applicationInfo == null) return@forEach
@@ -305,10 +351,14 @@ object ConfigCache {
         for (processName in processNames) {
           addToScope(processName, appUid, module)
 
+          // A module in its own scope hooks itself in every user that has it — the copies share
+          // one APK, so what one copy hooks in itself the others may expect too. Over the users
+          // holding the module rather than over every user on the device: a uid in a user without
+          // the package names no process that can ever start, so it was only ever dead weight.
           if (modPkg == appPkg) {
             val appId = appUid % PER_USER_RANGE
-            userManager?.getRealUsers()?.forEach { user ->
-              val moduleUid = user.id * PER_USER_RANGE + appId
+            holders.forEach { holder ->
+              val moduleUid = holder * PER_USER_RANGE + appId
               if (moduleUid != appUid) addToScope(processName, moduleUid, module)
             }
           }
@@ -326,10 +376,12 @@ object ConfigCache {
       newModules.values
           .filter { it.code?.legacy == true }
           .forEach { module ->
-            userManager?.getRealUsers()?.forEach { user ->
+            // The users holding it, for the same reason as the self-scope above: the other users
+            // have no copy for the module to report itself active in.
+            moduleUsers[module.packageName].orEmpty().forEach { userId ->
               val pkgInfo =
                   packageManager?.getPackageInfoWithComponents(
-                      module.packageName, MATCH_ALL_FLAGS, user.id) ?: return@forEach
+                      module.packageName, MATCH_ALL_FLAGS, userId) ?: return@forEach
               val moduleUid = pkgInfo.applicationInfo?.uid ?: return@forEach
               pkgInfo.fetchProcesses().forEach { processName ->
                 addToScope(processName, moduleUid, module)
@@ -389,6 +441,25 @@ object ConfigCache {
   fun getModuleByUid(uid: Int): LoadedModule? =
       state.modules.values.firstOrNull { it.appId == uid % PER_USER_RANGE }
 
+  /**
+   * A module's device-protected data directory, found by looking rather than by assuming user 0.
+   *
+   * This runs while system_server is starting, so there is no package manager to ask and the
+   * directory the installer made is the only record of the module on disk. A module installed for a
+   * secondary user alone has no `/data/user_de/0` entry, so hardcoding that one both left the
+   * module's paths pointing at nothing and made its app id -1 — which then travelled into
+   * `ApplicationInfo.uid` as the identity of a module about to be loaded into the system server.
+   *
+   * Lowest user id first, so the owner's copy wins when there is one.
+   */
+  private fun resolveModuleDataDir(pkgName: String): String? {
+    val userDirs = FileSystem.toGlobalNamespace("/data/user_de").listFiles() ?: return null
+    return userDirs
+        .sortedBy { it.name.toIntOrNull() ?: Int.MAX_VALUE }
+        .map { FileSystem.toGlobalNamespace("/data/user_de/${it.name}/$pkgName").absolutePath }
+        .firstOrNull { runCatching { Os.stat(it) }.isSuccess }
+  }
+
   fun getModulesForSystemServer(): List<LoadedModule> {
     val modules = mutableListOf<LoadedModule>()
     if (!android.os.SELinux.checkSELinuxAccess(
@@ -413,12 +484,17 @@ object ConfigCache {
               return@forEach
             }
 
-            val statPath = FileSystem.toGlobalNamespace("/data/user_de/0/$pkgName").absolutePath
+            val statPath =
+                resolveModuleDataDir(pkgName)
+                    ?: FileSystem.toGlobalNamespace("/data/user_de/0/$pkgName").absolutePath
             val module =
                 LoadedModule().apply {
                   packageName = pkgName
                   this.apkPath = apkPath
-                  appId = runCatching { Os.stat(statPath).st_uid }.getOrDefault(-1)
+                  // An app id, matching what the rebuild stores, so it means the same thing
+                  // whichever user's directory answered above.
+                  appId =
+                      runCatching { Os.stat(statPath).st_uid % PER_USER_RANGE }.getOrDefault(-1)
                   service = InjectedModuleService(pkgName)
                 }
 
