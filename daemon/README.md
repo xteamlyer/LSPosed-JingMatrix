@@ -19,7 +19,7 @@ src/main/
     ├── utils/                # Context forgery, signature verification, and JNI bridges
     ├── Cli.kt                # Command-line interface definitions
     ├── VectorDaemon.kt       # Main entry point and looper initialization
-    └── VectorService.kt      # Primary IDaemonService implementation
+    └── VectorService.kt      # Primary IVectorDaemon implementation
 ```
 
 ## Concurrency and State Management

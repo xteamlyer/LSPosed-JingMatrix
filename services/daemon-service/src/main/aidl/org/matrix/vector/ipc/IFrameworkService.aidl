@@ -6,8 +6,11 @@ import org.matrix.vector.ipc.IProcessChannel;
 /**
  * What an injected process asks the framework for, once the zygisk handshake has given it one.
  *
- * <p>The daemon authenticates every call here by {@code Binder.getCallingUid()/getCallingPid()}
- * against the process registry the handshake built, so a caller can only ever act as itself.</p>
+ * <p>Every call that answers with something about the caller - its modules, its preference path, the
+ * manager - is authenticated by {@code Binder.getCallingUid()/getCallingPid()} against the process
+ * registry the handshake built, so a caller can only ever act as itself. {@link #isLogMuted} is the
+ * exception and is deliberately unauthenticated: it discloses one global boolean about log
+ * verbosity, and it is asked before a process has anything to be authenticated as.</p>
  *
  * <p><b>Transaction ids are implicit in this file.</b> A new method must be appended; inserting one
  * anywhere above renumbers every method after it, and the daemon and the injected processes are
@@ -44,12 +47,12 @@ interface IFrameworkService {
     @nullable ParcelFileDescriptor openManagerApk();
 
     /**
-     * The manager's service binder, if this process is the one that should host the manager.
+     * The manager's service binder, if this process is the one hosting the manager.
      *
-     * <p>Null for every other process, which is nearly all of them. Asking is how a process finds
-     * out, and asking is not free of consequence: the daemon decides <i>here</i> that this process
-     * is the host, so a process that asks and then does not go on to host the manager has taken
-     * the slot from whichever one would have.</p>
+     * <p>Null for every other process, which is nearly all of them. This only reports a decision
+     * already taken - the daemon recorded which pid it was launching the manager into when it
+     * started it, and this compares the caller against that - so asking is free and a process that
+     * asks and then does nothing has cost nothing.</p>
      */
     @nullable IBinder requestManagerService();
 

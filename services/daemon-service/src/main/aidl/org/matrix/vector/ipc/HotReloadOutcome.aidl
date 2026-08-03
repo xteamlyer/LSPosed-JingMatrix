@@ -14,9 +14,10 @@ parcelable HotReloadOutcome {
     int status;
 
     /**
-     * The framework's diagnostic. Null <b>only</b> for a module refusal, because that is the
-     * encoding {@code HotReloadResult} reserves for one: FAILED with a null message means
-     * {@code onHotReloading} returned false, and nothing else may claim it.
+     * The framework's diagnostic, or null when there is nothing to say - which is success, and
+     * exactly one kind of failure. {@code HotReloadResult} reserves FAILED-with-a-null-message for a
+     * module refusal: it means {@code onHotReloading} returned false, and no other failure may
+     * present that way.
      */
     String message;
 

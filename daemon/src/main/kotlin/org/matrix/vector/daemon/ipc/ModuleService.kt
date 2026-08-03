@@ -124,7 +124,7 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
     val appId = Binder.getCallingUid() % PER_USER_RANGE
     if (loadedModule.appId != appId) {
       throw RemoteException(
-          "LoadedModule ${loadedModule.packageName} is not for uid ${Binder.getCallingUid()}")
+          "Module ${loadedModule.packageName} is not for uid ${Binder.getCallingUid()}")
     }
     return Binder.getCallingUid() / PER_USER_RANGE
   }
@@ -228,7 +228,7 @@ class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stu
 
     if (!target.hotReloadable) {
       // Hot reload is specified only for modules declaring exactly one Java entry class.
-      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "LoadedModule has no single Java entry class")
+      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "Module has no single Java entry class")
       return
     }
 

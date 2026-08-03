@@ -143,9 +143,9 @@ void RegisterNativeLib(const std::string &library_name) {
     }
 
     std::lock_guard<std::mutex> lock(g_module_registry_mutex);
-    // The dlopen hook walks this list without stopping at the first match, so a name recorded twice
-    // means native_init runs twice for one library. Hot reload registers a module's names again for
-    // every new generation, which is exactly how that happens.
+    // The list is walked on every dlopen in the process and never shrinks - there is no
+    // unregistration, and hot reload records a module's names again for each new generation - so
+    // without this it grows without bound and every dlopen pays for the duplicates.
     if (std::find(g_module_native_libs.begin(), g_module_native_libs.end(), library_name) !=
         g_module_native_libs.end()) {
         LOGD("Native module library '{}' is already registered.", library_name.c_str());

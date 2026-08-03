@@ -19,7 +19,10 @@ parcelable LoadedModule {
     int appId;
 
     /**
-     * The module app's version code, as PackageManager reports it.
+     * The module app's version code, as PackageManager reports it - or 0 when it was not available.
+     * system_server is served its modules before PackageManager is published, so its targets start
+     * at 0 and the daemon backfills them once the module cache is built; 0 therefore means unknown
+     * rather than old, and no target is reported STALE on the strength of it.
      *
      * <p>This is what tells a running target apart from what is installed: a process still running
      * the code of an older version code is {@code STALE}, and is what a hot reload exists to bring

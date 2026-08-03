@@ -22,15 +22,15 @@ The `system_server` acts as the primary proxy router for the framework. During t
 1. The native module queries `ServiceManager` for the `serial` service (or `serial_vector` for late-inject scenarios). This service acts as a temporary rendezvous point.
 2. The module sends a `_VEC` transaction to retrieve a temporary binder, which it uses to fetch the framework DEX file descriptor and the obfuscation map.
 3. The module installs the JNI Binder Trap (`HookBridge`) and bootstraps the Kotlin layer via `Main.forkCommon`.
-4. Concurrently, the root daemon initiates a Binder transaction directly to the `system_server`. The JNI trap intercepts this, and BridgeService processes the `SEND_BINDER` action, storing the daemon's primary `IDaemonService` binder, sending back `system_server` context and linking a `DeathRecipient`.
+4. Concurrently, the root daemon initiates a Binder transaction directly to the `system_server`. The JNI trap intercepts this, and BridgeService processes the `SEND_BINDER` action, storing the daemon's primary `IVectorDaemon` binder, sending back `system_server` context and linking a `DeathRecipient`.
 
 ### Phase 2: User Application Rendezvous
 Standard applications initialize their IPC connection by routing requests through the `system_server`.
 1. In `postAppSpecialize`, the application queries `ServiceManager` for the `activity` service (which resides in `system_server`).
 2. The application sends a `_VEC` transaction containing the `GET_BINDER` action, its process name, and a newly allocated heartbeat `BBinder`.
 3. The JNI trap inside `system_server` intercepts this transaction before the Activity Manager processes it.
-4. The `system_server`'s BridgeService forwards the application's UID, PID, and heartbeat binder to the root daemon via the `IDaemonService` binder acquired in Phase 1.
-5. The daemon evaluates the request against its internal scope state. If approved, it generates an `ILSPApplicationService` binder and returns it to the `system_server`, which writes it back to the waiting application's reply parcel.
+4. The `system_server`'s BridgeService forwards the application's UID, PID, and heartbeat binder to the root daemon via the `IVectorDaemon` binder acquired in Phase 1.
+5. The daemon evaluates the request against its internal scope state. If approved, it generates an `IFrameworkService` binder and returns it to the `system_server`, which writes it back to the waiting application's reply parcel.
 6. The application uses this dedicated binder to fetch its specific framework DEX and obfuscation map.
 
 ### The Heartbeat Mechanism

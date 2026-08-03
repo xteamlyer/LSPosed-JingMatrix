@@ -6,10 +6,11 @@ import org.matrix.vector.ipc.IHotReloadOutcomeReceiver;
 /**
  * The one thing the daemon calls <i>into</i> an injected process for.
  *
- * <p>Every other interface here points the other way; this is the only reverse channel, and it is
- * deliberately not a general control surface. A hooked process runs as the app, so anything broader
- * would be reachable by the app itself. The process side additionally checks that the caller is the
- * daemon.</p>
+ * <p>One of two interfaces that point this way - {@link IRemotePreferenceCallback} is the other,
+ * and it carries nothing but preference diffs. This one drives a module's lifecycle, so it is
+ * deliberately not a general control surface: a hooked process runs as the app, and anything
+ * broader here would be reachable by the app itself. The process side additionally checks that the
+ * caller is the daemon.</p>
  *
  * <p>Handed to the daemon by {@link IFrameworkService#attachProcessChannel} while the framework
  * bootstraps, before any module has loaded and carrying no module identity at all - which is what

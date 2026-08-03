@@ -32,7 +32,9 @@ parcelable ModuleCode {
     boolean legacy;
 
     /**
-     * module.prop {@code targetApiVersion}, or 0 for a legacy module, which declares none.
+     * module.prop {@code targetApiVersion}, verbatim, or 0 when the key is absent or unparseable.
+     * A legacy module usually has none, but one that declares a value below 101 keeps it - {@link
+     * #legacy} is what says how the module is loaded, not this.
      *
      * <p>Carried into the process because one of API 102's rules is only enforceable there: a
      * module targeting 102 or higher must not be able to resolve the legacy

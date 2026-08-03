@@ -475,8 +475,8 @@ object ParasiticManagerHooker {
     @JvmStatic
     fun start(): Boolean {
         return try {
-            // Claimed first, because asking for it is what makes this process the manager's host;
-            // there is no point opening the APK for a process that was not given the service.
+            // Asked first: a process the daemon did not launch the manager into gets null here,
+            // and there is no point opening the APK for it.
             val managerBinder = VectorServiceClient.requestManagerService() ?: return false
             VectorServiceClient.openManagerApk()!!.use { pfd ->
                 val managerService = ILSPManagerService.Stub.asInterface(managerBinder)

@@ -75,9 +75,8 @@ object VectorModuleManager {
         }
 
         // Native entry points are recorded by buildGeneration, which has to do it before the entry
-        // classes run. Doing it again here would put every library name in the dlopen hook's list
-        // twice, and that list is walked without a break - a matching library would have its
-        // native_init called once per duplicate.
+        // classes run. Recording them again here would put every library name in the list the dlopen
+        // hook walks twice over, and that list never shrinks.
 
         Log.d(TAG, "Loaded module ${module.packageName} successfully.")
         return true
@@ -174,6 +173,19 @@ object VectorModuleManager {
                         entries.add(moduleInstance)
                     }
                     .onFailure { e -> Log.e(TAG, "Failed to instantiate class $className", e) }
+            }
+
+            // A generation with nothing in it is not a generation. Every entry class can fail to
+            // instantiate - a constructor that throws, a class that does not extend XposedModule -
+            // and each of those is logged and skipped above, which used to leave an empty list that
+            // every caller then treated as success: the initial load reported the module loaded,
+            // and a hot reload committed the empty generation, never called onHotReloaded, never
+            // unhooked the old hooks, and answered SUCCEEDED while the process went on running the
+            // previous generation. The module was then wedged, because the committed generation had
+            // no live entry for any later reload to hand over to.
+            if (entries.isEmpty()) {
+                Log.e(TAG, "No entry class of ${module.packageName} could be instantiated")
+                return null
             }
 
             val generation =

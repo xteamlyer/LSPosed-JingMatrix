@@ -15,6 +15,7 @@ import org.matrix.vector.ipc.IProcessChannel
 import org.matrix.vector.ipc.IFrameworkService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
+import org.matrix.vector.daemon.system.FIRST_APPLICATION_UID
 import org.matrix.vector.daemon.system.PER_USER_RANGE
 import org.matrix.vector.daemon.utils.InstallerVerifier
 import org.matrix.vector.daemon.utils.ObfuscationManager
@@ -95,12 +96,16 @@ object ApplicationService : IFrameworkService.Stub() {
    * Whether [userId]'s copy of the module may address [target].
    *
    * The same module installed for two users is two module apps with two sets of preferences, and
-   * neither has any business reloading the other's processes. System uids are the exception rather
-   * than a hole: system_server runs once for the whole device and carries a module enabled in any
-   * user, so scoping it to user 0 would make it unreachable from every other user.
+   * neither has any business reloading the other's processes.
+   *
+   * The carve-out is for the AID_* uids below [FIRST_APPLICATION_UID], not for user 0: system_server
+   * runs once for the whole device and carries a module enabled in any user, so scoping it to user 0
+   * would make it unreachable from every other one. Testing `uid < PER_USER_RANGE` instead would
+   * admit the whole of user 0 - every app process on a single-user device - which is the opposite of
+   * what this is for.
    */
   private fun addressableBy(target: HotReloadTarget, userId: Int): Boolean =
-      target.uid < PER_USER_RANGE || target.uid / PER_USER_RANGE == userId
+      target.uid < FIRST_APPLICATION_UID || target.uid / PER_USER_RANGE == userId
 
   // Not filtered to hot-reloadable targets: the AIDL documents this as hooked processes, and one
   // that cannot be reloaded answers UNSUPPORTED rather than disappearing.
@@ -284,9 +289,9 @@ object ApplicationService : IFrameworkService.Stub() {
     val info = ensureRegistered()
     val pid = info.key.pid
     val uid = info.key.uid
-    // postStartManager decides here that this process hosts the manager, so this is a claim rather
-    // than a query - which is why it is its own call now instead of a hidden out-parameter on the
-    // one that opens the APK.
+    // postStartManager compares the caller against the pid the daemon launched the manager into,
+    // so this reports a decision already taken rather than making one. It is its own call because it
+    // answers a different question from the one that opens the APK, not because it costs anything.
     if (!ManagerService.postStartManager(pid) && !ConfigCache.isManager(uid)) return null
     return ManagerService.obtainManagerBinder(info.heartBeat, pid, uid)
   }
