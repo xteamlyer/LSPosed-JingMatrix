@@ -210,17 +210,20 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
   }
 
   override fun getRunningTargets(): List<HookedProcess> {
-    ensureModule()
-    return ApplicationService.getHotReloadTargets(loadedModule.packageName)
+    val userId = ensureModule()
+    return ApplicationService.getHotReloadTargets(loadedModule.packageName, userId)
   }
 
   override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
-    ensureModule()
+    // The user id matters as much as the app id here: ensureModule only proves the caller shares
+    // the module's appId, and the same module installed for two users is two separate module apps.
+    // Without this, the copy in user 10 could reload user 0's processes.
+    val userId = ensureModule()
     // SecurityException is reserved by the AIDL for exactly these two conditions, so it must not be
     // raised for anything else on this path - a module-thrown SecurityException in particular has
     // to reach the caller as a FAILED result, not as "invalid target id".
     val target =
-        ApplicationService.getHotReloadTarget(targetId, loadedModule.packageName)
+        ApplicationService.getHotReloadTarget(targetId, loadedModule.packageName, userId)
             ?: throw SecurityException("Target $targetId is not a target of ${loadedModule.packageName}")
 
     if (!target.hotReloadable) {
