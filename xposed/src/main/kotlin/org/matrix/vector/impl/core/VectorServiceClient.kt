@@ -2,25 +2,25 @@ package org.matrix.vector.impl.core
 
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
-import org.lsposed.lspd.models.Module
-import org.lsposed.lspd.service.IHotReloadTarget
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.LoadedModule
+import org.matrix.vector.ipc.IProcessChannel
+import org.matrix.vector.ipc.IFrameworkService
 import org.lsposed.lspd.util.Utils.Log
 
 /**
  * Singleton client for managing IPC communication with the injected manager service. Handles Binder
  * death gracefully and ensures safe remote execution.
  */
-object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
+object VectorServiceClient : IFrameworkService, IBinder.DeathRecipient {
 
     private const val TAG = "VectorServiceClient"
 
-    private var service: ILSPApplicationService? = null
+    private var service: IFrameworkService? = null
     var processName: String = ""
         private set
 
     @Synchronized
-    fun init(appService: ILSPApplicationService?, niceName: String) {
+    fun init(appService: IFrameworkService?, niceName: String) {
         val binder = appService?.asBinder()
         if (service == null && binder != null) {
             runCatching {
@@ -37,7 +37,7 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
             // before the daemon's module cache exists, and it has to be a reloadable target too.
             service?.let {
                 try {
-                    it.registerHotReloadTarget(VectorHotReloadTarget)
+                    it.attachProcessChannel(VectorProcessChannel)
                 } catch (t: Throwable) {
                     Log.e(TAG, "Failed to register the hot reload target in process: $niceName", t)
                 }
@@ -45,9 +45,9 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
         }
     }
 
-    override fun registerHotReloadTarget(target: IHotReloadTarget?) {
+    override fun attachProcessChannel(target: IProcessChannel?) {
         try {
-            service?.registerHotReloadTarget(target)
+            service?.attachProcessChannel(target)
         } catch (t: Throwable) {
             Log.e(TAG, "Failed to register a hot reload target", t)
         }
@@ -57,11 +57,11 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
         return runCatching { service?.isLogMuted == true }.getOrDefault(false)
     }
 
-    override fun getLegacyModulesList(): List<Module> {
+    override fun getLegacyModulesList(): List<LoadedModule> {
         return runCatching { service?.legacyModulesList }.getOrNull() ?: emptyList()
     }
 
-    override fun getModulesList(): List<Module> {
+    override fun getModulesList(): List<LoadedModule> {
         return runCatching { service?.modulesList }.getOrNull() ?: emptyList()
     }
 

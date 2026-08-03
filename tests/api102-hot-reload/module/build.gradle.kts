@@ -119,4 +119,7 @@ androidComponents.onVariants { variant ->
 dependencies {
     compileOnly("io.github.libxposed:api:102.0.0")
     implementation("io.github.libxposed:service:102.0.0")
+    // Never packaged; see legacystub/build.gradle.kts for why linking against it is the only
+    // legacy-API test that survives dex obfuscation.
+    compileOnly(project(":legacystub"))
 }

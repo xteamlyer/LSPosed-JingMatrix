@@ -12,7 +12,7 @@ android {
         }
     }
 
-    aidlPackagedList += "org/lsposed/lspd/models/Module.aidl"
+    aidlPackagedList += "org/matrix/vector/ipc/LoadedModule.aidl"
     namespace = "org.lsposed.lspd.daemonservice"
 }
 

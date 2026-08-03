@@ -13,7 +13,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentHashMap
-import org.lsposed.lspd.service.ILSPInjectedModuleService
+import org.matrix.vector.ipc.IModuleService
 import org.lsposed.lspd.util.Utils.Log
 import org.matrix.vector.impl.hooks.VectorCtorInvoker
 import org.matrix.vector.impl.hooks.VectorHookBuilder
@@ -59,7 +59,7 @@ private val artMethodField: Field? by lazy {
 class VectorContext(
     private val packageName: String,
     private val applicationInfo: ApplicationInfo,
-    private val service: ILSPInjectedModuleService,
+    private val service: IModuleService,
     // What ExceptionMode.DEFAULT resolves to for this module, from module.prop.
     private val defaultExceptionMode: ExceptionMode = ExceptionMode.PROTECTIVE,
 ) : XposedInterface {

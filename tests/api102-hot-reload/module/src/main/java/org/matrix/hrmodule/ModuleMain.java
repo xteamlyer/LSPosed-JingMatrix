@@ -110,7 +110,33 @@ public class ModuleMain extends XposedModule {
                 sb.append("\n  ").append(name).append(" -> ").append(t);
             }
         }
+
+        // The one that means anything on an obfuscated build. The names above are string literals,
+        // which the framework's dex obfuscator does not rewrite, so with obfuscation on they name
+        // nothing whether or not the rule is enforced. This is a *type reference*, which is
+        // rewritten along with the framework's own, so the loader is asked for the name a real
+        // module would really end up asking for.
+        try {
+            LegacyLink.touch();
+            sb.append("\n  BUG: resolved the legacy API by direct linkage");
+        } catch (NoClassDefFoundError | ClassNotFoundException e) {
+            sb.append("\n  refused direct linkage (")
+                    .append(e.getClass().getSimpleName())
+                    .append(")");
+        } catch (Throwable t) {
+            sb.append("\n  direct linkage -> ").append(t);
+        }
         log(sb.toString());
+    }
+
+    /**
+     * Isolated so the verifier only has to resolve {@code XposedBridge} when {@link #touch()} is
+     * actually called, rather than when {@link ModuleMain} is loaded.
+     */
+    static final class LegacyLink {
+        static void touch() throws ClassNotFoundException {
+            de.robv.android.xposed.XposedBridge.log("hrmodule probing the legacy API");
+        }
     }
 
     @Override

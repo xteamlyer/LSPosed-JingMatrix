@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "hrtest"
 
-include(":module", ":target")
+include(":module", ":target", ":legacystub")

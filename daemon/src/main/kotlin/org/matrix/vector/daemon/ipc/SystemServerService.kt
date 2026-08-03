@@ -6,14 +6,14 @@ import android.os.IServiceCallback
 import android.os.Parcel
 import android.os.ServiceManager
 import android.util.Log
-import org.lsposed.lspd.service.ILSPApplicationService
-import org.lsposed.lspd.service.ILSPSystemServerService
+import org.matrix.vector.ipc.IFrameworkService
+import org.matrix.vector.ipc.ISystemServerBootstrap
 import org.matrix.vector.daemon.*
 import org.matrix.vector.daemon.system.getSystemServiceManager
 
 private const val TAG = "VectorSystemServer"
 
-object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipient {
+object SystemServerService : ISystemServerBootstrap.Stub(), IBinder.DeathRecipient {
 
   private var proxyServiceName: String? = null
   private var originService: IBinder? = null
@@ -54,12 +54,12 @@ object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipi
         .onFailure { Log.e(TAG, "Failed to register proxy service `$serviceName`", it) }
   }
 
-  override fun requestApplicationService(
+  override fun attachProcess(
       uid: Int,
       pid: Int,
       processName: String,
       heartBeat: IBinder?
-  ): ILSPApplicationService? {
+  ): IFrameworkService? {
     if (uid != 1000 || heartBeat == null || processName != "system") return null
     systemServerRequested = true
 
@@ -84,7 +84,7 @@ object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipi
         val processName = data.readString() ?: ""
         val heartBeat = data.readStrongBinder()
 
-        val service = requestApplicationService(uid, pid, processName, heartBeat)
+        val service = attachProcess(uid, pid, processName, heartBeat)
         if (service != null) {
           reply?.writeNoException()
           reply?.writeStrongBinder(service.asBinder())

@@ -57,6 +57,13 @@ public final class Svc {
         if (svc == null) return "no service";
         StringBuilder sb = new StringBuilder();
         try {
+            long props = svc.getFrameworkProperties();
+            // PROP_RT_API_PROTECTION is set exactly when the framework obfuscates its dex, which
+            // decides whether the legacy-API probe above is testing anything at all.
+            sb.append("frameworkProperties=0x").append(Long.toHexString(props))
+                    .append(" dexObfuscation=")
+                    .append((props & XposedService.PROP_RT_API_PROTECTION) != 0)
+                    .append("\n");
             List<HookedTarget> targets = svc.getRunningTargets();
             sb.append("targets=").append(targets.size());
             for (int i = 0; i < targets.size(); i++) {
