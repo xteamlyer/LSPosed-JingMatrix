@@ -4,7 +4,6 @@ import android.content.AttributionSource
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
-import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.util.Log
@@ -16,8 +15,12 @@ import java.io.Serializable
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import org.lsposed.lspd.models.HotReloadOutcome
 import org.lsposed.lspd.models.Module
+import org.lsposed.lspd.service.IHotReloadOutcomeCallback
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
@@ -37,6 +40,11 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     // delaying another.
     private val hotReloadExecutor =
         Executors.newCachedThreadPool { r -> Thread(r, "vector-hot-reload") }
+
+    // How long a target gets to answer. Generous, because the whole point is that the callee runs
+    // module code - but finite, because binder is not, and a target left in RELOADING answers every
+    // later request with IN_PROGRESS for as long as the process lives.
+    private const val RELOAD_TIMEOUT_SECONDS = 30L
 
     private val uidSet = ConcurrentHashMap.newKeySet<Int>()
     private val serviceMap = Collections.synchronizedMap(WeakHashMap<Module, ModuleService>())
@@ -241,17 +249,14 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     var message: String? = "Hot reload did not run"
     var refreeze: (() -> Unit)? = null
     var loadedVersion: Long? = null
+    val answered = CountDownLatch(1)
+    var outcome: HotReloadOutcome? = null
 
     try {
       val binder = ApplicationService.getHotReloadBinder(target)
       if (binder == null) {
         status = IXposedService.HOT_RELOAD_UNSUPPORTED
         message = "Process ${target.processName} has no hot reload entry point"
-        return
-      }
-      if (!binder.asBinder().isBinderAlive) {
-        status = IXposedService.HOT_RELOAD_PROCESS_DIED
-        message = "Process ${target.processName} is gone"
         return
       }
       val newModule = ConfigCache.state.modules[loadedModule.packageName]
@@ -261,36 +266,76 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
         return
       }
 
-      // A cached target is usually frozen, and a transaction to a frozen process never reaches the
-      // module. Thawing first is what keeps that case from being reported as a refusal.
+      // A cached target is usually frozen, and a transaction to a frozen process is not delivered.
+      // Thawing first is what keeps that case from being reported as a refusal. A device with no
+      // app freezer at all - anything before the cgroup v2 freezer - is the ordinary path, not a
+      // failure, so a null here only means "nothing to do".
       refreeze = ProcessFreezer.thaw(target.uid, target.pid)
-      if (refreeze == null && ProcessFreezer.isFrozen(target.uid, target.pid)) {
+      if (ProcessFreezer.isFrozen(target.uid, target.pid)) {
+        // Say so now rather than spending the timeout on a transaction that will not be delivered.
+        // Not a refusal either: the message is what tells the two apart.
         status = IXposedService.HOT_RELOAD_FAILED
-        message = "Target process is frozen and could not be thawed"
+        message = "Process ${target.processName} is frozen and could not be thawed"
         return
       }
 
-      val outcome = binder.hotReload(loadedModule.packageName, data, newModule)
-      status = outcome.status
+      val callbackStub =
+          object : IHotReloadOutcomeCallback.Stub() {
+            override fun onHotReloadOutcome(result: HotReloadOutcome?) {
+              outcome = result
+              answered.countDown()
+            }
+          }
+      binder.hotReload(loadedModule.packageName, data, newModule, callbackStub)
+
+      // Bounded, because the callee runs arbitrary module code and binder has no timeout of its
+      // own: without this a module that never returns from onHotReloading would leave the target
+      // RELOADING for the life of the process, and every later request would answer IN_PROGRESS.
+      if (!answered.await(RELOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        status =
+            if (ApplicationService.isProcessRegistered(target)) IXposedService.HOT_RELOAD_FAILED
+            else IXposedService.HOT_RELOAD_PROCESS_DIED
+        message =
+            if (status == IXposedService.HOT_RELOAD_PROCESS_DIED) {
+              "Process ${target.processName} died during hot reload"
+            } else {
+              "Process ${target.processName} did not answer within ${RELOAD_TIMEOUT_SECONDS}s"
+            }
+        return
+      }
+
+      val answer =
+          outcome
+              ?: run {
+                status = IXposedService.HOT_RELOAD_FAILED
+                message = "Process ${target.processName} answered with nothing"
+                return
+              }
+
+      status = answer.status
       // Whether the generation was swapped is not the same question as whether the reload
       // succeeded: onHotReloaded runs after the swap is committed, so a throw from it leaves the
       // process on the new code and still reports FAILED. Recording the version the target is
       // actually running is what keeps getRunningTargets() honest about it.
-      if (outcome.generationChanged) loadedVersion = newModule.versionCode
+      if (answer.generationChanged) loadedVersion = newModule.versionCode
       // A null message is reserved for a refusal, so anything else gets one supplied.
       message =
-          outcome.message
-              ?: if (status == IXposedService.HOT_RELOAD_FAILED && !outcome.refused) {
+          answer.message
+              ?: if (status == IXposedService.HOT_RELOAD_FAILED && !answer.refused) {
                 "Hot reload failed without a diagnostic message"
               } else {
                 null
               }
-    } catch (e: DeadObjectException) {
-      status = IXposedService.HOT_RELOAD_PROCESS_DIED
-      message = "Process ${target.processName} died during hot reload"
     } catch (t: Throwable) {
-      status = IXposedService.HOT_RELOAD_FAILED
-      message = "${t.javaClass.name}: ${t.message ?: "no message"}"
+      // Deliberately not keyed on DeadObjectException: a frozen-but-alive target answers a
+      // transaction with exactly that, so the exception type says nothing about whether the process
+      // is gone. The heartbeat registry does - it is driven by a DeathRecipient.
+      val gone = !ApplicationService.isProcessRegistered(target)
+      status =
+          if (gone) IXposedService.HOT_RELOAD_PROCESS_DIED else IXposedService.HOT_RELOAD_FAILED
+      message =
+          if (gone) "Process ${target.processName} died during hot reload"
+          else "${t.javaClass.name}: ${t.message ?: "no message"}"
       Log.e(TAG, "Hot reload of ${loadedModule.packageName} failed", t)
     } finally {
       refreeze?.invoke()

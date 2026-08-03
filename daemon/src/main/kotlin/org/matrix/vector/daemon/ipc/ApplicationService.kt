@@ -151,6 +151,17 @@ object ApplicationService : ILSPApplicationService.Stub() {
   fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
       hotReloadTargets[targetId]?.takeIf { it.modulePackageName == modulePackageName }
 
+  /**
+   * Whether the process behind [target] is still the registered one.
+   *
+   * The heartbeat's DeathRecipient is what actually knows a process died. The exception a
+   * transaction throws does not: a frozen but perfectly alive target fails a transaction the same
+   * way a dead one does, and reporting that as PROCESS_DIED would be a lie the module app has no
+   * way to check.
+   */
+  fun isProcessRegistered(target: HotReloadTarget): Boolean =
+      processes.containsKey(ProcessKey(target.uid, target.pid))
+
   // Reloads are serialized per target, so check and transition must be one atomic step.
   fun beginHotReload(target: HotReloadTarget): Boolean {
     while (true) {
