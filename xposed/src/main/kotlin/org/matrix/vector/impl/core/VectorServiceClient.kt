@@ -16,6 +16,9 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
     private const val TAG = "VectorServiceClient"
 
     private var service: ILSPApplicationService? = null
+    // Keep the binder used for linkToDeath. `service` may later be replaced by a local filtering
+    // proxy, so resolving it again in binderDied() would unlink the wrong binder.
+    private var linkedBinder: IBinder? = null
     var processName: String = ""
         private set
 
@@ -27,10 +30,12 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
                     service = appService
                     processName = niceName
                     binder.linkToDeath(this, 0)
+                    linkedBinder = binder
                 }
                 .onFailure {
                     Log.e(TAG, "Failed to link to death for service in process: $niceName", it)
                     service = null
+                    linkedBinder = null
                 }
 
             // Registered here rather than after module loading: system_server loads its modules
@@ -77,8 +82,10 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
         return service?.asBinder()
     }
 
+    @Synchronized
     override fun binderDied() {
-        service?.asBinder()?.unlinkToDeath(this, 0)
+        linkedBinder?.unlinkToDeath(this, 0)
+        linkedBinder = null
         service = null
     }
 }
