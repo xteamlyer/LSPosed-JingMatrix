@@ -15,6 +15,7 @@ import org.lsposed.lspd.service.IHotReloadTarget
 import org.lsposed.lspd.service.ILSPApplicationService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
+import org.matrix.vector.daemon.system.PER_USER_RANGE
 import org.matrix.vector.daemon.utils.InstallerVerifier
 import org.matrix.vector.daemon.utils.ObfuscationManager
 
@@ -90,12 +91,23 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
+  /**
+   * Whether [userId]'s copy of the module may address [target].
+   *
+   * The same module installed for two users is two module apps with two sets of preferences, and
+   * neither has any business reloading the other's processes. System uids are the exception rather
+   * than a hole: system_server runs once for the whole device and carries a module enabled in any
+   * user, so scoping it to user 0 would make it unreachable from every other user.
+   */
+  private fun addressableBy(target: HotReloadTarget, userId: Int): Boolean =
+      target.uid < PER_USER_RANGE || target.uid / PER_USER_RANGE == userId
+
   // Not filtered to hot-reloadable targets: the AIDL documents this as hooked processes, and one
   // that cannot be reloaded answers UNSUPPORTED rather than disappearing.
-  fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> {
+  fun getHotReloadTargets(modulePackageName: String, userId: Int): List<HookedProcess> {
     val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode
     return hotReloadTargets.values
-        .filter { it.modulePackageName == modulePackageName }
+        .filter { it.modulePackageName == modulePackageName && addressableBy(it, userId) }
         .map { target ->
           HookedProcess().apply {
             targetId = target.id
@@ -148,8 +160,21 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
-      hotReloadTargets[targetId]?.takeIf { it.modulePackageName == modulePackageName }
+  fun getHotReloadTarget(targetId: Long, modulePackageName: String, userId: Int): HotReloadTarget? =
+      hotReloadTargets[targetId]?.takeIf {
+        it.modulePackageName == modulePackageName && addressableBy(it, userId)
+      }
+
+  /**
+   * Whether the process behind [target] is still the registered one.
+   *
+   * The heartbeat's DeathRecipient is what actually knows a process died. The exception a
+   * transaction throws does not: a frozen but perfectly alive target fails a transaction the same
+   * way a dead one does, and reporting that as PROCESS_DIED would be a lie the module app has no
+   * way to check.
+   */
+  fun isProcessRegistered(target: HotReloadTarget): Boolean =
+      processes.containsKey(ProcessKey(target.uid, target.pid))
 
   // Reloads are serialized per target, so check and transition must be one atomic step.
   fun beginHotReload(target: HotReloadTarget): Boolean {
