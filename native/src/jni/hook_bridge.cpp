@@ -204,6 +204,60 @@ VECTOR_DEF_NATIVE_METHOD(jboolean, HookBridge, unhookMethod, jboolean useModernA
 }
 
 /**
+ * @brief Swaps one registered callback for another in a single locked step.
+ *
+ * API 102's HookHandle#replaceHook and HookBuilder#setId both promise that a replacement is atomic:
+ * no window in which both the old and the new hooker are on the chain, and none in which neither
+ * is. Doing it as unhook-then-hook from Java can promise neither.
+ *
+ * The lock taken here is the one callbackSnapshot takes, so a snapshot sees exactly one of the two.
+ * A snapshot taken before the swap keeps working afterwards because it copied the reference into a
+ * Java array, which is a strong reference of its own - that is what lets a call already in flight
+ * keep running the old hooker, as the interface requires, without the chain having to freeze a
+ * hooker list of its own on every single hooked call.
+ *
+ * The entry keeps its place among equal priorities when the priority does not change, which is what
+ * replaceHook means by "keeps the priority": re-inserting would move it behind its peers.
+ *
+ * @return JNI_TRUE when oldCallback was found and replaced.
+ */
+VECTOR_DEF_NATIVE_METHOD(jboolean, HookBridge, replaceCallback, jboolean useModernApi,
+                         jobject hookMethod, jobject oldCallback, jobject newCallback,
+                         jint newPriority) {
+    auto target = env->FromReflectedMethod(hookMethod);
+    HookItem *hook_item = nullptr;
+    hooked_methods.if_contains(target,
+                               [&hook_item](const auto &it) { hook_item = it.second.get(); });
+    if (!hook_item) return JNI_FALSE;
+
+    jobject backup = hook_item->GetBackup();
+    if (!backup) return JNI_FALSE;
+
+    lsplant::JNIMonitor monitor(env, backup);
+
+    auto &callbacks = useModernApi ? hook_item->modern_callbacks : hook_item->legacy_callbacks;
+
+    for (auto i = callbacks.begin(); i != callbacks.end(); ++i) {
+        if (!env->IsSameObject(i->second, oldCallback)) continue;
+
+        auto replacement = env->NewGlobalRef(newCallback);
+        // Nothing has been changed yet, so the caller's hook is still whatever it was.
+        if (!replacement) return JNI_FALSE;
+
+        env->DeleteGlobalRef(i->second);
+        if (i->first == newPriority) {
+            i->second = replacement;
+        } else {
+            callbacks.erase(i);
+            callbacks.emplace(newPriority, replacement);
+        }
+        return JNI_TRUE;
+    }
+
+    return JNI_FALSE;
+}
+
+/**
  * @brief JNI method to request de-optimization of a method.
  * This can be necessary for some types of hooks to work correctly on JIT-compiled methods.
  */
@@ -712,6 +766,9 @@ static JNINativeMethod gMethods[] = {
                          "lang/Object;)Z"),
     VECTOR_NATIVE_METHOD(HookBridge, unhookMethod,
                          "(ZLjava/lang/reflect/Executable;Ljava/lang/Object;)Z"),
+    VECTOR_NATIVE_METHOD(HookBridge, replaceCallback,
+                         "(ZLjava/lang/reflect/Executable;Ljava/lang/Object;Ljava/"
+                         "lang/Object;I)Z"),
     VECTOR_NATIVE_METHOD(HookBridge, deoptimizeMethod, "(Ljava/lang/reflect/Executable;)Z"),
     VECTOR_NATIVE_METHOD(HookBridge, invokeOriginalMethod,
                          "(Ljava/lang/reflect/Executable;Ljava/lang/Object;[Ljava/"

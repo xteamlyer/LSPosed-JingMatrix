@@ -240,7 +240,11 @@ object VectorModuleManager {
         val (newGeneration, newEntries) = built
 
         // Before the callback, so registrations from inside it fail while unhook and replace work.
-        old.context.freeze()
+        // Under the hook registry's lock for this module, because a registration on another thread
+        // that has already passed its own check must either finish before the freeze - and so be in
+        // the list the successor is handed - or see the freeze and fail. Held for the flag write
+        // only: module code never runs inside it.
+        synchronized(VectorHookBuilder.lockOf(packageName)) { old.context.freeze() }
 
         var savedState: Any? = null
         val reloadingParam =
