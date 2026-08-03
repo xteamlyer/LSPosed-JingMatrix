@@ -7,8 +7,8 @@ import android.util.ArraySet
 import io.github.libxposed.api.error.XposedFrameworkError
 import java.util.TreeMap
 import java.util.concurrent.ConcurrentHashMap
-import org.lsposed.lspd.service.ILSPInjectedModuleService
-import org.lsposed.lspd.service.IRemotePreferenceCallback
+import org.matrix.vector.ipc.IModuleService
+import org.matrix.vector.ipc.IRemotePreferenceCallback
 import org.lsposed.lspd.util.Utils.Log
 
 @Suppress("DEPRECATION", "UNCHECKED_CAST")
@@ -21,7 +21,7 @@ private inline fun <reified T> Bundle.getSerializableCompat(key: String): T? {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal class VectorRemotePreferences(service: ILSPInjectedModuleService, group: String) :
+internal class VectorRemotePreferences(service: IModuleService, group: String) :
     SharedPreferences {
 
     private val map = ConcurrentHashMap<String, Any>()
@@ -30,7 +30,7 @@ internal class VectorRemotePreferences(service: ILSPInjectedModuleService, group
     private val callback =
         object : IRemotePreferenceCallback.Stub() {
             @Synchronized
-            override fun onUpdate(bundle: Bundle) {
+            override fun onRemotePreferencesChanged(bundle: Bundle) {
                 val changes = ArraySet<String>()
 
                 // Sent for edit().clear() and for deleteRemotePreferences. Without this the cache

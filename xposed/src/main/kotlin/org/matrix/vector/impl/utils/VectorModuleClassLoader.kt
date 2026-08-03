@@ -17,6 +17,7 @@ import java.util.Enumeration
 import java.util.jar.JarFile
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
+import org.matrix.vector.nativebridge.HookBridge
 
 /**
  * Custom ClassLoader for module execution. Utilizes in-memory DEX loading to prevent the need to
@@ -26,6 +27,7 @@ import java.util.zip.ZipEntry
 class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
     private val apkPath: String
+    private val blockLegacyApi: Boolean
     private val nativeLibraryDirs = mutableListOf<File>()
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -34,8 +36,10 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         librarySearchPath: String?,
         parent: ClassLoader?,
         apkPath: String,
+        blockLegacyApi: Boolean,
     ) : super(dexBuffers, librarySearchPath, parent) {
         this.apkPath = apkPath
+        this.blockLegacyApi = blockLegacyApi
         initNativeDirs(librarySearchPath)
     }
 
@@ -44,8 +48,10 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
         parent: ClassLoader?,
         apkPath: String,
         librarySearchPath: String?,
+        blockLegacyApi: Boolean,
     ) : super(dexBuffers, parent) {
         this.apkPath = apkPath
+        this.blockLegacyApi = blockLegacyApi
         initNativeDirs(librarySearchPath)
     }
 
@@ -57,6 +63,16 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
     @Throws(ClassNotFoundException::class)
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
+        // API 102 forbids libxposed modules from calling the legacy de.robv APIs. This loader's
+        // parent is the framework's own loader, which carries the legacy bridge, so refusing to
+        // resolve those names here is what actually enforces it - reflective lookups against this
+        // loader included, since Class.forName and loadClass both funnel through this override.
+        if (blockLegacyApi && LEGACY_API_PREFIXES.any { name.startsWith(it) }) {
+            throw ClassNotFoundException(
+                "$name is unavailable to modules targeting Xposed API 102 or higher"
+            )
+        }
+
         findLoadedClass(name)?.let {
             return it
         }
@@ -130,6 +146,27 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
     companion object {
         private const val TAG = "VectorModuleClassLoader"
         private const val ZIP_SEPARATOR = "!/"
+
+        /**
+         * What the legacy API is called *here*, which is not what it is called in source: the
+         * daemon rewrites `de.robv.android.xposed`, `AndroidAppHelper` and the `XResources` family
+         * in the framework dex and in every module dex when dex obfuscation is on, so the names a
+         * module asks this loader for are a different random string on every boot. Matching the
+         * literal package would leave the 102 rule unenforced on exactly the builds that have
+         * obfuscation turned on.
+         */
+        private val LEGACY_API_PREFIXES: Array<String> by lazy {
+            runCatching { HookBridge.legacyApiPrefixes() }
+                .onFailure { Log.w(TAG, "Cannot resolve the legacy API prefixes", it) }
+                .getOrElse {
+                    arrayOf(
+                        "de.robv.android.xposed.",
+                        "android.app.AndroidApp",
+                        "android.content.res.XRes",
+                        "android.content.res.XModule",
+                    )
+                }
+        }
         private val SYSTEM_NATIVE_LIBRARY_DIRS = splitPaths(System.getProperty("java.library.path"))
 
         private fun splitPaths(searchPath: String?): List<File> {
@@ -143,11 +180,13 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
          * fully instantiated.
          */
         @JvmStatic
+        @JvmOverloads
         fun loadApk(
             apk: String,
             dexes: List<SharedMemory>,
             librarySearchPath: String,
             parent: ClassLoader?,
+            blockLegacyApi: Boolean = false,
         ): ClassLoader {
             val dexBuffers =
                 dexes
@@ -166,9 +205,21 @@ class VectorModuleClassLoader : ByteBufferDexClassLoader {
 
             val cl =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    VectorModuleClassLoader(dexBuffers, librarySearchPath, parent, apk)
+                    VectorModuleClassLoader(
+                        dexBuffers,
+                        librarySearchPath,
+                        parent,
+                        apk,
+                        blockLegacyApi,
+                    )
                 } else {
-                    VectorModuleClassLoader(dexBuffers, parent, apk, librarySearchPath)
+                    VectorModuleClassLoader(
+                        dexBuffers,
+                        parent,
+                        apk,
+                        librarySearchPath,
+                        blockLegacyApi,
+                    )
                 }
 
             dexBuffers.toList().parallelStream().forEach { SharedMemory.unmap(it) }

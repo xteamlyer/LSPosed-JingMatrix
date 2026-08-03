@@ -2,6 +2,7 @@
 
 #include <sys/mman.h>
 
+#include <algorithm>
 #include <functional>
 #include <list>
 #include <memory>
@@ -142,6 +143,14 @@ void RegisterNativeLib(const std::string &library_name) {
     }
 
     std::lock_guard<std::mutex> lock(g_module_registry_mutex);
+    // The list is walked on every dlopen in the process and never shrinks - there is no
+    // unregistration, and hot reload records a module's names again for each new generation - so
+    // without this it grows without bound and every dlopen pays for the duplicates.
+    if (std::find(g_module_native_libs.begin(), g_module_native_libs.end(), library_name) !=
+        g_module_native_libs.end()) {
+        LOGD("Native module library '{}' is already registered.", library_name.c_str());
+        return;
+    }
     g_module_native_libs.push_back(library_name);
     LOGD("Native module library '{}' has been registered.", library_name.c_str());
 }

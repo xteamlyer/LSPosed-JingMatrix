@@ -269,9 +269,16 @@ object ModuleDatabase {
 
       val values = ContentValues().apply { put("mid", mid) }
       for (app in scope) {
-        // The system server is one process for the whole device, so it is stored against user 0
-        // whoever asked for it — a module in a work profile hooking the framework is hooking the
-        // same system_server as everyone else.
+        // A module is one package, one APK and one scope set for the whole device — Android cannot
+        // hold two different builds under one package name, so there is nothing here to key by
+        // user. What [Application.userId] names is the *target*: which installed instance of
+        // [Application.packageName] this row points at. `ConfigCache` refuses to expand a row whose
+        // user does not hold the module, which is what keeps a module installed for one user out of
+        // another user's processes.
+        //
+        // The system server is the exception and is stored against user 0 whoever asked for it: it
+        // is one process for the whole device belonging to no user, so a module in a work profile
+        // hooking the framework is hooking the same system_server as everyone else.
         //
         // Normalised rather than dropped, which is what this used to do. Dropping meant restoring
         // a backup written by an older manager, which recorded the framework under the module's
@@ -321,7 +328,13 @@ object ModuleDatabase {
   }
 
   fun removeModuleScope(packageName: String, scopePackageName: String, userId: Int): Boolean {
-    if (packageName == "lspd" || (scopePackageName == "system" && userId != 0)) return false
+    if (packageName == "lspd") return false
+    // Normalised the same way [setModuleScope] normalises it, rather than refused. The framework is
+    // stored against user 0 whoever asked for it, so a removal keyed on the caller's own user
+    // matches no row at all - which meant a module outside user 0 could take system scope and then
+    // never give it back. It reached that state through the very same call: removeScope returns
+    // nothing, so the module was told its request had been honoured.
+    val storedUserId = if (scopePackageName == "system") 0 else userId
     val db = dbHelper.writableDatabase
     val mid =
         db.compileStatement("SELECT mid FROM modules WHERE module_pkg_name = ?")
@@ -330,7 +343,7 @@ object ModuleDatabase {
     db.delete(
         "scope",
         "mid = ? AND app_pkg_name = ? AND user_id = ?",
-        arrayOf(mid.toString(), scopePackageName, userId.toString()))
+        arrayOf(mid.toString(), scopePackageName, storedUserId.toString()))
     ConfigCache.requestCacheUpdate()
     return true
   }

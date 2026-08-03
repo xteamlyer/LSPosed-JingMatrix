@@ -297,7 +297,7 @@ object ManagerService : ILSPManagerService.Stub() {
   /**
    * The flashed manager APK, verified, for the manager to install as an ordinary app.
    *
-   * The same file and the same check as [ApplicationService.requestInjectedManagerBinder], which
+   * The same file and the same check as [ApplicationService.openManagerApk], which
    * serves it to the host process for injection — one APK, one signature gate, whichever way it
    * leaves the module directory.
    */

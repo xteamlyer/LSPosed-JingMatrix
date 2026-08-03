@@ -1,19 +1,28 @@
 package org.matrix.vector.daemon.ipc
 
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.IServiceCallback
 import android.os.Parcel
 import android.os.ServiceManager
 import android.util.Log
-import org.lsposed.lspd.service.ILSPApplicationService
-import org.lsposed.lspd.service.ILSPSystemServerService
+import org.matrix.vector.ipc.IFrameworkService
 import org.matrix.vector.daemon.*
 import org.matrix.vector.daemon.system.getSystemServiceManager
 
 private const val TAG = "VectorSystemServer"
 
-object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipient {
+/**
+ * The daemon's end of the one handshake system_server gets.
+ *
+ * A plain [Binder] rather than an AIDL stub on purpose. system_server never holds an interface for
+ * this - it reaches the daemon by transacting [BRIDGE_TRANSACTION_CODE] on whatever binder the
+ * hijacked service name resolves to, which [onTransact] answers directly. An AIDL interface here
+ * would generate a dispatch table nothing ever entered, and would have to state a descriptor that
+ * nothing ever checks.
+ */
+object SystemServerService : Binder(), IBinder.DeathRecipient {
 
   private var proxyServiceName: String? = null
   private var originService: IBinder? = null
@@ -54,17 +63,21 @@ object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipi
         .onFailure { Log.e(TAG, "Failed to register proxy service `$serviceName`", it) }
   }
 
-  override fun requestApplicationService(
+  /**
+   * Registers system_server and answers with its framework service, or null if this is not
+   * system_server. Only ever called from [onTransact] below.
+   */
+  private fun attachProcess(
       uid: Int,
       pid: Int,
       processName: String,
-      heartBeat: IBinder?
-  ): ILSPApplicationService? {
-    if (uid != 1000 || heartBeat == null || processName != "system") return null
+      processLifeToken: IBinder?
+  ): IFrameworkService? {
+    if (uid != 1000 || processLifeToken == null || processName != "system") return null
     systemServerRequested = true
 
     // Return the ApplicationService singleton if successfully registered
-    return if (ApplicationService.registerHeartBeat(uid, pid, processName, heartBeat)) {
+    return if (ApplicationService.registerHeartBeat(uid, pid, processName, processLifeToken)) {
       ApplicationService
     } else null
   }
@@ -82,9 +95,9 @@ object SystemServerService : ILSPSystemServerService.Stub(), IBinder.DeathRecipi
         val uid = data.readInt()
         val pid = data.readInt()
         val processName = data.readString() ?: ""
-        val heartBeat = data.readStrongBinder()
+        val processLifeToken = data.readStrongBinder()
 
-        val service = requestApplicationService(uid, pid, processName, heartBeat)
+        val service = attachProcess(uid, pid, processName, processLifeToken)
         if (service != null) {
           reply?.writeNoException()
           reply?.writeStrongBinder(service.asBinder())

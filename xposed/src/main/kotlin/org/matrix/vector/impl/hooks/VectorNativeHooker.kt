@@ -15,16 +15,20 @@ import org.lsposed.lspd.util.Utils
 import org.matrix.vector.impl.di.VectorBootstrap
 import org.matrix.vector.nativebridge.HookBridge
 
-/** Builder for configuring and registering hooks. */
+/**
+ * Builder for configuring and registering hooks. [moduleId] scopes hook ids per module and is null
+ * for framework hooks; [frozen] gates registration only, so a retired generation can still unhook.
+ */
 class VectorHookBuilder(
     private val origin: Executable,
-    // Framework-internal hooks have no module.prop, and must stay protective: letting one of
-    // them propagate would take the boot path down with it.
+    private val moduleId: String? = null,
+    private val frozen: (() -> Boolean)? = null,
     private val defaultExceptionMode: ExceptionMode = ExceptionMode.PROTECTIVE,
 ) : HookBuilder {
 
     private var priority = XposedInterface.PRIORITY_DEFAULT
     private var exceptionMode = ExceptionMode.DEFAULT
+    private var id: String? = null
 
     override fun setPriority(priority: Int): HookBuilder = apply { this.priority = priority }
 
@@ -32,7 +36,10 @@ class VectorHookBuilder(
         this.exceptionMode = mode
     }
 
+    override fun setId(id: String?): HookBuilder = apply { this.id = id }
+
     override fun intercept(hooker: Hooker): HookHandle {
+        ensureNotFrozen()
         if (Modifier.isAbstract(origin.modifiers)) {
             throw IllegalArgumentException(
                 "$origin is abstract: it has no body to hook. Hook the concrete override instead."
@@ -71,27 +78,73 @@ class VectorHookBuilder(
             )
         }
 
-        // Resolve DEFAULT here rather than at throw time: the record is stored natively and
-        // reaches VectorChain with no way back to the module, and module.prop cannot change
-        // for the life of the process.
         val resolvedMode =
             if (exceptionMode == ExceptionMode.DEFAULT) defaultExceptionMode else exceptionMode
-        val record = VectorHookRecord(hooker, priority, resolvedMode)
+        val id = this.id
+        val record = VectorHookRecord(hooker, priority, resolvedMode, id)
 
-        // Register natively. HookBridge now stores VectorHookRecord instead of HookerCallback.
+        // A framework hook. No module, so no id to scope and nothing to serialise against.
+        val moduleId = this.moduleId ?: return register(record, null)
+
+        synchronized(VectorHookRegistry.lockOf(moduleId)) {
+            // Checked again under the lock a reload takes to freeze old code, so a registration
+            // cannot slip in between the check above and the snapshot the successor is handed.
+            ensureNotFrozen()
+
+            // Same module, same executable, same id: the interface says this replaces the old hook
+            // atomically and invalidates its handle, rather than installing a second one. The
+            // replacement carries this builder's priority and exception mode, because it is a new
+            // hook - only the handle-based replaceHook is specified to inherit them.
+            if (id != null) {
+                VectorHookRegistry.findId(moduleId, origin, id)?.takeIf { it.isLive }?.let {
+                    return it.swapLocked(record)
+                }
+            }
+            return register(record, moduleId)
+        }
+    }
+
+    private fun ensureNotFrozen() {
+        if (frozen?.invoke() == true) {
+            throw IllegalStateException(
+                "This module generation has been retired by a hot reload and cannot register hooks"
+            )
+        }
+    }
+
+    /** Installs [record] natively and records the handle against its owner. */
+    private fun register(record: VectorHookRecord, moduleId: String?): HookHandle {
         if (
-            !HookBridge.hookMethod(true, origin, VectorNativeHooker::class.java, priority, record)
+            !HookBridge.hookMethod(
+                true,
+                origin,
+                VectorNativeHooker::class.java,
+                record.priority,
+                record,
+            )
         ) {
             throw HookFailedError("Cannot hook $origin")
         }
 
-        return object : HookHandle {
-            override fun getExecutable(): Executable = origin
-
-            override fun unhook() {
-                HookBridge.unhookMethod(true, origin, record)
-            }
+        val handle = VectorHookHandle(origin, moduleId, record)
+        if (moduleId != null) {
+            VectorHookRegistry.track(moduleId, handle)
+            record.id?.let { VectorHookRegistry.claimId(moduleId, origin, it, handle) }
         }
+        return handle
+    }
+
+    companion object {
+        /**
+         * The hooks [moduleId] currently has installed, which is what a reload hands to the new
+         * generation. Taken after old code has been frozen, so nothing can be added to it behind
+         * the successor's back.
+         */
+        fun snapshotHandles(moduleId: String): List<HookHandle> =
+            VectorHookRegistry.liveHandles(moduleId)
+
+        /** The lock a reload holds while it freezes old code. */
+        fun lockOf(moduleId: String): Any = VectorHookRegistry.lockOf(moduleId)
     }
 }
 
@@ -109,8 +162,7 @@ class VectorNativeHooker<T : Executable>(private val method: T) {
         val thisObject = if (isStatic) null else args[0]
         val actualArgs = if (isStatic) args else args.sliceArray(1 until args.size)
 
-        // Retrieve the hook snapshots. Null means every hook was removed after this trampoline was
-        // entered, which is indistinguishable from having none.
+        // Null means every hook was removed after this trampoline was entered.
         val snapshots =
             HookBridge.callbackSnapshot(VectorHookRecord::class.java, method)
                 ?: return invokeOriginalSafely(thisObject, actualArgs)

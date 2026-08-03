@@ -24,7 +24,7 @@ The `LegacyDelegateImpl` satisfies the `LegacyFrameworkDelegate` interface, acti
 
 ## Module Initialization
 
-Legacy modules are loaded during the initialization phase via `XposedInit.loadLegacyModules()`. The framework queries the daemon (`VectorServiceClient.INSTANCE.getLegacyModulesList()`) to retrieve the list of enabled APK paths.
+Legacy modules are loaded during the initialization phase via `XposedInit.loadLegacyModules()`. The framework queries the daemon (`VectorServiceClient.INSTANCE.getLegacyModules()`) to retrieve the list of enabled APK paths.
 
 Modules are not loaded using standard Android mechanism. To prevent detection via `ClassLoader.getParent()` chain-walking and to eliminate residual file descriptors, `XposedInit.loadModule` utilizes `VectorModuleClassLoader`. This classloader loads the module APK directly into memory, isolating the module's execution environment from the host application's classpath.
 

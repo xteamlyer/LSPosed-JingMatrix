@@ -1,7 +1,7 @@
 package org.matrix.vector.daemon.data
 
 import java.nio.file.Path
-import org.lsposed.lspd.models.Module
+import org.matrix.vector.ipc.LoadedModule
 import org.matrix.vector.daemon.BuildConfig
 
 data class ProcessScope(val processName: String, val uid: Int)
@@ -17,8 +17,8 @@ data class DaemonState(
     val isCacheReady: Boolean = false,
     val managerUid: Int = -1,
     val miscPath: Path? = null,
-    val modules: Map<String, Module> = emptyMap(),
-    val scopes: Map<ProcessScope, List<Module>> = emptyMap(),
+    val modules: Map<String, LoadedModule> = emptyMap(),
+    val scopes: Map<ProcessScope, List<LoadedModule>> = emptyMap(),
     /**
      * Modules the user enabled that the framework could not load, and why.
      *

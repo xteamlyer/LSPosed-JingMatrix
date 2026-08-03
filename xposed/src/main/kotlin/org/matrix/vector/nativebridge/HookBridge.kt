@@ -23,6 +23,26 @@ object HookBridge {
         callback: Any?,
     ): Boolean
 
+    /**
+     * Swaps [oldCallback] for [newCallback] on [hookMethod] under the lock [callbackSnapshot]
+     * takes, so no snapshot can observe both or neither.
+     *
+     * A snapshot taken before this returns keeps running [oldCallback]: it copied the reference
+     * into an array of its own. That is what makes a replacement invisible to a call already in
+     * flight, which is what `HookHandle#replaceHook` promises.
+     *
+     * Returns false when [oldCallback] is no longer registered, which is the caller's cue that the
+     * handle it holds has already been replaced or unhooked.
+     */
+    @JvmStatic
+    external fun replaceCallback(
+        useModernApi: Boolean,
+        hookMethod: Executable,
+        oldCallback: Any?,
+        newCallback: Any?,
+        newPriority: Int,
+    ): Boolean
+
     @JvmStatic external fun deoptimizeMethod(method: Executable): Boolean
 
     @JvmStatic
@@ -94,4 +114,14 @@ object HookBridge {
         artMethods: LongArray,
         artMethodSize: Long,
     ): Executable?
+
+    /**
+     * The class name prefixes of the legacy `de.robv` API as this process will actually be asked
+     * for them, which is not the same as what they are called in source: dex obfuscation rewrites
+     * them, in the framework and in every module, to a different random string on every boot.
+     *
+     * A module targeting API 102 is not allowed to reach any of them, and the module class loader
+     * is the only place that can be enforced.
+     */
+    @JvmStatic external fun legacyApiPrefixes(): Array<String>
 }

@@ -24,7 +24,7 @@ import org.matrix.vector.impl.core.VectorServiceClient;
 import org.matrix.vector.impl.utils.VectorModuleClassLoader;
 import org.matrix.vector.nativebridge.NativeAPI;
 import org.matrix.vector.nativebridge.ResourcesHook;
-import org.lsposed.lspd.models.PreLoadedApk;
+import org.matrix.vector.ipc.ModuleCode;
 import org.lsposed.lspd.util.Utils.Log;
 
 import java.io.File;
@@ -204,11 +204,11 @@ public final class XposedInit {
     }
 
     public static void loadLegacyModules() {
-        var moduleList = VectorServiceClient.INSTANCE.getLegacyModulesList();
+        var moduleList = VectorServiceClient.INSTANCE.getLegacyModules();
         moduleList.forEach(module -> {
             var apk = module.apkPath;
             var name = module.packageName;
-            var file = module.file;
+            var file = module.code;
             loadedModules.put(name, Optional.of(apk)); // temporarily add it for XSharedPreference
             if (!loadModule(name, apk, file)) {
                 loadedModules.remove(name);
@@ -225,7 +225,7 @@ public final class XposedInit {
             return;
         }
         var packages = (ArrayMap<?, ?>) XposedHelpers.getObjectField(at, "mPackages");
-        VectorServiceClient.INSTANCE.getModulesList().forEach(module -> {
+        VectorServiceClient.INSTANCE.getModules().forEach(module -> {
             loadedModules.put(module.packageName, Optional.empty());
             if (!VectorModuleManager.INSTANCE.loadModule(module, startsSystemServer, VectorServiceClient.INSTANCE.getProcessName())) {
                 loadedModules.remove(module.packageName);
@@ -287,7 +287,7 @@ public final class XposedInit {
      * Load a module from an APK by calling the init(String) method for all classes defined
      * in <code>assets/xposed_init</code>.
      */
-    private static boolean loadModule(String name, String apk, PreLoadedApk file) {
+    private static boolean loadModule(String name, String apk, ModuleCode file) {
         Log.v(TAG, "Loading legacy module " + name + " from " + apk);
 
         var sb = new StringBuilder();

@@ -2,7 +2,7 @@ package org.matrix.vector.core
 
 import android.os.IBinder
 import android.os.Process
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.IFrameworkService
 import org.lsposed.lspd.util.Utils
 import org.matrix.vector.BuildConfig
 import org.matrix.vector.GrapheneDclHooker
@@ -39,7 +39,7 @@ object Main {
         }
 
         // Initialize Xposed bridge components
-        val appService = ILSPApplicationService.Stub.asInterface(binder)
+        val appService = IFrameworkService.Stub.asInterface(binder)
         Startup.initXposed(isSystem, niceName, appDir, appService)
 
         // Configure logging levels from the service client

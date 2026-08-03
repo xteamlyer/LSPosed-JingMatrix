@@ -1,17 +1,26 @@
 package org.matrix.vector.impl.hooks
 
-import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedInterface.Chain
 import io.github.libxposed.api.XposedInterface.ExceptionMode
+import io.github.libxposed.api.XposedInterface.Hooker
 import java.lang.reflect.Executable
 import java.util.Collections
 import org.lsposed.lspd.util.Utils
 
-/** Represents a registered hook configuration, stored natively by [HookBridge]. */
-data class VectorHookRecord(
-    val hooker: XposedInterface.Hooker,
+/**
+ * A registered hook configuration, stored natively by [HookBridge].
+ *
+ * Immutable, and that is what makes the chain snapshot based for free. Replacing a hook swaps this
+ * whole object inside the native callback map rather than editing it, so an array
+ * `callbackSnapshot` already copied for a call in flight keeps pointing at the record that call
+ * started with. Making the hooker mutable instead would force every hooked call to freeze a hooker
+ * array of its own, which is an allocation on the hottest path in the framework.
+ */
+class VectorHookRecord(
+    val hooker: Hooker,
     val priority: Int,
     val exceptionMode: ExceptionMode,
+    val id: String?,
 )
 
 /**
@@ -39,9 +48,6 @@ class VectorChain(
 
     override fun getThisObject(): Any? = thisObj
 
-    // Immutable, and a snapshot rather than a view: the chain rewrites this array in place when a
-    // hooker calls proceed(args) and when a legacy hook edits its arguments, which would otherwise
-    // change a list a hooker is still holding.
     override fun getArgs(): List<Any?> = Collections.unmodifiableList(args.toMutableList())
 
     override fun getArg(index: Int): Any? = args[index]
@@ -64,17 +70,23 @@ class VectorChain(
         }
 
         val record = hooks[hookIndex]
+        val hooker = record.hooker
+        val exceptionMode = record.exceptionMode
         val nextChain =
             VectorChain(executable, thisObject, currentArgs, hooks, hookIndex + 1, terminal)
 
         return try {
-            executeDownstream { record.hooker.intercept(nextChain) }
+            executeDownstream { hooker.intercept(nextChain) }
         } catch (t: Throwable) {
-            // Recording the recovery keeps this node's cached state consistent: once the hooker's
-            // exception has been suppressed, parent nodes must observe the recovered outcome and
-            // not the exception we just swallowed.
             executeDownstream {
-                handleInterceptorException(t, record, nextChain, thisObject, currentArgs)
+                handleInterceptorException(
+                    t,
+                    hooker,
+                    exceptionMode,
+                    nextChain,
+                    thisObject,
+                    currentArgs,
+                )
             }
         }
     }
@@ -82,10 +94,6 @@ class VectorChain(
     /**
      * Executes the block and caches the downstream state so parent chains can recover it if the
      * current interceptor crashes during post-processing.
-     *
-     * Exactly one of [downstreamResult] and [downstreamThrowable] is meaningful after this returns,
-     * so both are always written; leaving a stale value behind would let a parent node resurrect an
-     * exception this node already handled.
      */
     private inline fun executeDownstream(block: () -> Any?): Any? {
         return try {
@@ -103,7 +111,8 @@ class VectorChain(
     /** Handles exceptions thrown by a hooker according to its [ExceptionMode]. */
     private fun handleInterceptorException(
         t: Throwable,
-        record: VectorHookRecord,
+        hooker: Hooker,
+        exceptionMode: ExceptionMode,
         nextChain: VectorChain,
         recoveryThis: Any?,
         recoveryArgs: Array<Any?>,
@@ -114,11 +123,11 @@ class VectorChain(
         }
 
         // Passthrough mode does not rescue the process from hooker crashes
-        if (record.exceptionMode == ExceptionMode.PASSTHROUGH) {
+        if (exceptionMode == ExceptionMode.PASSTHROUGH) {
             throw t
         }
 
-        val hookerName = record.hooker.javaClass.name
+        val hookerName = hooker.javaClass.name
         if (!nextChain.proceedCalled) {
             // Crash occurred before calling proceed(); skip hooker and continue the chain
             Utils.logD("Hooker [$hookerName] crashed before proceed. Skipping.", t)
