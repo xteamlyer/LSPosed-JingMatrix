@@ -449,11 +449,15 @@ object VectorService : IVectorDaemon.Stub() {
           when (action) {
             "approve" -> {
               val scopes = ModuleDatabase.getModuleScope(packageName) ?: mutableListOf()
-              if (scopes.none { it.packageName == scopePackageName && it.userId == userId }) {
+              // Compared against where the row will land, not against the user who asked: the
+              // framework is stored under user 0 whoever requested it, so for "system" this test
+              // never matched and every approval appended a duplicate and rewrote the whole table.
+              val storedUserId = if (scopePackageName == "system") 0 else userId
+              if (scopes.none { it.packageName == scopePackageName && it.userId == storedUserId }) {
                 scopes.add(
                     Application().apply {
                       this.packageName = scopePackageName
-                      this.userId = userId
+                      this.userId = storedUserId
                     })
                 ModuleDatabase.setModuleScope(packageName, scopes)
               }

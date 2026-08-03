@@ -98,11 +98,14 @@ object ApplicationService : IFrameworkService.Stub() {
    * The same module installed for two users is two module apps with two sets of preferences, and
    * neither has any business reloading the other's processes.
    *
-   * The carve-out is for the AID_* uids below [FIRST_APPLICATION_UID], not for user 0: system_server
-   * runs once for the whole device and carries a module enabled in any user, so scoping it to user 0
-   * would make it unreachable from every other one. Testing `uid < PER_USER_RANGE` instead would
-   * admit the whole of user 0 - every app process on a single-user device - which is the opposite of
-   * what this is for.
+   * The carve-out is for the AID_* uids below [FIRST_APPLICATION_UID], and it has to be: a module in
+   * any user may take the framework into its scope, and `ModuleDatabase.setModuleScope` stores that
+   * row against user 0 whoever asked for it, because system_server is one process for the whole
+   * device. Nothing downstream can therefore tell which user requested it - so every user holding
+   * the module is equally entitled to the one generation loaded there.
+   *
+   * Not `uid < PER_USER_RANGE`, which is what this said first: that admits the whole of user 0,
+   * every app process on a single-user device, and leaves the check doing nothing at all.
    */
   private fun addressableBy(target: HotReloadTarget, userId: Int): Boolean =
       target.uid < FIRST_APPLICATION_UID || target.uid / PER_USER_RANGE == userId
