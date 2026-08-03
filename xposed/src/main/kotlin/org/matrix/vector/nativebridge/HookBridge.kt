@@ -115,4 +115,13 @@ object HookBridge {
         artMethodSize: Long,
     ): Executable?
 
+    /**
+     * The class name prefixes of the legacy `de.robv` API as this process will actually be asked
+     * for them, which is not the same as what they are called in source: dex obfuscation rewrites
+     * them, in the framework and in every module, to a different random string on every boot.
+     *
+     * A module targeting API 102 is not allowed to reach any of them, and the module class loader
+     * is the only place that can be enforced.
+     */
+    @JvmStatic external fun legacyApiPrefixes(): Array<String>
 }

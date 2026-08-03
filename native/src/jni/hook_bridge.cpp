@@ -10,6 +10,7 @@
 #include <shared_mutex>
 #include <vector>
 
+#include "core/config_bridge.h"
 #include "jni/jni_bridge.h"
 #include "jni/jni_hooks.h"
 
@@ -649,6 +650,52 @@ VECTOR_DEF_NATIVE_METHOD(jobjectArray, HookBridge, callbackSnapshot, jclass call
 }
 
 /**
+ * @brief The class name prefixes of the legacy Xposed API as this process will be asked for them.
+ *
+ * API 102 forbids a module that targets it from calling the legacy API, and the only place that can
+ * be enforced is the module class loader - which is handed a name. A literal "de.robv.android.xposed"
+ * is not that name: the daemon rewrites those prefixes in the framework dex and in every module dex
+ * when dex obfuscation is on, so the name a module asks for is a different random string on every
+ * boot. Resolving them through the same map the rest of the framework uses is what makes the guard
+ * hold in both configurations.
+ *
+ * The four entries are the whole legacy surface the obfuscation table covers: the package itself,
+ * AndroidAppHelper, and the XResources / XModuleResources family. Guarding only the package would
+ * leave the legacy resource API reachable.
+ */
+VECTOR_DEF_NATIVE_METHOD(jobjectArray, HookBridge, legacyApiPrefixes) {
+    // In the dotted form the obfuscation map is served in - the same form loadClass receives.
+    static constexpr const char *kLegacyKeys[] = {
+        "de.robv.android.xposed.",
+        "android.app.AndroidApp",
+        "android.content.res.XRes",
+        "android.content.res.XModule",
+    };
+
+    const auto count = static_cast<jsize>(ArraySize(kLegacyKeys));
+    auto string_class = env->FindClass("java/lang/String");
+    if (!string_class) return nullptr;
+    auto result = env->NewObjectArray(count, string_class, nullptr);
+    env->DeleteLocalRef(string_class);
+    if (!result) return nullptr;
+
+    auto *bridge = ConfigBridge::GetInstance();
+    for (jsize i = 0; i < count; ++i) {
+        std::string name = kLegacyKeys[i];
+        if (bridge) {
+            const auto &map = bridge->obfuscation_map();
+            // Absent means the map never arrived; the unobfuscated name is then the right answer,
+            // because a build with no map is a build with no obfuscation.
+            if (auto it = map.find(name); it != map.end()) name = it->second;
+        }
+        auto value = env->NewStringUTF(name.c_str());
+        env->SetObjectArrayElement(result, i, value);
+        env->DeleteLocalRef(value);
+    }
+    return result;
+}
+
+/**
  * @brief Reports whether the pages spanning [addr, addr + len) are mapped.
  *
  * msync on an unmapped range fails with ENOMEM, which turns a read that would raise SIGSEGV into
@@ -785,6 +832,7 @@ static JNINativeMethod gMethods[] = {
                          "Executable;)[[Ljava/lang/Object;"),
     VECTOR_NATIVE_METHOD(HookBridge, findStaticInitializer,
                          "(Ljava/lang/Class;[JJ)Ljava/lang/reflect/Executable;"),
+    VECTOR_NATIVE_METHOD(HookBridge, legacyApiPrefixes, "()[Ljava/lang/String;"),
 };
 
 /**
