@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import io.github.libxposed.api.XposedInterface
 import java.util.Collections
 import java.util.WeakHashMap
-import java.util.concurrent.ConcurrentHashMap
 import org.lsposed.lspd.util.Utils
 import org.matrix.vector.impl.VectorLifecycleManager
 import org.matrix.vector.impl.di.LegacyPackageInfo
@@ -54,8 +53,10 @@ private object PackageContextHelper {
         val packageName: String
         val processName: String
         if (isFirstPackage) {
-            packageName = boundPackage!!
-            processName = boundProcess!!
+            // Both are smart-cast here: `isFirstPackage` is a local val that already carries the
+            // null checks, so K2 tracks them through it and the assertions are redundant.
+            packageName = boundPackage
+            processName = boundProcess
         } else {
             packageName = apkPackageName
             processName = boundPackage ?: apkPackageName
@@ -87,8 +88,6 @@ private object LoadedApkTracker {
 
 /** Tracks and prepares Application instances when their LoadedApk is instantiated. */
 object LoadedApkCtorHooker : XposedInterface.Hooker {
-    val trackedApks = ConcurrentHashMap.newKeySet<Any>()
-
     override fun intercept(chain: XposedInterface.Chain): Any? {
         val result = chain.proceed()
         val loadedApk = chain.thisObject ?: return result

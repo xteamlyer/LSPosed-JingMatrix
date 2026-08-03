@@ -11,7 +11,6 @@ import org.matrix.vector.daemon.CliResponse
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.ModuleDatabase
 import org.matrix.vector.daemon.data.PreferenceStore
-import org.matrix.vector.daemon.system.*
 
 object CliHandler {
 
@@ -44,11 +43,6 @@ object CliHandler {
         "API Version" to IXposedService.LIB_API,
         "Enabled Modules" to ModuleDatabase.enabledModules().size,
         "Status Notification" to PreferenceStore.isStatusNotificationEnabled())
-  }
-
-  private fun isPackageInstalled(pkg: String, userId: Int = 0): Boolean {
-    return runCatching { packageManager?.getPackageInfo(pkg, 0, userId) != null }
-        .getOrDefault(false)
   }
 
   private fun handleModules(request: CliRequest): Any {

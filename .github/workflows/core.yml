@@ -10,6 +10,12 @@ on:
 
 jobs:
   build:
+    # A "Release Vector …" commit is cut straight to a `v*` tag, and the tag build below is what
+    # publishes it — as the stable, `--latest` release. Skip the master-push run for that one commit
+    # so the very same code does not also go out as a canary prerelease: a release must reach users
+    # once, as the stable release, never also as a canary. The tag build is a separate push event
+    # (ref refs/tags/v*, not refs/heads/master) and is unaffected, so the release still ships.
+    if: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'Release Vector')) }}
     runs-on: ubuntu-latest
     # Needed to publish the canary prerelease below. Everything else here only reads.
     permissions:
@@ -92,12 +98,11 @@ jobs:
           echo 'android.native.buildOutput=verbose' >> ~/.gradle/gradle.properties
           echo 'org.gradle.parallel=true' >> ~/.gradle/gradle.properties
           echo 'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8 -XX:+UseParallelGC' >> ~/.gradle/gradle.properties
-          echo 'android.native.buildOutput=verbose' >> ~/.gradle/gradle.properties
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
         with:
-          version: 1.12.1
+          version: 1.13.2
 
       - name: Setup ccache
         uses: actions/cache@v6
@@ -165,6 +170,37 @@ jobs:
             zygisk/build/symbols
             daemon/build/symbols
             dex2oat/build/symbols
+
+      # --- stable release --------------------------------------------------------------------
+      #
+      # A pushed `v*` tag is a stable release, not a canary. It is published here from the same
+      # signed zips this build produced, so cutting a release is `git tag && git push` with nothing
+      # hand-uploaded afterwards — the hand-assembly is exactly how v2.0's assets came to disagree
+      # with zygisk/update.json (#811), and an automated attach cannot drift from what was built.
+      #
+      # Marked `--latest`, unlike the canaries below: this is what `releases/latest`, and therefore
+      # the manager's update check, resolves to. The body is the module's own zygisk/changelog.md
+      # under a GitHub H1 the release page shows. The changelog itself carries no title line — the
+      # manager renders it beneath its own heading, so a banner there would only read twice.
+      - name: Publish release
+        if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          # `%s` arguments, never the format string, so a `%` anywhere in the changelog is literal.
+          notes=$(printf '# 🎉 Vector %s 🎉\n\n%s\n' "${TAG#v}" "$(cat zygisk/changelog.md)")
+
+          # Recreated rather than edited so a re-run replaces the assets instead of appending a
+          # second copy. No `--cleanup-tag`: the release is rebuilt, the pushed release tag is kept.
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          gh release create "$TAG" \
+            --latest \
+            --title "Vector ${TAG}" \
+            --notes "$notes" \
+            zygisk/release/Vector-v*-Release.zip \
+            zygisk/release/Vector-v*-Debug.zip
 
       # --- canary distribution ---------------------------------------------------------------
       #

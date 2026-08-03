@@ -193,6 +193,12 @@ class VectorContext(
         log(priority, tag, msg, null)
     }
 
+    /**
+     * A module's own logging, which is the only channel it has for saying what went wrong.
+     *
+     * [VectorLogBridge] preserves stack traces without Android's `UnknownHostException` filtering,
+     * so module diagnostics retain the code path that produced a failed request.
+     */
     override fun log(priority: Int, tag: String?, msg: String, tr: Throwable?) {
         val finalTag = tag ?: "VectorContext"
         val prefix = if (packageName.isNotEmpty()) "$packageName: " else ""

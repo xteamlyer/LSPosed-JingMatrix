@@ -1,6 +1,7 @@
 package org.matrix.vector.impl
 
 import android.util.Log
+import org.lsposed.lspd.util.Utils.Log as VectorLog
 
 /**
  * Optional framework log sink supplied by the embedding runtime.
@@ -31,7 +32,7 @@ object VectorLogBridge {
             if (throwable == null) {
                 message
             } else {
-                "$message\n${Log.getStackTraceString(throwable)}"
+                "$message\n${VectorLog.getStackTraceString(throwable)}"
             }
         Log.println(priority, tag, logcatMessage)
         runCatching { sink?.log(priority, tag, message, throwable) }
