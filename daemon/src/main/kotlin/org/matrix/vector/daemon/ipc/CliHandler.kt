@@ -3,6 +3,7 @@ package org.matrix.vector.daemon.ipc
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import io.github.libxposed.service.IXposedService
 import org.lsposed.lspd.models.Application
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.CliRequest
@@ -39,6 +40,7 @@ object CliHandler {
     return mapOf(
         "Framework Version" to BuildConfig.VERSION_NAME,
         "Version Code" to BuildConfig.VERSION_CODE,
+        "API Version" to IXposedService.LIB_API,
         "Enabled Modules" to ModuleDatabase.enabledModules().size,
         "Status Notification" to PreferenceStore.isStatusNotificationEnabled())
   }

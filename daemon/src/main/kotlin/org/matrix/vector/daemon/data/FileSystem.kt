@@ -240,6 +240,9 @@ object FileSystem {
     val moduleLibraryNames = mutableListOf<String>()
     var isLegacy = false
     var exceptionPassthrough = false
+    var targetApiVersion = 0
+    var minApiVersion = 0
+    var autoHotReload = false
 
     runCatching {
           ZipFile(file).use { zip ->
@@ -258,7 +261,10 @@ object FileSystem {
                   }
                 }
 
-            val targetApi = props.getProperty("targetApiVersion")?.trim()?.toIntOrNull() ?: 0
+            val targetApi = leadingInt(props.getProperty("targetApiVersion"))
+            targetApiVersion = targetApi
+            minApiVersion = leadingInt(props.getProperty("minApiVersion"))
+            autoHotReload = props.getProperty("autoHotReload")?.trim().toBoolean()
             // The module-wide mode ExceptionMode.DEFAULT resolves to. Anything that is not
             // "passthrough" - absent, misspelled, or an explicit "protective" - keeps the
             // protective default the API specifies.
@@ -342,6 +348,9 @@ object FileSystem {
       this.moduleLibraryNames = moduleLibraryNames
       this.legacy = isLegacy
       this.exceptionPassthrough = exceptionPassthrough
+      this.targetApiVersion = targetApiVersion
+      this.minApiVersion = minApiVersion
+      this.autoHotReload = autoHotReload
     }
 
     return ModuleLoad.Loaded(preLoadedApk)
@@ -670,3 +679,6 @@ object FileSystem {
     return logDirPath.resolve(getNewLogFileName("modules")).toFile()
   }
 }
+  // Matches the manager's leading-integer parsing, including values such as "101.0".
+  private fun leadingInt(value: String?): Int =
+      value?.trim()?.takeWhile { it.isDigit() }?.toIntOrNull() ?: 0

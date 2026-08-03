@@ -65,6 +65,15 @@ class VectorContext(
 ) : XposedInterface {
 
     private val remotePrefs = ConcurrentHashMap<String, SharedPreferences>()
+    @Volatile private var frozen = false
+
+    fun freeze() {
+        frozen = true
+    }
+
+    fun unfreeze() {
+        frozen = false
+    }
 
     override fun getFrameworkName(): String = BuildConfig.FRAMEWORK_NAME
 
@@ -77,14 +86,19 @@ class VectorContext(
     }
 
     override fun hook(origin: Executable): XposedInterface.HookBuilder {
-        return VectorHookBuilder(origin, defaultExceptionMode)
+        return VectorHookBuilder(origin, packageName, { frozen }, defaultExceptionMode)
     }
 
     override fun hookClassInitializer(origin: Class<*>): XposedInterface.HookBuilder {
         val clinit =
             findStaticInitializer(origin)
                 ?: throw IllegalArgumentException("Class ${origin.name} has no static initializer")
-        return VectorHookBuilder(asSyntheticMethod(clinit), defaultExceptionMode)
+        return VectorHookBuilder(
+            asSyntheticMethod(clinit),
+            packageName,
+            { frozen },
+            defaultExceptionMode,
+        )
     }
 
     /**

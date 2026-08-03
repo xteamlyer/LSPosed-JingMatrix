@@ -34,5 +34,6 @@ dependencies {
     implementation(projects.hiddenapi.bridge)
     implementation(projects.services.daemonService)
     compileOnly(libs.androidx.annotation)
+    compileOnly(libs.libxposed.annotation)
     compileOnly(projects.hiddenapi.stubs)
 }

@@ -6,8 +6,12 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.os.RemoteException
 import android.util.Log
+import io.github.libxposed.service.HookedProcess
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import org.lsposed.lspd.models.Module
+import org.lsposed.lspd.service.IHotReloadTarget
 import org.lsposed.lspd.service.ILSPApplicationService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
@@ -30,8 +34,30 @@ object ApplicationService : ILSPApplicationService.Stub() {
 
   private val processes = ConcurrentHashMap<ProcessKey, ProcessInfo>()
 
+  /** One module generation loaded into one process: what a hot reload request addresses. */
+  class HotReloadTarget(
+      val id: Long,
+      val modulePackageName: String,
+      val processName: String,
+      val uid: Int,
+      val pid: Int,
+      @Volatile var loadedVersionCode: Long,
+      val hotReloadable: Boolean,
+  ) {
+    val state = AtomicInteger(HookedProcess.TARGET_STATE_UP_TO_DATE)
+  }
+
+  private val hotReloadTargets = ConcurrentHashMap<Long, HotReloadTarget>()
+
+  // Ids are framework-assigned and never reused, as HookedProcess.targetId requires.
+  private val nextHotReloadTargetId = AtomicLong(1)
+
   private class ProcessInfo(val key: ProcessKey, val processName: String, val heartBeat: IBinder) :
       IBinder.DeathRecipient {
+    val targetIds = ConcurrentHashMap<String, Long>()
+
+    @Volatile var hotReloadBinder: IHotReloadTarget? = null
+
     init {
       heartBeat.linkToDeath(this, 0)
       processes[key] = this
@@ -40,7 +66,112 @@ object ApplicationService : ILSPApplicationService.Stub() {
     override fun binderDied() {
       heartBeat.unlinkToDeath(this, 0)
       processes.remove(key)
+      targetIds.values.forEach { hotReloadTargets.remove(it) }
     }
+  }
+
+  private fun recordHotReloadTargets(info: ProcessInfo, modules: List<Module>) {
+    for (module in modules) {
+      info.targetIds.computeIfAbsent(module.packageName) {
+        val id = nextHotReloadTargetId.getAndIncrement()
+        hotReloadTargets[id] =
+            HotReloadTarget(
+                id = id,
+                modulePackageName = module.packageName,
+                processName = info.processName,
+                uid = info.key.uid,
+                pid = info.key.pid,
+                loadedVersionCode = module.versionCode,
+                // Hot reload is specified only for modules with exactly one Java entry class.
+                hotReloadable = module.file.moduleClassNames.size == 1,
+            )
+        id
+      }
+    }
+  }
+
+  // Not filtered to hot-reloadable targets: the AIDL documents this as hooked processes, and one
+  // that cannot be reloaded answers UNSUPPORTED rather than disappearing.
+  fun getHotReloadTargets(modulePackageName: String): List<HookedProcess> {
+    val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode
+    return hotReloadTargets.values
+        .filter { it.modulePackageName == modulePackageName }
+        .map { target ->
+          HookedProcess().apply {
+            targetId = target.id
+            uid = target.uid
+            pid = target.pid
+            processName = target.processName
+            state = reportedState(target, installedVersion)
+            loadedVersionCode = target.loadedVersionCode
+          }
+        }
+  }
+
+  // RELOADING and FAILED describe the last attempt and outrank a version comparison.
+  private fun reportedState(target: HotReloadTarget, installedVersion: Long?): Int {
+    val state = target.state.get()
+    if (state != HookedProcess.TARGET_STATE_UP_TO_DATE) return state
+    // Zero means unknown, not old; claiming STALE would never be satisfiable by a reload.
+    if (target.loadedVersionCode == 0L) return state
+    return if (installedVersion != null && installedVersion != target.loadedVersionCode) {
+      HookedProcess.TARGET_STATE_STALE
+    } else {
+      state
+    }
+  }
+
+  // system_server records its targets before PMS exists, so they start without a version.
+  fun backfillLoadedVersions() {
+    hotReloadTargets.values
+        .filter { it.loadedVersionCode == 0L }
+        .forEach { target ->
+          ConfigCache.state.modules[target.modulePackageName]
+              ?.versionCode
+              ?.takeIf { it != 0L }
+              ?.let { target.loadedVersionCode = it }
+        }
+  }
+
+  fun forgetHotReloadTargets(modulePackageName: String) {
+    hotReloadTargets.values.removeIf { it.modulePackageName == modulePackageName }
+    processes.values.forEach { it.targetIds.remove(modulePackageName) }
+  }
+
+  fun staleHotReloadTargets(modulePackageName: String): List<HotReloadTarget> {
+    val installedVersion = ConfigCache.state.modules[modulePackageName]?.versionCode ?: return emptyList()
+    return hotReloadTargets.values.filter {
+      it.modulePackageName == modulePackageName &&
+          it.hotReloadable &&
+          it.loadedVersionCode != 0L &&
+          it.loadedVersionCode != installedVersion
+    }
+  }
+
+  fun getHotReloadTarget(targetId: Long, modulePackageName: String): HotReloadTarget? =
+      hotReloadTargets[targetId]?.takeIf { it.modulePackageName == modulePackageName }
+
+  // Reloads are serialized per target, so check and transition must be one atomic step.
+  fun beginHotReload(target: HotReloadTarget): Boolean {
+    while (true) {
+      val current = target.state.get()
+      if (current == HookedProcess.TARGET_STATE_RELOADING) return false
+      if (target.state.compareAndSet(current, HookedProcess.TARGET_STATE_RELOADING)) return true
+    }
+  }
+
+  fun endHotReload(target: HotReloadTarget, state: Int, loadedVersionCode: Long? = null) {
+    loadedVersionCode?.let { target.loadedVersionCode = it }
+    target.state.set(state)
+  }
+
+  fun getHotReloadBinder(target: HotReloadTarget): IHotReloadTarget? =
+      processes[ProcessKey(target.uid, target.pid)]?.hotReloadBinder
+
+  override fun registerHotReloadTarget(target: IHotReloadTarget) {
+    val info = ensureRegistered()
+    info.hotReloadBinder = target
+    Log.d(TAG, "Hot reload target registered for ${info.processName} (pid=${info.key.pid})")
   }
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
@@ -98,7 +229,8 @@ object ApplicationService : ILSPApplicationService.Stub() {
     return ConfigCache.getModulesForProcess(info.processName, info.key.uid)
   }
 
-  override fun getModulesList() = getAllModules().filter { !it.file.legacy }
+  override fun getModulesList() =
+      getAllModules().filter { !it.file.legacy }.also { recordHotReloadTargets(ensureRegistered(), it) }
 
   override fun getLegacyModulesList() = getAllModules().filter { it.file.legacy }
 

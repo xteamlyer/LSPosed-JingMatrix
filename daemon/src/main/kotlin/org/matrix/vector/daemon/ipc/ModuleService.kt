@@ -4,15 +4,19 @@ import android.content.AttributionSource
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.util.Log
+import io.github.libxposed.service.HookedProcess
+import io.github.libxposed.service.IHotReloadCallback
 import io.github.libxposed.service.IXposedScopeCallback
 import io.github.libxposed.service.IXposedService
 import java.io.Serializable
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import org.lsposed.lspd.models.Module
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.data.ConfigCache
@@ -20,6 +24,7 @@ import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.data.ModuleDatabase
 import org.matrix.vector.daemon.data.PreferenceStore
 import org.matrix.vector.daemon.system.NotificationManager
+import org.matrix.vector.daemon.system.ProcessFreezer
 import org.matrix.vector.daemon.system.PER_USER_RANGE
 import org.matrix.vector.daemon.system.activityManager
 
@@ -28,6 +33,11 @@ private const val TAG = "VectorModuleService"
 class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
   companion object {
+    // Per-target serialization lives on the target itself; this only keeps one slow target from
+    // delaying another.
+    private val hotReloadExecutor =
+        Executors.newCachedThreadPool { r -> Thread(r, "vector-hot-reload") }
+
     private val uidSet = ConcurrentHashMap.newKeySet<Int>()
     private val serviceMap = Collections.synchronizedMap(WeakHashMap<Module, ModuleService>())
 
@@ -47,6 +57,18 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
     fun uidGone(uid: Int) {
       uidSet.remove(uid)
+    }
+
+    // Drives the same cycle as a service request, so onHotReloading can still refuse it.
+    fun autoHotReload(module: Module) {
+      if (!module.file.autoHotReload) return
+      val service = serviceMap.getOrPut(module) { ModuleService(module) }
+      ApplicationService.staleHotReloadTargets(module.packageName).forEach { target ->
+        if (target.hotReloadable && ApplicationService.beginHotReload(target)) {
+          Log.d(TAG, "Auto hot reloading ${module.packageName} in ${target.processName}")
+          hotReloadExecutor.execute { service.runHotReload(target, null, null) }
+        }
+      }
     }
   }
 
@@ -177,6 +199,114 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       runCatching { ModuleDatabase.removeModuleScope(loadedModule.packageName, pkg, userId) }
           .onFailure { Log.e(TAG, "Error removing scope for $pkg", it) }
     }
+  }
+
+  override fun getRunningTargets(): List<HookedProcess> {
+    ensureModule()
+    return ApplicationService.getHotReloadTargets(loadedModule.packageName)
+  }
+
+  override fun hotReloadModule(targetId: Long, data: Bundle?, callback: IHotReloadCallback?) {
+    ensureModule()
+    // SecurityException is reserved by the AIDL for exactly these two conditions, so it must not be
+    // raised for anything else on this path - a module-thrown SecurityException in particular has
+    // to reach the caller as a FAILED result, not as "invalid target id".
+    val target =
+        ApplicationService.getHotReloadTarget(targetId, loadedModule.packageName)
+            ?: throw SecurityException("Target $targetId is not a target of ${loadedModule.packageName}")
+
+    if (!target.hotReloadable) {
+      // Hot reload is specified only for modules declaring exactly one Java entry class.
+      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "Module has no single Java entry class")
+      return
+    }
+
+    if (!ApplicationService.beginHotReload(target)) {
+      report(callback, IXposedService.HOT_RELOAD_IN_PROGRESS, "A reload is already running")
+      return
+    }
+
+    // The AIDL asks implementations to validate and enqueue promptly and report through the
+    // callback. Running the cycle inline would pin this binder thread for its whole duration and
+    // ANR a module app that called from its main thread.
+    hotReloadExecutor.execute { runHotReload(target, data, callback) }
+  }
+
+  private fun runHotReload(
+      target: ApplicationService.HotReloadTarget,
+      data: Bundle?,
+      callback: IHotReloadCallback?,
+  ) {
+    var status = IXposedService.HOT_RELOAD_FAILED
+    var message: String? = "Hot reload did not run"
+    var refreeze: (() -> Unit)? = null
+    var loadedVersion: Long? = null
+
+    try {
+      val binder = ApplicationService.getHotReloadBinder(target)
+      if (binder == null) {
+        status = IXposedService.HOT_RELOAD_UNSUPPORTED
+        message = "Process ${target.processName} has no hot reload entry point"
+        return
+      }
+      if (!binder.asBinder().isBinderAlive) {
+        status = IXposedService.HOT_RELOAD_PROCESS_DIED
+        message = "Process ${target.processName} is gone"
+        return
+      }
+      val newModule = ConfigCache.state.modules[loadedModule.packageName]
+      if (newModule == null) {
+        status = IXposedService.HOT_RELOAD_UNSUPPORTED
+        message = "No installed generation of ${loadedModule.packageName} to load"
+        return
+      }
+
+      // A cached target is usually frozen, and a transaction to a frozen process never reaches the
+      // module. Thawing first is what keeps that case from being reported as a refusal.
+      refreeze = ProcessFreezer.thaw(target.uid, target.pid)
+      if (refreeze == null && ProcessFreezer.isFrozen(target.uid, target.pid)) {
+        status = IXposedService.HOT_RELOAD_FAILED
+        message = "Target process is frozen and could not be thawed"
+        return
+      }
+
+      val outcome = binder.hotReload(loadedModule.packageName, data, newModule)
+      status = outcome.status
+      if (status == IXposedService.HOT_RELOAD_SUCCEEDED) loadedVersion = newModule.versionCode
+      // A null message is reserved for a refusal, so anything else gets one supplied.
+      message =
+          outcome.message
+              ?: if (status == IXposedService.HOT_RELOAD_FAILED && !outcome.refused) {
+                "Hot reload failed without a diagnostic message"
+              } else {
+                null
+              }
+    } catch (e: DeadObjectException) {
+      status = IXposedService.HOT_RELOAD_PROCESS_DIED
+      message = "Process ${target.processName} died during hot reload"
+    } catch (t: Throwable) {
+      status = IXposedService.HOT_RELOAD_FAILED
+      message = "${t.javaClass.name}: ${t.message ?: "no message"}"
+      Log.e(TAG, "Hot reload of ${loadedModule.packageName} failed", t)
+    } finally {
+      refreeze?.invoke()
+      ApplicationService.endHotReload(target, stateFor(status), loadedVersion)
+      report(callback, status, message)
+    }
+  }
+
+  private fun stateFor(status: Int): Int =
+      when (status) {
+        IXposedService.HOT_RELOAD_SUCCEEDED -> HookedProcess.TARGET_STATE_UP_TO_DATE
+        IXposedService.HOT_RELOAD_FAILED -> HookedProcess.TARGET_STATE_FAILED
+        // Unsupported and process-died say nothing about the generation the target is running, so
+        // the reported state falls back to comparing versions.
+        else -> HookedProcess.TARGET_STATE_UP_TO_DATE
+      }
+
+  private fun report(callback: IHotReloadCallback?, status: Int, message: String?) {
+    runCatching { callback?.onHotReloadResult(status, message) }
+        .onFailure { Log.w(TAG, "Cannot deliver hot reload result to ${loadedModule.packageName}", it) }
   }
 
   override fun requestRemotePreferences(group: String): Bundle {
