@@ -24,7 +24,7 @@ import org.matrix.vector.impl.core.VectorServiceClient;
 import org.matrix.vector.impl.utils.VectorModuleClassLoader;
 import org.matrix.vector.nativebridge.NativeAPI;
 import org.matrix.vector.nativebridge.ResourcesHook;
-import org.lsposed.lspd.models.PreLoadedApk;
+import org.matrix.vector.ipc.ModuleCode;
 import org.lsposed.lspd.util.Utils.Log;
 
 import java.io.File;
@@ -287,7 +287,7 @@ public final class XposedInit {
      * Load a module from an APK by calling the init(String) method for all classes defined
      * in <code>assets/xposed_init</code>.
      */
-    private static boolean loadModule(String name, String apk, PreLoadedApk file) {
+    private static boolean loadModule(String name, String apk, ModuleCode file) {
         Log.v(TAG, "Loading legacy module " + name + " from " + apk);
 
         var sb = new StringBuilder();

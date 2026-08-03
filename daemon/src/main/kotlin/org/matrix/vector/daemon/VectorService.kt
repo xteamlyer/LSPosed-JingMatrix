@@ -16,8 +16,8 @@ import hidden.HiddenApiBridge
 import io.github.libxposed.service.IXposedScopeCallback
 import kotlinx.coroutines.launch
 import org.lsposed.lspd.models.Application
-import org.lsposed.lspd.service.IDaemonService
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.IVectorDaemon
+import org.matrix.vector.ipc.IFrameworkService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.ModuleDatabase
 import org.matrix.vector.daemon.data.PreferenceStore
@@ -29,7 +29,7 @@ import org.matrix.vector.daemon.system.*
 
 private const val TAG = "VectorService"
 
-object VectorService : IDaemonService.Stub() {
+object VectorService : IVectorDaemon.Stub() {
 
   private var bootCompleted = false
 
@@ -65,14 +65,14 @@ object VectorService : IDaemonService.Stub() {
     }
   }
 
-  override fun requestApplicationService(
+  override fun attachProcess(
       uid: Int,
       pid: Int,
       processName: String,
       heartBeat: IBinder
-  ): ILSPApplicationService? {
+  ): IFrameworkService? {
     if (Binder.getCallingUid() != 1000) {
-      Log.w(TAG, "Unauthorized requestApplicationService call")
+      Log.w(TAG, "Unauthorized attachProcess call")
       return null
     }
     if (ApplicationService.hasRegister(uid, pid)) return null

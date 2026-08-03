@@ -14,8 +14,8 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
-import org.lsposed.lspd.models.HotReloadOutcome
-import org.lsposed.lspd.models.Module
+import org.matrix.vector.ipc.HotReloadOutcome
+import org.matrix.vector.ipc.LoadedModule
 import org.lsposed.lspd.util.Utils.Log
 import org.matrix.vector.impl.VectorContext
 import org.matrix.vector.impl.VectorLifecycleManager
@@ -54,7 +54,7 @@ object VectorModuleManager {
     /**
      * Loads a module APK, instantiates its entry classes, and binds them to the Vector framework.
      */
-    fun loadModule(module: Module, isSystemServer: Boolean, processName: String): Boolean {
+    fun loadModule(module: LoadedModule, isSystemServer: Boolean, processName: String): Boolean {
         val (generation, entries) =
             buildGeneration(module, isSystemServer, processName) ?: return false
 
@@ -85,7 +85,7 @@ object VectorModuleManager {
 
     // Publishes nothing, so a reload can fail before the old generation is touched.
     private fun buildGeneration(
-        module: Module,
+        module: LoadedModule,
         isSystemServer: Boolean,
         processName: String,
     ): Pair<Generation, List<XposedModule>>? {
@@ -188,7 +188,7 @@ object VectorModuleManager {
     fun hotReload(
         modulePackageName: String?,
         extras: Bundle?,
-        newModule: Module?,
+        newModule: LoadedModule?,
     ): HotReloadOutcome {
         val packageName =
             modulePackageName ?: return unsupported("Hot reload was requested without a module")
@@ -212,7 +212,7 @@ object VectorModuleManager {
     private fun runHotReload(
         packageName: String,
         extras: Bundle?,
-        newModule: Module?,
+        newModule: LoadedModule?,
     ): HotReloadOutcome {
         if (newModule == null) {
             return unsupported("No new generation of $packageName was supplied")

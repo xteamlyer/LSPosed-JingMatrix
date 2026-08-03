@@ -2,25 +2,25 @@ package org.matrix.vector.impl.core
 
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
-import org.lsposed.lspd.models.Module
-import org.lsposed.lspd.service.IHotReloadTarget
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.LoadedModule
+import org.matrix.vector.ipc.IProcessChannel
+import org.matrix.vector.ipc.IFrameworkService
 import org.lsposed.lspd.util.Utils.Log
 
 /**
  * Singleton client for managing IPC communication with the injected manager service. Handles Binder
  * death gracefully and ensures safe remote execution.
  */
-object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
+object VectorServiceClient : IFrameworkService, IBinder.DeathRecipient {
 
     private const val TAG = "VectorServiceClient"
 
-    private var service: ILSPApplicationService? = null
+    private var service: IFrameworkService? = null
     var processName: String = ""
         private set
 
     @Synchronized
-    fun init(appService: ILSPApplicationService?, niceName: String) {
+    fun init(appService: IFrameworkService?, niceName: String) {
         val binder = appService?.asBinder()
         if (service == null && binder != null) {
             runCatching {
@@ -33,23 +33,24 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
                     service = null
                 }
 
-            // Registered here rather than after module loading: system_server loads its modules
-            // before the daemon's module cache exists, and it has to be a reloadable target too.
+            // Handed over here rather than after module loading, and carrying no module identity:
+            // system_server loads its modules before the daemon's module cache exists, so anything
+            // that had to name a module here could not work for it.
             service?.let {
                 try {
-                    it.registerHotReloadTarget(VectorHotReloadTarget)
+                    it.attachProcessChannel(VectorProcessChannel)
                 } catch (t: Throwable) {
-                    Log.e(TAG, "Failed to register the hot reload target in process: $niceName", t)
+                    Log.e(TAG, "Failed to attach the process channel in process: $niceName", t)
                 }
             }
         }
     }
 
-    override fun registerHotReloadTarget(target: IHotReloadTarget?) {
+    override fun attachProcessChannel(channel: IProcessChannel?) {
         try {
-            service?.registerHotReloadTarget(target)
+            service?.attachProcessChannel(channel)
         } catch (t: Throwable) {
-            Log.e(TAG, "Failed to register a hot reload target", t)
+            Log.e(TAG, "Failed to attach the process channel", t)
         }
     }
 
@@ -57,11 +58,11 @@ object VectorServiceClient : ILSPApplicationService, IBinder.DeathRecipient {
         return runCatching { service?.isLogMuted == true }.getOrDefault(false)
     }
 
-    override fun getLegacyModulesList(): List<Module> {
+    override fun getLegacyModulesList(): List<LoadedModule> {
         return runCatching { service?.legacyModulesList }.getOrNull() ?: emptyList()
     }
 
-    override fun getModulesList(): List<Module> {
+    override fun getModulesList(): List<LoadedModule> {
         return runCatching { service?.modulesList }.getOrNull() ?: emptyList()
     }
 

@@ -34,7 +34,7 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
-import org.lsposed.lspd.models.PreLoadedApk
+import org.matrix.vector.ipc.ModuleCode
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.utils.ObfuscationManager
 
@@ -51,7 +51,7 @@ private const val TAG = "VectorFileSystem"
  */
 sealed interface ModuleLoad {
   /** Parsed, and ready to hand to a forking process. */
-  data class Loaded(val apk: PreLoadedApk) : ModuleLoad
+  data class Loaded(val apk: ModuleCode) : ModuleLoad
 
   /** Declares libxposed API 100, and carries nothing else this framework can load. */
   data object UnsupportedApi : ModuleLoad
@@ -61,7 +61,7 @@ sealed interface ModuleLoad {
 }
 
 /** The APK when it loaded and null when it did not, for callers with nothing to say about why. */
-val ModuleLoad.apkOrNull: PreLoadedApk?
+val ModuleLoad.apkOrNull: ModuleCode?
   get() = (this as? ModuleLoad.Loaded)?.apk
 
 object FileSystem {
@@ -234,7 +234,7 @@ object FileSystem {
     val file = File(apkPath)
     if (!file.exists()) return ModuleLoad.Unusable
 
-    val preLoadedApk = PreLoadedApk()
+    val preLoadedApk = ModuleCode()
     val preLoadedDexes = mutableListOf<SharedMemory>()
     val moduleClassNames = mutableListOf<String>()
     val moduleLibraryNames = mutableListOf<String>()

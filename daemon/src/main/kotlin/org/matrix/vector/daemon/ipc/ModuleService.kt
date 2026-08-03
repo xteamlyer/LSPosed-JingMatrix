@@ -18,9 +18,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import org.lsposed.lspd.models.HotReloadOutcome
-import org.lsposed.lspd.models.Module
-import org.lsposed.lspd.service.IHotReloadOutcomeCallback
+import org.matrix.vector.ipc.HotReloadOutcome
+import org.matrix.vector.ipc.LoadedModule
+import org.matrix.vector.ipc.IHotReloadResultReceiver
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
@@ -33,7 +33,7 @@ import org.matrix.vector.daemon.system.activityManager
 
 private const val TAG = "VectorModuleService"
 
-class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
+class ModuleService(private val loadedModule: LoadedModule) : IXposedService.Stub() {
 
   companion object {
     // Per-target serialization lives on the target itself; this only keeps one slow target from
@@ -47,7 +47,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     private const val RELOAD_TIMEOUT_SECONDS = 30L
 
     private val uidSet = ConcurrentHashMap.newKeySet<Int>()
-    private val serviceMap = Collections.synchronizedMap(WeakHashMap<Module, ModuleService>())
+    private val serviceMap = Collections.synchronizedMap(WeakHashMap<LoadedModule, ModuleService>())
 
     fun uidClear() {
       uidSet.clear()
@@ -68,7 +68,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     }
 
     // Drives the same cycle as a service request, so onHotReloading can still refuse it.
-    fun autoHotReload(module: Module) {
+    fun autoHotReload(module: LoadedModule) {
       if (!module.file.autoHotReload) return
       val service = serviceMap.getOrPut(module) { ModuleService(module) }
       ApplicationService.staleHotReloadTargets(module.packageName).forEach { target ->
@@ -124,7 +124,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
     val appId = Binder.getCallingUid() % PER_USER_RANGE
     if (loadedModule.appId != appId) {
       throw RemoteException(
-          "Module ${loadedModule.packageName} is not for uid ${Binder.getCallingUid()}")
+          "LoadedModule ${loadedModule.packageName} is not for uid ${Binder.getCallingUid()}")
     }
     return Binder.getCallingUid() / PER_USER_RANGE
   }
@@ -228,7 +228,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
 
     if (!target.hotReloadable) {
       // Hot reload is specified only for modules declaring exactly one Java entry class.
-      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "Module has no single Java entry class")
+      report(callback, IXposedService.HOT_RELOAD_UNSUPPORTED, "LoadedModule has no single Java entry class")
       return
     }
 
@@ -283,7 +283,7 @@ class ModuleService(private val loadedModule: Module) : IXposedService.Stub() {
       }
 
       val callbackStub =
-          object : IHotReloadOutcomeCallback.Stub() {
+          object : IHotReloadResultReceiver.Stub() {
             override fun onHotReloadOutcome(result: HotReloadOutcome?) {
               outcome = result
               answered.countDown()

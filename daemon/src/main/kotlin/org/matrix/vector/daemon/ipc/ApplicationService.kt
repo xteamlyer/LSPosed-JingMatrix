@@ -10,9 +10,9 @@ import io.github.libxposed.service.HookedProcess
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import org.lsposed.lspd.models.Module
-import org.lsposed.lspd.service.IHotReloadTarget
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.LoadedModule
+import org.matrix.vector.ipc.IProcessChannel
+import org.matrix.vector.ipc.IFrameworkService
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.system.PER_USER_RANGE
@@ -29,7 +29,7 @@ const val DEX_TRANSACTION_CODE =
 const val OBFUSCATION_MAP_TRANSACTION_CODE =
     ('_'.code shl 24) or ('O'.code shl 16) or ('B'.code shl 8) or 'F'.code
 
-object ApplicationService : ILSPApplicationService.Stub() {
+object ApplicationService : IFrameworkService.Stub() {
 
   data class ProcessKey(val uid: Int, val pid: Int)
 
@@ -57,7 +57,7 @@ object ApplicationService : ILSPApplicationService.Stub() {
       IBinder.DeathRecipient {
     val targetIds = ConcurrentHashMap<String, Long>()
 
-    @Volatile var hotReloadBinder: IHotReloadTarget? = null
+    @Volatile var hotReloadBinder: IProcessChannel? = null
 
     init {
       heartBeat.linkToDeath(this, 0)
@@ -71,7 +71,7 @@ object ApplicationService : ILSPApplicationService.Stub() {
     }
   }
 
-  private fun recordHotReloadTargets(info: ProcessInfo, modules: List<Module>) {
+  private fun recordHotReloadTargets(info: ProcessInfo, modules: List<LoadedModule>) {
     for (module in modules) {
       info.targetIds.computeIfAbsent(module.packageName) {
         val id = nextHotReloadTargetId.getAndIncrement()
@@ -190,13 +190,15 @@ object ApplicationService : ILSPApplicationService.Stub() {
     target.state.set(state)
   }
 
-  fun getHotReloadBinder(target: HotReloadTarget): IHotReloadTarget? =
+  fun getHotReloadBinder(target: HotReloadTarget): IProcessChannel? =
       processes[ProcessKey(target.uid, target.pid)]?.hotReloadBinder
 
-  override fun registerHotReloadTarget(target: IHotReloadTarget) {
+  override fun attachProcessChannel(channel: IProcessChannel) {
+    // Synchronous on purpose: a oneway transaction arrives with getCallingPid() == 0, and this
+    // registry is keyed on (uid, pid). See the note on the AIDL.
     val info = ensureRegistered()
-    info.hotReloadBinder = target
-    Log.d(TAG, "Hot reload target registered for ${info.processName} (pid=${info.key.pid})")
+    info.hotReloadBinder = channel
+    Log.d(TAG, "Process channel attached for ${info.processName} (pid=${info.key.pid})")
   }
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
@@ -243,7 +245,7 @@ object ApplicationService : ILSPApplicationService.Stub() {
     return info
   }
 
-  private fun getAllModules(): List<Module> {
+  private fun getAllModules(): List<LoadedModule> {
     val info = ensureRegistered()
     if (info.key.uid == Process.SYSTEM_UID && info.processName == "system") {
       return ConfigCache.getModulesForSystemServer()

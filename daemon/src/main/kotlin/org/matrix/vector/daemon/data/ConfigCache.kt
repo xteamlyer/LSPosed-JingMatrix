@@ -14,7 +14,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.lsposed.lspd.ILSPManagerService
 import org.lsposed.lspd.models.Application
-import org.lsposed.lspd.models.Module
+import org.matrix.vector.ipc.LoadedModule
 import org.matrix.vector.daemon.BuildConfig
 import org.matrix.vector.daemon.VectorDaemon
 import org.matrix.vector.daemon.ipc.ApplicationService
@@ -151,7 +151,7 @@ object ConfigCache {
       Log.d(TAG, "Executing Cache Update...")
       val oldState = state
 
-      val newModules = mutableMapOf<String, Module>()
+      val newModules = mutableMapOf<String, LoadedModule>()
       val newStaticScopes = mutableMapOf<String, Set<String>>()
       // Deleted from the configuration: the package is not installed for any user, so what it was
       // configured to do cannot mean anything.
@@ -229,7 +229,7 @@ object ConfigCache {
         when (val loaded = FileSystem.loadModule(apkPath, state.isDexObfuscateEnabled)) {
           is ModuleLoad.Loaded -> {
             val module =
-                Module().apply {
+                LoadedModule().apply {
                   packageName = pkgName
                   this.apkPath = apkPath
                   appId = appInfo.uid
@@ -272,12 +272,12 @@ object ConfigCache {
         }
       }
 
-      val newScopes = mutableMapOf<ProcessScope, MutableList<Module>>()
+      val newScopes = mutableMapOf<ProcessScope, MutableList<LoadedModule>>()
 
       // A module can reach the same process by more than one route: self rows in two users each
       // propagate into the other's, and the scope derived below can name a process a row named as
       // well. Twice in the list is twice loaded, so every insertion goes through here.
-      fun addToScope(processName: String, uid: Int, module: Module) {
+      fun addToScope(processName: String, uid: Int, module: LoadedModule) {
         val modules = newScopes.getOrPut(ProcessScope(processName, uid)) { mutableListOf() }
         if (modules.none { it === module }) modules.add(module)
       }
@@ -377,7 +377,7 @@ object ConfigCache {
     }
   }
 
-  fun getModulesForProcess(processName: String, uid: Int): List<Module> {
+  fun getModulesForProcess(processName: String, uid: Int): List<LoadedModule> {
     ensureCacheReady()
     if (processName == "system_server") {
       Log.w(TAG, "Skip unexpected module queries for $processName")
@@ -386,11 +386,11 @@ object ConfigCache {
     return state.scopes[ProcessScope(processName, uid)] ?: emptyList()
   }
 
-  fun getModuleByUid(uid: Int): Module? =
+  fun getModuleByUid(uid: Int): LoadedModule? =
       state.modules.values.firstOrNull { it.appId == uid % PER_USER_RANGE }
 
-  fun getModulesForSystemServer(): List<Module> {
-    val modules = mutableListOf<Module>()
+  fun getModulesForSystemServer(): List<LoadedModule> {
+    val modules = mutableListOf<LoadedModule>()
     if (!android.os.SELinux.checkSELinuxAccess(
         "u:r:system_server:s0", "u:r:system_server:s0", "process", "execmem")) {
       Log.e(TAG, "Skipping system_server injection: sepolicy execmem denied")
@@ -415,7 +415,7 @@ object ConfigCache {
 
             val statPath = FileSystem.toGlobalNamespace("/data/user_de/0/$pkgName").absolutePath
             val module =
-                Module().apply {
+                LoadedModule().apply {
                   packageName = pkgName
                   this.apkPath = apkPath
                   appId = runCatching { Os.stat(statPath).st_uid }.getOrDefault(-1)
@@ -464,7 +464,7 @@ object ConfigCache {
    * disk. A module that ships no library, or whose staging failed, keeps a null here and loads
    * exactly as it did before.
    */
-  private fun stageNativeLibrariesFor(module: Module) {
+  private fun stageNativeLibrariesFor(module: LoadedModule) {
     val file = module.file ?: return
     // system_server asks for its modules early enough that the cache may not have been built yet,
     // and this is the same reason getPrefsPath does not trust the field either.

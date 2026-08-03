@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.IBinder
 import dalvik.system.DexFile
 import org.lsposed.lspd.util.Utils
-import org.lsposed.lspd.service.ILSPApplicationService
+import org.matrix.vector.ipc.IFrameworkService
 import org.matrix.vector.impl.di.VectorBootstrap
 import org.matrix.vector.impl.hookers.*
 import org.matrix.vector.impl.hooks.VectorHookBuilder
@@ -21,7 +21,7 @@ object VectorStartup {
         isSystem: Boolean,
         processName: String?,
         appDir: String?,
-        service: ILSPApplicationService?,
+        service: IFrameworkService?,
     ) {
         VectorServiceClient.init(service, processName ?: "android")
         VectorDeopter.deoptBootMethods()

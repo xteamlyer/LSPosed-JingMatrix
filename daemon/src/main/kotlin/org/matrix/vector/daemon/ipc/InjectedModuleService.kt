@@ -8,8 +8,8 @@ import android.util.Log
 import io.github.libxposed.service.IXposedService
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
-import org.lsposed.lspd.service.ILSPInjectedModuleService
-import org.lsposed.lspd.service.IRemotePreferenceCallback
+import org.matrix.vector.ipc.IModuleService
+import org.matrix.vector.ipc.IRemotePreferenceCallback
 import org.matrix.vector.daemon.data.ConfigCache
 import org.matrix.vector.daemon.data.FileSystem
 import org.matrix.vector.daemon.data.PreferenceStore
@@ -17,7 +17,7 @@ import org.matrix.vector.daemon.system.PER_USER_RANGE
 
 private const val TAG = "VectorInjectedModuleService"
 
-class InjectedModuleService(private val packageName: String) : ILSPInjectedModuleService.Stub() {
+class InjectedModuleService(private val packageName: String) : IModuleService.Stub() {
 
   // Tracks active RemotePreferenceCallbacks linked by config group. Preferences are stored per
   // Android user, so a registration is only interested in updates made by its own user.
