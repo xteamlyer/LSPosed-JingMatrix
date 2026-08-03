@@ -33,23 +33,24 @@ object VectorServiceClient : IFrameworkService, IBinder.DeathRecipient {
                     service = null
                 }
 
-            // Registered here rather than after module loading: system_server loads its modules
-            // before the daemon's module cache exists, and it has to be a reloadable target too.
+            // Handed over here rather than after module loading, and carrying no module identity:
+            // system_server loads its modules before the daemon's module cache exists, so anything
+            // that had to name a module here could not work for it.
             service?.let {
                 try {
                     it.attachProcessChannel(VectorProcessChannel)
                 } catch (t: Throwable) {
-                    Log.e(TAG, "Failed to register the hot reload target in process: $niceName", t)
+                    Log.e(TAG, "Failed to attach the process channel in process: $niceName", t)
                 }
             }
         }
     }
 
-    override fun attachProcessChannel(target: IProcessChannel?) {
+    override fun attachProcessChannel(channel: IProcessChannel?) {
         try {
-            service?.attachProcessChannel(target)
+            service?.attachProcessChannel(channel)
         } catch (t: Throwable) {
-            Log.e(TAG, "Failed to register a hot reload target", t)
+            Log.e(TAG, "Failed to attach the process channel", t)
         }
     }
 
