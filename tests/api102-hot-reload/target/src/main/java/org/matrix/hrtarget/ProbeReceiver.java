@@ -36,6 +36,26 @@ public class ProbeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent.getBooleanExtra("slow", false)) {
+            // Started and deliberately left running: the point is to have a call sitting inside the
+            // hook chain while the module is reloaded underneath it. Whichever generation answers
+            // is logged with the elapsed time, so the two outcomes are told apart rather than
+            // guessed at.
+            long started = SystemClock.elapsedRealtime();
+            new Thread(() -> {
+                String slow;
+                try {
+                    slow = String.valueOf(Probe.slow());
+                } catch (Throwable t) {
+                    slow = "THREW:" + t.getClass().getSimpleName() + ":" + t.getMessage();
+                }
+                Log.i(TAG, "SLOW pid=" + Process.myPid()
+                        + " tookMs=" + (SystemClock.elapsedRealtime() - started)
+                        + " slow=" + slow);
+            }, "hr-slow").start();
+            Log.i(TAG, "SLOW dispatched pid=" + Process.myPid());
+            return;
+        }
         Log.i(TAG, "PROBE " + report());
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import io.github.libxposed.api.XposedInterface;
@@ -30,6 +31,9 @@ public class ModuleMain extends XposedModule {
     /** Counts calls so we can see whether state survived. */
     static volatile int calls = 0;
 
+    /** How long the hooker on {@code Probe.slow()} blocks, so a reload can race it. */
+    static final long SLOW_MS = 6000;
+
     static void log(String msg) {
         Log.i(TAG, "[" + GEN + "] " + msg);
     }
@@ -50,58 +54,61 @@ public class ModuleMain extends XposedModule {
         }
     }
 
+    /**
+     * Blocks, then answers with the generation that was on the chain when the call started. A
+     * reload driven while this is running must not change the answer.
+     */
+    public static class SlowHooker implements XposedInterface.Hooker {
+        @Override
+        public Object intercept(XposedInterface.Chain chain) throws Throwable {
+            Thread.sleep(SLOW_MS);
+            return "SLOW-ANSWERED-BY-" + GEN;
+        }
+    }
+
     @Override
     public void onModuleLoaded(XposedModuleInterface.ModuleLoadedParam param) {
         log("onModuleLoaded process=" + param.getProcessName()
                 + " systemServer=" + param.isSystemServer()
                 + " apiVersion=" + getApiVersion());
-        if (!param.isSystemServer()) {
-            new Thread(() -> probeInjectedService(param.getProcessName()), "hr-probe").start();
+
+        probeLegacyApi(param.getProcessName());
+
+        // detach(): a module whose work is confined to one process should stop hearing about the
+        // others. The framework is required to keep every XposedInterface API working afterwards,
+        // which is what the second half of this checks.
+        if (!param.isSystemServer() && !TARGET_PKG.equals(param.getProcessName())) {
+            detach();
+            detach(); // idempotent by contract
+            log("detached from " + param.getProcessName()
+                    + "; APIs still work: framework=" + getFrameworkName()
+                    + " api=" + getApiVersion());
         }
     }
 
     /**
-     * What can module code reach through the service binder that now lives inside an ordinary
-     * hooked app process? On master only read-only preferences and file reads were available here.
+     * API 102: "Libxposed modules can not call legacy de.robv APIs." This module declares
+     * targetApiVersion=102, so every one of these must be refused - including through reflection,
+     * which is the form a real module would reach for once direct linkage stopped compiling.
      */
-    private void probeInjectedService(String processName) {
-        StringBuilder sb = new StringBuilder("injected-service probe in " + processName + ":");
-        try {
-            io.github.libxposed.service.XposedService svc = Svc.await();
-            if (svc == null) {
-                log(sb + " no service");
-                return;
-            }
-            sb.append("\n  framework=").append(svc.getFrameworkName())
-                    .append(" api=").append(svc.getApiVersion());
+    private void probeLegacyApi(String processName) {
+        String[] names = {
+            "de.robv.android.xposed.XposedBridge",
+            "de.robv.android.xposed.XposedHelpers",
+            "android.app.AndroidAppHelper",
+            "android.content.res.XResources",
+            "android.content.res.XModuleResources",
+        };
+        StringBuilder sb = new StringBuilder("legacy-api probe in " + processName + ":");
+        for (String name : names) {
             try {
-                sb.append("\n  getScope()=").append(svc.getScope());
+                Class<?> c = Class.forName(name, false, getClass().getClassLoader());
+                sb.append("\n  BUG: resolved ").append(name).append(" -> ").append(c);
+            } catch (ClassNotFoundException e) {
+                sb.append("\n  refused ").append(name);
             } catch (Throwable t) {
-                sb.append("\n  getScope() -> ").append(t);
+                sb.append("\n  ").append(name).append(" -> ").append(t);
             }
-            try {
-                android.content.SharedPreferences p = svc.getRemotePreferences("probe");
-                p.edit().putString("written_from", processName).apply();
-                Thread.sleep(300);
-                sb.append("\n  prefs write -> ").append(
-                        svc.getRemotePreferences("probe").getString("written_from", "<absent>"));
-            } catch (Throwable t) {
-                sb.append("\n  prefs write -> ").append(t);
-            }
-            try {
-                android.os.ParcelFileDescriptor pfd = svc.openRemoteFile("written_by_hooked_app.txt");
-                java.io.FileOutputStream out =
-                        new java.io.FileOutputStream(pfd.getFileDescriptor());
-                out.write(("written by " + processName).getBytes());
-                out.flush();
-                pfd.close();
-                sb.append("\n  openRemoteFile(write) -> OK, listRemoteFiles=")
-                        .append(java.util.Arrays.toString(svc.listRemoteFiles()));
-            } catch (Throwable t) {
-                sb.append("\n  openRemoteFile(write) -> ").append(t);
-            }
-        } catch (Throwable t) {
-            sb.append("\n  probe crashed: ").append(Log.getStackTraceString(t));
         }
         log(sb.toString());
     }
@@ -121,8 +128,10 @@ public class ModuleMain extends XposedModule {
         Class<?> probe = cl.loadClass(TARGET_PKG + ".Probe");
         Method value = probe.getDeclaredMethod("value");
         Method boom = probe.getDeclaredMethod("boom");
+        Method slow = probe.getDeclaredMethod("slow");
         hook(value).setId("probe").intercept(new ValueHooker());
         hook(boom).setId("boom").intercept(new BoomHooker());
+        hook(slow).setId("slow").intercept(new SlowHooker());
         log("hooks installed on " + probe);
     }
 
@@ -193,7 +202,12 @@ public class ModuleMain extends XposedModule {
     @Override
     public void onHotReloaded(XposedModuleInterface.HotReloadedParam param) {
         Object saved = param.getSavedInstanceState();
-        List<XposedInterface.HookHandle> old = param.getOldHookHandles();
+        List<XposedInterface.HookHandle> old = new ArrayList<>(param.getOldHookHandles());
+        // The interface does not specify an ordering, and the framework builds this list from a
+        // concurrent set. Sorting makes the throwOnReloaded case below deterministic instead of
+        // migrating a different subset on every run.
+        old.sort(Comparator.comparing(h -> String.valueOf(h.getId())));
+
         log("onHotReloaded process=" + param.getProcessName()
                 + " saved=" + saved
                 + " oldHandles=" + old.size());
@@ -201,17 +215,21 @@ public class ModuleMain extends XposedModule {
 
         Bundle extras = param.getExtras();
         boolean bail = extras != null && extras.getBoolean("throwOnReloaded");
+        boolean byId = extras != null && extras.getBoolean("idReplace");
+        boolean checkStale = extras != null && extras.getBoolean("staleHandle");
 
         for (XposedInterface.HookHandle handle : old) {
             String id = handle.getId();
             try {
                 if ("probe".equals(id)) {
-                    handle.replaceHook(new ValueHooker());
-                    log("replaced hook id=probe");
+                    migrateProbe(handle, byId, checkStale);
                     if (bail) break;
                 } else if ("boom".equals(id)) {
                     handle.replaceHook(new BoomHooker());
                     log("replaced hook id=boom");
+                } else if ("slow".equals(id)) {
+                    handle.replaceHook(new SlowHooker());
+                    log("replaced hook id=slow");
                 } else {
                     handle.unhook();
                     log("unhooked id=" + id + " on " + handle.getExecutable());
@@ -225,5 +243,36 @@ public class ModuleMain extends XposedModule {
             throw new IllegalStateException("onHotReloaded threw on request");
         }
         log("onHotReloaded done");
+    }
+
+    /**
+     * Migrates the {@code probe} hook, by handle or by id, and optionally checks that the handle
+     * left behind is really dead.
+     */
+    private void migrateProbe(XposedInterface.HookHandle handle, boolean byId, boolean checkStale) {
+        if (byId) {
+            // The other half of the id contract: a new hook with the same id on the same
+            // executable in the same module replaces the old one atomically. Nothing here holds
+            // the old handle, which is how new code would normally reach for it.
+            hook(handle.getExecutable()).setId("probe").intercept(new ValueHooker());
+            log("replaced hook id=probe by id");
+        } else {
+            handle.replaceHook(new ValueHooker());
+            log("replaced hook id=probe by handle");
+        }
+
+        if (!checkStale) return;
+
+        // "After a successful replacement, this handle is no longer valid." Not merely unable to
+        // replace again - unable to act on the record at all, so unhook() through it must not
+        // cancel the hook that replaced it.
+        try {
+            handle.replaceHook(new BoomHooker());
+            log("BUG: a superseded handle replaced the hook again");
+        } catch (IllegalStateException e) {
+            log("superseded handle correctly refused replaceHook: " + e.getMessage());
+        }
+        handle.unhook();
+        log("called unhook() on the superseded handle; the probe hook must still be installed");
     }
 }

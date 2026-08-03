@@ -74,6 +74,43 @@ public final class Svc {
         return sb.toString();
     }
 
+    /**
+     * Asks to reload a target id that is not this module's, which is the one and only condition
+     * the AIDL reserves SecurityException for.
+     *
+     * The id is package-private on HookedTarget on purpose - a module app is supposed to pass back
+     * only what getRunningTargets() gave it - so it is reached reflectively here. That is exactly
+     * what a hostile or buggy app would do, which is the point of checking that the daemon refuses
+     * it rather than trusting the id.
+     */
+    public static String badTarget() {
+        XposedService svc = await();
+        if (svc == null) return "no service";
+        try {
+            List<HookedTarget> targets = svc.getRunningTargets();
+            if (targets.isEmpty()) return "no targets to forge from";
+            HookedTarget t = targets.get(0);
+            java.lang.reflect.Field f = HookedTarget.class.getDeclaredField("mTargetId");
+            f.setAccessible(true);
+            long real = f.getLong(t);
+            f.setLong(t, real + 1_000_000L);
+            try {
+                svc.hotReloadModule(t, null, (target, result) ->
+                        Log.i(TAG, "BADTARGET unexpectedly completed: status=" + result.status()
+                                + " message=" + result.message()));
+                return "BUG: a forged target id was accepted";
+            } catch (SecurityException e) {
+                return "forged target id correctly refused: " + e.getMessage();
+            } catch (Throwable e) {
+                return "forged target id refused with the WRONG type: " + e;
+            } finally {
+                f.setLong(t, real);
+            }
+        } catch (Throwable t) {
+            return "badTarget probe failed: " + Log.getStackTraceString(t);
+        }
+    }
+
     /** Fires {@code n} reload requests for the same target at once, from n threads. */
     public static String reloadConcurrently(String filter, Bundle data, int n) {
         XposedService svc = await();

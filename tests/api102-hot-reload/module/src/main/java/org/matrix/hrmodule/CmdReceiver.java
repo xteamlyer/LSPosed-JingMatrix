@@ -11,6 +11,8 @@ import android.util.Log;
  *   am broadcast -a org.matrix.hrmodule.CMD --es cmd targets
  *   am broadcast -a org.matrix.hrmodule.CMD --es cmd reload [--es filter hrtarget]
  *                [--ez refuse true] [--ez throw true] [--ez leak true]
+ *                [--ez idReplace true] [--ez staleHandle true]
+ *   am broadcast -a org.matrix.hrmodule.CMD --es cmd badTarget
  */
 public class CmdReceiver extends BroadcastReceiver {
 
@@ -19,7 +21,11 @@ public class CmdReceiver extends BroadcastReceiver {
         String cmd = intent.getStringExtra("cmd");
         String filter = intent.getStringExtra("filter");
         Bundle data = new Bundle();
-        for (String flag : new String[] {"refuse", "throw", "leak", "frozenHook", "throwOnReloaded", "throwNullMsg", "secEx"}) {
+        for (String flag :
+                new String[] {
+                    "refuse", "throw", "leak", "frozenHook", "throwOnReloaded", "throwNullMsg",
+                    "secEx", "idReplace", "staleHandle",
+                }) {
             if (intent.getBooleanExtra(flag, false)) data.putBoolean(flag, true);
         }
         long sleepMs = intent.getLongExtra("sleepMs", 0);
@@ -36,6 +42,8 @@ public class CmdReceiver extends BroadcastReceiver {
                 String out;
                 if ("targets".equals(cmd)) {
                     out = Svc.describeTargets();
+                } else if ("badTarget".equals(cmd)) {
+                    out = Svc.badTarget();
                 } else if ("reload".equals(cmd)) {
                     if (concurrent) {
                         out = Svc.reloadConcurrently(filter, data, repeat);
