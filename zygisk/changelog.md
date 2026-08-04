@@ -1,20 +1,21 @@
-Vector 2.1 is the first release built on **libxposed API 101**, the newly published standard, and it ships with a manager rebuilt from scratch and support for the latest Android platforms.
+Vector 2.2 is a hotfix for 2.1, and it brings libxposed API 102 — where a module can be swapped out without taking the process down with it.
 
-Where 2.0 was the definitive close of the API 100 era, 2.1 opens the next one: the framework, the daemon, and the manager have all moved to API 101.
+> [!IMPORTANT]
+> If you installed the manager as a separate app, uninstall it before updating: a 2.1 manager cannot talk to a 2.2 daemon. A parasitic manager needs nothing.
 
-### 🧩 libxposed API 101
-With API 101 now published, the ecosystem's new standard brings significant breaking changes. Vector 2.1 migrates the entire framework onto it, adapting to the changed package-query and reflection contracts so modules written against the current API behave as their authors intend.
+### 🩹 What 2.1 got wrong
+*   🪝 **No hooks in release builds.** Modules loaded, and then nothing happened. R8 had merged `XResources` into a shared class that `XposedHelpers.findClass` touches on its way in, and `XResources` cannot resolve until the device has generated its super class. One failure is permanent, so every `findClass` in `system_server` failed for the rest of the boot.
+*   🔗 **Canaries installed the wrong build.** Press install on a canary, get the newest release. The page is rebuilt around the builds themselves: each row a head commit, with its author, its pull request, and the issues closed since the build you are running.
 
-### 🎨 A New Manager, Rebuilt in Compose
-The manager has been rewritten from the ground up in Jetpack Compose, and its design is community-centred: an interface built to take the everyday experience to the next level, shaped by my own aesthetic taste and open to yours.
+### 🔁 libxposed API 102
+Hot reload — a module's code replaced inside a process that is already running it. No more killing every process you are injected into to try a change, and no more reboot when the module hooks the system, taking with it the state you were trying to reproduce. Updates can reach processes still running the old code, if the module agrees to it. Around that: an entry class can step out of lifecycle callbacks while its siblings carry on, hookers swap atomically, and a module targeting 102 leaves the legacy API alone.
 
-Our mascot is *[The Winged Victory of Samothrace](https://en.wikipedia.org/wiki/Winged_Victory_of_Samothrace)* — because Vector and Victory are never far apart. We warmly welcome feedback on the new design so we can keep refining this front end together.
+### 👥 One module, one configuration
+A module is one package and one binary for the whole device, so its configuration belongs to the package; only its presence varies per user. Nothing enforced that, and a module installed in one user could run inside another user's applications. It now runs only in the users that installed it — `system_server` excepted, since it belongs to none of them.
 
-### 📱 Expanded Platform Support
-*   🤖 **Android 17:** Full support for the latest Android release, extending Vector's range to Android 8.1 through 17.
-*   🛡️ **GrapheneOS:** The parasitic manager now loads correctly under GrapheneOS's hardened dynamic-code-loading restrictions.
-*   💾 **16 KB Page Sizes:** Native support for devices that ship with 16 KB memory pages.
+### 🧹 Everything else
+The IPC interfaces moved into Vector's own namespace, and the refactor shook out a run of unrelated bugs: JNI exceptions left pending across the native boundary, one of which left a process without Xposed while the log announced success; "Install as an app" going green for a copy that was a different build; an unbounded wait on a binder thread; a health flag latched before the work it reports. And the monochrome icon now carries the statue's own line work, so the themed launcher icon finally says what it is.
 
 ---
 
-*A personal note: I, JingMatrix, have founded my own consultancy, **[Matrix Transformation](https://www.linkedin.com/in/jingmatrix/)**, and now work as a full-time entrepreneur. Nurturing this community is one of the company's most important goals — it is how I realize my own long-held pursuit of serving you — and so all of my open-source projects, Vector included, are funded by the company. Thank you for being part of this journey.*
+*The two fixes at the top exist because you reported them. Thank you — please keep telling us what breaks.*
