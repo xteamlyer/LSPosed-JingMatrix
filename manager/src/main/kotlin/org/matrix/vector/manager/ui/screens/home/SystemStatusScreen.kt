@@ -1,5 +1,6 @@
 package org.matrix.vector.manager.ui.screens.home
 
+import android.os.Build
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.lsposed.lspd.ILSPManagerService
+import org.matrix.vector.ipc.IManagerService
 import org.matrix.vector.manager.BuildConfig
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
@@ -63,7 +64,6 @@ import androidx.compose.ui.draw.alpha
 import android.content.res.Configuration
 import java.util.Locale
 import org.matrix.vector.manager.R
-import org.matrix.vector.manager.ui.components.FrameworkState
 import org.matrix.vector.manager.data.log.CrashRecorder
 import org.matrix.vector.manager.data.model.ManagerCopy
 import org.matrix.vector.manager.data.model.XposedApi
@@ -126,7 +126,7 @@ fun SystemStatusScreen(
     // screen, because the process that would record it is the one drawing it.
     var crash by remember { mutableStateOf(CrashRecorder.newest(context)) }
     // The two switches below belong to the framework, so they are only live while it is.
-    val daemonAlive = status.state != FrameworkState.Inactive
+    val daemonAlive = status.daemonUsable
     val snackbars = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val copied = stringResource(R.string.copied)
@@ -485,9 +485,9 @@ private fun InstallFailure(failure: ManagerInstallStep.Failed, onRemoveConflicti
 @Composable
 private fun rootManagerName(presence: ManagerPresence): String =
     when (presence.rootImplementation) {
-        ILSPManagerService.ROOT_MAGISK -> "Magisk"
-        ILSPManagerService.ROOT_KERNELSU -> "KernelSU"
-        ILSPManagerService.ROOT_APATCH -> "APatch"
+        IManagerService.ROOT_MAGISK -> "Magisk"
+        IManagerService.ROOT_KERNELSU -> "KernelSU"
+        IManagerService.ROOT_APATCH -> "APatch"
         else -> stringResource(R.string.launcher_root_generic)
     }
 
@@ -783,7 +783,7 @@ private fun buildSections(
                 InfoItem(str(R.string.info_manager_package), context.packageName),
             ),
         str(R.string.info_section_health) to
-            listOf(
+            listOfNotNull(
                 InfoItem(
                     str(R.string.info_selinux),
                     str(
@@ -802,15 +802,21 @@ private fun buildSections(
                     health = if (status.systemServerInjected) Health.Good else Health.Bad,
                     monospace = false,
                 ),
-                InfoItem(
-                    str(R.string.info_dex2oat),
-                    dex2oatLabel(context, status.dex2oatCompatibility),
-                    health =
-                        if (status.dex2oatCompatibility == ILSPManagerService.DEX2OAT_OK)
-                            Health.Good
-                        else Health.Bad,
-                    monospace = false,
-                ),
+                // Omitted below Android 10, where there is no wrapper to report on: the daemon only
+                // starts that machinery from Q and answers DEX2OAT_OK before then, so the row read
+                // "Supported", in green, for a feature the device does not have. A reader chasing a
+                // module that will not hook was being told this part was fine.
+                if (device.sdkInt < Build.VERSION_CODES.Q) null
+                else
+                    InfoItem(
+                        str(R.string.info_dex2oat),
+                        dex2oatLabel(context, status.dex2oatWrapperState),
+                        health =
+                            if (status.dex2oatWrapperState == IManagerService.DEX2OAT_OK)
+                                Health.Good
+                            else Health.Bad,
+                        monospace = false,
+                    ),
             ),
         str(R.string.info_section_device) to
             listOf(
@@ -824,16 +830,14 @@ private fun buildSections(
     )
 }
 
-private fun dex2oatLabel(context: Context, compatibility: Int): String =
+private fun dex2oatLabel(context: Context, state: Int): String =
     context.getString(
-        when (compatibility) {
-            ILSPManagerService.DEX2OAT_OK -> R.string.info_supported
-            ILSPManagerService.DEX2OAT_CRASHED -> R.string.info_dex2oat_crashed
-            ILSPManagerService.DEX2OAT_MOUNT_FAILED -> R.string.info_dex2oat_mount_failed
-            ILSPManagerService.DEX2OAT_SELINUX_PERMISSIVE ->
-                R.string.info_dex2oat_selinux_permissive
-            ILSPManagerService.DEX2OAT_SEPOLICY_INCORRECT ->
-                R.string.info_dex2oat_sepolicy_incorrect
+        when (state) {
+            IManagerService.DEX2OAT_OK -> R.string.info_supported
+            IManagerService.DEX2OAT_CRASHED -> R.string.info_dex2oat_crashed
+            IManagerService.DEX2OAT_MOUNT_FAILED -> R.string.info_dex2oat_mount_failed
+            IManagerService.DEX2OAT_SELINUX_PERMISSIVE -> R.string.info_dex2oat_selinux_permissive
+            IManagerService.DEX2OAT_SEPOLICY_INCORRECT -> R.string.info_dex2oat_sepolicy_incorrect
             else -> R.string.info_unsupported
         }
     )

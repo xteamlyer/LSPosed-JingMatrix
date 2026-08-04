@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random
 import kotlinx.coroutines.launch
-import org.lsposed.lspd.ILSPManagerService
+import org.matrix.vector.ipc.IManagerService
 import org.matrix.vector.manager.data.github.CommunityFeed
 import org.matrix.vector.manager.data.github.GitHubRepository
 import org.matrix.vector.manager.data.model.ManagerCopy
@@ -42,7 +42,7 @@ data class FrameworkStatus(
     val versionCode: Long = 0,
     val apiVersion: Int? = null,
     val issues: List<HealthIssue> = emptyList(),
-    val dex2oatCompatibility: Int = ILSPManagerService.DEX2OAT_OK,
+    val dex2oatWrapperState: Int = IManagerService.DEX2OAT_OK,
     val sepolicyLoaded: Boolean = false,
     val systemServerInjected: Boolean = false,
     /**
@@ -59,6 +59,18 @@ data class FrameworkStatus(
 ) {
     val versionLabel: String?
         get() = versionName?.let { if (versionCode > 0) "$it ($versionCode)" else it }
+
+    /**
+     * Whether there is a daemon this manager can actually ask anything.
+     *
+     * Not `state != Inactive`, which is what the two callers used to test and which
+     * [FrameworkState.Mismatched] would answer wrongly: there a framework is plainly running and
+     * simply speaking a generation of the interface this build does not, so every transaction
+     * fails. Anything gated on being able to *use* the daemon belongs here rather than on a
+     * comparison a later state can slip past.
+     */
+    val daemonUsable: Boolean
+        get() = state != FrameworkState.Inactive && state != FrameworkState.Mismatched
 }
 
 /**
@@ -115,7 +127,7 @@ data class ManagerPresence(
      * second is worth a modal.
      */
     val notificationKnown: Boolean = false,
-    /** One of the ILSPManagerService.ROOT_* constants, for naming the action button's owner. */
+    /** One of the IManagerService.ROOT_* constants, for naming the action button's owner. */
     val rootImplementation: Int = 0,
 ) {
     /**
@@ -281,17 +293,23 @@ class HomeViewModel(
         // The binder may arrive after this ViewModel exists — injection order is not ours to
         // control — so status is re-derived whenever it changes rather than read once in init.
         viewModelScope.launch {
-            ServiceLocator.service.collect { service ->
-                refreshStatus(service)
-                // Both switches on the status page hold the daemon's state rather than ours, and
-                // the binder is what they need. This runs for every binder, including one already
-                // in hand when `refreshPresence` ran above — a second read of two idempotent
-                // values — and it is here for the one that arrives afterwards, which that call
-                // found nothing to ask about and returned. Nor is it the last such moment:
-                // `refreshPresence` asks again whenever a screen that shows them is opened, since
-                // this flow does not emit a second time while one binder stays alive.
-                if (service != null) refreshToggles()
-            }
+            // Both flows, because a refused binder leaves `service` null and only moves
+            // `peerDescriptor`. Collecting `service` alone would see no change at all — it was
+            // already null — and the header would sit on "not activated" for a framework that is
+            // running and simply out of step with this build.
+            combine(ServiceLocator.service, ServiceLocator.peerMismatch) { service, _ -> service }
+                .collect { service ->
+                    refreshStatus(service)
+                    // Both switches on the status page hold the daemon's state rather than ours,
+                    // and the binder is what they need. This runs for every binder, including one
+                    // already in hand when `refreshPresence` ran above — a second read of two
+                    // idempotent values — and it is here for the one that arrives afterwards,
+                    // which that call found nothing to ask about and returned. Nor is it the last
+                    // such moment: `refreshPresence` asks again whenever a screen that shows them
+                    // is opened, since this flow does not emit a second time while one binder
+                    // stays alive.
+                    if (service != null) refreshToggles()
+                }
         }
         // Opening Home is not a reason to talk to GitHub. The page renders from disk every time
         // and only occasionally goes and checks — the window it shows changes a few times a week
@@ -314,27 +332,35 @@ class HomeViewModel(
         }
     }
 
-    private suspend fun refreshStatus(service: ILSPManagerService?) {
+    private suspend fun refreshStatus(service: IManagerService?) {
         if (service == null || !daemon.isAlive) {
-            _status.value = FrameworkStatus(state = FrameworkState.Inactive)
+            // A binder did arrive and was refused for speaking a different generation of the
+            // interface, which is not the same thing as there being no framework — and saying "not
+            // activated" for it sends the reader to reinstall something that is already running.
+            val mismatch = ServiceLocator.peerMismatch.value
+            _status.value =
+                FrameworkStatus(
+                    state =
+                        if (mismatch != null) FrameworkState.Mismatched else FrameworkState.Inactive
+                )
             return
         }
 
-        val versionName = daemon.getXposedVersionName().getOrNull()
-        val commit = daemon.getFrameworkCommit().getOrNull()
+        val versionName = daemon.getFrameworkVersionName().getOrNull()
+        val commit = daemon.getBuildStamp().getOrNull()
         val versionCode =
             daemon
-                .getXposedVersionCode()
+                .getFrameworkVersionCode()
                 .onFailure { e ->
                     logW("status: framework version code unavailable, update check skipped", e)
                 }
                 .getOrDefault(0L)
-        val api = daemon.getXposedApiVersion().getOrNull()
+        val api = daemon.getLibxposedApiVersion().getOrNull()
 
         // One line for both, because they fail together on a wedged binder and only these two
         // defaults synthesise a red HealthIssue card.
         val sepolicyResult = daemon.isSepolicyLoaded()
-        val systemServerResult = daemon.systemServerRequested()
+        val systemServerResult = daemon.isSystemServerAttached()
         val healthFailure = sepolicyResult.exceptionOrNull() ?: systemServerResult.exceptionOrNull()
         if (healthFailure != null && healthFailure !is CancellationException) {
             logW(
@@ -345,18 +371,17 @@ class HomeViewModel(
         }
         val sepolicy = sepolicyResult.getOrDefault(false)
         val systemServer = systemServerResult.getOrDefault(false)
-        val dex2oat =
-            daemon.getDex2OatWrapperCompatibility().getOrDefault(ILSPManagerService.DEX2OAT_OK)
-        val dex2oatFlags = daemon.dex2oatFlagsLoaded().getOrDefault(true)
+        val dex2oat = daemon.getDex2OatWrapperState().getOrDefault(IManagerService.DEX2OAT_OK)
+        val inliningDisabled = daemon.isDex2OatInliningDisabled().getOrDefault(true)
 
         val issues = buildList {
             if (!sepolicy) add(HealthIssue.SepolicyNotLoaded)
             if (!systemServer) add(HealthIssue.SystemServerNotInjected)
-            // The wrapper and the property are alternatives, not a pair: the daemon deletes
-            // `dalvik.vm.dex2oat-flags` when it mounts the wrapper over dex2oat and sets it when
-            // it unmounts, so either route suppresses the inlining. A wrapper that is not OK
-            // therefore only costs anything when the flag did not load either.
-            if (dex2oat != ILSPManagerService.DEX2OAT_OK && !dex2oatFlags) {
+            // The wrapper and the property are two routes to one end, not a pair: the daemon
+            // deletes `dalvik.vm.dex2oat-flags` when it mounts the wrapper over dex2oat and sets
+            // it when it unmounts, so either route suppresses the inlining. A wrapper that is not
+            // OK therefore only costs anything when the property is not carrying the flag either.
+            if (dex2oat != IManagerService.DEX2OAT_OK && !inliningDisabled) {
                 add(HealthIssue.Dex2oatWrapperBroken)
             }
         }
@@ -369,7 +394,7 @@ class HomeViewModel(
                 versionCode = versionCode,
                 apiVersion = api,
                 issues = issues,
-                dex2oatCompatibility = dex2oat,
+                dex2oatWrapperState = dex2oat,
                 sepolicyLoaded = sepolicy,
                 systemServerInjected = systemServer,
             )
@@ -457,7 +482,7 @@ class HomeViewModel(
         // that is simply not running.
         if (!daemon.isAlive) return
         daemon
-            .enableStatusNotification()
+            .isStatusNotificationEnabled()
             .onSuccess { enabled ->
                 _statusNotification.value = enabled
                 // The notification is one of the ways into the manager, so what the card offers
@@ -478,7 +503,7 @@ class HomeViewModel(
         // Read rather than assumed: this one is a global system setting, so anything on the device
         // can have moved it since the manager last wrote it.
         daemon
-            .forcedLauncherIcons()
+            .isForcedLauncherIcons()
             .onSuccess { _hiddenIcon.value = it }
             .onFailure { e -> logW("status: launcher-icon toggle unread", e) }
     }
@@ -486,7 +511,7 @@ class HomeViewModel(
     fun setStatusNotification(enabled: Boolean) {
         viewModelScope.launch {
             daemon
-                .setEnableStatusNotification(enabled)
+                .setStatusNotificationEnabled(enabled)
                 .onSuccess {
                     _statusNotification.value = enabled
                     // Known either way now, which matters when `enabled` is false: someone who
@@ -509,7 +534,7 @@ class HomeViewModel(
                 // Read back rather than assumed. The AIDL call returns nothing, and the daemon
                 // applies it by running `settings put global`, which can fail without saying so —
                 // so a transaction that arrived is not yet a setting that changed.
-                _hiddenIcon.value = daemon.forcedLauncherIcons().getOrDefault(force)
+                _hiddenIcon.value = daemon.isForcedLauncherIcons().getOrDefault(force)
             }
         }
     }

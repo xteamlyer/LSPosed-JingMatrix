@@ -17,6 +17,7 @@
     <string name="status_active">Ativo</string>
     <string name="status_degraded">Verificar</string>
     <string name="status_inactive">Não ativado</string>
+    <string name="status_mismatched">Versões incompatíveis</string>
     <string name="status_checking">Verificando…</string>
     <string name="status_open_details">Abrir o status do sistema</string>
 
@@ -282,7 +283,6 @@
     <string name="update_none">Nenhuma atualização disponível.</string>
     <string name="update_no_notes">Esta versão não publicou notas.</string>
     <string name="update_no_root">Nenhuma implementação de root foi encontrada, então não há como gravar nada.</string>
-    <string name="update_root_too_old">A implementação de root deste dispositivo é antiga demais para gravar.</string>
     <string name="update_root_multiple">Foram encontradas duas implementações de root. O Vector não vai adivinhar qual delas cuida do módulo.</string>
     <string name="update_failed_start">Não foi possível iniciar o instalador.</string>
     <string name="update_failed_download">Não foi possível baixar a atualização.</string>

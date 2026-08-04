@@ -17,6 +17,7 @@
     <string name="status_active">활성</string>
     <string name="status_degraded">확인 필요</string>
     <string name="status_inactive">활성화되지 않음</string>
+    <string name="status_mismatched">버전 불일치</string>
     <string name="status_checking">확인 중…</string>
     <string name="status_open_details">시스템 상태 열기</string>
 
@@ -272,7 +273,6 @@
     <string name="update_none">사용할 수 있는 업데이트가 없습니다.</string>
     <string name="update_no_notes">이 릴리스에는 설명이 없습니다.</string>
     <string name="update_no_root">root 구현을 찾지 못해 설치할 수 없습니다.</string>
-    <string name="update_root_too_old">이 기기의 root 구현이 너무 오래되어 설치에 쓸 수 없습니다.</string>
     <string name="update_root_multiple">root 구현이 두 개 발견되었습니다. 어느 쪽이 모듈을 관리하는지 Vector가 짐작하지 않습니다.</string>
     <string name="update_failed_start">설치 프로그램을 시작하지 못했습니다.</string>
     <string name="update_failed_download">업데이트를 내려받지 못했습니다.</string>

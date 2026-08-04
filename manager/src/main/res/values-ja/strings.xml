@@ -17,6 +17,7 @@
     <string name="status_active">有効</string>
     <string name="status_degraded">確認が必要</string>
     <string name="status_inactive">未有効化</string>
+    <string name="status_mismatched">バージョン不一致</string>
     <string name="status_checking">確認中…</string>
     <string name="status_open_details">システム状態を開く</string>
 
@@ -272,7 +273,6 @@
     <string name="update_none">利用できる更新はありません。</string>
     <string name="update_no_notes">このリリースには説明がありません。</string>
     <string name="update_no_root">root 実装が見つからないため、書き込めません。</string>
-    <string name="update_root_too_old">この端末の root 実装は古すぎて書き込みに使えません。</string>
     <string name="update_root_multiple">root 実装が 2 つ見つかりました。どちらがモジュールを管理しているか、Vector は推測しません。</string>
     <string name="update_failed_start">インストーラーを起動できませんでした。</string>
     <string name="update_failed_download">更新をダウンロードできませんでした。</string>

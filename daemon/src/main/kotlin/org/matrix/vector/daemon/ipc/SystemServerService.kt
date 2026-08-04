@@ -74,12 +74,16 @@ object SystemServerService : Binder(), IBinder.DeathRecipient {
       processLifeToken: IBinder?
   ): IFrameworkService? {
     if (uid != 1000 || processLifeToken == null || processName != "system") return null
-    systemServerRequested = true
 
-    // Return the ApplicationService singleton if successfully registered
-    return if (ApplicationService.registerHeartBeat(uid, pid, processName, processLifeToken)) {
-      ApplicationService
-    } else null
+    // Latched only once the registration has actually succeeded, not on the way in. It used to be
+    // set immediately after the gate above, so a registration that then failed — registerHeartBeat
+    // answers false when the life token cannot be linked to death — still read as attached. The
+    // symptom was the worst kind: the manager's status page reported the framework as present in
+    // system_server while no module hooking the system ever loaded, which sends a reader looking
+    // at their module instead of at the injection.
+    if (!FrameworkService.registerHeartBeat(uid, pid, processName, processLifeToken)) return null
+    systemServerRequested = true
+    return FrameworkService
   }
 
   override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
@@ -107,7 +111,7 @@ object SystemServerService : Binder(), IBinder.DeathRecipient {
       }
       DEX_TRANSACTION_CODE,
       OBFUSCATION_MAP_TRANSACTION_CODE -> {
-        return ApplicationService.onTransact(code, data, reply, flags)
+        return FrameworkService.onTransact(code, data, reply, flags)
       }
       else -> {
         return super.onTransact(code, data, reply, flags)
