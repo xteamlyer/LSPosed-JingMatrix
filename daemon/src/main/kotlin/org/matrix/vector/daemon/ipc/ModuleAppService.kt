@@ -4,8 +4,10 @@ import android.content.AttributionSource
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
+import android.os.SystemClock
 import android.util.Log
 import io.github.libxposed.service.HookedProcess
 import io.github.libxposed.service.IHotReloadCallback
@@ -57,26 +59,184 @@ class ModuleAppService(private val loadedModule: LoadedModule) : IXposedService.
     // later request with IN_PROGRESS for as long as the process lives.
     private const val RELOAD_TIMEOUT_SECONDS = 30L
 
+    /**
+     * The uids whose module app is holding a binder we handed it.
+     *
+     * A binder belongs to the *process* that received it, but a uid can outlive any one of its
+     * processes: an app with a `:remote` or crash-handler process, or a shared user id, keeps its
+     * uid alive when the process we served is reaped, so no [uidGone] arrives and the replacement
+     * process would be refused here forever. That was unreachable while the reference below pinned
+     * every module app at foreground priority and nothing ever reaped it. Giving the reference back
+     * makes it the ordinary case, so entries are also dropped by [linkDelivery] when the process
+     * that took the binder dies.
+     *
+     * Recorded on a *successful* send rather than on the attempt: a failed send leaves nothing on
+     * the other side, and treating it as delivered meant the one module that most needed another
+     * attempt never got one.
+     */
     private val uidSet = ConcurrentHashMap.newKeySet<Int>()
+
+    /** The uids a send is running for right now, so the three observer callbacks agree on one. */
+    private val sending = ConcurrentHashMap.newKeySet<Int>()
+
+    /**
+     * What tells [uidSet] that a delivery is over: the provider binder we spoke to, and the
+     * recipient watching it. Held because a `DeathRecipient` nothing references is one the runtime
+     * may collect before it ever fires.
+     */
+    private val deliveries = ConcurrentHashMap<Int, Pair<IBinder, IBinder.DeathRecipient>>()
+
     private val serviceMap =
         Collections.synchronizedMap(WeakHashMap<LoadedModule, ModuleAppService>())
+
+    /**
+     * Consecutive failed sends per uid, and when the last one was.
+     *
+     * A module app that dies before it can publish its provider is not a transient failure to be
+     * retried at the speed of the uid observer. It happens — an app that crashes on start, or one
+     * another module deliberately kills, as in #889 where a module in a third module's scope took
+     * its host down on every launch — and the delivery below *starts the process*, so retrying is
+     * not a passive act: it feeds the very loop it is failing on. Fourteen starts in seventy-six
+     * seconds were observed that way, six of them ours.
+     *
+     * Per uid and not per package, because `getModuleByUid` matches on the app id: one module
+     * installed for two users is one `LoadedModule` under two uids, and keying by name would let a
+     * crash-looping copy in a work profile throttle the healthy copy in user 0, and let either
+     * one's success wipe the other's run.
+     *
+     * Once [MAX_CONSECUTIVE_BINDER_FAILURES] have piled up the retries are throttled to one per
+     * [BINDER_RETRY_COOLDOWN_MS] — the count is held at the ceiling rather than reset by the
+     * attempt that the cooldown lets through, or the ceiling would simply be re-climbed and three
+     * more attempts allowed every minute for ever. A run is forgotten after
+     * [BINDER_FAILURE_RUN_MS] without a failure, so an occasional one never accumulates. Throttled
+     * rather than abandoned, and cleared by the first success, because the app may simply have been
+     * mid-update or out of memory; a module written off for good on three failures would be a worse
+     * bug than the one this is fixing.
+     */
+    private val binderFailures = ConcurrentHashMap<Int, FailureRun>()
+
+    private class FailureRun(val count: Int, val atElapsed: Long)
+
+    private const val MAX_CONSECUTIVE_BINDER_FAILURES = 3
+    private const val BINDER_RETRY_COOLDOWN_MS = 60_000L
+    private const val BINDER_FAILURE_RUN_MS = 10 * BINDER_RETRY_COOLDOWN_MS
+
+    // The delivery blocks in getContentProviderExternal until the app publishes its provider or
+    // AMS gives up on it, and it runs from an IUidObserver callback - one binder thread, serving
+    // every uid transition on the device. A module app that never publishes therefore stalls the
+    // delivery of every *other* module's binder behind it: eight and a half seconds, measured, on
+    // a device where one module app was crash-looping. One thread per module keeps that local.
+    private val binderExecutor =
+        Executors.newCachedThreadPool { r -> Thread(r, "vector-module-binder") }
 
     fun uidClear() {
       uidSet.clear()
     }
 
     fun uidStarts(uid: Int) {
-      if (uidSet.add(uid)) {
-        val module = ConfigCache.getModuleByUid(uid)
-        if (module?.code?.legacy == false) {
-          val service = serviceMap.getOrPut(module) { ModuleAppService(module) }
-          service.sendBinder(uid)
-        }
+      if (uid in uidSet || !sending.add(uid)) return
+      val module = ConfigCache.getModuleByUid(uid)
+      if (module?.code?.legacy != false) {
+        sending.remove(uid)
+        return
+      }
+      if (isThrottled(uid)) {
+        sending.remove(uid)
+        return
+      }
+      val service = serviceMap.getOrPut(module) { ModuleAppService(module) }
+      // Off the observer thread, and never inline: see [binderExecutor]. Caught, because a uid
+      // left in [sending] by a rejected submission is one this never looks at again.
+      runCatching {
+            binderExecutor.execute {
+              try {
+                val delivered = service.sendBinder(uid)
+                if (delivered != null) {
+                  uidSet.add(uid)
+                  binderFailures.remove(uid)
+                  linkDelivery(uid, delivered)
+                } else {
+                  recordFailure(uid, module.packageName)
+                }
+              } finally {
+                sending.remove(uid)
+              }
+            }
+          }
+          .onFailure {
+            sending.remove(uid)
+            Log.w(TAG, "Could not schedule the binder delivery for ${module.packageName}", it)
+          }
+    }
+
+    /**
+     * Watches the process that took the binder, so [uidSet] forgets the uid when it dies.
+     *
+     * [uidGone] is not enough on its own — it only fires when the *uid* has no processes left —
+     * and this is what makes a second delivery to a restarted module app possible. A death
+     * recipient on a proxy is not a client of anything, so unlike the provider reference it puts
+     * no floor under the process's priority.
+     */
+    private fun linkDelivery(uid: Int, provider: IBinder) {
+      val recipient = IBinder.DeathRecipient { uidSet.remove(uid) }
+      runCatching {
+            provider.linkToDeath(recipient, 0)
+            deliveries.put(uid, provider to recipient)?.let { (old, previous) ->
+              runCatching { old.unlinkToDeath(previous, 0) }
+            }
+          }
+          // Already dead, which is an answer in itself: whatever took the binder is gone, so the
+          // uid must not stay marked as served.
+          .onFailure { uidSet.remove(uid) }
+    }
+
+    /** True while a uid has spent its attempts and its cooldown has not elapsed. */
+    private fun isThrottled(uid: Int): Boolean {
+      val run = binderFailures[uid] ?: return false
+      if (run.count < MAX_CONSECUTIVE_BINDER_FAILURES) return false
+      return SystemClock.elapsedRealtime() - run.atElapsed < BINDER_RETRY_COOLDOWN_MS
+    }
+
+    private fun recordFailure(uid: Int, modulePkg: String) {
+      var crossed = false
+      // Read-modify-write in one step. Two threads cannot be here for one uid while [sending]
+      // holds, but that is an invariant of another field and not one to build arithmetic on.
+      binderFailures.compute(uid) { _, previous ->
+        val now = SystemClock.elapsedRealtime()
+        val count =
+            when {
+              // A run is forgotten only after a long quiet spell, not after one cooldown. Forgetting
+              // it at the cooldown meant the attempt the cooldown let through reset the count, so
+              // the ceiling was re-climbed and three more attempts allowed every minute, for ever.
+              previous == null || now - previous.atElapsed >= BINDER_FAILURE_RUN_MS -> 1
+              // Held at the ceiling rather than growing without bound: what the number decides is
+              // only whether we are throttled, and pinning it here is what makes the cooldown mean
+              // one attempt rather than another three.
+              else -> minOf(previous.count + 1, MAX_CONSECUTIVE_BINDER_FAILURES)
+            }
+        crossed = count == MAX_CONSECUTIVE_BINDER_FAILURES && (previous?.count ?: 0) < count
+        FailureRun(count, now)
+      }
+      // Once, on the way past the ceiling. The failures themselves are already logged one by one
+      // in sendBinder; what is worth saying here is that we have stopped trying, which is the part
+      // a reader chasing a module that never receives its service cannot otherwise see.
+      if (crossed) {
+        Log.w(
+            TAG,
+            "$modulePkg/$uid failed to take its binder $MAX_CONSECUTIVE_BINDER_FAILURES times in" +
+                " a row; retrying at most once every ${BINDER_RETRY_COOLDOWN_MS / 1000}s")
       }
     }
 
     fun uidGone(uid: Int) {
       uidSet.remove(uid)
+      // A send that never returns — `provider.call` runs the module's own onServiceBind, with no
+      // deadline — would otherwise leave the uid here for the life of the daemon, and every later
+      // delivery for it refused at the top of uidStarts.
+      sending.remove(uid)
+      deliveries.remove(uid)?.let { (binder, recipient) ->
+        runCatching { binder.unlinkToDeath(recipient, 0) }
+      }
     }
 
     // Drives the same cycle as a service request, so onHotReloading can still refuse it.
@@ -95,18 +255,59 @@ class ModuleAppService(private val loadedModule: LoadedModule) : IXposedService.
   /**
    * Forges a ContentProvider call to force the module's target app process to receive this Binder
    * IPC endpoint without standard Context.bindService() limits.
+   *
+   * Called only from [uidStarts], on [binderExecutor] rather than on the uid observer, because
+   * `getContentProviderExternal` blocks until the app publishes its provider or the platform gives
+   * up waiting for it.
+   *
+   * @return the provider binder of the process that took it, or null if nobody did. The caller
+   *   counts the failures — nothing else distinguishes "the app has its service" from "we asked and
+   *   nobody answered", and conflating the two is what let a module app that dies on every launch
+   *   be started again a second later, for as long as it kept dying — and watches the binder, so
+   *   that the process dying is what makes the next one eligible.
    */
-  private fun sendBinder(uid: Int) {
+  private fun sendBinder(uid: Int): IBinder? {
     val name = loadedModule.packageName
-    runCatching {
-          val userId = uid / PER_USER_RANGE
-          val authority = name + AUTHORITY_SUFFIX
+    val userId = uid / PER_USER_RANGE
+    val authority = name + AUTHORITY_SUFFIX
+    // Identifies our reference to the provider so it can be given back, which it never was. That
+    // reference counts as a live client of the provider — `ContentProviderRecord`'s
+    // `hasConnectionOrHandle` is `!connections.isEmpty() || hasExternalProcessHandles()`, and the
+    // second half counts external references with and without a token — and the platform draws two
+    // conclusions from a live client.
+    //
+    // The host is pinned. `OomAdjuster.computeOomAdjLSP` raises a process publishing such a
+    // provider to FOREGROUND_APP_ADJ and PROCESS_STATE_IMPORTANT_FOREGROUND, recorded as
+    // `adjType=ext-provider`. So this held every module app on the device at foreground priority
+    // for as long as it lived, never cached and never trimmed — and a uid kept out of the
+    // background is a uid that keeps being reported active, which is what wakes the delivery again.
+    //
+    // And the host is restarted. A process that dies while a provider of its is still launching is
+    // restarted for it, `MAX_RETRY_COUNT` = 3 times per provider record, after which the record is
+    // dropped and the platform gives up. Taking the reference again builds a fresh record with the
+    // count back at zero, so re-acquiring on every uid callback is what turned the platform's
+    // bounded retry into an unbounded one — see the throttle in [binderFailures].
+    //
+    // A real token rather than null also buys a death link: the platform builds a handle object
+    // around it and releases the reference itself if we die. A null token is only a counter, with
+    // nothing to link, which is why the old leak was permanent rather than merely long.
+    val token = Binder()
+    return runCatching {
+          // The tag argument arrived in Q, replacing the three-argument form rather than
+          // overloading it, so each side of that line is a NoSuchMethodError on the other. The
+          // branch was in the Java daemon and was lost in the Kotlin rewrite (#597), which means
+          // no modern module has been handed its service on 8.1 or 9 since — swallowed, because
+          // the error lands in the runCatching below and reads as an ordinary failed delivery.
           val provider =
-              activityManager?.getContentProviderExternal(authority, userId, null, null)?.provider
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                activityManager?.getContentProviderExternal(authority, userId, token, "vector")
+              } else {
+                activityManager?.getContentProviderExternal(authority, userId, token)
+              }?.provider
 
           if (provider == null) {
             Log.d(TAG, "No service provider for $name")
-            return
+            return@runCatching null
           }
 
           val extra = Bundle().apply { putBinder("binder", asBinder()) }
@@ -126,10 +327,54 @@ class ModuleAppService(private val loadedModule: LoadedModule) : IXposedService.
                 provider.call("android", SEND_BINDER, null, extra)
               }
 
-          if (reply != null) Log.d(TAG, "Sent module binder to $name")
-          else Log.w(TAG, "Failed to send module binder to $name")
+          if (reply != null) {
+            Log.d(TAG, "Sent module binder to $name")
+            provider.asBinder()
+          } else {
+            Log.w(TAG, "Failed to send module binder to $name")
+            null
+          }
         }
         .onFailure { Log.w(TAG, "Failed to send module binder for uid $uid", it) }
+        // Unconditionally, and not only when a provider came back. The platform registers the
+        // external client *before* it waits for the app to publish, and the two returns that
+        // matter here — the app died while launching, and the wait timed out — come after that
+        // registration with the reference still held. Those are exactly the returns a module app
+        // that dies on every start produces, so releasing only on success would have left the
+        // restart loop this method exists to stop completely intact.
+        //
+        // Asking when nothing was registered is not free of consequence, only of harm. If the app
+        // is not running there is no record and the platform returns quietly; if it is, the record
+        // exists under this authority whether or not our acquire got as far as registering, and
+        // the platform logs that something tried to remove an external reference it does not have.
+        // A line in its log against the loop this stops is the right side of that trade.
+        .also { releaseProvider(authority, token, userId) }
+        .getOrNull()
+  }
+
+  /**
+   * Gives back the reference [sendBinder] took, whatever became of the call in between.
+   *
+   * The user id has to be named, and can be from Q. The plain form is all that API 27 and 28 have,
+   * and there the platform resolves the name against the *caller's* user, which is the daemon's:
+   * a reference taken for a module in a secondary user cannot be given back at all, and asking
+   * anyway would decrement the token-less counter of whatever record user 0 has under that name.
+   * So on those two releases a secondary user's reference is left to the token instead — the
+   * platform links the handle to the token's death, so the reference goes when the daemon does.
+   */
+  private fun releaseProvider(authority: String, token: Binder, userId: Int) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && userId != 0) {
+      Log.d(TAG, "Cannot release the reference for $authority in user $userId before Q")
+      return
+    }
+    runCatching {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            activityManager?.removeContentProviderExternalAsUser(authority, token, userId)
+          } else {
+            activityManager?.removeContentProviderExternal(authority, token)
+          }
+        }
+        .onFailure { Log.w(TAG, "Failed to release the provider reference for $authority", it) }
   }
 
   private fun ensureModule(): Int {

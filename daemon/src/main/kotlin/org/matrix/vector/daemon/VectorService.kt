@@ -205,6 +205,27 @@ object VectorService : IVectorDaemon.Stub() {
           override fun onUidIdle(uid: Int, disabled: Boolean) = ModuleAppService.uidStarts(uid)
 
           override fun onUidGone(uid: Int, disabled: Boolean) = ModuleAppService.uidGone(uid)
+
+          // Not registered for, and so never dispatched: the platform gates these on
+          // UID_OBSERVER_PROCSTATE, UID_OBSERVER_CAPABILITY and UID_OBSERVER_PROC_OOM_ADJ, and the
+          // mask below asks for none of them. They are overridden because the framework interface
+          // declares them and a Stub subclass that leaves one abstract dies on the first call --
+          // the callback is oneway, so the resulting Error is fatal to this process rather than
+          // returned to anyone. Both shapes of each are here because both exist in the range this
+          // supports: onUidStateChanged gained its capability in 30, and onUidProcAdjChanged
+          // arrived in 33 and gained its adj in 34.
+          override fun onUidStateChanged(uid: Int, procState: Int, procStateSeq: Long) {}
+
+          override fun onUidStateChanged(
+              uid: Int,
+              procState: Int,
+              procStateSeq: Long,
+              capability: Int
+          ) {}
+
+          override fun onUidProcAdjChanged(uid: Int) {}
+
+          override fun onUidProcAdjChanged(uid: Int, adj: Int) {}
         }
 
     val which =

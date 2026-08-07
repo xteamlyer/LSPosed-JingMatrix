@@ -90,6 +90,11 @@ public interface IActivityManager extends IInterface {
 
     ContentProviderHolder getContentProviderExternal(String name, int userId, IBinder token) throws RemoteException;
 
+    void removeContentProviderExternal(String name, IBinder token) throws RemoteException;
+
+    @RequiresApi(29)
+    void removeContentProviderExternalAsUser(String name, IBinder token, int userId) throws RemoteException;
+
     void registerUidObserver(IUidObserver observer, int which, int cutpoint, String callingPackage) throws RemoteException;
 
     abstract class Stub extends Binder implements IActivityManager {
